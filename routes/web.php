@@ -37,6 +37,114 @@ Route::get('/run-migrations', function () {
     }
 });
 
+Route::get('/run-data-transfer', function () {
+    try {
+        $log = "";
+        
+        // Migrate Authors
+        $authorsPath = storage_path('app/data/authors.json');
+        if (\Illuminate\Support\Facades\File::exists($authorsPath)) {
+            $authors = json_decode(\Illuminate\Support\Facades\File::get($authorsPath), true);
+            foreach ($authors as $author) {
+                \App\Models\Author::updateOrCreate(
+                    ['id' => $author['id']],
+                    [
+                        'name' => $author['name'] ?? null,
+                        'slug' => $author['slug'] ?? \Illuminate\Support\Str::slug($author['name'] ?? ''),
+                        'bio' => $author['bio'] ?? null,
+                        'image' => $author['image'] ?? null,
+                        'jobTitle' => $author['jobTitle'] ?? null,
+                        'experienceYears' => $author['experienceYears'] ?? null,
+                        'socials' => $author['socials'] ?? null,
+                    ]
+                );
+            }
+            $log .= "Authors migrated: " . count($authors) . "<br>";
+            \Illuminate\Support\Facades\File::delete($authorsPath);
+        }
+
+        // Migrate Categories
+        $categoriesPath = storage_path('app/data/categories.json');
+        if (\Illuminate\Support\Facades\File::exists($categoriesPath)) {
+            $categories = json_decode(\Illuminate\Support\Facades\File::get($categoriesPath), true);
+            foreach ($categories as $cat) {
+                \App\Models\Category::updateOrCreate(
+                    ['id' => $cat['id'] ?? \Illuminate\Support\Str::uuid()],
+                    [
+                        'name' => $cat['name'] ?? null,
+                        'slug' => $cat['slug'] ?? \Illuminate\Support\Str::slug($cat['name'] ?? ''),
+                        'description' => $cat['description'] ?? null,
+                    ]
+                );
+            }
+            $log .= "Categories migrated: " . count($categories) . "<br>";
+            \Illuminate\Support\Facades\File::delete($categoriesPath);
+        }
+
+        // Migrate Stories
+        $storiesPath = storage_path('app/data/stories.json');
+        if (\Illuminate\Support\Facades\File::exists($storiesPath)) {
+            $stories = json_decode(\Illuminate\Support\Facades\File::get($storiesPath), true);
+            foreach ($stories as $story) {
+                \App\Models\Story::updateOrCreate(
+                    ['id' => $story['id']],
+                    [
+                        'title' => $story['title'] ?? null,
+                        'slug' => $story['slug'] ?? \Illuminate\Support\Str::slug($story['title'] ?? ''),
+                        'description' => $story['description'] ?? null,
+                        'posterImage' => $story['posterImage'] ?? null,
+                        'category' => $story['category'] ?? null,
+                        'author' => $story['author'] ?? null,
+                        'date' => isset($story['date']) ? \Carbon\Carbon::parse($story['date']) : null,
+                        'pages' => $story['pages'] ?? null,
+                        'published' => $story['published'] ?? false,
+                    ]
+                );
+            }
+            $log .= "Stories migrated: " . count($stories) . "<br>";
+            \Illuminate\Support\Facades\File::delete($storiesPath);
+        }
+
+        // Migrate Posts
+        $postsPath = storage_path('app/data/posts.json');
+        if (\Illuminate\Support\Facades\File::exists($postsPath)) {
+            $posts = json_decode(\Illuminate\Support\Facades\File::get($postsPath), true);
+            foreach ($posts as $post) {
+                \App\Models\Post::updateOrCreate(
+                    ['id' => $post['id']],
+                    [
+                        'title' => $post['title'] ?? null,
+                        'slug' => $post['slug'] ?? \Illuminate\Support\Str::slug($post['title'] ?? ''),
+                        'content' => $post['content'] ?? null,
+                        'metaDescription' => $post['metaDescription'] ?? null,
+                        'excerpt' => $post['excerpt'] ?? null,
+                        'coverImage' => $post['coverImage'] ?? null,
+                        'authorImage' => $post['authorImage'] ?? null,
+                        'authorSocials' => $post['authorSocials'] ?? null,
+                        'seoTitle' => $post['seoTitle'] ?? null,
+                        'ogTitle' => $post['ogTitle'] ?? null,
+                        'ogDescription' => $post['ogDescription'] ?? null,
+                        'canonicalUrl' => $post['canonicalUrl'] ?? null,
+                        'keywords' => $post['keywords'] ?? null,
+                        'category' => $post['category'] ?? null,
+                        'tags' => $post['tags'] ?? null,
+                        'faqs' => $post['faqs'] ?? null,
+                        'published' => $post['published'] ?? false,
+                        'date' => isset($post['date']) ? \Carbon\Carbon::parse($post['date']) : null,
+                        'author' => $post['author'] ?? null,
+                    ]
+                );
+            }
+            $log .= "Posts migrated: " . count($posts) . "<br>";
+            \Illuminate\Support\Facades\File::delete($postsPath);
+        }
+
+        return "Data Transfer Completed Successfully!<br><br>" . ($log ?: "No JSON files found to migrate.");
+    } catch (\Exception $e) {
+        return "Transfer failed: " . $e->getMessage() . "<br>Line: " . $e->getLine() . "<br>File: " . $e->getFile();
+    }
+});
+
 // Admin Routes (Protected by Auth middleware)
 Route::middleware(['auth'])->group(function () {
     Route::get('/admin', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.index');
