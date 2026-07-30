@@ -17,5 +17,16 @@ class Post extends Model
         'faqs' => 'array',
         'published' => 'boolean',
         'date' => 'datetime',
+        'authorAwards' => 'array',
+        'authorAlumniOf' => 'array',
+        'authorKnowsAbout' => 'array',
+        'keyTakeaways' => 'array',
+        'semanticMentions' => 'array',
+        'corrections' => 'array',
+        'isNoIndex' => 'boolean',
+        'isSponsored' => 'boolean',
+        'isPillarPage' => 'boolean',
+        'isAiAssisted' => 'boolean',
+        'nextReviewDate' => 'datetime',
     ];
 }
