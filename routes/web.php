@@ -26,6 +26,17 @@ Route::get('/privacy', [\App\Http\Controllers\PageController::class, 'privacy'])
 Route::get('/terms', [\App\Http\Controllers\PageController::class, 'terms'])->name('page.terms');
 Route::get('/search', [\App\Http\Controllers\PageController::class, 'search'])->name('page.search');
 
+// Fallback for cPanel users to run migrations via browser
+Route::get('/run-migrations', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        $output = \Illuminate\Support\Facades\Artisan::output();
+        return "Migrations completed successfully!<br><pre>" . $output . "</pre>";
+    } catch (\Exception $e) {
+        return "Migration failed: " . $e->getMessage();
+    }
+});
+
 // Admin Routes (Protected by Auth middleware)
 Route::middleware(['auth'])->group(function () {
     Route::get('/admin', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.index');
