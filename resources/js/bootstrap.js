@@ -26,7 +26,7 @@ window.fetch = async function () {
     // Add CSRF token for non-GET requests
     if (config.method && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(config.method.toUpperCase())) {
         const match = document.cookie.match(new RegExp('(^|;\\s*)XSRF-TOKEN=([^;]*)'));
-        const xsrfToken = match ? decodeURIComponent(match[3]) : null;
+        const xsrfToken = match ? decodeURIComponent(match[2]) : null;
         if (xsrfToken) {
             config.headers['X-XSRF-TOKEN'] = xsrfToken;
         }
