@@ -1,0 +1,570 @@
+/* ============================================================
+   ChatWizs Global Stylesheet — Google 2026 CWV + SEO Aligned
+   ✅ Zero CLS | ✅ GPU Compositing | ✅ Accessibility WCAG 2.2
+   ============================================================ */
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+:root {
+  --primary: #2563eb; 
+  --primary-hover: #1d4ed8;
+  --primary-rgb: 37, 99, 235;
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --muted: #f8fafc;
+  --muted-foreground: #475569; 
+  --accent: #f1f5ff;
+  --border: #e2e8f0;
+  --radius: 1rem;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --glass: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.4);
+  --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --header-height: 72px;
+}
+
+::selection {
+  background: rgba(37, 99, 235, 0.2);
+  color: var(--primary);
+}
+
+/* ✅ CWV: Universal box-sizing — single declaration, no duplicates */
+*, *::before, *::after {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  font-size: 16px;
+  /* ✅ CLS: font-size-adjust prevents layout shift on webfont load */
+  font-size-adjust: from-font;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: var(--font-sans);
+  background-color: var(--background);
+  color: var(--foreground);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ✅ CLS: Intrinsic sizing for all media elements prevents layout shift */
+img, video, iframe, canvas, svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+  break-after: avoid;
+  page-break-after: avoid;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ✅ WCAG 2.2: High-visibility focus (Google Page Experience signal) */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  font-family: inherit;
+  /* ✅ INP: CSS containment prevents layout recalculation on click */
+  contain: layout;
+  /* ✅ Google Page Experience: minimum 44px touch target */
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+/* ✅ Glassmorphism — single canonical definition */
+.glass-panel {
+  background: var(--glass);
+  /* ✅ GPU: Reduced blur for better performance on mobile/low-end devices */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* ✅ GPU compositing — will-change only active during hover */
+.card-hover {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  border-color: var(--primary);
+  will-change: transform;
+}
+
+/* ✅ Free GPU memory after hover completes */
+.card-hover:not(:hover) {
+  will-change: auto;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* ✅ LCP: Defers rendering of below-fold content
+   EXEMPTING first section AND .lcp-section to prevent CLS on hero */
+section:not(:first-of-type):not(.lcp-section):not(.hero-skeleton) {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 auto 400px;
+}
+
+/* ✅ Custom Scrollbar — minimal, fast */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--background); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; border: 3px solid var(--background); }
+::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+
+/* ✅ Fade-in: Opacity only to avoid layout recalculations during LCP */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* ✅ Accessibility: sr-only (a11y = Page Experience ranking signal) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ✅ Article body typography — maximizes dwell time & readability score */
+.tiptap-content {
+  font-size: 1.25rem;
+  line-height: 1.9;
+  color: var(--foreground);
+}
+
+.tiptap-content h2 {
+  font-size: 1.75rem;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--foreground);
+  /* ✅ Scroll offset accounts for sticky header height */
+  scroll-margin-top: calc(var(--header-height) + 1rem);
+}
+
+.tiptap-content h3 {
+  font-size: 1.375rem;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  scroll-margin-top: calc(var(--header-height) + 1rem);
+}
+
+.tiptap-content p { margin-bottom: 1.5rem; }
+
+.tiptap-content ul,
+.tiptap-content ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tiptap-content li { line-height: 1.7; }
+
+.tiptap-content blockquote {
+  border-left: 4px solid var(--primary);
+  padding-left: 1.25rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: var(--muted-foreground);
+}
+
+.tiptap-content a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.tiptap-content a:hover { color: var(--primary-hover); }
+
+.tiptap-content code {
+  background: var(--muted);
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  font-size: 0.875em;
+  font-family: 'Fira Code', 'Courier New', monospace;
+}
+
+.tiptap-content pre {
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.tiptap-content pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+
+.tiptap-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.9375rem;
+}
+
+.tiptap-content th {
+  background: var(--muted);
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 700;
+  border: 1px solid var(--border);
+}
+
+.tiptap-content td {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+}
+
+.tiptap-content tr:hover td { background: var(--accent); }
+
+.tiptap-content img {
+  border-radius: var(--radius);
+  margin: 1.5rem auto;
+  box-shadow: var(--shadow);
+}
+
+/* Admin UI */
+.admin-table-row { transition: background 0.2s; }
+.admin-table-row:hover { background: #f8fafc !important; }
+.floating-menu-btn { transition: all 0.2s ease; }
+.floating-menu-btn:hover { background: #f1f5f9 !important; color: #2563eb !important; }
+
+/* ✅ Print: Google treats clean printable content as authoritative */
+@media print {
+  .glass-panel { box-shadow: none; border: 1px solid #ccc; }
+  nav, header, footer, aside, .card-hover, #reading-progress { display: none !important; }
+  .tiptap-content { max-width: 100%; font-size: 12pt; line-height: 1.6; }
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 0.8em; color: #666; }
+  h1, h2, h3 { page-break-after: avoid; }
+}
+
+/* ✅ Reduced motion: WCAG 2.2 (affects Page Experience score) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ✅ High contrast mode (Windows accessibility support) */
+@media (forced-colors: active) {
+  .glass-panel { border: 2px solid ButtonText; }
+  .btn-primary { forced-color-adjust: none; }
+}
+
+/* ✅ Mobile-first (Google Mobile-First Indexing — critical) */
+@media (max-width: 768px) {
+  html { font-size: 15px; }
+  .container { padding: 0 1rem; }
+  /* ✅ FIX: !important removed — was overriding inline styles on featured post */
+  h1 { font-size: clamp(1.75rem, 5vw, 2.25rem); }
+  h2 { font-size: clamp(1.25rem, 4vw, 1.5rem); }
+  .hero-h1 { font-size: 2.25rem !important; }
+}
+
+@media (max-width: 480px) {
+  html { font-size: 14px; }
+  .container { padding: 0 0.875rem; }
+}
+
+/* ✅ Admin Full-Screen Overrides */
+body:has(.sovereign-editor-v5-fixed) header,
+body:has(.sovereign-editor-v5-fixed) footer {
+  display: none !important;
+}
+
+body:has(.sovereign-editor-v5-fixed) main {
+  max-width: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* ✅ Blog Post Responsive Title */
+.post-title {
+  font-size: clamp(1.5rem, 5.5vw, 2.75rem);
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.04em;
+  margin-bottom: 1.5rem;
+  color: var(--foreground);
+}
+
+/* ✅ Responsive Breadcrumb Navigation */
+.breadcrumb-nav {
+  margin-bottom: 2rem;
+  font-size: 0.875rem;
+}
+
+.breadcrumb-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+}
+
+.breadcrumb-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.breadcrumb-list a {
+  color: var(--muted-foreground);
+  transition: color 0.2s ease;
+}
+
+.breadcrumb-list a:hover {
+  color: var(--primary);
+}
+
+.breadcrumb-list li[aria-current="page"] {
+  color: var(--foreground);
+  font-weight: 500;
+  word-break: break-word;
+}
+
+@media (max-width: 768px) {
+  .breadcrumb-nav {
+    margin-bottom: 1.5rem;
+    font-size: 0.8125rem;
+  }
+}
+
+/* ✅ Responsive Author Bio Card (Google E-E-A-T Compliant) */
+.author-bio-card {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  padding: 2.5rem;
+  margin-bottom: 4rem;
+  background: linear-gradient(135deg, var(--muted), #ffffff);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.author-bio-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.04);
+}
+
+.author-bio-avatar {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 3px solid var(--primary);
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.author-bio-avatar:hover {
+  transform: scale(1.05);
+}
+
+.author-bio-content {
+  flex-grow: 1;
+}
+
+.author-bio-name {
+  margin-bottom: 0.25rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.author-bio-title {
+  color: var(--primary);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.author-bio-text {
+  color: var(--muted-foreground);
+  margin-bottom: 1.25rem;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.author-bio-links {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.author-bio-link {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.875rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.author-bio-link:hover {
+  color: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .author-bio-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1.75rem 1.25rem;
+    gap: 1.5rem;
+  }
+  
+  .author-bio-links {
+    justify-content: center;
+    gap: 1rem 1.5rem;
+  }
+}
+
+/* ✅ Full-screen Auth Portal Overrides */
+body:has(.auth-fullscreen-container) header,
+body:has(.auth-fullscreen-container) footer {
+  display: none !important;
+}
+
+body:has(.auth-fullscreen-container) main {
+  max-width: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.auth-fullscreen-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  background: radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.06) 0%, #ffffff 90.2%);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  overflow: hidden;
+  font-family: var(--font-sans);
+}
+
+.auth-glow-1 {
+  position: absolute;
+  top: -15%;
+  left: -15%;
+  width: 50vw;
+  height: 50vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.12) 0%, rgba(255, 255, 255, 0) 70%);
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+.auth-glow-2 {
+  position: absolute;
+  bottom: -15%;
+  right: -15%;
+  width: 60vw;
+  height: 60vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+  filter: blur(90px);
+  pointer-events: none;
+}
+
+/* ✅ Hide scrollbars for clean custom Slider layouts */
+div[data-image-slider="true"]::-webkit-scrollbar {
+  display: none !important;
+}
+div[data-image-slider="true"] {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+
+
