@@ -51,13 +51,36 @@ export default function Welcome({ featuredPost, recentPosts, publishedStories, s
                         
                         const slideContent = (
                             <>
-                                <Image 
-                                    src={imgSrc} 
-                                    alt={title || `Slide ${index}`} 
-                                    fill 
-                                    style={{ objectFit: 'cover' }}
-                                    priority={index === 0}
-                                />
+                                <>
+                                    {slide.mobile_image_url ? (
+                                        <>
+                                            {/* Desktop Image */}
+                                            <img
+                                                src={imgSrc}
+                                                alt={title || `Slide ${index}`}
+                                                className="hidden md:block"
+                                                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                                                priority={index === 0}
+                                            />
+                                            {/* Mobile Image */}
+                                            <img
+                                                src={slide.mobile_image_url}
+                                                alt={title || `Slide ${index}`}
+                                                className="block md:hidden"
+                                                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                                                priority={index === 0}
+                                            />
+                                        </>
+                                    ) : (
+                                        <Image
+                                            src={imgSrc}
+                                            alt={title || `Slide ${index}`}
+                                            fill
+                                            style={{ objectFit: 'cover' }}
+                                            priority={index === 0}
+                                        />
+                                    )}
+                                </>
                                 {(title || subtitle) && (
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-6 md:p-12 text-white">
                                         <div className="max-w-7xl mx-auto w-full">
