@@ -15,6 +15,7 @@ class Post extends Model
         'authorSocials' => 'array',
         'tags' => 'array',
         'faqs' => 'array',
+        'sources' => 'array',
         'published' => 'boolean',
         'date' => 'datetime',
         'authorAwards' => 'array',
