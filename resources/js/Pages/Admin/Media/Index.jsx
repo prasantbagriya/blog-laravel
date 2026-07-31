@@ -101,13 +101,37 @@ export default function MediaLibraryPage() {
         </div>
         
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <input 
-            type="text" 
-            placeholder="Search images..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none', width: '250px' }}
-          />
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <label style={{ background: '#2563eb', color: '#fff', padding: '8px 16px', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', margin: 0 }}>
+              Upload Image
+              <input 
+                type="file" 
+                style={{ display: 'none' }} 
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const formData = new FormData();
+                  formData.append('file', file);
+                  try {
+                    const res = await fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/media', {
+                      method: 'POST',
+                      body: formData,
+                    });
+                    if (res.ok) fetchMedia();
+                    else alert('Upload failed');
+                  } catch(e) { alert('Upload error'); }
+                }}
+              />
+            </label>
+            <input 
+              type="text" 
+              placeholder="Search images..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none', width: '250px' }}
+            />
+          </div>
           <div style={{ display: 'flex', background: '#f1f5f9', padding: '4px', borderRadius: '8px' }}>
             <button 
               onClick={() => setViewMode('grid')}
