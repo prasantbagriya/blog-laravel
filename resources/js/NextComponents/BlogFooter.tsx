@@ -75,13 +75,13 @@ export default function BlogFooter() {
           <div className="md:col-span-2 lg:col-span-2 space-y-8">
             <div className="flex items-center space-x-2 group cursor-pointer" onClick={() => handleNavClick('landing')}>
               <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform overflow-hidden">
-                <img src="/logo.png" alt="Blog Logo" className="w-full h-full object-cover" />
+                <img src={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + "/logo.png"} alt="Coaching Sinsikar Logo" className="w-full h-full object-cover" />
               </div>
-              <span className="text-2xl font-black text-white tracking-tighter">Blog Name</span>
+              <span className="text-2xl font-black text-white tracking-tighter">Coaching Sinsikar</span>
             </div>
 
             <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
-              Revolutionizing customer engagement with smart AI-driven WhatsApp automation. Join 10,000+ businesses scaling faster with Blog Name.
+              Revolutionizing customer engagement with smart AI-driven WhatsApp automation. Join 10,000+ businesses scaling faster with Coaching Sinsikar.
             </p>
 
             <div className="flex gap-4">

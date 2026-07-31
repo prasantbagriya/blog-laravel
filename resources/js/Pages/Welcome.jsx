@@ -1,7 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import GlobalNavbar from '../NextComponents/GlobalNavbar';
 import BlogFooter from '../NextComponents/BlogFooter';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 // Simple polyfill for Next.js Image
 const Image = ({ src, alt, fill, style, sizes, priority, fetchPriority, ...props }) => {
@@ -21,6 +21,17 @@ export default function Welcome({ featuredPost, recentPosts, publishedStories, s
     recentPosts = recentPosts || [];
     publishedStories = publishedStories || [];
     
+    const activeSlides = sliders?.length > 0 ? sliders : sliderImages;
+    const [currentSlide, setCurrentSlide] = useState(0);
+
+    useEffect(() => {
+        if (!activeSlides || activeSlides.length <= 1) return;
+        const interval = setInterval(() => {
+            setCurrentSlide(prev => (prev + 1) % activeSlides.length);
+        }, 5000);
+        return () => clearInterval(interval);
+    }, [activeSlides]);
+    
     return (
         <div className="bg-white min-h-screen">
             <Head title="Blog | Leading Authority on Modern Web & SEO 2026">
@@ -30,89 +41,75 @@ export default function Welcome({ featuredPost, recentPosts, publishedStories, s
             <GlobalNavbar />
             
             <main className="min-h-screen">
-                {/* Hero Section */}
-                <section className="hero-skeleton animate-fade-in" style={{ 
-                    textAlign: 'center', 
-                    padding: '3rem 0 1.5rem 0', 
-                    background: 'radial-gradient(circle at center, rgba(37, 99, 235, 0.05) 0%, transparent 70%)',
-                    marginBottom: '1.5rem',
-                    marginTop: '6rem',
+                {/* Hero Section Carousel */}
+                <section style={{ 
+                    width: '100%',
+                    height: '60vh',
+                    minHeight: '400px',
+                    position: 'relative',
+                    marginTop: '64px', // account for fixed navbar
+                    marginBottom: '3rem',
                     overflow: 'hidden'
                 }}>
-                    {/* Text removed as requested */}
-
-                    {/* Auto-scrolling image slider */}
-                    <div style={{ position: 'relative', width: '100%', overflow: 'hidden', padding: '1rem 0' }}>
-                        <div style={{ 
-                            display: 'flex', 
-                            width: 'max-content',
-                            animation: 'scroll-marquee 60s linear infinite' 
-                        }}>
-                            {/* Render multiple times for seamless scrolling */}
-                            {[...(sliders?.length > 0 ? sliders : sliderImages), ...(sliders?.length > 0 ? sliders : sliderImages), ...(sliders?.length > 0 ? sliders : sliderImages), ...(sliders?.length > 0 ? sliders : sliderImages)].map((slide, index) => {
-                                const imgSrc = typeof slide === 'string' ? slide : slide.image_url;
-                                const title = typeof slide === 'object' ? slide.title : null;
-                                const subtitle = typeof slide === 'object' ? slide.subtitle : null;
-                                const link = typeof slide === 'object' ? slide.link : null;
-                                
-                                const slideContent = (
-                                    <>
-                                        <Image 
-                                            src={imgSrc} 
-                                            alt={title || `Slide ${index}`} 
-                                            fill 
-                                            style={{ objectFit: 'cover' }}
-                                        />
-                                        {(title || subtitle) && (
-                                            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(transparent, rgba(0,0,0,0.8))', padding: '2rem 1.5rem 1.5rem', color: '#fff', textAlign: 'left' }}>
-                                                {title && <h3 style={{ margin: '0 0 4px 0', fontSize: '1.5rem', fontWeight: 800 }}>{title}</h3>}
-                                                {subtitle && <p style={{ margin: 0, opacity: 0.9, fontSize: '1rem' }}>{subtitle}</p>}
-                                            </div>
-                                        )}
-                                    </>
-                                );
-                                
-                                const wrapperStyle = { 
-                                    width: '600px', 
-                                    height: '400px', 
-                                    margin: '0 16px',
-                                    borderRadius: '16px',
-                                    boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-                                    flexShrink: 0,
-                                    transform: 'scale(0.98)',
-                                    transition: 'transform 0.3s ease',
-                                    overflow: 'hidden',
-                                    position: 'relative',
-                                    display: 'block'
-                                };
-
-                                return (
-                                    <div key={index} style={wrapperStyle}
-                                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
-                                    >
-                                        {link ? (
-                                            <a href={link} style={{ display: 'block', width: '100%', height: '100%' }}>
-                                                {slideContent}
-                                            </a>
-                                        ) : slideContent}
+                    {activeSlides.map((slide, index) => {
+                        const imgSrc = typeof slide === 'string' ? slide : slide.image_url;
+                        const title = typeof slide === 'object' ? slide.title : null;
+                        const subtitle = typeof slide === 'object' ? slide.subtitle : null;
+                        const link = typeof slide === 'object' ? slide.link : null;
+                        
+                        const slideContent = (
+                            <>
+                                <Image 
+                                    src={imgSrc} 
+                                    alt={title || `Slide ${index}`} 
+                                    fill 
+                                    style={{ objectFit: 'cover' }}
+                                    priority={index === 0}
+                                />
+                                {(title || subtitle) && (
+                                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '3rem', color: '#fff' }}>
+                                        <div className="max-w-7xl mx-auto w-full">
+                                            {title && <h2 style={{ margin: '0 0 1rem 0', fontSize: '3rem', fontWeight: 900, textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>{title}</h2>}
+                                            {subtitle && <p style={{ margin: 0, fontSize: '1.25rem', opacity: 0.9, maxWidth: '600px', textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>{subtitle}</p>}
+                                        </div>
                                     </div>
-                                );
-                            })}
-                        </div>
-                        <style>{`
-                            @keyframes scroll-marquee {
-                                0% { transform: translateX(0); }
-                                100% { transform: translateX(-50%); }
-                            }
-                            
-                            /* Pause animation on hover for better UX */
-                            div[style*="scroll-marquee"]:hover {
-                                animation-play-state: paused !important;
-                            }
-                        `}</style>
-                    </div>
+                                )}
+                            </>
+                        );
 
+                        return (
+                            <div key={index} style={{
+                                position: 'absolute',
+                                inset: 0,
+                                opacity: currentSlide === index ? 1 : 0,
+                                transition: 'opacity 0.8s ease-in-out',
+                                zIndex: currentSlide === index ? 10 : 1
+                            }}>
+                                {link ? (
+                                    <a href={link} style={{ display: 'block', width: '100%', height: '100%' }}>
+                                        {slideContent}
+                                    </a>
+                                ) : slideContent}
+                            </div>
+                        );
+                    })}
+                    
+                    {/* Carousel Indicators */}
+                    {activeSlides.length > 1 && (
+                        <div style={{ position: 'absolute', bottom: '1.5rem', left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: '8px', zIndex: 20 }}>
+                            {activeSlides.map((_, i) => (
+                                <button 
+                                    key={i} 
+                                    onClick={() => setCurrentSlide(i)}
+                                    style={{ 
+                                        width: '10px', height: '10px', borderRadius: '50%', padding: 0,
+                                        background: currentSlide === i ? '#fff' : 'rgba(255,255,255,0.4)',
+                                        border: 'none', cursor: 'pointer', transition: 'background 0.3s' 
+                                    }} 
+                                />
+                            ))}
+                        </div>
+                    )}
                 </section>
 
                 <div className="container mx-auto px-4 max-w-6xl">

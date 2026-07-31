@@ -95,9 +95,9 @@ export default function Navbar() {
               {/* Logo */}
               <a href={getHref('landing')} onClick={(e) => handleNavClick(e, 'landing')} className="flex items-center space-x-2 group shrink-0 decoration-transparent">
                 <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform overflow-hidden">
-                  <img src="/logo.png" alt="Blog Logo" className="w-full h-full object-cover" />
+                  <img src={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + "/logo.png"} alt="Coaching Sinsikar Logo" className="w-full h-full object-cover" />
                 </div>
-                <span className="text-xl font-bold text-white tracking-tighter">Blog Name</span>
+                <span className="text-xl font-bold text-white tracking-tighter">Coaching Sinsikar</span>
               </a>
 
               {/* Desktop Nav */}
