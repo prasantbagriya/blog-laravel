@@ -42,15 +42,7 @@ export default function Welcome({ featuredPost, recentPosts, publishedStories, s
             
             <main className="min-h-screen">
                 {/* Hero Section Carousel */}
-                <section style={{ 
-                    width: '100%',
-                    height: '60vh',
-                    minHeight: '400px',
-                    position: 'relative',
-                    marginTop: '0', 
-                    marginBottom: '3rem',
-                    overflow: 'hidden'
-                }}>
+                <section className="w-full h-[40vh] md:h-[60vh] min-h-[300px] md:min-h-[400px] relative mt-0 mb-8 md:mb-12 overflow-hidden">
                     {activeSlides.map((slide, index) => {
                         const imgSrc = typeof slide === 'string' ? slide : slide.image_url;
                         const title = typeof slide === 'object' ? slide.title : null;
@@ -67,10 +59,10 @@ export default function Welcome({ featuredPost, recentPosts, publishedStories, s
                                     priority={index === 0}
                                 />
                                 {(title || subtitle) && (
-                                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '3rem', color: '#fff' }}>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-6 md:p-12 text-white">
                                         <div className="max-w-7xl mx-auto w-full">
-                                            {title && <h2 style={{ margin: '0 0 1rem 0', fontSize: '3rem', fontWeight: 900, textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>{title}</h2>}
-                                            {subtitle && <p style={{ margin: 0, fontSize: '1.25rem', opacity: 0.9, maxWidth: '600px', textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>{subtitle}</p>}
+                                            {title && <h2 className="m-0 mb-2 md:mb-4 text-2xl md:text-5xl font-black drop-shadow-md">{title}</h2>}
+                                            {subtitle && <p className="m-0 text-base md:text-xl opacity-90 max-w-2xl drop-shadow-md">{subtitle}</p>}
                                         </div>
                                     </div>
                                 )}

@@ -1,0 +1,1 @@
+import{c as e,t}from"./app-D8etN96K.js";import{t as n}from"./AuthorForm-ChN5R8VN.js";import{t as r}from"./AdminLayout-Cd2vfVI3.js";e();var i=t();function a({author:e}){return(0,i.jsx)(n,{author:e})}a.layout=e=>(0,i.jsx)(r,{children:e});export{a as default};
