@@ -22,7 +22,7 @@ export default function MediaPicker({ onSelect, onClose }: MediaPickerProps) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
-    fetch('/api/admin/media')
+    fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/media')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setMedia(data);

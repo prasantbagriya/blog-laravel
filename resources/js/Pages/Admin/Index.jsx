@@ -23,7 +23,7 @@ export default function AdminPage() {
       }
     }, 15000); // 15-second timeout
 
-    fetch('/api/admin/posts', { 
+    fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/posts', { 
       cache: 'no-store',
       signal: controller.signal
     })

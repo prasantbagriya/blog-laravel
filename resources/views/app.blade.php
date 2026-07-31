@@ -12,6 +12,11 @@
 
         <!-- Scripts -->
         @routes
+        <script>
+            window.BASE_PATH = "{{ url('') }}";
+            // Strip scheme/host if needed, but relative works best for fetch
+            window.BASE_PATH = new URL(window.BASE_PATH).pathname === '/' ? '' : new URL(window.BASE_PATH).pathname;
+        </script>
         @viteReactRefresh
         @vite(['resources/js/app.jsx', "resources/js/Pages/{$page['component']}.jsx"])
         @inertiaHead

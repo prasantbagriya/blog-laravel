@@ -463,7 +463,7 @@ export default function PostForm({ post }: PostFormProps) {
       setAiSuggestions(null);
       setAppliedAiSuggestions({});
       try {
-         const res = await fetch('/api/admin/seo-audit', {
+         const res = await fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/seo-audit', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -518,11 +518,11 @@ export default function PostForm({ post }: PostFormProps) {
    }, [coverImage]);
 
    useEffect(() => {
-        fetch('/api/admin/authors').then(r => r.json()).then(data => {
+        fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/authors').then(r => r.json()).then(data => {
             if (Array.isArray(data)) setAvailableAuthors(data);
          }).catch(e => console.error(e));
 
-         fetch('/api/admin/categories').then(r => r.json()).then(data => {
+         fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/categories').then(r => r.json()).then(data => {
             if (Array.isArray(data)) setAvailableCategories(data);
          }).catch(e => console.error(e));
    }, []);
@@ -805,7 +805,7 @@ export default function PostForm({ post }: PostFormProps) {
       const formData = new FormData();
       formData.append('file', file);
       try {
-         const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+         const res = await fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/upload', { method: 'POST', body: formData });
          const result = await res.json();
          if (result.success && result.url && editor) {
             editor.chain().focus().setImage({ src: result.url, alt: '' }).run();
@@ -827,7 +827,7 @@ export default function PostForm({ post }: PostFormProps) {
       const formData = new FormData();
       formData.append('file', file);
       try {
-         const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+         const res = await fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/upload', { method: 'POST', body: formData });
          const result = await res.json();
          if (result.success && result.url) {
             setCoverImage(result.url);
@@ -850,7 +850,7 @@ export default function PostForm({ post }: PostFormProps) {
        const formData = new FormData();
        formData.append('file', file);
        try {
-          const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+          const res = await fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/upload', { method: 'POST', body: formData });
           const result = await res.json();
           if (result.success && result.url) {
              setAuthorImage(result.url);
@@ -876,7 +876,7 @@ export default function PostForm({ post }: PostFormProps) {
       const formData = new FormData();
       formData.append('file', file);
       try {
-         const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+         const res = await fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/upload', { method: 'POST', body: formData });
          const result = await res.json();
          if (result.success && result.url && editor) {
             editor.chain().focus().insertContent({ type: 'video', attrs: { src: result.url } }).run();
@@ -1078,7 +1078,7 @@ export default function PostForm({ post }: PostFormProps) {
             corrections: corrections.length > 0 ? corrections : undefined,
          };
 
-         const res = await fetch('/api/admin/posts', {
+         const res = await fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/posts', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedPost)

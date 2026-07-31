@@ -13,7 +13,7 @@ export default function MediaLibraryPage() {
 
   const fetchMedia = () => {
     setLoading(true);
-    fetch('/api/admin/media')
+    fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/media')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setMedia(data);
@@ -44,7 +44,7 @@ export default function MediaLibraryPage() {
     formData.append('file', file);
 
     try {
-      const res = await fetch('/api/admin/media', {
+      const res = await fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/media', {
         method: 'POST',
         body: formData,
       });

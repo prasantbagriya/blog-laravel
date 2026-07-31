@@ -48,7 +48,7 @@ export default function StoryForm({ story }: { story?: any }) {
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+      const res = await fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/upload', { method: 'POST', body: formData });
       const result: any = await res.json();
       setUploading(false);
       if (result.success && result.url) {
@@ -115,7 +115,7 @@ export default function StoryForm({ story }: { story?: any }) {
       };
 
       try {
-        const res = await fetch('/api/admin/stories', {
+        const res = await fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/stories', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(updatedStory)

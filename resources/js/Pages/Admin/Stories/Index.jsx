@@ -9,7 +9,7 @@ export default function StoriesDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/admin/stories')
+    fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/stories')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setStories(data);

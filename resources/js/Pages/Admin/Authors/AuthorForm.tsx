@@ -40,7 +40,7 @@ export default function AuthorForm({ author }: { author?: any }) {
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+      const res = await fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/upload', { method: 'POST', body: formData });
       const result: any = await res.json();
       if (result.success && result.url) {
         setImage(result.url);
@@ -71,7 +71,7 @@ export default function AuthorForm({ author }: { author?: any }) {
     };
 
     try {
-      const res = await fetch('/api/admin/authors', {
+      const res = await fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/authors', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newAuthor)

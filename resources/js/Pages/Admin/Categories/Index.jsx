@@ -19,7 +19,7 @@ export default function CategoriesPage() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch('/api/admin/categories');
+      const res = await fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/categories');
       const data = await res.json();
       if (Array.isArray(data)) setCategories(data);
     } catch (e) {
@@ -48,7 +48,7 @@ export default function CategoriesPage() {
     if (!name.trim()) return;
 
     try {
-      const res = await fetch('/api/admin/categories', {
+      const res = await fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/categories', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

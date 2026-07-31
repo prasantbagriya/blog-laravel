@@ -8,7 +8,7 @@ export default function SeoAuditDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/admin/posts')
+    fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/posts')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {

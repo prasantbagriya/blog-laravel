@@ -8,7 +8,7 @@ export default function AuthorsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/admin/authors')
+    fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/authors')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setAuthors(data);
