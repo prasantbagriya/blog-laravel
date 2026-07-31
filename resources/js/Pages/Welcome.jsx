@@ -47,7 +47,7 @@ export default function Welcome({ featuredPost, recentPosts, publishedStories, s
                     height: '60vh',
                     minHeight: '400px',
                     position: 'relative',
-                    marginTop: '64px', // account for fixed navbar
+                    marginTop: '0', 
                     marginBottom: '3rem',
                     overflow: 'hidden'
                 }}>
