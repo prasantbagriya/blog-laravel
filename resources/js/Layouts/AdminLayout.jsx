@@ -30,6 +30,7 @@ export default function AdminLayout({ children }) {
     { label: 'Web Stories', href: BASE + '/admin/stories', icon: '⚡' },
     { label: 'Media Library', href: BASE + '/admin/media', icon: '🖼️' },
     { label: 'SEO Audit', href: BASE + '/admin/seo-audit', icon: '📈' },
+    { label: 'Home Slider', href: BASE + '/admin/slider', icon: '🖼️' },
     { label: 'Settings', href: '#', icon: '⚙️' },
   ];
 

@@ -1,0 +1,1 @@
+﻿<?php require __DIR__."/vendor/autoload.php"; $app = require_once __DIR__."/bootstrap/app.php"; $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class); $kernel->bootstrap(); $post = \App\Models\Post::create(["id"=>"test-4", "title"=>"Test", "published"=>true]); echo "Success: " . $post->title; ?>

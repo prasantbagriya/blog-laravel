@@ -17,11 +17,13 @@ class HomeController extends Controller
         $recentPosts = array_slice($publishedPosts, 1, 3);
 
         $publishedStories = Story::where('published', true)->take(4)->get()->toArray();
+        $sliders = \App\Models\Slider::where('active', true)->orderBy('order', 'asc')->get()->toArray();
 
         return Inertia::render('Welcome', [
             'featuredPost' => $featuredPost,
             'recentPosts' => $recentPosts,
             'publishedStories' => $publishedStories,
+            'sliders' => $sliders,
         ]);
     }
 }

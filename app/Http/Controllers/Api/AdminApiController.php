@@ -173,4 +173,29 @@ class AdminApiController extends Controller
     {
         return $this->storeMedia($request);
     }
+
+    // --- Sliders ---
+    public function getSliders()
+    {
+        return response()->json(\App\Models\Slider::orderBy('order', 'asc')->get());
+    }
+
+    public function storeSlider(Request $request)
+    {
+        $data = $request->all();
+        if (empty($data['id'])) {
+            $data['id'] = \Illuminate\Support\Str::uuid()->toString();
+        }
+        
+        \App\Models\Slider::updateOrCreate(['id' => $data['id']], $data);
+        return response()->json(['success' => true]);
+    }
+
+    public function deleteSlider(Request $request)
+    {
+        if ($request->has('id')) {
+            \App\Models\Slider::where('id', $request->input('id'))->delete();
+        }
+        return response()->json(['success' => true]);
+    }
 }

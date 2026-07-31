@@ -17,7 +17,7 @@ const sliderImages = [
     'https://images.unsplash.com/photo-1522542550221-31fd19575a2d?w=800&q=80'
 ];
 
-export default function Welcome({ featuredPost, recentPosts, publishedStories }) {
+export default function Welcome({ featuredPost, recentPosts, publishedStories, sliders }) {
     recentPosts = recentPosts || [];
     publishedStories = publishedStories || [];
     
@@ -49,8 +49,30 @@ export default function Welcome({ featuredPost, recentPosts, publishedStories })
                             animation: 'scroll-marquee 60s linear infinite' 
                         }}>
                             {/* Render multiple times for seamless scrolling */}
-                            {[...sliderImages, ...sliderImages, ...sliderImages, ...sliderImages].map((imgSrc, index) => (
-                                <div key={index} style={{ 
+                            {[...(sliders?.length > 0 ? sliders : sliderImages), ...(sliders?.length > 0 ? sliders : sliderImages), ...(sliders?.length > 0 ? sliders : sliderImages), ...(sliders?.length > 0 ? sliders : sliderImages)].map((slide, index) => {
+                                const imgSrc = typeof slide === 'string' ? slide : slide.image_url;
+                                const title = typeof slide === 'object' ? slide.title : null;
+                                const subtitle = typeof slide === 'object' ? slide.subtitle : null;
+                                const link = typeof slide === 'object' ? slide.link : null;
+                                
+                                const slideContent = (
+                                    <>
+                                        <Image 
+                                            src={imgSrc} 
+                                            alt={title || `Slide ${index}`} 
+                                            fill 
+                                            style={{ objectFit: 'cover' }}
+                                        />
+                                        {(title || subtitle) && (
+                                            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(transparent, rgba(0,0,0,0.8))', padding: '2rem 1.5rem 1.5rem', color: '#fff', textAlign: 'left' }}>
+                                                {title && <h3 style={{ margin: '0 0 4px 0', fontSize: '1.5rem', fontWeight: 800 }}>{title}</h3>}
+                                                {subtitle && <p style={{ margin: 0, opacity: 0.9, fontSize: '1rem' }}>{subtitle}</p>}
+                                            </div>
+                                        )}
+                                    </>
+                                );
+                                
+                                const wrapperStyle = { 
                                     width: '600px', 
                                     height: '400px', 
                                     margin: '0 16px',
@@ -60,19 +82,23 @@ export default function Welcome({ featuredPost, recentPosts, publishedStories })
                                     transform: 'scale(0.98)',
                                     transition: 'transform 0.3s ease',
                                     overflow: 'hidden',
-                                    position: 'relative'
-                                }}
-                                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
-                                >
-                                    <Image 
-                                        src={imgSrc} 
-                                        alt={`Slide ${index}`} 
-                                        fill 
-                                        style={{ objectFit: 'cover' }}
-                                    />
-                                </div>
-                            ))}
+                                    position: 'relative',
+                                    display: 'block'
+                                };
+
+                                return (
+                                    <div key={index} style={wrapperStyle}
+                                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
+                                    >
+                                        {link ? (
+                                            <a href={link} style={{ display: 'block', width: '100%', height: '100%' }}>
+                                                {slideContent}
+                                            </a>
+                                        ) : slideContent}
+                                    </div>
+                                );
+                            })}
                         </div>
                         <style>{`
                             @keyframes scroll-marquee {
