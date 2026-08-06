@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'username', 'bio', 'profile_picture', 'banner_image', 'social_links', 'settings'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -22,6 +22,16 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
+    public function communities()
+    {
+        return $this->belongsToMany(Community::class, 'community_members');
+    }
+
+    public function savedPosts()
+    {
+        return $this->belongsToMany(Post::class, 'saved_posts')->withTimestamps();
+    }
+
     protected function casts(): array
     {
         return [

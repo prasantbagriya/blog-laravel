@@ -121,10 +121,11 @@ class AdminApiController extends Controller
         $media = [];
         
         foreach ($files as $file) {
+            $url = rtrim(config('app.url'), '/') . '/uploads/' . $file->getFilename();
             $media[] = [
                 'id' => $file->getFilename(),
                 'name' => $file->getFilename(),
-                'url' => asset('uploads/' . $file->getFilename()),
+                'url' => $url,
                 'sizeBytes' => $file->getSize(),
                 'createdAt' => date('c', $file->getMTime()),
                 'usedIn' => []
@@ -153,7 +154,8 @@ class AdminApiController extends Controller
 
         $file->move(public_path('uploads'), $filename);
         
-        return response()->json(['success' => true, 'url' => asset('uploads/' . $filename)]);
+        $url = rtrim(config('app.url'), '/') . '/uploads/' . $filename;
+        return response()->json(['success' => true, 'url' => $url]);
     }
 
     public function deleteMedia(Request $request)

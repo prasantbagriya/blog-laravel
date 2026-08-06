@@ -33,7 +33,9 @@ export default function Index({ posts }) {
                                 <p className="text-gray-600 mb-4 flex-grow">{post.excerpt}</p>
                                 <div className="flex justify-between items-center text-sm text-gray-500 pt-4 border-t border-gray-100">
                                     <span>{post.date}</span>
-                                    <span className="font-semibold">{post.author}</span>
+                                    <Link href={window.BASE_PATH + '/author/' + (post.author ? post.author.toLowerCase().replace(/[^a-z0-9]+/g, '-') : '')} className="font-semibold hover:text-blue-600 hover:underline">
+                                        {post.author}
+                                    </Link>
                                 </div>
                             </div>
                         </article>

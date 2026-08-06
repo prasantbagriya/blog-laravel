@@ -10,6 +10,25 @@ Route::get('/', [\App\Http\Controllers\HomeController::class, 'index'])->name('h
 Route::get('/blog', [\App\Http\Controllers\BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('blog.show');
 
+// Redirect all old /public/... URLs to /blog/...
+Route::get('/public/{any}', function ($any) {
+    return redirect('/blog/' . $any, 301);
+})->where('any', '.*');
+
+Route::get('/feed', [\App\Http\Controllers\CommunityController::class, 'feed'])->name('community.feed');
+Route::get('/community/{name}', [\App\Http\Controllers\CommunityController::class, 'show'])->name('community.show');
+Route::get('/r/{community}/comments/{post}/{slug?}', [\App\Http\Controllers\PostController::class, 'show'])->name('post.show');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/communities/create', [\App\Http\Controllers\CommunityController::class, 'create'])->name('community.create');
+    Route::post('/communities', [\App\Http\Controllers\CommunityController::class, 'store'])->name('community.store');
+    
+    Route::get('/submit', [\App\Http\Controllers\PostController::class, 'create'])->name('post.create');
+    Route::post('/posts', [\App\Http\Controllers\PostController::class, 'store'])->name('post.store');
+    
+    Route::post('/posts/{post}/comments', [\App\Http\Controllers\PostController::class, 'storeComment'])->name('post.comment.store');
+});
+
 Route::get('/stories', [\App\Http\Controllers\StoryController::class, 'index'])->name('story.index');
 Route::get('/stories/{slug}', [\App\Http\Controllers\StoryController::class, 'show'])->name('story.show');
 
@@ -80,10 +99,222 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/submit', [\App\Http\Controllers\PostController::class, 'create'])->name('post.create');
+    Route::post('/posts', [\App\Http\Controllers\PostController::class, 'store'])->name('post.store');
+    Route::put('/posts/{post}', [\App\Http\Controllers\PostController::class, 'update'])->name('post.update');
+    Route::delete('/posts/{post}', [\App\Http\Controllers\PostController::class, 'destroy'])->name('post.destroy');
+    Route::post('/posts/{post}/save', [\App\Http\Controllers\PostController::class, 'toggleSave'])->name('post.save');
+    Route::post('/vote', [\App\Http\Controllers\VoteController::class, 'vote'])->name('vote');
+    Route::post('/posts/{post}/comments', [\App\Http\Controllers\PostController::class, 'storeComment'])->name('post.comment.store');
+});
+
+Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::get('/run-image-migration', function () {
+    // Increase max execution time for downloading images
+    ini_set('max_execution_time', 600);
+
+    $posts = \Illuminate\Support\Facades\DB::table('posts')->get();
+    $downloadedCount = 0;
+
+    if (!\Illuminate\Support\Facades\Storage::disk('public')->exists('wp-images')) {
+        \Illuminate\Support\Facades\Storage::disk('public')->makeDirectory('wp-images');
+    }
+
+    foreach ($posts as $post) {
+        $updated = false;
+        $coverImage = $post->coverImage;
+        $content = $post->content;
+
+        // Process Cover Image
+        if ($coverImage && str_starts_with($coverImage, 'http')) {
+            $newPath = downloadAndSaveImageWeb($coverImage);
+            if ($newPath) {
+                $coverImage = $newPath;
+                $updated = true;
+                $downloadedCount++;
+            }
+        }
+
+        // Process Images in Content
+        if ($content) {
+            preg_match_all('/<img[^>]+src="([^">]+)"/i', $content, $matches);
+            if (!empty($matches[1])) {
+                foreach ($matches[1] as $oldUrl) {
+                    if (str_starts_with($oldUrl, 'http')) {
+                        $newPath = downloadAndSaveImageWeb($oldUrl);
+                        if ($newPath) {
+                            $content = str_replace($oldUrl, $newPath, $content);
+                            $updated = true;
+                            $downloadedCount++;
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($updated) {
+            \Illuminate\Support\Facades\DB::table('posts')->where('id', $post->id)->update([
+                'coverImage' => $coverImage,
+                'content' => $content,
+                'updated_at' => now(),
+            ]);
+        }
+    }
+
+    return response()->json([
+        'status' => 'success',
+        'message' => "Migration complete! Successfully downloaded and updated {$downloadedCount} images."
+    ]);
+});
+
+function downloadAndSaveImageWeb($url) {
+    try {
+        $cleanUrl = strtok($url, '?');
+        $extension = pathinfo($cleanUrl, PATHINFO_EXTENSION) ?: 'jpg';
+        $filename = \Illuminate\Support\Str::random(40) . '.' . $extension;
+        
+        $response = \Illuminate\Support\Facades\Http::timeout(30)->get($url);
+        if ($response->successful()) {
+            $path = 'wp-images/' . $filename;
+            \Illuminate\Support\Facades\Storage::disk('public')->put($path, $response->body());
+            return '/storage/' . $path;
+        }
+    } catch (\Exception $e) {}
+    return null;
+}
+
+Route::get('/clean-duplicate-images', function () {
+    $posts = \Illuminate\Support\Facades\DB::table('posts')->get();
+    $cleanedCount = 0;
+
+    foreach ($posts as $post) {
+        $content = $post->content;
+        $coverImage = $post->coverImage;
+
+        if (!$content || !$coverImage) continue;
+
+        // Get the filename of the cover image (without extension or dimension suffix)
+        $filename = pathinfo($coverImage, PATHINFO_FILENAME);
+        $filename = preg_replace('/-\d+x\d+$/', '', $filename);
+        $filenameQ = preg_quote($filename, '/');
+
+        // Regex to find <figure> or <img> containing this filename at the beginning of the content
+        $pattern = '/^[\s\r\n]*(<figure[^>]*>.*?<img[^>]+src="[^"]*' . $filenameQ . '[^"]*"[^>]*>.*?<\/figure>|<img[^>]+src="[^"]*' . $filenameQ . '[^"]*"[^>]*>)/is';
+        
+        $newContent = preg_replace($pattern, '', $content);
+        
+        // Sometimes it's wrapped in paragraphs
+        $pattern2 = '/^[\s\r\n]*<p[^>]*>[\s\r\n]*(<figure[^>]*>.*?<img[^>]+src="[^"]*' . $filenameQ . '[^"]*"[^>]*>.*?<\/figure>|<img[^>]+src="[^"]*' . $filenameQ . '[^"]*"[^>]*>)[\s\r\n]*<\/p>/is';
+        $newContent = preg_replace($pattern2, '', $newContent);
+
+        if ($newContent !== $content) {
+            \Illuminate\Support\Facades\DB::table('posts')->where('id', $post->id)->update([
+                'content' => trim($newContent)
+            ]);
+            $cleanedCount++;
+        }
+    }
+
+    return response()->json([
+        'status' => 'success',
+        'message' => "Cleaned duplicate cover images from {$cleanedCount} posts."
+    ]);
+});
+
 require __DIR__.'/auth.php';
 
+Route::get('/run-migrations', function () {
+    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+    return "Database tables created successfully!";
+});
+
+Route::get('/clear-cache', function() {
+    \Illuminate\Support\Facades\Artisan::call('config:clear');
+    \Illuminate\Support\Facades\Artisan::call('cache:clear');
+    return 'Cache & Config Cleared! Now you can visit the migration URLs.';
+});
+
+Route::get('/env-test', function() {
+    return response()->json([
+        'env_file_exists' => file_exists(base_path('.env')),
+        'DB_DATABASE_FROM_ENV' => env('DB_DATABASE'),
+        'DB_USERNAME_FROM_ENV' => env('DB_USERNAME'),
+        'DB_DATABASE_FROM_CONFIG' => config('database.connections.mysql.database'),
+        'DB_USERNAME_FROM_CONFIG' => config('database.connections.mysql.username'),
+    ]);
+});
+
+Route::get('/storage-link', function() {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('storage:link');
+        return 'Storage link created successfully!';
+    } catch (\Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+});
+
+Route::get('/fix-images', function() {
+    try {
+        $publicStoragePath = public_path('storage');
+        if (file_exists($publicStoragePath) || is_link($publicStoragePath)) {
+            unlink($publicStoragePath);
+        }
+        \Illuminate\Support\Facades\Artisan::call('storage:link');
+        return 'Images fixed! The storage link was recreated successfully. Please refresh your website.';
+    } catch (\Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+});
+
+Route::get('/fix-db-urls', function() {
+    $tables = [
+        ['table' => 'posts', 'columns' => ['content', 'coverImage', 'authorImage']],
+        ['table' => 'authors', 'columns' => ['image', 'bio']],
+        ['table' => 'categories', 'columns' => ['image', 'description']],
+    ];
+    $badUrls = [
+        'https://coachingsinsikar.com/list/public/uploads/',
+        'https://coachingsinsikar.com/public/uploads/'
+    ];
+    $goodUrl = 'https://coachingsinsikar.com/uploads/';
+    $count = 0;
+    foreach ($tables as $t) {
+        $records = \Illuminate\Support\Facades\DB::table($t['table'])->get();
+        foreach ($records as $record) {
+            $update = [];
+            foreach ($t['columns'] as $col) {
+                if (!empty($record->{$col})) {
+                    $val = $record->{$col};
+                    foreach ($badUrls as $bad) {
+                        if (str_contains($val, $bad)) {
+                            $val = str_replace($bad, $goodUrl, $val);
+                        }
+                    }
+                    if ($val !== $record->{$col}) {
+                        $update[$col] = $val;
+                    }
+                }
+            }
+            if (!empty($update)) {
+                \Illuminate\Support\Facades\DB::table($t['table'])->where('id', $record->id)->update($update);
+                $count++;
+            }
+        }
+    }
+    return "Database updated successfully! Fixed {$count} records that had the wrong /public/ or /list/public/ paths in their images.";
+});
+
+Route::fallback(function () {
+    $path = request()->path();
+    // Redirect old root-level post slugs to /blog/...
+    $post = \App\Models\Post::where('slug', $path)->first();
+    if ($post) {
+        return redirect('/blog/' . $path, 301);
+    }
+    return redirect('/');
+});

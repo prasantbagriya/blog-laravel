@@ -78,16 +78,7 @@ h1, h2, h3, h4, h5, h6 {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ✅ WCAG 2.2: High-visibility focus (Google Page Experience signal) */
-:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 3px;
-  border-radius: 4px;
-}
 
-:focus:not(:focus-visible) {
-  outline: none;
-}
 
 .btn {
   display: inline-flex;

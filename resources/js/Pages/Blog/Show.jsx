@@ -30,7 +30,9 @@ export default function Show({ post }) {
                                 <img src={post.authorImage} alt={post.author} className="w-12 h-12 rounded-full object-cover" />
                             )}
                             <div>
-                                <p className="font-semibold">{post.author}</p>
+                                <Link href={window.BASE_PATH + '/author/' + (post.author ? post.author.toLowerCase().replace(/[^a-z0-9]+/g, '-') : '')} className="font-semibold hover:text-blue-600 hover:underline">
+                                    {post.author}
+                                </Link>
                                 <p className="text-sm">{post.date}</p>
                             </div>
                         </div>

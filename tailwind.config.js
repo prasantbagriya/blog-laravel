@@ -12,10 +12,31 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['Outfit', ...defaultTheme.fontFamily.sans],
+            },
+            typography: {
+                DEFAULT: {
+                    css: {
+                        h1: { marginTop: '1.5em', marginBottom: '0.5em' },
+                        h2: { marginTop: '1.25em', marginBottom: '0.5em' },
+                        h3: { marginTop: '1em', marginBottom: '0.5em' },
+                        p: { marginTop: '0.5em', marginBottom: '0.75em' },
+                    },
+                },
+                lg: {
+                    css: {
+                        h1: { marginTop: '1.5em', marginBottom: '0.5em' },
+                        h2: { marginTop: '1.25em', marginBottom: '0.5em' },
+                        h3: { marginTop: '1em', marginBottom: '0.5em' },
+                        p: { marginTop: '0.5em', marginBottom: '0.75em' },
+                    },
+                },
             },
         },
     },
 
-    plugins: [forms],
+    plugins: [
+        forms,
+        require('@tailwindcss/typography'),
+    ],
 };

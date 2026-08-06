@@ -9,7 +9,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('sliders', function (Blueprint $table) {
-            $table->string('mobile_image_url')->nullable()->after('image_url');
+            if (!Schema::hasColumn('sliders', 'mobile_image_url')) {
+                $table->string('mobile_image_url')->nullable()->after('image_url');
+            }
         });
     }
 

@@ -15,23 +15,29 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('slug')->unique()->nullable();
             $table->string('title')->nullable();
+            $table->enum('type', ['TEXT', 'IMAGE', 'VIDEO', 'LINK', 'POLL'])->default('TEXT');
             $table->longText('content')->nullable();
-            $table->text('metaDescription')->nullable();
+            $table->json('media_urls')->nullable();
+            $table->string('link_url')->nullable();
+            $table->json('poll_options')->nullable();
+            
+            $table->integer('score')->default(0);
+            
+            $table->foreignId('author_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->foreignId('community_id')->nullable()->constrained('communities')->onDelete('cascade');
+            
+            $table->boolean('is_pinned')->default(false);
+            $table->boolean('is_locked')->default(false);
+            $table->boolean('is_nsfw')->default(false);
+            
+            // Legacy blog fields
             $table->text('excerpt')->nullable();
             $table->string('coverImage')->nullable();
-            $table->string('authorImage')->nullable();
-            $table->json('authorSocials')->nullable();
-            $table->string('seoTitle')->nullable();
-            $table->string('ogTitle')->nullable();
-            $table->text('ogDescription')->nullable();
-            $table->string('canonicalUrl')->nullable();
-            $table->string('keywords')->nullable();
             $table->string('category')->nullable();
             $table->json('tags')->nullable();
-            $table->json('faqs')->nullable();
             $table->boolean('published')->default(false);
             $table->timestamp('date')->nullable();
-            $table->string('author')->nullable(); // Adding author name reference
+            
             $table->timestamps();
         });
     }

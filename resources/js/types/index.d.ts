@@ -69,3 +69,7 @@ interface WebStory {
   isNoIndex?: boolean;
 }
 
+interface Window {
+  BASE_PATH?: string;
+}
+
