@@ -12,6 +12,14 @@ export default function AdminPage() {
   const [error, setError] = useState(null);
   const BASE = typeof window !== 'undefined' && window.location.pathname.startsWith('/list/public') ? '/list/public' : '';
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -248,7 +256,7 @@ export default function AdminPage() {
       </div>
 
       {/* Tab Navigation Controls */}
-      <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem', marginBottom: '2rem', overflowX: 'auto' }}>
+      <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem', marginBottom: '2rem', overflowX: 'auto', WebkitOverflowScrolling: 'touch', whiteSpace: 'nowrap' }}>
         <button
           onClick={() => setActiveTab('dashboard')}
           style={{
@@ -473,103 +481,142 @@ export default function AdminPage() {
             </Link>
           </div>
 
-          <div style={{ background: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-            <div style={{ width: '100%', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-              <table style={{ width: '100%', minWidth: '800px', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-                    <th style={thStyle}>Title & Category</th>
-                    <th style={thStyle}>Author Profile</th>
-                    <th style={thStyle}>SEO Health</th>
-                    <th style={thStyle}>EEAT Signals</th>
-                    <th style={thStyle}>Publish Status</th>
-                    <th style={thStyle}>Control Options</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {posts.map((post) => {
-                    const words = (post.content || '').replace(/<[^>]+>/g, '').split(/\s+/).filter(Boolean).length;
-                    const hasEeat = post.factCheckedBy && post.sources && post.sources.length > 0;
-                    return (
-                      <tr key={post.id} className="admin-table-row" style={{ borderBottom: '1px solid #f1f5f9' }}>
-                        <td style={tdStyle}>
-                          <Link href={BASE + `/admin/posts/edit/${post.id}`} style={{ fontWeight: 800, color: '#0f172a', textDecoration: 'none' }}>
-                            {post.title || 'Untitled Article'}
-                          </Link>
-                          <div style={{ fontSize: '11px', color: '#64748b', marginTop: '0.25rem', display: 'flex', gap: '8px' }}>
-                            <span>📁 {post.category}</span>
-                            <span>•</span>
-                            <span>📅 {post.date}</span>
-                            <span>•</span>
-                            <span>✍️ {words} words</span>
-                          </div>
-                        </td>
-                        <td style={tdStyle}>
-                          <span style={{ fontWeight: 600, color: '#334155' }}>{post.author}</span>
-                          <div style={{ fontSize: '10px', color: '#64748b' }}>{post.authorJobTitle}</div>
-                        </td>
-                        <td style={tdStyle}>
-                          <span style={{ 
-                            fontWeight: 800, 
-                            color: (post.seoScore || 0) >= 80 ? '#059669' : '#d97706' 
-                          }}>
-                            {post.seoScore || 0}%
-                          </span>
-                        </td>
-                        <td style={tdStyle}>
-                          <div style={{ display: 'flex', gap: '4px' }}>
-                            <span 
-                              title={post.factCheckedBy ? `Fact Checked by ${post.factCheckedBy}` : 'Unverified Content'}
-                              style={{ 
-                                opacity: post.factCheckedBy ? 1 : 0.25, 
-                                cursor: 'help',
-                                fontSize: '14px' 
-                              }}
-                            >
-                              🛡️
-                            </span>
-                            <span 
-                              title={post.sources && post.sources.length > 0 ? `${post.sources.length} authoritative references cited` : 'No references cited'}
-                              style={{ 
-                                opacity: post.sources && post.sources.length > 0 ? 1 : 0.25, 
-                                cursor: 'help',
-                                fontSize: '14px' 
-                              }}
-                            >
-                              📚
-                            </span>
-                            <span 
-                              title={post.isPillarPage ? 'High-value pillar page' : 'Regular post'}
-                              style={{ 
-                                opacity: post.isPillarPage ? 1 : 0.25, 
-                                cursor: 'help',
-                                fontSize: '14px' 
-                              }}
-                            >
-                              ⭐
-                            </span>
-                          </div>
-                        </td>
-                        <td style={tdStyle}>
-                          {post.published ? (
-                            <span style={{ background: '#ecfdf5', color: '#047857', padding: '4px 10px', borderRadius: '999px', fontSize: '11px', fontWeight: 800, display: 'inline-block' }}>Published</span>
-                          ) : (
-                            <span style={{ background: '#f1f5f9', color: '#475569', padding: '4px 10px', borderRadius: '999px', fontSize: '11px', fontWeight: 800, display: 'inline-block' }}>Draft</span>
-                          )}
-                        </td>
-                        <td style={tdStyle}>
-                          <div style={{ display: 'flex', gap: '1rem', fontSize: '13px' }}>
-                            <Link href={BASE + `/admin/posts/edit/${post.id}`} style={{ color: 'var(--primary)', fontWeight: 700, textDecoration: 'none' }}>Edit</Link>
-                            <DeleteButton id={post.id} type="post" />
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+          {isMobile ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {posts.map((post) => {
+                const words = (post.content || '').replace(/<[^>]+>/g, '').split(/\s+/).filter(Boolean).length;
+                return (
+                  <div key={post.id} style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <Link href={BASE + `/admin/posts/edit/${post.id}`} style={{ fontWeight: 800, color: '#0f172a', textDecoration: 'none', fontSize: '15px' }}>
+                        {post.title || 'Untitled Article'}
+                      </Link>
+                      {post.published ? (
+                        <span style={{ background: '#ecfdf5', color: '#047857', padding: '2px 8px', borderRadius: '999px', fontSize: '10px', fontWeight: 800 }}>Published</span>
+                      ) : (
+                        <span style={{ background: '#f1f5f9', color: '#475569', padding: '2px 8px', borderRadius: '999px', fontSize: '10px', fontWeight: 800 }}>Draft</span>
+                      )}
+                    </div>
+                    
+                    <div style={{ fontSize: '11px', color: '#64748b', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                      <span>📁 {post.category}</span>
+                      <span>📅 {post.date}</span>
+                      <span>✍️ {words} words</span>
+                      <span style={{ color: (post.seoScore || 0) >= 80 ? '#059669' : '#d97706', fontWeight: 700 }}>📈 {post.seoScore || 0}% SEO</span>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid #f1f5f9' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ fontWeight: 600, color: '#334155', fontSize: '13px' }}>{post.author}</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: '1rem', fontSize: '13px' }}>
+                        <Link href={BASE + `/admin/posts/edit/${post.id}`} style={{ color: 'var(--primary)', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>Edit</Link>
+                        <DeleteButton id={post.id} type="post" />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          </div>
+          ) : (
+            <div style={{ background: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+              <div style={{ width: '100%', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                <table style={{ width: '100%', minWidth: '800px', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                      <th style={thStyle}>Title & Category</th>
+                      <th style={thStyle}>Author Profile</th>
+                      <th style={thStyle}>SEO Health</th>
+                      <th style={thStyle}>EEAT Signals</th>
+                      <th style={thStyle}>Publish Status</th>
+                      <th style={thStyle}>Control Options</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {posts.map((post) => {
+                      const words = (post.content || '').replace(/<[^>]+>/g, '').split(/\s+/).filter(Boolean).length;
+                      const hasEeat = post.factCheckedBy && post.sources && post.sources.length > 0;
+                      return (
+                        <tr key={post.id} className="admin-table-row" style={{ borderBottom: '1px solid #f1f5f9' }}>
+                          <td style={tdStyle}>
+                            <Link href={BASE + `/admin/posts/edit/${post.id}`} style={{ fontWeight: 800, color: '#0f172a', textDecoration: 'none' }}>
+                              {post.title || 'Untitled Article'}
+                            </Link>
+                            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '0.25rem', display: 'flex', gap: '8px' }}>
+                              <span>📁 {post.category}</span>
+                              <span>•</span>
+                              <span>📅 {post.date}</span>
+                              <span>•</span>
+                              <span>✍️ {words} words</span>
+                            </div>
+                          </td>
+                          <td style={tdStyle}>
+                            <span style={{ fontWeight: 600, color: '#334155' }}>{post.author}</span>
+                            <div style={{ fontSize: '10px', color: '#64748b' }}>{post.authorJobTitle}</div>
+                          </td>
+                          <td style={tdStyle}>
+                            <span style={{ 
+                              fontWeight: 800, 
+                              color: (post.seoScore || 0) >= 80 ? '#059669' : '#d97706' 
+                            }}>
+                              {post.seoScore || 0}%
+                            </span>
+                          </td>
+                          <td style={tdStyle}>
+                            <div style={{ display: 'flex', gap: '4px' }}>
+                              <span 
+                                title={post.factCheckedBy ? `Fact Checked by ${post.factCheckedBy}` : 'Unverified Content'}
+                                style={{ 
+                                  opacity: post.factCheckedBy ? 1 : 0.25, 
+                                  cursor: 'help',
+                                  fontSize: '14px' 
+                                }}
+                              >
+                                🛡️
+                              </span>
+                              <span 
+                                title={post.sources && post.sources.length > 0 ? `${post.sources.length} authoritative references cited` : 'No references cited'}
+                                style={{ 
+                                  opacity: post.sources && post.sources.length > 0 ? 1 : 0.25, 
+                                  cursor: 'help',
+                                  fontSize: '14px' 
+                                }}
+                              >
+                                📚
+                              </span>
+                              <span 
+                                title={post.isPillarPage ? 'High-value pillar page' : 'Regular post'}
+                                style={{ 
+                                  opacity: post.isPillarPage ? 1 : 0.25, 
+                                  cursor: 'help',
+                                  fontSize: '14px' 
+                                }}
+                              >
+                                ⭐
+                              </span>
+                            </div>
+                          </td>
+                          <td style={tdStyle}>
+                            {post.published ? (
+                              <span style={{ background: '#ecfdf5', color: '#047857', padding: '4px 10px', borderRadius: '999px', fontSize: '11px', fontWeight: 800, display: 'inline-block' }}>Published</span>
+                            ) : (
+                              <span style={{ background: '#f1f5f9', color: '#475569', padding: '4px 10px', borderRadius: '999px', fontSize: '11px', fontWeight: 800, display: 'inline-block' }}>Draft</span>
+                            )}
+                          </td>
+                          <td style={tdStyle}>
+                            <div style={{ display: 'flex', gap: '1rem', fontSize: '13px' }}>
+                              <Link href={BASE + `/admin/posts/edit/${post.id}`} style={{ color: 'var(--primary)', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>Edit</Link>
+                              <DeleteButton id={post.id} type="post" />
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

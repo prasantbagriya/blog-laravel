@@ -48,7 +48,8 @@ export default function DeleteButton({ id, type, endpoint, onSuccess, label = 'D
                 fontWeight: 600,
                 opacity: isDeleting ? 0.5 : 1,
                 minWidth: '60px',
-                textAlign: 'left'
+                textAlign: 'left',
+                whiteSpace: 'nowrap'
             }}
         >
             {isDeleting ? 'Deleting...' : label}

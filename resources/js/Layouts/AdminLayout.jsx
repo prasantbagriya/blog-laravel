@@ -143,6 +143,7 @@ export default function AdminLayout({ children }) {
         display: 'flex', 
         flexDirection: 'column', 
         minHeight: '100vh', 
+        width: isMobile ? '100vw' : 'calc(100% - 260px)',
         transition: 'margin-left 0.3s ease'
       }}>
         {/* Modern Header */}
@@ -182,7 +183,7 @@ export default function AdminLayout({ children }) {
                 ☰
               </button>
             )}
-            <div style={{ fontSize: '15px', fontWeight: 700, color: '#475569' }}>
+            <div style={{ fontSize: '15px', fontWeight: 700, color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: isMobile ? '120px' : 'none' }}>
               {(pathname || '').includes('/new') ? 'Create' : (pathname || '').includes('/stories') ? 'Web Stories' : 'Dashboard'}
             </div>
           </div>
@@ -195,17 +196,18 @@ export default function AdminLayout({ children }) {
                 <div style={{ width: '1px', height: '24px', background: '#e2e8f0' }}></div>
               </>
             )}
-            <Link href={BASE + "/admin/posts/new"} style={{ background: '#2563eb', color: '#fff', padding: isMobile ? '6px 12px' : '8px 16px', borderRadius: '6px', fontSize: '13px', fontWeight: 700, textDecoration: 'none', boxShadow: '0 2px 4px rgba(37, 99, 235, 0.2)' }}>
+            <Link href={BASE + "/admin/posts/new"} style={{ background: '#2563eb', color: '#fff', padding: isMobile ? '6px 12px' : '8px 16px', borderRadius: '6px', fontSize: '13px', fontWeight: 700, textDecoration: 'none', boxShadow: '0 2px 4px rgba(37, 99, 235, 0.2)', whiteSpace: 'nowrap' }}>
               + New Post
             </Link>
           </div>
         </header>
 
         {/* ✅ Dashboard Content Container with Proper Spacing/Padding */}
-        <main style={{ padding: isMobile ? '1.5rem 1rem' : '2.5rem 2rem', width: '100%', maxWidth: '1200px', margin: '0 auto', flex: 1 }}>
+        <main style={{ padding: isMobile ? '1rem' : '2.5rem 2rem', width: '100%', maxWidth: '1200px', margin: '0 auto', flex: 1, overflowX: 'hidden' }}>
           {children}
         </main>
       </div>
     </div>
   );
 }
+

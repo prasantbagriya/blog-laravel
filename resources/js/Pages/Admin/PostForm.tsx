@@ -290,8 +290,8 @@ const headerStyle: React.CSSProperties = { height: '80px', background: '#fff', b
 const navIconStyle: React.CSSProperties = { background: '#f1f5f9', border: 'none', padding: '10px', borderRadius: '12px', cursor: 'pointer' };
 const headerTitleStyle: React.CSSProperties = { fontSize: '20px', fontWeight: 800, color: '#1e293b', letterSpacing: '-0.5px' };
 const scoreHubStyle: React.CSSProperties = { display: 'flex', gap: '16px', marginRight: '10px' };
-const iconBtnStyle: React.CSSProperties = { background: '#fff', border: '1px solid #e2e8f0', padding: '10px', borderRadius: '12px', cursor: 'pointer', color: '#64748b' };
-const publishBtnStyle: React.CSSProperties = { background: '#2563eb', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 6px -1px rgba(37, 99, 235, 0.2)' };
+const iconBtnStyle: React.CSSProperties = { background: '#fff', border: '1px solid #e2e8f0', padding: '10px', borderRadius: '12px', cursor: 'pointer', color: '#64748b', whiteSpace: 'nowrap' };
+const publishBtnStyle: React.CSSProperties = { background: '#2563eb', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 6px -1px rgba(37, 99, 235, 0.2)', whiteSpace: 'nowrap' };
 const mainCanvasStyle: React.CSSProperties = { flex: 1, overflowY: 'auto', background: '#ffffff', display: 'flex', flexDirection: 'column', position: 'relative', scrollBehavior: 'smooth' };
 const floatingToolbarStyle: React.CSSProperties = { position: 'sticky', top: '0', zIndex: 100, background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(16px)', padding: '16px 40px', borderBottom: '1px solid #e2e8f0', display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center', userSelect: 'none' };
 const toolDivider: React.CSSProperties = { width: '1px', height: '24px', background: '#e2e8f0', margin: '0 4px' };
@@ -304,7 +304,7 @@ const metaInputStyle: React.CSSProperties = { width: '100%', padding: '12px 16px
 const tipRowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#475569', marginBottom: '8px', fontWeight: 600 };
 const eeatCheckStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', fontWeight: 600, color: '#475569' };
 const metaTextAreaStyle: React.CSSProperties = { width: '100%', padding: '12px 16px', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '14px', minHeight: '100px', outline: 'none', background: '#f8fafc' };
-const addNodeBtn: React.CSSProperties = { width: '100%', padding: '12px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '12px', fontWeight: 800, color: '#2563eb', cursor: 'pointer' };
+const addNodeBtn: React.CSSProperties = { width: '100%', padding: '12px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '12px', fontWeight: 800, color: '#2563eb', cursor: 'pointer', whiteSpace: 'nowrap' };
 const lsiTagStyle: React.CSSProperties = { background: '#eff6ff', color: '#2563eb', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: 700, border: '1px solid #dbeafe' };
 const guardianCard: React.CSSProperties = { display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '30px', background: '#f0f7ff', borderRadius: '24px', border: '1px solid #dbeafe', marginBottom: '20px' };
 const headerSelectWrapper: React.CSSProperties = { display: 'flex', alignItems: 'center', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '0 12px', margin: '0 4px' };
@@ -317,7 +317,7 @@ const fMenuBtn: React.CSSProperties = { padding: '6px 10px', border: 'none', bac
 const modalBackdropStyle: React.CSSProperties = { position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.3)', backdropFilter: 'blur(8px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center' };
 const modalContentStyle: React.CSSProperties = { background: '#fff', width: '90%', maxWidth: '850px', borderRadius: '32px', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' };
 const modalHeaderStyle: React.CSSProperties = { padding: '24px 40px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' };
-const closeModalBtn: React.CSSProperties = { border: 'none', background: '#f1f5f9', padding: '8px', borderRadius: '10px', cursor: 'pointer' };
+const closeModalBtn: React.CSSProperties = { border: 'none', background: '#f1f5f9', padding: '8px', borderRadius: '10px', cursor: 'pointer', whiteSpace: 'nowrap' };
 const faqNodeStyle: React.CSSProperties = { padding: '16px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' };
 const faqInputSmall: React.CSSProperties = { width: '100%', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px', marginBottom: '10px', fontSize: '13px', fontWeight: 600 };
 const faqTextArea: React.CSSProperties = { width: '100%', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', minHeight: '80px' };
@@ -378,6 +378,14 @@ interface PostFormProps {
 }
 
 export default function PostForm({ post }: PostFormProps) {
+   const [isMobile, setIsMobile] = useState(false);
+
+   useEffect(() => {
+     const handleResize = () => setIsMobile(window.innerWidth < 1024); // Use 1024px for tablet/mobile to collapse sidebar
+     handleResize();
+     window.addEventListener('resize', handleResize);
+     return () => window.removeEventListener('resize', handleResize);
+   }, []);
    const [title, setTitle] = useState(post?.title || '');
    const [slug, setSlug] = useState(post?.slug || '');
    const [metaDescription, setMetaDescription] = useState(post?.metaDescription || '');
@@ -1281,8 +1289,8 @@ export default function PostForm({ post }: PostFormProps) {
             </div>
          </div>
 
-         <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-            <main style={mainCanvasStyle}>
+         <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', flex: 1, overflow: isMobile ? 'auto' : 'hidden' }}>
+            <main style={{ ...mainCanvasStyle, overflowY: isMobile ? 'visible' : 'auto' }}>
                 <div style={floatingToolbarStyle}>
                    {/* History Group */}
                    <div style={{ display: 'flex', gap: '4px', maxWidth: '1000px', margin: '0 auto', width: '100%', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -1481,7 +1489,7 @@ export default function PostForm({ post }: PostFormProps) {
                    </div>
              </main>
 
-            <aside style={intelSidebarStyle}>
+            <aside style={{ ...intelSidebarStyle, width: isMobile ? '100%' : '300px', borderLeft: isMobile ? 'none' : '1px solid #e2e8f0', borderTop: isMobile ? '1px solid #e2e8f0' : 'none', overflowY: isMobile ? 'visible' : 'auto' }}>
                <div style={{ padding: '24px 24px 0 24px' }}>
                   <div style={{ fontSize: '10px', fontWeight: 900, color: '#94a3b8', letterSpacing: '1px', marginBottom: '12px' }}>INTEL MODULES</div>
                    <div style={intelTabsStyle}>

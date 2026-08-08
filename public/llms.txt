@@ -1,0 +1,15 @@
+# Coaching Sikar - Blog & AI Automation Platform
+
+Coaching Sikar provides revolutionizing customer engagement with smart AI-driven WhatsApp automation.
+
+## Important Links
+- [Home](https://coachingsikar.com/)
+- [Blog](https://coachingsikar.com/blog)
+- [About Us](https://coachingsikar.com/about)
+- [Contact Us](https://coachingsikar.com/contact)
+
+## Tools
+- [WhatsApp Link Generator](https://coachingsikar.com/tool/whatsapp-link-generator)
+- [SIP Calculator](https://coachingsikar.com/tool/sip-calculator)
+- [Compound Growth](https://coachingsikar.com/tool/compound-interest)
+- [YouTube Downloader](https://coachingsikar.com/youtubevideodownload)

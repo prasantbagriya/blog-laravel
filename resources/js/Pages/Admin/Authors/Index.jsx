@@ -41,12 +41,12 @@ export default function AuthorsPage() {
           <h1 style={{ fontSize: '2rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>Author Profiles</h1>
           <p style={{ color: '#64748b', margin: 0 }}>Manage writers and their E-E-A-T credentials</p>
         </div>
-        <Link href={BASE + "/admin/authors/new"} style={{ background: '#2563eb', color: '#fff', padding: '10px 20px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none' }}>
+        <Link href={BASE + "/admin/authors/new"} style={{ background: '#2563eb', color: '#fff', padding: '10px 20px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>
           + Add New Author
         </Link>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: '1.5rem' }}>
         {authors.map(author => (
           <div key={author.id} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -62,8 +62,8 @@ export default function AuthorsPage() {
             </p>
 
             <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid #f1f5f9' }}>
-              <Link href={BASE + `/admin/authors/edit/${author.id}`} style={{ flex: 1, textAlign: 'center', background: '#eff6ff', color: '#2563eb', padding: '8px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none', fontSize: '14px' }}>Edit Profile</Link>
-              <button onClick={() => handleDelete(author.id)} style={{ flex: 1, background: '#fef2f2', color: '#ef4444', padding: '8px', borderRadius: '8px', fontWeight: 700, border: 'none', cursor: 'pointer', fontSize: '14px' }}>Delete</button>
+              <Link href={BASE + `/admin/authors/edit/${author.id}`} style={{ flex: 1, textAlign: 'center', background: '#eff6ff', color: '#2563eb', padding: '8px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none', fontSize: '14px', whiteSpace: 'nowrap' }}>Edit Profile</Link>
+              <button onClick={() => handleDelete(author.id)} style={{ flex: 1, background: '#fef2f2', color: '#ef4444', padding: '8px', borderRadius: '8px', fontWeight: 700, border: 'none', cursor: 'pointer', fontSize: '14px', whiteSpace: 'nowrap' }}>Delete</button>
             </div>
           </div>
         ))}

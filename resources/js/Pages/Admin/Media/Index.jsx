@@ -280,7 +280,7 @@ export default function MediaLibraryPage() {
                   )}
                 </div>
 
-                <div style={{ marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                   <div style={{ position: 'relative' }}>
                     <input 
                       type="file" 
@@ -290,7 +290,7 @@ export default function MediaLibraryPage() {
                       disabled={isReplacing}
                     />
                     <button 
-                      style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', opacity: isReplacing ? 0.7 : 1 }}
+                      style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', opacity: isReplacing ? 0.7 : 1, whiteSpace: 'nowrap' }}
                       disabled={isReplacing}
                     >
                       {isReplacing ? 'Replacing...' : 'Replace Image'}
@@ -299,7 +299,7 @@ export default function MediaLibraryPage() {
 
                   <button 
                     onClick={() => handleDelete(selectedMedia.name)}
-                    style={{ background: '#fef2f2', color: '#ef4444', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}
+                    style={{ background: '#fef2f2', color: '#ef4444', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
                     disabled={isReplacing}
                   >
                     Delete Permanently

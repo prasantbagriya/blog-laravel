@@ -38,7 +38,8 @@ export default function SeoAuditDashboard() {
       </div>
 
       <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+        <div style={{ overflowX: 'auto', width: '100%' }}>
+          <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
             <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
               <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Article</th>
@@ -104,7 +105,8 @@ export default function SeoAuditDashboard() {
                               fontSize: '13px',
                               fontWeight: 600,
                               transition: 'all 0.2s',
-                              border: score < 80 ? 'none' : '1px solid #cbd5e1'
+                              border: score < 80 ? 'none' : '1px solid #cbd5e1',
+                              whiteSpace: 'nowrap'
                            }}
                         >
                            {score < 80 ? '✨ Improve with AI' : 'Edit Post'}
@@ -120,6 +122,7 @@ export default function SeoAuditDashboard() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

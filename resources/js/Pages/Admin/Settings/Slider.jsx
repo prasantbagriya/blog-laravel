@@ -124,7 +124,7 @@ export default function SliderManager() {
           <h1 style={{ fontSize: '2rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>Home Slider</h1>
           <p style={{ color: '#64748b', margin: 0 }}>Manage the main rotating banners on the homepage</p>
         </div>
-        <button onClick={handleAddSlide} style={{ background: '#2563eb', color: '#fff', padding: '10px 20px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none', border: 'none', cursor: 'pointer' }}>
+        <button onClick={handleAddSlide} style={{ background: '#2563eb', color: '#fff', padding: '10px 20px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
           + Add Slide
         </button>
       </div>
@@ -137,7 +137,7 @@ export default function SliderManager() {
         )}
 
         {slides.map((slide, index) => (
-          <div key={slide.id} style={{ display: 'flex', gap: '1.5rem', background: '#fff', padding: '1.5rem', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
+          <div key={slide.id} style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', background: '#fff', padding: '1.5rem', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', justifyContent: 'center' }}>
               <button onClick={() => moveSlide(index, -1)} disabled={index === 0} style={{ padding: '8px', cursor: index === 0 ? 'not-allowed' : 'pointer', background: '#f1f5f9', border: 'none', borderRadius: '8px' }}>↑</button>
@@ -183,7 +183,7 @@ export default function SliderManager() {
               <div style={{ background: '#f0fdf4', borderRadius: '8px', padding: '8px 12px', fontSize: '11px', color: '#166534', fontWeight: 500 }}>
                 💡 Mobile image (portrait 9:16) dikhegi chhote screens par. Agar mobile image nahi lagayi toh desktop image hi crop hokar dikhegi.
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <label style={{ fontSize: '12px', fontWeight: 600, color: '#475569' }}>Main Title (Optional)</label>
                   <input type="text" value={slide.title || ''} onChange={e => handleFieldChange(slide.id, 'title', e.target.value)} onBlur={() => handleFieldBlur(slide)} style={{ padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px' }} placeholder="e.g., Welcome to Coaching" />

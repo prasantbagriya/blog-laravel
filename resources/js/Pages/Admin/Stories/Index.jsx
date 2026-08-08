@@ -27,7 +27,7 @@ export default function StoriesDashboard() {
       <Head title="Web Stories | Admin" />
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <h1 style={{ fontSize: '28px', fontWeight: 700, margin: 0, color: '#0f172a' }}>Web Stories</h1>
-        <Link href={BASE + "/admin/stories/new"} style={{ background: '#2563eb', color: '#fff', padding: '10px 20px', borderRadius: '8px', fontWeight: 600 }}>+ Create Story</Link>
+        <Link href={BASE + "/admin/stories/new"} style={{ background: '#2563eb', color: '#fff', padding: '10px 20px', borderRadius: '8px', fontWeight: 600, whiteSpace: 'nowrap' }}>+ Create Story</Link>
       </div>
 
       <div style={{ display: 'flex', gap: '24px', fontSize: '14px', marginBottom: '24px', color: '#64748b', fontWeight: 600 }}>
@@ -35,7 +35,7 @@ export default function StoriesDashboard() {
         <div>Published: <span style={{ color: '#059669' }}>{stories.filter(s => s.published).length}</span></div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '20px' }}>
         {stories.map((story) => (
           <div key={story.id} style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
             <div style={{ position: 'relative', width: '100%', aspectRatio: '3/4' }}>
