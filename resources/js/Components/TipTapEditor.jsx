@@ -19,10 +19,10 @@ const ToolbarButton = ({ onClick, disabled, isActive, title, children }) => (
         type="button"
         onClick={onClick}
         disabled={disabled}
-        className={`p-2 rounded-md transition-all duration-200 flex items-center justify-center ${
+        className={`p-1.5 rounded transition-colors flex items-center justify-center border-0 outline-none focus:outline-none focus:ring-0 ${
             isActive 
-            ? 'bg-blue-50 text-blue-600 shadow-sm' 
-            : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
+            ? 'bg-[#F6F7F8] text-[#1C1C1C]' 
+            : 'text-[#878A8C] hover:bg-[#F6F7F8] hover:text-[#1C1C1C]'
         } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
         title={title}
     >
@@ -70,7 +70,7 @@ const MenuBar = ({ editor }) => {
     const Divider = () => <div className="w-[1px] h-6 bg-gray-200 mx-1.5 hidden sm:block"></div>;
 
     return (
-        <div className="flex flex-wrap items-center gap-1 p-2 bg-white border-b border-[#EDEFF1]">
+        <div className="flex flex-wrap items-center gap-0.5 p-1.5 bg-[#F6F7F8] border-b border-[#EDEFF1]">
             <ToolbarButton
                 onClick={() => editor.chain().focus().toggleBold().run()}
                 disabled={!editor.can().chain().focus().toggleBold().run()}
@@ -246,7 +246,7 @@ export default function TipTapEditor({ value, onChange }) {
     });
 
     return (
-        <div className="border border-[#EDEFF1] hover:border-[#878A8C] focus-within:border-[#1C1C1C] rounded-md overflow-hidden bg-white transition-colors">
+        <div className="border border-[#EDEFF1] focus-within:border-[#1C1C1C] rounded-md overflow-hidden bg-white transition-colors">
             <MenuBar editor={editor} />
             <EditorContent editor={editor} />
             

@@ -13,14 +13,18 @@ class SitemapController extends Controller
 {
     public function index()
     {
-        $posts = Post::where('published', true)->where('isNoIndex', false)->orderBy('updated_at', 'desc')->get();
+        $baseQuery = Post::where('published', true)->where('isNoIndex', false)->orderBy('updated_at', 'desc');
+        $blogPosts = (clone $baseQuery)->whereNull('community_id')->get();
+        $communityPosts = (clone $baseQuery)->whereNotNull('community_id')->with('community')->get();
+        
         $categories = Category::orderBy('updated_at', 'desc')->get();
         $communities = Community::orderBy('updated_at', 'desc')->get();
         $authors = Author::orderBy('updated_at', 'desc')->get();
         $stories = Story::where('published', true)->orderBy('updated_at', 'desc')->get();
 
         return response()->view('sitemap.index', [
-            'posts' => $posts,
+            'blogPosts' => $blogPosts,
+            'communityPosts' => $communityPosts,
             'categories' => $categories,
             'communities' => $communities,
             'authors' => $authors,

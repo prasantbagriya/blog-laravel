@@ -10,9 +10,39 @@ const Image = ({ src, alt, fill, style, sizes, priority, fetchPriority, ...props
 };
 
 export default function AuthorShow({ author, posts }) {
+    const currentUrl = typeof window !== 'undefined' ? window.location.href : `https://coachingsinsikar.com/author/${author.slug}`;
+    const cleanBio = author.bio ? author.bio.replace(/<[^>]*>?/gm, '').substring(0, 160) : `Articles by ${author.name}`;
+    
+    const profileSchema = {
+        "@context": "https://schema.org",
+        "@type": "ProfilePage",
+        "mainEntity": {
+            "@type": "Person",
+            "name": author.name,
+            "jobTitle": author.jobTitle || "Author",
+            "image": author.image || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80",
+            "description": cleanBio,
+            "url": currentUrl,
+            "worksFor": {
+                "@type": "Organization",
+                "name": "Nexus"
+            }
+        }
+    };
+
     return (
         <div className="bg-white min-h-screen flex flex-col">
-            <Head title={`${author.name} | Author | Blog`} />
+            <Head title={`${author.name} | Author | Blog`}>
+                <meta name="description" content={cleanBio} />
+                <link rel="canonical" href={currentUrl} />
+                <meta property="og:title" content={`${author.name} | Author`} />
+                <meta property="og:description" content={cleanBio} />
+                <meta property="og:image" content={author.image || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80"} />
+                <meta property="og:type" content="profile" />
+                <script type="application/ld+json">
+                    {JSON.stringify(profileSchema)}
+                </script>
+            </Head>
             <GlobalNavbar />
             <main className="container mx-auto px-4 py-8 max-w-6xl mt-16 flex-grow">
                 <header className="mb-12 border-b pb-8 flex flex-col md:flex-row gap-8 items-center md:items-start text-center md:text-left">

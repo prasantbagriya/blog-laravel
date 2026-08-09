@@ -186,6 +186,10 @@ export default function ShowPost({ auth, community, post, comments, userCommentV
         parent_id: null,
     });
 
+    const plainTextContent = post.excerpt || (post.content ? post.content.replace(/<[^>]*>?/gm, '').substring(0, 160) : `Read this post by u/${post.author.username} in r/${community.name}.`);
+    const pageTitle = `${post.title} - r/${community.name} - Nexus`;
+    const currentUrl = typeof window !== 'undefined' ? window.location.href : `https://coachingsinsikar.com/r/${community.name}/comments/${post.id}/${post.slug || ''}`;
+
     const submitComment = (e) => {
         e.preventDefault();
         submitForm(route('post.comment.store', post.id), {
@@ -194,8 +198,19 @@ export default function ShowPost({ auth, community, post, comments, userCommentV
     };
 
     return (
-        <div className="min-h-screen bg-[#DAE0E6] text-[#1C1C1C] font-sans pb-20 pt-14">
-            <Head title={post.title} />
+        <div className="min-h-screen bg-[#DAE0E6] text-[#1C1C1C] font-sans pb-20">
+            <Head title={pageTitle}>
+                <meta name="description" content={plainTextContent} />
+                <link rel="canonical" href={currentUrl} />
+                <meta property="og:title" content={pageTitle} />
+                <meta property="og:description" content={plainTextContent} />
+                <meta property="og:type" content="article" />
+                {post.media_urls?.[0] && <meta property="og:image" content={post.media_urls[0]} />}
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content={pageTitle} />
+                <meta name="twitter:description" content={plainTextContent} />
+                {post.media_urls?.[0] && <meta name="twitter:image" content={post.media_urls[0]} />}
+            </Head>
             
             <header className="fixed top-0 z-50 w-full bg-white border-b border-[#EDEFF1]">
                 <div className="w-full px-4 sm:px-6 h-14 flex items-center justify-between">

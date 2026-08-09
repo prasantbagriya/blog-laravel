@@ -27,4 +27,14 @@ class Comment extends Model
     {
         return $this->hasMany(Comment::class, 'parent_id')->with('author', 'replies');
     }
+
+    public function reports()
+    {
+        return $this->morphMany(Report::class, 'reportable');
+    }
+
+    public function scopePublished($query)
+    {
+        return $query->where('status', 'published');
+    }
 }

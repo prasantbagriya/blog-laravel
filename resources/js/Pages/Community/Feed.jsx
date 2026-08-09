@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowBigUp, ArrowBigDown, MessageSquare, Share, Bookmark, MoreHorizontal, TrendingUp, Home, Compass, Plus, Search, Flag, Link as LinkIcon, Trash } from 'lucide-react';
+import { Home, Compass, Plus, Flame, Sparkles, TrendingUp, MoreHorizontal, Link as LinkIcon, Flag, Trash } from 'lucide-react';
+import Navbar from '@/Components/Navbar';
+import ReportModal from '@/Components/ReportModal';
+import PostCard from '@/Components/PostCard';
 
-const PostDropdown = ({ post, auth }) => {
+const PostDropdown = ({ post, auth, onReport }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -32,7 +35,7 @@ const PostDropdown = ({ post, auth }) => {
                         <button 
                             onClick={(e) => {
                                 e.preventDefault();
-                                alert('Post reported.');
+                                onReport(post.id, 'post');
                                 setIsOpen(false);
                             }}
                             className="w-full text-left px-4 py-2 hover:bg-[#F6F7F8] text-[14px] font-medium text-[#1C1C1C] flex items-center gap-2"
@@ -69,83 +72,127 @@ const PostDropdown = ({ post, auth }) => {
     );
 };
 
-export default function Feed({ auth, posts }) {
-    return (
-        <div className="min-h-screen bg-[#F2F4F5] text-[#1C1C1C] font-sans pb-20">
-            <Head title="Home" />
-            
-            {/* Minimal Header */}
-            <header className="sticky top-0 z-50 bg-white border-b border-[#EDEFF1]">
-                <div className="w-full px-4 sm:px-6 h-14 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-[#4F46E5] flex items-center justify-center">
-                            <span className="text-white font-black text-lg">N</span>
-                        </div>
-                        <span className="font-extrabold text-xl tracking-tight hidden sm:block">
-                            Nexus
-                        </span>
-                    </div>
-                    
-                    {/* Search Bar */}
-                    <div className="hidden sm:block flex-1 max-w-2xl mx-8 relative">
-                        <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                            <Search size={20} className="text-[#878A8C]" />
-                        </div>
-                        <input 
-                            type="text" 
-                            placeholder="Search Nexus" 
-                            className="w-full bg-[#F6F7F8] hover:bg-white hover:border-[#0079D3] border border-transparent rounded-full py-2.5 pl-12 pr-4 text-[14px] font-medium text-[#1C1C1C] placeholder-[#878A8C] focus:outline-none focus:bg-white focus:border-[#0079D3] focus:ring-0 transition-all shadow-none" 
-                        />
-                    </div>
+export default function Feed({ auth, posts, currentSort = 'new', currentFilter = 'home' }) {
+    const [reportModalData, setReportModalData] = useState({ isOpen: false, id: null, type: null });
 
-                    <div className="flex items-center gap-4">
-                        {auth?.user ? (
-                            <Link href="/dashboard" className="flex items-center gap-2 hover:bg-[#F6F7F8] px-2 py-1.5 rounded-full transition-colors">
-                                <div className="w-8 h-8 rounded-full bg-blue-100 overflow-hidden">
-                                    {auth.user.profile_picture ? (
-                                        <img src={auth.user.profile_picture} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className="w-full h-full bg-gradient-to-tr from-[#0079D3] to-[#4F46E5]"></div>
-                                    )}
-                                </div>
-                                <span className="font-bold text-[14px] hidden sm:block">{auth.user.name}</span>
-                            </Link>
-                        ) : (
-                            <div className="flex items-center gap-2">
-                                <Link href="/login" className="px-5 py-2.5 rounded-full font-bold text-[14px] bg-[#F6F7F8] hover:bg-[#E2E7E9] text-[#1C1C1C] transition-colors">
-                                    Log In
-                                </Link>
-                                <Link href="/register" className="px-5 py-2.5 rounded-full font-bold text-[14px] bg-[#4F46E5] hover:bg-[#4338CA] text-white transition-colors">
-                                    Sign Up
-                                </Link>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </header>
+    const openReportModal = (id, type) => {
+        if (!auth?.user) {
+            alert('Please log in to report.');
+            return;
+        }
+        setReportModalData({ isOpen: true, id, type });
+    };
+
+    const [allPosts, setAllPosts] = useState(posts.data);
+    const [nextPageUrl, setNextPageUrl] = useState(posts.next_page_url);
+    const [loadingMore, setLoadingMore] = useState(false);
+    
+    useEffect(() => {
+        setAllPosts(posts.data);
+        setNextPageUrl(posts.next_page_url);
+    }, [posts]);
+
+    const loadMoreRef = useRef(null);
+
+    const loadMorePosts = useCallback(() => {
+        if (!nextPageUrl || loadingMore) return;
+        
+        setLoadingMore(true);
+        router.get(nextPageUrl, {}, {
+            preserveState: true,
+            preserveScroll: true,
+            only: ['posts'],
+            onSuccess: (page) => {
+                const newPosts = page.props.posts;
+                setAllPosts(prev => {
+                    // Prevent duplicates
+                    const existingIds = new Set(prev.map(p => p.id));
+                    const uniqueNewPosts = newPosts.data.filter(p => !existingIds.has(p.id));
+                    return [...prev, ...uniqueNewPosts];
+                });
+                setNextPageUrl(newPosts.next_page_url);
+                setLoadingMore(false);
+            },
+            onError: () => setLoadingMore(false)
+        });
+    }, [nextPageUrl, loadingMore]);
+
+    useEffect(() => {
+        if (!loadMoreRef.current) return;
+        
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting && nextPageUrl && !loadingMore) {
+                loadMorePosts();
+            }
+        }, { threshold: 0.1 });
+        
+        observer.observe(loadMoreRef.current);
+        
+        return () => observer.disconnect();
+    }, [loadMorePosts, nextPageUrl, loadingMore]);
+
+    const currentUrl = typeof window !== 'undefined' ? window.location.href : 'https://coachingsinsikar.com/';
+    
+    const collectionSchema = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Nexus - The Front Page of the Internet",
+        "description": "Welcome to Nexus. Join communities, share posts, and discuss your favorite topics on the front page of the internet.",
+        "url": currentUrl,
+        "mainEntity": {
+            "@type": "ItemList",
+            "itemListElement": allPosts.map((post, index) => ({
+                "@type": "ListItem",
+                "position": index + 1,
+                "url": `https://coachingsinsikar.com/r/${post.community}/comments/${post.id}/${post.slug || ''}`
+            }))
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-[#DAE0E6] text-[#1C1C1C] font-sans pb-20">
+            <Head title="Nexus - The Front Page of the Internet">
+                <meta name="description" content="Welcome to Nexus. Join communities, share posts, and discuss your favorite topics on the front page of the internet." />
+                <meta property="og:title" content="Nexus - The Front Page of the Internet" />
+                <meta property="og:description" content="Welcome to Nexus. Join communities, share posts, and discuss your favorite topics on the front page of the internet." />
+                <meta property="og:type" content="website" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="Nexus - The Front Page of the Internet" />
+                <meta name="twitter:description" content="Welcome to Nexus. Join communities, share posts, and discuss your favorite topics on the front page of the internet." />
+                <link rel="canonical" href={currentUrl} />
+                <script type="application/ld+json">
+                    {JSON.stringify(collectionSchema)}
+                </script>
+            </Head>
+            
+            <Navbar auth={auth} />
 
             <div className="w-full mx-auto pt-6 px-4 flex gap-6">
                 
                 {/* Left Sidebar */}
                 <div className="hidden lg:block w-64 flex-shrink-0">
                     <div className="sticky top-20 space-y-2">
-                        <a href="#" className="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-[#F6F7F8] text-[#1C1C1C] font-bold">
-                            <Home size={22} strokeWidth={2.5} /> Home
-                        </a>
-                        <a href="#" className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-[#1C1C1C] hover:bg-[#F6F7F8] font-medium transition-colors">
-                            <Compass size={22} className="text-[#878A8C]" /> Popular
-                        </a>
-                        <div className="pt-4 mt-4 border-t border-[#EDEFF1]">
-                            <p className="text-[10px] font-bold text-[#878A8C] uppercase tracking-wider mb-2 px-4">Recent Communities</p>
-                            <a href="#" className="flex items-center gap-3 px-4 py-2 rounded-lg text-[#1C1C1C] hover:bg-[#F6F7F8] font-medium transition-colors">
-                                <div className="w-6 h-6 rounded-full bg-green-500"></div>
-                                r/laravel
-                            </a>
-                            <a href="#" className="flex items-center gap-3 px-4 py-2 rounded-lg text-[#1C1C1C] hover:bg-[#F6F7F8] font-medium transition-colors">
-                                <div className="w-6 h-6 rounded-full bg-blue-500"></div>
-                                r/reactjs
-                            </a>
-                        </div>
+                        <Link href="/feed?filter=home" className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-[#1C1C1C] font-medium transition-colors ${currentFilter === 'home' ? 'bg-[#F6F7F8] font-bold' : 'hover:bg-[#F6F7F8]'}`}>
+                            <Home size={22} strokeWidth={currentFilter === 'home' ? 2.5 : 2} className={currentFilter === 'home' ? '' : 'text-[#878A8C]'} /> Home
+                        </Link>
+                        <Link href="/feed?filter=popular" className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-[#1C1C1C] font-medium transition-colors ${currentFilter === 'popular' ? 'bg-[#F6F7F8] font-bold' : 'hover:bg-[#F6F7F8]'}`}>
+                            <Compass size={22} strokeWidth={currentFilter === 'popular' ? 2.5 : 2} className={currentFilter === 'popular' ? '' : 'text-[#878A8C]'} /> Popular
+                        </Link>
+                        {auth?.joined_communities && auth.joined_communities.length > 0 && (
+                            <div className="pt-4 mt-4 border-t border-[#EDEFF1]">
+                                <p className="text-[10px] font-bold text-[#878A8C] uppercase tracking-wider mb-2 px-4">Your Communities</p>
+                                {auth.joined_communities.map(community => (
+                                    <Link key={community.id} href={`/community/${community.name}`} className="flex items-center gap-3 px-4 py-2 rounded-lg text-[#1C1C1C] hover:bg-[#F6F7F8] font-medium transition-colors">
+                                        {community.icon_image ? (
+                                            <img src={community.icon_image} className="w-6 h-6 rounded-full object-cover" />
+                                        ) : (
+                                            <div className="w-6 h-6 rounded-full bg-[#0079D3]"></div>
+                                        )}
+                                        <span className="truncate">r/{community.name}</span>
+                                    </Link>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -153,9 +200,9 @@ export default function Feed({ auth, posts }) {
                 <div className="flex-1 space-y-4">
                     
                     {/* Create Post Input */}
-                    <Link href="/submit" className="bg-white rounded-md p-2 flex gap-2 items-center cursor-text mb-4">
-                        <div className="w-10 h-10 rounded-full bg-[#4F46E5] flex-shrink-0 ml-2 flex items-center justify-center">
-                            <span className="text-white font-bold text-lg">N</span>
+                    <Link href="/submit" className="bg-white border border-[#EDEFF1] rounded-md p-2 flex gap-2 items-center cursor-text mb-4">
+                        <div className="w-10 h-10 rounded-full bg-[#FF4500] flex-shrink-0 ml-2 flex items-center justify-center">
+                            <span className="text-white font-black text-lg">N</span>
                         </div>
                         <div 
                             className="flex-1 bg-[#F6F7F8] hover:bg-[#E2E7E9] rounded-full py-2.5 px-5 text-[14px] text-[#878A8C] transition-colors flex items-center font-medium"
@@ -167,118 +214,45 @@ export default function Feed({ auth, posts }) {
                         </button>
                     </Link>
 
-                    {/* Posts List */}
-                    {posts.map((post) => (
-                        <div key={post.id} className="bg-white border border-[#EDEFF1] hover:border-[#878A8C] rounded-md flex cursor-pointer transition-colors">
-                            
-                            {/* Vote Column (Classic Reddit Style) */}
-                            <div className="w-10 bg-[#F8F9FA] rounded-l-md flex flex-col items-center py-2 gap-1 flex-shrink-0">
-                                <button 
-                                    onClick={(e) => { e.preventDefault(); router.post('/vote', { votable_type: 'post', votable_id: post.id, value: 1 }, { preserveScroll: true }); }}
-                                    className={`p-1 rounded transition-colors border-0 outline-none focus:outline-none focus:ring-0 shadow-none bg-transparent ${post.user_vote === 1 ? 'text-[#FF4500] bg-orange-50' : 'text-[#878A8C] hover:text-[#FF4500] hover:bg-[#EAEAEA]'}`}
-                                >
-                                    <ArrowBigUp size={22} strokeWidth={1.5} className={post.user_vote === 1 ? 'fill-current' : ''} />
-                                </button>
-                                <span className={`text-[12px] font-bold ${post.user_vote === 1 ? 'text-[#FF4500]' : post.user_vote === -1 ? 'text-[#7193FF]' : 'text-[#1C1C1C]'}`}>{post.score}</span>
-                                <button 
-                                    onClick={(e) => { e.preventDefault(); router.post('/vote', { votable_type: 'post', votable_id: post.id, value: -1 }, { preserveScroll: true }); }}
-                                    className={`p-1 rounded transition-colors border-0 outline-none focus:outline-none focus:ring-0 shadow-none bg-transparent ${post.user_vote === -1 ? 'text-[#7193FF] bg-blue-50' : 'text-[#878A8C] hover:text-[#7193FF] hover:bg-[#EAEAEA]'}`}
-                                >
-                                    <ArrowBigDown size={22} strokeWidth={1.5} className={post.user_vote === -1 ? 'fill-current' : ''} />
-                                </button>
-                            </div>
-                            
-                            {/* Post Content */}
-                            <div className="p-2 pt-2.5 flex-1 min-w-0">
-                                <div className="flex items-center text-[12px] text-[#787C7E] mb-2 gap-1.5 flex-wrap">
-                                    <Link href={`/community/${post.community}`} className="font-bold text-[#1C1C1C] hover:underline">
-                                        r/{post.community}
-                                    </Link>
-                                    <span className="text-[10px]">•</span>
-                                    <span>Posted by <span className="hover:underline">u/{post.author.username}</span></span>
-                                    <span>{post.created_at}</span>
-                                </div>
-                                <Link href={`/r/${post.community}/comments/${post.id}/${post.slug}`} className="font-bold text-[18px] text-[#1C1C1C] hover:underline leading-snug">
-                                    {post.title}
-                                </Link>
-                                {post.type === 'TEXT' && post.content && (
-                                    <div className="relative overflow-hidden max-h-40 mb-3 pr-4">
-                                        <div 
-                                            className="text-[14px] text-[#1C1C1C] leading-relaxed prose prose-sm max-w-none prose-a:text-[#0079D3] prose-a:no-underline hover:prose-a:underline prose-img:rounded-md prose-img:my-2 prose-p:my-1"
-                                            dangerouslySetInnerHTML={{ __html: post.content }}
-                                        />
-                                        <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white to-transparent"></div>
-                                    </div>
-                                )}
-                                
-                                {post.type === 'LINK' && post.link_url && (
-                                    <a 
-                                        href={post.link_url} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        className="block mb-3 p-3 border border-[#EDEFF1] rounded-md hover:border-[#0079D3] transition-colors bg-[#F8F9FA] group mr-4"
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm text-[#0079D3]">
-                                                <LinkIcon size={16} />
-                                            </div>
-                                            <div className="flex-1 overflow-hidden">
-                                                <div className="text-[14px] font-bold text-[#1C1C1C] truncate group-hover:text-[#0079D3]">{post.link_url}</div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                )}
+                    {/* Sort Bar (Classic Style) */}
+                    <div className="bg-white border border-[#EDEFF1] rounded-md p-2 flex gap-1 items-center mb-4">
+                        <button 
+                            onClick={() => router.get(window.location.pathname, { sort: 'hot' }, { preserveScroll: true, preserveState: true })}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-[14px] transition-colors border-0 outline-none focus:outline-none focus:ring-0 ${currentSort === 'hot' ? 'bg-[#F6F7F8] text-[#0079D3]' : 'text-[#878A8C] hover:bg-[#F6F7F8]'}`}
+                        >
+                            <Flame size={18} />
+                            Hot
+                        </button>
+                        <button 
+                            onClick={() => router.get(window.location.pathname, { sort: 'new' }, { preserveScroll: true, preserveState: true })}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-[14px] transition-colors border-0 outline-none focus:outline-none focus:ring-0 ${currentSort === 'new' ? 'bg-[#F6F7F8] text-[#0079D3]' : 'text-[#878A8C] hover:bg-[#F6F7F8]'}`}
+                        >
+                            <Sparkles size={18} />
+                            New
+                        </button>
+                        <button 
+                            onClick={() => router.get(window.location.pathname, { sort: 'top' }, { preserveScroll: true, preserveState: true })}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-[14px] transition-colors border-0 outline-none focus:outline-none focus:ring-0 ${currentSort === 'top' ? 'bg-[#F6F7F8] text-[#0079D3]' : 'text-[#878A8C] hover:bg-[#F6F7F8]'}`}
+                        >
+                            <TrendingUp size={18} />
+                            Top
+                        </button>
+                    </div>
 
-                                {(post.type === 'IMAGE' || post.type === 'VIDEO') && post.media_urls && post.media_urls.length > 0 && (
-                                    <div className="mb-3 rounded-md overflow-hidden bg-black flex items-center justify-center max-h-96 mr-4">
-                                        {post.type === 'VIDEO' ? (
-                                            <video 
-                                                src={post.media_urls[0]} 
-                                                controls 
-                                                className="max-w-full max-h-96"
-                                            />
-                                        ) : (
-                                            <img 
-                                                src={post.media_urls[0]} 
-                                                alt="Post media" 
-                                                className="max-w-full max-h-96 object-contain"
-                                            />
-                                        )}
-                                    </div>
-                                )}
-                                
-                                {/* Action Buttons (Pill shape, subtle gray bg) */}
-                                <div className="flex gap-1 -ml-1 mt-1">
-                                    <Link href={`/r/${post.community}/comments/${post.id}/${post.slug}`} className="flex items-center gap-1.5 hover:bg-[#E2E7E9] px-2 py-1.5 rounded-full transition-colors font-bold text-[12px] text-[#878A8C]">
-                                        <MessageSquare size={20} />
-                                        <span className="text-[12px] font-bold">{post.comments_count} Comments</span>
-                                    </Link>
-                                    <button 
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            navigator.clipboard.writeText(`${window.location.origin}/r/${post.community}/comments/${post.id}`);
-                                            alert('Link copied to clipboard!');
-                                        }}
-                                        className="flex items-center gap-1.5 hover:bg-[#E2E7E9] px-2 py-1.5 rounded-full transition-colors font-bold text-[12px] text-[#878A8C] border-0 outline-none focus:outline-none focus:ring-0"
-                                    >
-                                        <Share size={18} strokeWidth={2} />
-                                        Share
-                                    </button>
-                                    <button 
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            router.post(`/posts/${post.id}/save`, {}, { preserveScroll: true });
-                                        }}
-                                        className={`flex items-center gap-1.5 px-2 py-1.5 rounded-full transition-colors font-bold text-[12px] border-0 outline-none focus:outline-none focus:ring-0 ${post.is_saved ? 'text-[#0079D3] bg-blue-50 hover:bg-blue-100' : 'text-[#878A8C] hover:bg-[#E2E7E9]'}`}
-                                    >
-                                        <Bookmark size={18} strokeWidth={2} className={post.is_saved ? "fill-current" : ""} />
-                                        {post.is_saved ? 'Saved' : 'Save'}
-                                    </button>
-                                    <PostDropdown post={post} auth={auth} />
-                                </div>
-                            </div>
-                        </div>
+                    {/* Posts List */}
+                    {allPosts.map((post) => (
+                        <PostCard key={post.id} post={post} auth={auth} openReportModal={openReportModal} />
                     ))}
+                    
+                    {nextPageUrl && (
+                        <div ref={loadMoreRef} className="py-8 flex justify-center items-center">
+                            {loadingMore ? (
+                                <div className="w-8 h-8 border-4 border-[#0079D3] border-t-transparent rounded-full animate-spin"></div>
+                            ) : (
+                                <div className="text-[14px] text-[#878A8C] font-medium">Scroll for more posts</div>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 {/* Right Sidebar */}
@@ -292,7 +266,7 @@ export default function Feed({ auth, posts }) {
                             </div>
                             <p className="text-[14px] text-[#1C1C1C] mb-4 leading-snug">Your personal Nexus frontpage. Come here to check in with your favorite communities.</p>
                             <div className="space-y-3 pt-4 border-t border-[#EDEFF1]">
-                                <Link href="/submit" className="flex items-center justify-center w-full py-1.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold rounded-full text-[14px] transition-colors border-0 outline-none focus:outline-none focus:ring-0">
+                                <Link href="/submit" className="button button-brand button-medium px-sm px-[calc(var(--rem12)-var(--button-border-width,0px))] hover:no-underline inline-flex items-center justify-center w-full py-1 min-h-[32px] bg-[#0079D3] hover:bg-[#005a9e] text-white font-bold rounded-full transition-colors border-0 outline-none focus:outline-none focus:ring-0">
                                     Create Post
                                 </Link>
                                 <Link href="/communities/create" className="flex items-center justify-center w-full py-1.5 bg-[#F6F7F8] hover:bg-[#E2E7E9] text-[#1C1C1C] font-bold rounded-full text-[14px] transition-colors border-0 outline-none focus:outline-none focus:ring-0">
@@ -304,6 +278,13 @@ export default function Feed({ auth, posts }) {
                 </div>
 
             </div>
+
+            <ReportModal 
+                isOpen={reportModalData.isOpen} 
+                onClose={() => setReportModalData({ isOpen: false, id: null, type: null })}
+                reportableId={reportModalData.id}
+                reportableType={reportModalData.type}
+            />
         </div>
     );
 }

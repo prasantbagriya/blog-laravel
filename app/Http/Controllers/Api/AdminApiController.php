@@ -121,7 +121,7 @@ class AdminApiController extends Controller
         $media = [];
         
         foreach ($files as $file) {
-            $url = rtrim(config('app.url'), '/') . '/uploads/' . $file->getFilename();
+            $url = asset('uploads/' . $file->getFilename());
             $media[] = [
                 'id' => $file->getFilename(),
                 'name' => $file->getFilename(),
@@ -131,6 +131,11 @@ class AdminApiController extends Controller
                 'usedIn' => []
             ];
         }
+
+        // Sort media by newest first
+        usort($media, function($a, $b) {
+            return strtotime($b['createdAt']) - strtotime($a['createdAt']);
+        });
 
         return response()->json($media);
     }
@@ -154,7 +159,7 @@ class AdminApiController extends Controller
 
         $file->move(public_path('uploads'), $filename);
         
-        $url = rtrim(config('app.url'), '/') . '/uploads/' . $filename;
+        $url = asset('uploads/' . $filename);
         return response()->json(['success' => true, 'url' => $url]);
     }
 

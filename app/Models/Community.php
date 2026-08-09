@@ -17,4 +17,14 @@ class Community extends Model
     {
         return $this->belongsTo(User::class, 'owner_id');
     }
+
+    public function members()
+    {
+        return $this->belongsToMany(User::class, 'community_members');
+    }
+
+    public function moderators()
+    {
+        return $this->belongsToMany(User::class, 'community_moderators');
+    }
 }

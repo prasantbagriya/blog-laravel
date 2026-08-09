@@ -53,4 +53,14 @@ class Post extends Model
     {
         return $this->belongsToMany(User::class, 'saved_posts')->withTimestamps();
     }
+
+    public function reports()
+    {
+        return $this->morphMany(Report::class, 'reportable');
+    }
+
+    public function scopePublished($query)
+    {
+        return $query->where('published', true);
+    }
 }

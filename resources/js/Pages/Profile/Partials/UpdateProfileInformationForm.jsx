@@ -16,6 +16,7 @@ export default function UpdateProfileInformation({
         useForm({
             name: user.name,
             email: user.email,
+            flair: user.flair || '',
         });
 
     const submit = (e) => {
@@ -67,6 +68,21 @@ export default function UpdateProfileInformation({
                     />
 
                     <InputError className="mt-2" message={errors.email} />
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="flair" value="User Flair (Optional)" />
+
+                    <TextInput
+                        id="flair"
+                        type="text"
+                        className="mt-1 block w-full"
+                        value={data.flair}
+                        onChange={(e) => setData('flair', e.target.value)}
+                        placeholder="e.g. Laravel Expert, Designer, Moderator"
+                    />
+
+                    <InputError className="mt-2" message={errors.flair} />
                 </div>
 
                 {mustVerifyEmail && user.email_verified_at === null && (

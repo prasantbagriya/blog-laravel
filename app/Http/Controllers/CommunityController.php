@@ -9,14 +9,33 @@ use Inertia\Inertia;
 
 class CommunityController extends Controller
 {
-    public function feed()
+    public function feed(Request $request)
     {
-        $posts = Post::with(['author', 'community'])
+        $sort = $request->query('sort', 'new');
+        $filter = $request->query('filter', 'home');
+
+        $query = Post::with(['author', 'community'])
             ->withCount('comments')
             ->whereNotNull('community_id')
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($post) {
+            ->published();
+
+        if (auth()->check() && $filter !== 'popular') {
+            $joinedCommunityIds = auth()->user()->communities()->pluck('communities.id');
+            if ($joinedCommunityIds->isNotEmpty()) {
+                $query->whereIn('community_id', $joinedCommunityIds);
+            }
+        }
+
+        if ($sort === 'top') {
+            $query->orderBy('score', 'desc');
+        } elseif ($sort === 'hot') {
+            $query->orderBy('score', 'desc')->orderBy('created_at', 'desc');
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        $posts = $query->paginate(15)
+            ->through(function ($post) {
                 return [
                     'id' => $post->id,
                     'title' => $post->title,
@@ -25,7 +44,11 @@ class CommunityController extends Controller
                     'link_url' => $post->link_url,
                     'media_urls' => is_string($post->media_urls) ? json_decode($post->media_urls) : $post->media_urls,
                     'community' => $post->community ? $post->community->name : '',
-                    'author' => ['username' => $post->getRelation('author') ? $post->getRelation('author')->username : 'deleted'],
+                    'author' => [
+                        'username' => $post->getRelation('author') ? $post->getRelation('author')->username : 'deleted',
+                        'flair' => $post->getRelation('author') ? $post->getRelation('author')->flair : null
+                    ],
+                    'flair' => $post->flair,
                     'score' => $post->score,
                     'comments_count' => $post->comments_count,
                     'created_at' => $post->created_at->diffForHumans(),
@@ -36,20 +59,33 @@ class CommunityController extends Controller
             });
 
         return Inertia::render('Community/Feed', [
-            'posts' => $posts
+            'posts' => $posts,
+            'currentSort' => $sort,
+            'currentFilter' => $filter,
         ]);
     }
 
-    public function show($name)
+    public function show(Request $request, $name)
     {
         $community = Community::where('name', $name)->firstOrFail();
         
-        $posts = Post::with('author')
+        $sort = $request->query('sort', 'new');
+
+        $query = Post::with('author')
             ->withCount('comments')
             ->where('community_id', $community->id)
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($post) {
+            ->published();
+
+        if ($sort === 'top') {
+            $query->orderBy('score', 'desc');
+        } elseif ($sort === 'hot') {
+            $query->orderBy('score', 'desc')->orderBy('created_at', 'desc');
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        $posts = $query->paginate(15)
+            ->through(function ($post) {
                 return [
                     'id' => $post->id,
                     'title' => $post->title,
@@ -57,7 +93,11 @@ class CommunityController extends Controller
                     'type' => $post->type,
                     'link_url' => $post->link_url,
                     'media_urls' => is_string($post->media_urls) ? json_decode($post->media_urls) : $post->media_urls,
-                    'author' => ['username' => $post->getRelation('author') ? $post->getRelation('author')->username : 'deleted'],
+                    'author' => [
+                        'username' => $post->getRelation('author') ? $post->getRelation('author')->username : 'deleted',
+                        'flair' => $post->getRelation('author') ? $post->getRelation('author')->flair : null
+                    ],
+                    'flair' => $post->flair,
                     'score' => $post->score,
                     'comments_count' => $post->comments_count,
                     'created_at' => $post->created_at->diffForHumans(),
@@ -75,10 +115,14 @@ class CommunityController extends Controller
                 'description' => $community->description,
                 'banner_image' => $community->banner_image,
                 'icon_image' => $community->icon_image,
-                'members_count' => 1,
+                'members_count' => $community->members()->count(),
                 'online_count' => 1,
+                'is_member' => auth()->check() ? $community->members()->where('user_id', auth()->id())->exists() : false,
+                'is_owner' => auth()->check() ? auth()->id() === $community->owner_id : false,
+                'is_moderator' => auth()->check() ? $community->moderators()->where('user_id', auth()->id())->exists() : false,
             ],
-            'posts' => $posts
+            'posts' => $posts,
+            'currentSort' => $sort,
         ]);
     }
 
@@ -103,5 +147,131 @@ class CommunityController extends Controller
         ]);
 
         return redirect()->route('community.show', $community->name);
+    }
+
+    public function join(Community $community)
+    {
+        $user = auth()->user();
+        if ($community->members()->where('user_id', $user->id)->exists()) {
+            $community->members()->detach($user->id);
+        } else {
+            $community->members()->attach($user->id);
+        }
+
+        return back();
+    }
+
+    public function edit(Community $community)
+    {
+        $user = auth()->user();
+        $isOwner = $community->owner_id === $user->id;
+        $isModerator = $community->moderators()->where('user_id', $user->id)->exists();
+
+        if (!$isOwner && !$isModerator) {
+            abort(403);
+        }
+
+        return Inertia::render('Community/Edit', [
+            'community' => [
+                'id' => $community->id,
+                'name' => $community->name,
+                'display_name' => $community->display_name,
+                'description' => $community->description,
+                'banner_image' => $community->banner_image,
+                'icon_image' => $community->icon_image,
+            ]
+        ]);
+    }
+
+    public function update(Request $request, Community $community)
+    {
+        $user = auth()->user();
+        $isOwner = $community->owner_id === $user->id;
+        $isModerator = $community->moderators()->where('user_id', $user->id)->exists();
+
+        if (!$isOwner && !$isModerator) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'display_name' => 'nullable|string|max:50',
+            'description' => 'nullable|string|max:500',
+            'banner_image' => 'nullable|url|max:2048',
+            'icon_image' => 'nullable|url|max:2048',
+        ]);
+
+        $community->update($validated);
+
+        return redirect()->route('community.show', $community->name);
+    }
+
+    public function modqueue(Community $community)
+    {
+        $user = auth()->user();
+        $isOwner = $community->owner_id === $user->id;
+        $isModerator = $community->moderators()->where('user_id', $user->id)->exists();
+
+        if (!$isOwner && !$isModerator) {
+            abort(403);
+        }
+
+        $reports = \App\Models\Report::with(['user', 'reportable.author'])
+            ->where('community_id', $community->id)
+            ->where('status', 'pending')
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        return Inertia::render('Community/ModQueue', [
+            'community' => [
+                'id' => $community->id,
+                'name' => $community->name,
+                'display_name' => $community->display_name,
+            ],
+            'reports' => $reports,
+        ]);
+    }
+
+    public function approveReport(Request $request, \App\Models\Report $report)
+    {
+        $community = $report->community;
+        $user = auth()->user();
+        $isOwner = $community && $community->owner_id === $user->id;
+        $isModerator = $community && $community->moderators()->where('user_id', $user->id)->exists();
+
+        if (!$isOwner && !$isModerator) {
+            abort(403);
+        }
+
+        $reportable = $report->reportable;
+        if ($reportable) {
+            $reportable->update(['status' => 'published']);
+            \App\Models\Report::where('reportable_id', $reportable->id)
+                ->where('reportable_type', $report->reportable_type)
+                ->update(['status' => 'resolved']);
+        }
+
+        return back();
+    }
+
+    public function removeReport(Request $request, \App\Models\Report $report)
+    {
+        $community = $report->community;
+        $user = auth()->user();
+        $isOwner = $community && $community->owner_id === $user->id;
+        $isModerator = $community && $community->moderators()->where('user_id', $user->id)->exists();
+
+        if (!$isOwner && !$isModerator) {
+            abort(403);
+        }
+
+        $reportable = $report->reportable;
+        if ($reportable) {
+            $reportable->update(['status' => 'removed']);
+            \App\Models\Report::where('reportable_id', $reportable->id)
+                ->where('reportable_type', $report->reportable_type)
+                ->update(['status' => 'resolved']);
+        }
+
+        return back();
     }
 }

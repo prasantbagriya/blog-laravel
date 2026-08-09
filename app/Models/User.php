@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'username', 'bio', 'profile_picture', 'banner_image', 'social_links', 'settings'])]
+#[Fillable(['name', 'email', 'password', 'username', 'bio', 'profile_picture', 'banner_image', 'social_links', 'settings', 'flair'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -25,6 +25,11 @@ class User extends Authenticatable
     public function communities()
     {
         return $this->belongsToMany(Community::class, 'community_members');
+    }
+
+    public function moderatedCommunities()
+    {
+        return $this->belongsToMany(Community::class, 'community_moderators');
     }
 
     public function savedPosts()

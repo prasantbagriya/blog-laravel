@@ -10,9 +10,39 @@ const Image = ({ src, alt, fill, style, sizes, priority, fetchPriority, ...props
 };
 
 export default function Index({ posts }) {
+    const collectionSchema = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "All Articles & Insights | Blog",
+        "url": typeof window !== 'undefined' ? window.location.href : "https://coachingsinsikar.com/blog",
+        "description": "Read the latest articles, insights, and news from our official blog.",
+        "publisher": {
+            "@type": "Organization",
+            "name": "Nexus",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://coachingsinsikar.com/images/logo.png"
+            }
+        },
+        "hasPart": posts.map(post => ({
+            "@type": "Article",
+            "headline": post.title,
+            "url": `https://coachingsinsikar.com/blog/${post.slug}`,
+            "author": {
+                "@type": "Person",
+                "name": post.author
+            }
+        }))
+    };
+
     return (
         <div className="bg-white min-h-screen">
-            <Head title="All Posts | Blog" />
+            <Head title="All Posts | Blog">
+                <meta name="description" content="Read the latest articles, insights, and news from our official blog." />
+                <script type="application/ld+json">
+                    {JSON.stringify(collectionSchema)}
+                </script>
+            </Head>
             
             <GlobalNavbar />
             

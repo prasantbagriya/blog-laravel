@@ -154,6 +154,7 @@ class PostController extends Controller
             'post' => [
                 'id' => $post->id,
                 'title' => $post->title,
+                'excerpt' => $post->excerpt,
                 'content' => $post->content,
                 'type' => $post->type,
                 'link_url' => $post->link_url,

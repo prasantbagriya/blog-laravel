@@ -8,6 +8,7 @@ use Inertia\Inertia;
 Route::get('/', [\App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap.index');
+Route::get('/news-sitemap.xml', [\App\Http\Controllers\NewsSitemapController::class, 'index'])->name('sitemap.news');
 
 Route::get('/blog', [\App\Http\Controllers\BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('blog.show');
@@ -19,16 +20,28 @@ Route::get('/public/{any}', function ($any) {
 
 Route::get('/feed', [\App\Http\Controllers\CommunityController::class, 'feed'])->name('community.feed');
 Route::get('/community/{name}', [\App\Http\Controllers\CommunityController::class, 'show'])->name('community.show');
+Route::get('/r/{name}/feed.xml', [\App\Http\Controllers\RssController::class, 'communityFeed'])->name('community.rss');
 Route::get('/r/{community}/comments/{post}/{slug?}', [\App\Http\Controllers\PostController::class, 'show'])->name('post.show');
+Route::get('/u/{username}', [\App\Http\Controllers\UserController::class, 'show'])->name('user.show');
 
 Route::middleware('auth')->group(function () {
     Route::get('/communities/create', [\App\Http\Controllers\CommunityController::class, 'create'])->name('community.create');
     Route::post('/communities', [\App\Http\Controllers\CommunityController::class, 'store'])->name('community.store');
+    Route::get('/community/{community}/edit', [\App\Http\Controllers\CommunityController::class, 'edit'])->name('community.edit');
+    Route::post('/community/{community}/update', [\App\Http\Controllers\CommunityController::class, 'update'])->name('community.update');
+    Route::post('/community/{community}/join', [\App\Http\Controllers\CommunityController::class, 'join'])->name('community.join');
     
     Route::get('/submit', [\App\Http\Controllers\PostController::class, 'create'])->name('post.create');
     Route::post('/posts', [\App\Http\Controllers\PostController::class, 'store'])->name('post.store');
     
     Route::post('/posts/{post}/comments', [\App\Http\Controllers\PostController::class, 'storeComment'])->name('post.comment.store');
+    
+    Route::post('/reports', [\App\Http\Controllers\ReportController::class, 'store'])->name('reports.store');
+    Route::get('/community/{community}/modqueue', [\App\Http\Controllers\CommunityController::class, 'modqueue'])->name('community.modqueue');
+    Route::post('/reports/{report}/approve', [\App\Http\Controllers\CommunityController::class, 'approveReport'])->name('reports.approve');
+    Route::post('/reports/{report}/remove', [\App\Http\Controllers\CommunityController::class, 'removeReport'])->name('reports.remove');
+    
+    Route::post('/notifications/mark-read', [\App\Http\Controllers\NotificationController::class, 'markRead'])->name('notifications.markRead');
 });
 
 Route::get('/stories', [\App\Http\Controllers\StoryController::class, 'index'])->name('story.index');
@@ -45,7 +58,7 @@ Route::get('/editorial-policy', [\App\Http\Controllers\PageController::class, 'e
 Route::get('/fact-checking-policy', [\App\Http\Controllers\PageController::class, 'factCheckingPolicy'])->name('page.factCheckingPolicy');
 Route::get('/privacy', [\App\Http\Controllers\PageController::class, 'privacy'])->name('page.privacy');
 Route::get('/terms', [\App\Http\Controllers\PageController::class, 'terms'])->name('page.terms');
-Route::get('/search', [\App\Http\Controllers\PageController::class, 'search'])->name('page.search');
+Route::get('/search', [\App\Http\Controllers\SearchController::class, 'index'])->name('search.index');
 
 
 // Admin Routes (Protected by Auth middleware)
@@ -232,13 +245,35 @@ require __DIR__.'/auth.php';
 
 Route::get('/run-migrations', function () {
     \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-    return "Database tables created successfully!";
+    return \Illuminate\Support\Facades\Artisan::output();
+});
+
+Route::get('/fix-posts', function () {
+    $count = \App\Models\Post::where('published', false)->update(['published' => true]);
+    return "Successfully updated {$count} hidden posts to be published!";
 });
 
 Route::get('/clear-cache', function() {
     \Illuminate\Support\Facades\Artisan::call('config:clear');
     \Illuminate\Support\Facades\Artisan::call('cache:clear');
     return 'Cache & Config Cleared! Now you can visit the migration URLs.';
+});
+
+Route::get('/force-clear', function() {
+    $files = [
+        base_path('bootstrap/cache/config.php'),
+        base_path('bootstrap/cache/routes-v7.php'),
+        base_path('bootstrap/cache/packages.php'),
+        base_path('bootstrap/cache/services.php'),
+    ];
+    $deleted = [];
+    foreach ($files as $file) {
+        if (file_exists($file)) {
+            @unlink($file);
+            $deleted[] = basename($file);
+        }
+    }
+    return 'Force cleared cache files: ' . implode(', ', $deleted) . '. Now please visit /db-test again!';
 });
 
 Route::get('/env-test', function() {
@@ -249,6 +284,33 @@ Route::get('/env-test', function() {
         'DB_DATABASE_FROM_CONFIG' => config('database.connections.mysql.database'),
         'DB_USERNAME_FROM_CONFIG' => config('database.connections.mysql.username'),
     ]);
+});
+
+Route::get('/db-test', function() {
+    try {
+        \Illuminate\Support\Facades\DB::connection()->getPdo();
+        $tables = \Illuminate\Support\Facades\DB::select('SHOW TABLES');
+        $postCount = 0;
+        if (\Illuminate\Support\Facades\Schema::hasTable('posts')) {
+            $postCount = \Illuminate\Support\Facades\DB::table('posts')->count();
+        }
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Successfully connected to the database!',
+            'database_name' => \Illuminate\Support\Facades\DB::connection()->getDatabaseName(),
+            'tables_found' => count($tables),
+            'total_posts' => $postCount
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Could not connect to the database.',
+            'error_details' => $e->getMessage(),
+            'database_name_in_config' => config('database.connections.mysql.database'),
+            'username_in_config' => config('database.connections.mysql.username'),
+            'host' => config('database.connections.mysql.host'),
+        ]);
+    }
 });
 
 Route::get('/storage-link', function() {
@@ -309,6 +371,72 @@ Route::get('/fix-db-urls', function() {
         }
     }
     return "Database updated successfully! Fixed {$count} records that had the wrong /public/ or /list/public/ paths in their images.";
+});
+
+Route::get('/fix-image-paths', function() {
+    $tables = [
+        ['table' => 'posts', 'columns' => ['content', 'coverImage', 'authorImage', 'media_urls']],
+        ['table' => 'authors', 'columns' => ['image', 'bio']],
+        ['table' => 'categories', 'columns' => ['image', 'description']],
+    ];
+    $goodBase = 'https://coachingsinsikar.com/uploads/';
+    $count = 0;
+    
+    foreach ($tables as $t) {
+        $records = \Illuminate\Support\Facades\DB::table($t['table'])->get();
+        foreach ($records as $record) {
+            $update = [];
+            foreach ($t['columns'] as $col) {
+                if (!empty($record->{$col})) {
+                    $val = $record->{$col};
+                    
+                    // Array of old paths to replace with the new base URL
+                    $replacements = [
+                        'http://localhost/uploads/' => $goodBase,
+                        'http://localhost/storage/wp-images/' => $goodBase,
+                        'http://localhost/storage/uploads/' => $goodBase,
+                        'http://localhost/storage/' => $goodBase,
+                        'https://coachingsinsikar.com/storage/wp-images/' => $goodBase,
+                        'https://coachingsinsikar.com/storage/uploads/' => $goodBase,
+                        'https://coachingsinsikar.com/storage/' => $goodBase,
+                        
+                        // HTML and JSON contexts
+                        '="/storage/wp-images/' => '="' . $goodBase,
+                        '="/storage/uploads/' => '="' . $goodBase,
+                        '="/storage/' => '="' . $goodBase,
+                        
+                        '"/storage/wp-images/' => '"' . $goodBase,
+                        '"/storage/uploads/' => '"' . $goodBase,
+                        '"/storage/' => '"' . $goodBase,
+                    ];
+                    
+                    foreach ($replacements as $old => $new) {
+                        if (str_contains($val, $old)) {
+                            $val = str_replace($old, $new, $val);
+                        }
+                    }
+                    
+                    // Check if string exactly starts with relative storage paths
+                    if (str_starts_with($val, '/storage/wp-images/')) {
+                        $val = str_replace('/storage/wp-images/', $goodBase, $val);
+                    } elseif (str_starts_with($val, '/storage/uploads/')) {
+                        $val = str_replace('/storage/uploads/', $goodBase, $val);
+                    } elseif (str_starts_with($val, '/storage/')) {
+                        $val = str_replace('/storage/', $goodBase, $val);
+                    }
+
+                    if ($val !== $record->{$col}) {
+                        $update[$col] = $val;
+                    }
+                }
+            }
+            if (!empty($update)) {
+                \Illuminate\Support\Facades\DB::table($t['table'])->where('id', $record->id)->update($update);
+                $count++;
+            }
+        }
+    }
+    return "Successfully updated {$count} records! All image paths now point to https://coachingsinsikar.com/uploads/";
 });
 
 Route::fallback(function () {

@@ -49,14 +49,26 @@
         <priority>0.3</priority>
     </url>
 
-    <!-- Posts -->
-    @foreach ($posts as $post)
+    <!-- Official Blog Posts -->
+    @foreach ($blogPosts as $post)
         <url>
             <loc>{{ route('blog.show', $post->slug) }}</loc>
             <lastmod>{{ $post->updated_at->tz('UTC')->toAtomString() }}</lastmod>
             <changefreq>weekly</changefreq>
             <priority>0.8</priority>
         </url>
+    @endforeach
+
+    <!-- Community Posts -->
+    @foreach ($communityPosts as $post)
+        @if ($post->community)
+            <url>
+                <loc>{{ route('post.show', ['community' => $post->community->name, 'post' => $post->id, 'slug' => \Illuminate\Support\Str::slug($post->title)]) }}</loc>
+                <lastmod>{{ $post->updated_at->tz('UTC')->toAtomString() }}</lastmod>
+                <changefreq>daily</changefreq>
+                <priority>0.7</priority>
+            </url>
+        @endif
     @endforeach
 
     <!-- Categories -->
@@ -69,13 +81,19 @@
         </url>
     @endforeach
 
-    <!-- Communities -->
+    <!-- Communities and their RSS Feeds -->
     @foreach ($communities as $community)
         <url>
             <loc>{{ route('community.show', $community->name) }}</loc>
             <lastmod>{{ $community->updated_at->tz('UTC')->toAtomString() }}</lastmod>
             <changefreq>daily</changefreq>
             <priority>0.8</priority>
+        </url>
+        <url>
+            <loc>{{ route('community.rss', $community->name) }}</loc>
+            <lastmod>{{ $community->updated_at->tz('UTC')->toAtomString() }}</lastmod>
+            <changefreq>hourly</changefreq>
+            <priority>0.6</priority>
         </url>
     @endforeach
 
