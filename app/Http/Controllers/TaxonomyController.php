@@ -9,6 +9,14 @@ use App\Models\Author;
 
 class TaxonomyController extends Controller
 {
+    public function categoryIndex()
+    {
+        $categories = \App\Models\Category::all()->toArray();
+        return Inertia::render('Category/Index', [
+            'categories' => $categories
+        ]);
+    }
+
     public function categoryShow($slug)
     {
         // Simple matching for category (in the old code it was a string matching)

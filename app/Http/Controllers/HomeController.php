@@ -24,6 +24,10 @@ class HomeController extends Controller
             'recentPosts' => $recentPosts,
             'publishedStories' => $publishedStories,
             'sliders' => $sliders,
+            'meta' => [
+                'title' => 'Coaching Sinsikar | Master Modern Web Dev & Advanced SEO 2026',
+                'description' => 'Expert insights, visual web stories, and high-performance strategies to dominate Google search and AI overviews in 2026.',
+            ]
         ]);
     }
 }

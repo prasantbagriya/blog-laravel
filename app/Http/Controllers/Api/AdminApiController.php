@@ -149,15 +149,45 @@ class AdminApiController extends Controller
         $file = $request->file('file');
         $filename = $file->getClientOriginalName();
         
+        // Handle image processing with Intervention Image
+        $extension = strtolower($file->getClientOriginalExtension());
+        $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp']);
+
         if ($request->has('oldFilename')) {
             $filename = $request->input('oldFilename'); // Replace existing file
         } else {
+            // Force .webp extension for images
+            if ($isImage) {
+                $filename = pathinfo($filename, PATHINFO_FILENAME) . '.webp';
+            }
             if (File::exists(public_path('uploads/' . $filename))) {
-                $filename = pathinfo($filename, PATHINFO_FILENAME) . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $filename = pathinfo($filename, PATHINFO_FILENAME) . '_' . time() . ($isImage ? '.webp' : '.' . $extension);
             }
         }
 
-        $file->move(public_path('uploads'), $filename);
+        if ($isImage) {
+            $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+            $image = $manager->read($file->getRealPath());
+            
+            // Scale down if width exceeds 1200
+            if ($image->width() > 1200) {
+                $image->scaleDown(width: 1200);
+            }
+            
+            $quality = 80;
+            $encoded = $image->toWebp($quality);
+            
+            // Iteratively reduce quality if file is > 100KB
+            while (strlen($encoded->toString()) > 102400 && $quality > 10) {
+                $quality -= 10;
+                $encoded = $image->toWebp($quality);
+            }
+            
+            // Save as webp
+            $encoded->save(public_path('uploads/' . $filename));
+        } else {
+            $file->move(public_path('uploads'), $filename);
+        }
         
         $url = asset('uploads/' . $filename);
         return response()->json(['success' => true, 'url' => $url]);

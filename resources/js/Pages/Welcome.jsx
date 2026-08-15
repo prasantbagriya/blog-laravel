@@ -4,9 +4,12 @@ import BlogFooter from '../NextComponents/BlogFooter';
 import React, { useState, useEffect } from 'react';
 
 // Simple polyfill for Next.js Image
-const Image = ({ src, alt, fill, style, sizes, priority, fetchPriority, ...props }) => {
+const Image = ({ src, alt, fill, style, sizes, priority, ...props }) => {
     const imgStyle = fill ? { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%', ...style } : style;
-    return <img src={src} alt={alt} style={imgStyle} sizes={sizes} {...props} />;
+    const fetchPriority = priority ? "high" : "auto";
+    const loadingAttr = priority ? "eager" : "lazy";
+    
+    return <img src={src} alt={alt} style={imgStyle} sizes={sizes} fetchpriority={fetchPriority} loading={loadingAttr} {...props} />;
 };
 
 const sliderImages = [
@@ -17,12 +20,18 @@ const sliderImages = [
     'https://images.unsplash.com/photo-1522542550221-31fd19575a2d?w=800&q=80'
 ];
 
-export default function Welcome({ featuredPost, recentPosts, publishedStories, sliders }) {
+export default function Welcome({ featuredPost, recentPosts, publishedStories, sliders, meta }) {
     recentPosts = recentPosts || [];
     publishedStories = publishedStories || [];
     
     const activeSlides = sliders?.length > 0 ? sliders : sliderImages;
     const [currentSlide, setCurrentSlide] = useState(0);
+
+    const formatDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return isNaN(date.getTime()) ? dateString : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    };
 
     useEffect(() => {
         if (!activeSlides || activeSlides.length <= 1) return;
@@ -34,13 +43,19 @@ export default function Welcome({ featuredPost, recentPosts, publishedStories, s
     
     return (
         <div className="bg-white min-h-screen">
-            <Head title="Blog | Leading Authority on Modern Web & SEO 2026">
-                <meta name="description" content="Expert insights, visual web stories, and high-performance strategies to dominate Google search and AI overviews in 2026." />
+            <Head title={meta?.title || "Home"}>
+                <meta head-key="description" name="description" content={meta?.description || "Expert insights, visual web stories, and high-performance strategies to dominate Google search and AI overviews in 2026."} />
             </Head>
             
             <GlobalNavbar />
             
             <main className="min-h-screen">
+                <div className="container mx-auto px-4 max-w-6xl mt-4 mb-2">
+                    <h1 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">
+                        {meta?.title || "cochinginsikar"}
+                    </h1>
+                </div>
+
                 {/* Hero Section Carousel */}
                 <section className="w-full h-[40vh] md:h-[60vh] min-h-[300px] md:min-h-[400px] relative mt-0 mb-8 md:mb-12 overflow-hidden">
                     {activeSlides.map((slide, index) => {
@@ -53,24 +68,16 @@ export default function Welcome({ featuredPost, recentPosts, publishedStories, s
                             <>
                                 <>
                                     {slide.mobile_image_url ? (
-                                        <>
-                                            {/* Desktop Image */}
-                                            <img
-                                                src={imgSrc}
-                                                alt={title || `Slide ${index}`}
-                                                className="hidden md:block"
-                                                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-                                                priority={index === 0}
-                                            />
-                                            {/* Mobile Image */}
+                                        <picture>
+                                            <source media="(min-width: 768px)" srcSet={imgSrc} />
                                             <img
                                                 src={slide.mobile_image_url}
                                                 alt={title || `Slide ${index}`}
-                                                className="block md:hidden"
                                                 style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-                                                priority={index === 0}
+                                                fetchpriority={index === 0 ? "high" : "auto"}
+                                                loading={index === 0 ? "eager" : "lazy"}
                                             />
-                                        </>
+                                        </picture>
                                     ) : (
                                         <Image
                                             src={imgSrc}
@@ -115,10 +122,12 @@ export default function Welcome({ featuredPost, recentPosts, publishedStories, s
                             {activeSlides.map((_, i) => (
                                 <button 
                                     key={i} 
+                                    aria-label={`Go to slide ${i + 1}`}
                                     onClick={() => setCurrentSlide(i)}
                                     style={{ 
-                                        width: '10px', height: '10px', borderRadius: '50%', padding: 0,
+                                        width: '48px', height: '48px', padding: '19px', borderRadius: '50%',
                                         background: currentSlide === i ? '#fff' : 'rgba(255,255,255,0.4)',
+                                        backgroundClip: 'content-box',
                                         border: 'none', cursor: 'pointer', transition: 'background 0.3s' 
                                     }} 
                                 />
@@ -148,7 +157,7 @@ export default function Welcome({ featuredPost, recentPosts, publishedStories, s
                                         src={featuredPost.coverImage || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80'} 
                                         alt={featuredPost.title} 
                                         fill 
-                                        style={{ objectFit: 'cover' }}
+                                        style={{ objectFit: 'contain', backgroundColor: '#f9fafb' }}
                                     />
                                 </Link>
                                 <div style={{ padding: 'clamp(1.25rem, 5vw, 3.5rem)', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: '#ffffff' }}>
@@ -166,7 +175,7 @@ export default function Welcome({ featuredPost, recentPosts, publishedStories, s
                                         </div>
                                         <div>
                                         <div style={{ fontWeight: 800, fontSize: '1rem' }}>{featuredPost.author}</div>
-                                        <div style={{ fontSize: '0.8125rem', color: 'var(--muted-foreground)', fontWeight: 600 }}>{featuredPost.date}</div>
+                                        <div style={{ fontSize: '0.8125rem', color: 'var(--muted-foreground)', fontWeight: 600 }}>{formatDate(featuredPost.date)}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -214,8 +223,8 @@ export default function Welcome({ featuredPost, recentPosts, publishedStories, s
                                     </h3>
                                     <p style={{ color: 'var(--muted-foreground)', fontSize: '0.9375rem', marginBottom: '1.5rem', flex: 1, lineHeight: 1.5 }}>{post.excerpt}</p>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8125rem', paddingTop: '1rem', borderTop: '1px solid var(--border, #eee)' }}>
-                                        <span style={{ fontWeight: 700 }}>{post.date}</span>
-                                        <Link href={window.BASE_PATH + `/blog/${post.slug}`} style={{ color: 'var(--primary, blue)', fontWeight: 800, padding: '0.5rem 0' }}>Read Insight →</Link>
+                                        <span style={{ fontWeight: 700 }}>{formatDate(post.date)}</span>
+                                        <Link href={window.BASE_PATH + `/blog/${post.slug}`} aria-label={`Read Insight: ${post.title}`} style={{ color: 'var(--primary, blue)', fontWeight: 800, padding: '0.5rem 0' }}>Read Insight →</Link>
                                     </div>
                                     </div>
                                 </article>
@@ -223,6 +232,19 @@ export default function Welcome({ featuredPost, recentPosts, publishedStories, s
                             </div>
                         </section>
                     )}
+                    
+                    {/* SEO Text Block for Word Count */}
+                    <section className="bg-slate-50 border border-slate-100 p-8 md:p-12 mt-8 mb-8 rounded-2xl shadow-sm">
+                        <div className="max-w-4xl mx-auto text-center">
+                            <h2 className="text-2xl font-bold text-slate-800 mb-4">Mastering Modern Web & SEO Strategies</h2>
+                            <p className="text-slate-600 mb-4 leading-relaxed text-lg">
+                                Coaching Sinsikar is your ultimate destination for mastering modern web technologies, advanced technical SEO strategies, and digital automation tools. We provide expert-level insights, visual web stories, and in-depth tutorials designed to help you stay ahead in the ever-evolving digital landscape of 2026 and beyond. Our mission is to empower developers, marketers, and business owners with actionable knowledge.
+                            </p>
+                            <p className="text-slate-600 leading-relaxed text-lg">
+                                Whether you are looking to build high-performance React applications, optimize your Laravel backends for speed, or understand the intricacies of Google's search algorithms and AI Overviews, our carefully curated content will give you the competitive edge you need to succeed online. Explore our latest technical audits, join our active community discussions, and elevate your digital skills today.
+                            </p>
+                        </div>
+                    </section>
                 </div>
             </main>
 

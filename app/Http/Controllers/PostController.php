@@ -55,13 +55,35 @@ class PostController extends Controller
 
         if ($request->hasFile('media_file')) {
             $file = $request->file('media_file');
-            $path = $file->store('uploads', 'public');
-            $mediaUrls = json_encode(['/storage/' . $path]);
             
             if (str_starts_with($file->getMimeType(), 'video/')) {
                 $postType = 'VIDEO';
+                $path = $file->store('uploads', 'public');
+                $mediaUrls = json_encode(['/storage/' . $path]);
             } else {
                 $postType = 'IMAGE';
+                
+                $filename = \Illuminate\Support\Str::uuid() . '_' . time() . '.webp';
+                
+                $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+                $image = $manager->read($file->getRealPath());
+                
+                // Scale down if width exceeds 1200
+                if ($image->width() > 1200) {
+                    $image->scaleDown(width: 1200);
+                }
+                
+                $quality = 80;
+                $encoded = $image->toWebp($quality);
+                
+                // Iteratively reduce quality if file is > 100KB
+                while (strlen($encoded->toString()) > 102400 && $quality > 10) {
+                    $quality -= 10;
+                    $encoded = $image->toWebp($quality);
+                }
+                
+                \Illuminate\Support\Facades\Storage::disk('public')->put('uploads/' . $filename, $encoded->toString());
+                $mediaUrls = json_encode(['/storage/uploads/' . $filename]);
             }
         }
 
@@ -74,6 +96,7 @@ class PostController extends Controller
             'link_url' => $validated['link_url'] ?? null,
             'media_urls' => $mediaUrls,
             'score' => 1,
+            'published' => true,
         ]);
 
         $community = Community::find($validated['community_id']);

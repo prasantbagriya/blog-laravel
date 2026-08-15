@@ -17,15 +17,25 @@
         
         <meta name="google-site-verification" content="HcrL5h0jDeKpvNkKKIjIAUm-bR_AY0bu07aJsU4qLuQ" />
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+        <link rel="canonical" href="{{ str_replace('http://', 'https://', url()->current()) }}" />
+        
+        <title inertia>{{ $page['props']['meta']['title'] ?? 'cochinginsikar - Home' }}</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+        <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" media="print" onload="this.media='all'" />
+        <noscript>
+            <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" />
+        </noscript>
 
         <!-- Scripts -->
-        @routes
+        @if(request()->is('admin*') || request()->is('api/admin*'))
+            @routes
+        @else
+            @routes('public')
+        @endif
         <script>
             window.BASE_PATH = "{{ url('') }}";
             // Strip scheme/host if needed, but relative works best for fetch

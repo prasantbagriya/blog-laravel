@@ -151,12 +151,14 @@ export default function PostCard({ post, auth, openReportModal }) {
                             <video 
                                 src={post.media_urls[0]} 
                                 controls 
+                                preload="metadata"
                                 className="max-w-full max-h-96"
                             />
                         ) : (
                             <img 
                                 src={post.media_urls[0]} 
                                 alt="Post media" 
+                                loading="lazy"
                                 className="max-w-full max-h-96 object-contain"
                             />
                         )}

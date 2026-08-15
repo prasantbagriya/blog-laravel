@@ -3,6 +3,7 @@ Disallow: /submit
 Disallow: /settings
 Disallow: /modqueue
 Disallow: /dashboard
+Disallow: /build/
 Allow: /
 
 Sitemap: https://coachingsinsikar.com/sitemap.xml

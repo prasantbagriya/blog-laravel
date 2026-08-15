@@ -124,7 +124,7 @@ export default function BlogFooter() {
           <div className="md:col-span-1 lg:col-span-1">
             <h4 className="text-sm font-bold text-white uppercase tracking-widest mb-6">Stay Updated</h4>
             <div className="space-y-4">
-              <p className="text-xs text-gray-500 leading-relaxed m-0">
+              <p className="text-xs text-gray-400 leading-relaxed m-0">
                 Get the latest AI tips and product updates delivered to your inbox.
               </p>
               <form
@@ -167,11 +167,11 @@ export default function BlogFooter() {
         </div>
 
         <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-xs text-gray-500 font-medium m-0">
+          <p className="text-xs text-gray-400 font-medium m-0">
             © {new Date().getFullYear()} Blog Name. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2 text-xs text-gray-500">
+            <div className="flex items-center gap-2 text-xs text-gray-400">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               Service Status: Operational
             </div>

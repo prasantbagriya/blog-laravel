@@ -37,6 +37,12 @@ export default function Show({ post }) {
 
     if (!post) return <div>Post not found</div>;
 
+    const formatDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return isNaN(date.getTime()) ? dateString : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    };
+
     const currentUrl = typeof window !== 'undefined' ? window.location.href : `https://coachingsinsikar.com/blog/${post.slug}`;
     const plainTextExcerpt = post.excerpt ? post.excerpt.replace(/<[^>]*>?/gm, '').substring(0, 160) : `Read this article by ${post.author} on Nexus.`;
     
@@ -99,7 +105,7 @@ export default function Show({ post }) {
                                 <Link href={window.BASE_PATH + '/author/' + (post.author ? post.author.toLowerCase().replace(/[^a-z0-9]+/g, '-') : '')} className="font-semibold hover:text-blue-600 hover:underline">
                                     {post.author}
                                 </Link>
-                                <p className="text-sm">{post.date}</p>
+                                <p className="text-sm">{formatDate(post.date)}</p>
                             </div>
                         </div>
 
