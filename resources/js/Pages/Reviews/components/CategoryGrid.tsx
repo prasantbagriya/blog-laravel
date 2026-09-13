@@ -71,7 +71,7 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({ categories, onSelect
                   </div>
 
                   <h3 className="text-sm font-bold text-zinc-900 dark:text-white group-hover:text-blue-600 transition">
-                    {cat.name}
+                    {cat.name === 'Eduction' ? 'Education' : cat.name}
                   </h3>
 
                   <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 line-clamp-2 leading-relaxed">

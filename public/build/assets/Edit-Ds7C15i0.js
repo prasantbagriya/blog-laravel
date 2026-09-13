@@ -1,1 +1,0 @@
-import"./rolldown-runtime-DAXXjFlN.js";import{o as e}from"./@headlessui-blvo0AC7.js";import{D as t}from"./@tiptap-rZxPVgTt.js";import{t as n}from"./AdminLayout-2SrDPxT2.js";import r from"./StoryForm-QeV-ZU-N.js";e();var i=t();function a({story:e}){return(0,i.jsx)(r,{story:e})}a.layout=e=>(0,i.jsx)(n,{children:e});export{a as default};

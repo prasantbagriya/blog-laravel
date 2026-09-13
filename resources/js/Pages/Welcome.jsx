@@ -56,10 +56,10 @@ const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses }) =>
             
             <div className="absolute inset-0 z-0 bg-slate-900/80"></div>
             
-            <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-10 md:pt-40 md:pb-14">
+            <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-10 md:pt-32 md:pb-14">
                 <div className="grid lg:grid-cols-12 gap-8 lg:gap-10 items-center">
                     <div className="lg:col-span-7 text-white">
-                        <p className="text-amber-400 text-xs font-bold uppercase tracking-[0.12em] mb-4">Coaching and School Discovery Platform</p>
+                        <p className="text-amber-400 text-xs font-bold tracking-[0.12em] mb-4">Coaching and School Discovery Platform</p>
                         <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-[4rem] font-extrabold leading-[1.1] mb-6 tracking-tight">
                             Find the Best Coaching in Sikar
                         </h1>
@@ -105,7 +105,7 @@ const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses }) =>
                                                 <div className="py-2">
                                                     {filteredCat.length > 0 && (
                                                         <div className="mb-2">
-                                                            <div className="px-4 py-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider">Categories</div>
+                                                            <div className="px-4 py-1.5 text-xs font-bold text-slate-400 tracking-wider">Categories</div>
                                                             {filteredCat.map(cat => (
                                                                 <Link 
                                                                     key={`cat-${cat.id}`} 
@@ -121,7 +121,7 @@ const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses }) =>
                                                     
                                                     {filteredBiz.length > 0 && (
                                                         <div>
-                                                            <div className="px-4 py-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider">Institutes</div>
+                                                            <div className="px-4 py-1.5 text-xs font-bold text-slate-400 tracking-wider">Institutes</div>
                                                             {filteredBiz.map(biz => (
                                                                 <Link 
                                                                     key={`biz-${biz.id}`} 
@@ -211,13 +211,13 @@ const TrustMarquee = ({ categories }) => {
     return (
         <section className="py-6 bg-white border-b border-slate-100 overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-4">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Trusted Categories & Streams</p>
+                <p className="text-xs font-bold text-slate-400 tracking-wider">Trusted Categories & Streams</p>
             </div>
             <div className="relative flex w-full flex-nowrap overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
                 <div className="flex animate-marquee items-center justify-center space-x-8 md:space-x-16 whitespace-nowrap">
                     {[...items, ...items, ...items].map((item, idx) => (
                         <div key={`${item.id}-${idx}`} className="text-slate-400 font-bold text-xl md:text-2xl opacity-60 hover:opacity-100 transition-opacity flex items-center gap-2">
-                            <GraduationCap className="w-6 h-6" /> {item.name}
+                            <GraduationCap className="w-6 h-6" /> {item.name.toLowerCase() === 'eduction' ? 'Education' : item.name}
                         </div>
                     ))}
                 </div>
@@ -231,7 +231,7 @@ const InstitutesSection = ({ featuredBusinesses, basePath }) => {
     if(businesses.length === 0) return null;
     
     return (
-        <section id="top-institutes" className="py-10 md:py-14 bg-white border-b border-slate-200">
+        <section id="top-institutes" className="pt-10 pb-0 md:pt-14 md:pb-0 bg-white border-b border-slate-200">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-end mb-8 md:mb-10">
                     <div>
@@ -326,74 +326,107 @@ const CommunityFeedSection = ({ basePath }) => {
     ];
 
     return (
-        <section className="py-10 md:py-14 bg-white border-b border-slate-200">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-end mb-8 md:mb-10">
+        <section className="pt-6 pb-16 md:pt-10 md:pb-24 bg-slate-50 relative border-b border-slate-200">
+            {/* Subtle background pattern */}
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
+            
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 md:mb-12 gap-4">
                     <div>
-                        <p className="text-blue-500 text-sm font-bold uppercase tracking-wider mb-1">Student Community</p>
-                        <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Recent Discussions</h2>
-                        <p className="text-slate-500 mt-2 text-base md:text-lg">Join the conversation with thousands of students.</p>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold tracking-wider mb-4 border border-blue-200">
+                            <MessageSquare size={14} /> Student Community
+                        </div>
+                        <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">Recent Discussions</h2>
+                        <p className="text-slate-600 mt-3 text-base md:text-lg max-w-2xl">Join the conversation with thousands of students. Share study materials, ask doubts, and get exam strategies.</p>
                     </div>
-                    <Link href={`${basePath}/community`} className="hidden md:block bg-blue-600 hover:bg-blue-700 text-white text-center font-medium py-2 px-4 rounded-md transition-colors text-sm">
-                        View Feed
+                    <Link href={`${basePath}/community`} className="text-blue-600 font-bold hover:text-blue-700 transition-colors flex items-center gap-1 group shrink-0 whitespace-nowrap hidden md:inline-flex">
+                        View All Feed <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
                     </Link>
                 </div>
                 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div className="lg:col-span-2 space-y-4">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
+                    {/* Main Feed Column */}
+                    <div className="lg:col-span-8 space-y-5">
                         {feedPosts.map((post) => (
-                            <div key={post.id} className="bg-white border border-slate-200 hover:border-blue-300 rounded-xl p-4 md:p-5 flex gap-4 transition-all hover:shadow-md cursor-pointer">
-                                <div className="hidden sm:flex flex-col items-center gap-1 min-w-[37px]">
-                                    <button className="p-1 rounded text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors border-none outline-none focus:outline-none ring-0 focus:ring-0"><TrendingUp size={20} /></button>
-                                    <span className="font-bold text-sm text-slate-700">{post.score}</span>
+                            <div key={post.id} className="bg-white border border-slate-200 hover:border-blue-300 rounded-2xl p-5 md:p-6 flex gap-4 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:shadow-blue-900/5 cursor-pointer group">
+                                {/* Upvote Sidebar */}
+                                <div className="hidden sm:flex flex-col items-center gap-2 min-w-[44px]">
+                                    <button className="p-1.5 rounded-full text-slate-400 hover:text-white hover:bg-amber-500 transition-colors border-none outline-none focus:outline-none ring-0 focus:ring-0">
+                                        <TrendingUp size={20} />
+                                    </button>
+                                    <span className="font-bold text-sm text-slate-800">{post.score}</span>
                                 </div>
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-2 text-xs text-slate-500 mb-2">
-                                        <span className="font-bold text-slate-900">r/{post.community}</span>
+                                
+                                {/* Post Content */}
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 text-xs text-slate-500 mb-3 flex-wrap">
+                                        <div className="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded-full">
+                                            <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-[8px] text-white font-bold">{post.community.charAt(0)}</div>
+                                            <span className="font-bold text-slate-900">r/{post.community}</span>
+                                        </div>
                                         <span>•</span>
-                                        <span>Posted by u/{post.author}</span>
+                                        <span>Posted by <span className="font-medium text-slate-700">u/{post.author}</span></span>
                                         <span>•</span>
                                         <span>{post.time}</span>
                                     </div>
-                                    <h3 className="text-lg font-bold text-slate-900 mb-2 leading-tight">{post.title}</h3>
+                                    <h3 className="text-xl font-bold text-slate-900 mb-2 leading-snug group-hover:text-blue-600 transition-colors">{post.title}</h3>
                                     {post.type === 'TEXT' && (
-                                        <p className="text-sm text-slate-600 line-clamp-2 mb-3">{post.content}</p>
+                                        <p className="text-sm text-slate-600 line-clamp-2 mb-4 leading-relaxed">{post.content}</p>
                                     )}
-                                    <div className="flex items-center gap-4 text-xs font-semibold text-slate-500 mt-3">
-                                        <div className="flex items-center gap-1.5 hover:bg-slate-100 px-2 py-1.5 rounded-md transition-colors text-slate-600">
-                                            <MessageSquare size={16} /> {post.comments} Comments
+                                    <div className="flex items-center gap-3 text-xs font-semibold text-slate-500">
+                                        <div className="flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-full transition-colors border border-slate-100">
+                                            <MessageSquare size={14} className="text-blue-500" /> {post.comments} Comments
                                         </div>
-                                        <div className="flex items-center gap-1.5 hover:bg-slate-100 px-2 py-1.5 rounded-md transition-colors text-slate-600">
-                                            <ThumbsUp size={16} /> Share
+                                        <div className="flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-full transition-colors border border-slate-100">
+                                            <ThumbsUp size={14} className="text-slate-400" /> Share
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         ))}
-                        <Link href={`${basePath}/community`} className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center font-medium py-2 rounded-md transition-colors text-sm">
-                            Explore More Discussions
+                        <Link href={`${basePath}/community`} className="md:hidden flex w-full justify-center items-center gap-1 text-blue-600 font-bold hover:text-blue-700 transition-colors group mt-2">
+                            View All Feed <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
                         </Link>
                     </div>
                     
-                    <div className="space-y-6">
-                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-5">
-                            <h3 className="font-bold text-lg text-slate-900 mb-4">Top Communities</h3>
-                            <div className="space-y-4">
-                                {['JEEPreparation', 'NEETAspirants', 'UPSC_Civil_Services', 'CATPrep'].map((community, i) => (
-                                    <div key={community} className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
-                                                {community.charAt(0)}
+                    {/* Sidebar Column */}
+                    <div className="lg:col-span-4 space-y-6">
+                        <div className="bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden relative">
+                            {/* Accent Header */}
+                            <div className="h-2 w-full bg-gradient-to-r from-blue-500 to-amber-500"></div>
+                            
+                            <div className="p-6">
+                                <h3 className="font-bold text-xl text-slate-900 mb-5">Top Communities</h3>
+                                <div className="space-y-1">
+                                    {['JEEPreparation', 'NEETAspirants', 'UPSC_Civil_Services', 'CATPrep'].map((community, i) => (
+                                        <div key={community} className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-xl transition-colors group">
+                                            <div className="flex items-center gap-3">
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white shadow-sm ${
+                                                    i === 0 ? 'bg-blue-600' : 
+                                                    i === 1 ? 'bg-amber-500' : 
+                                                    i === 2 ? 'bg-emerald-500' : 'bg-purple-500'
+                                                }`}>
+                                                    {community.charAt(0)}
+                                                </div>
+                                                <div>
+                                                    <div className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors">r/{community}</div>
+                                                    <div className="text-xs text-slate-500 font-medium">{(100 - i * 15)}k members</div>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <div className="font-bold text-sm text-slate-900">r/{community}</div>
-                                                <div className="text-xs text-slate-500">{(100 - i * 15)}k members</div>
-                                            </div>
+                                            <button className="text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white px-4 py-1.5 text-xs font-bold rounded-full transition-colors">Join</button>
                                         </div>
-                                        <button className="text-blue-600 hover:bg-blue-50 px-3 py-1 text-sm font-semibold rounded-full transition-colors">Join</button>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                             </div>
+                        </div>
+                        
+                        <div className="bg-slate-900 rounded-2xl p-6 text-white text-center shadow-lg relative overflow-hidden border border-slate-700">
+                            <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+                            <h3 className="font-bold text-xl mb-2 relative z-10 text-white">Have a Question?</h3>
+                            <p className="text-slate-200 text-sm mb-5 relative z-10">Get answers from toppers and expert faculty in Sikar.</p>
+                            <Link href={`${basePath}/community/new`} className="btn-amber px-6 py-2.5 w-full block relative z-10 shadow-lg shadow-amber-500/20 hover:scale-105 transition-transform text-slate-900 font-bold rounded-full">
+                                Ask Now
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -411,7 +444,7 @@ const BlogSection = ({ morePosts, basePath, formatDate }) => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-end mb-8 md:mb-10">
                     <div>
-                        <p className="text-blue-500 text-sm font-bold uppercase tracking-wider mb-1">Editor's Picks</p>
+                        <p className="text-blue-500 text-sm font-bold tracking-wider mb-1">Editor's Picks</p>
                         <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Explore the Blog</h2>
                         <p className="text-slate-500 mt-2 text-base md:text-lg">Read the latest articles, guides, and updates.</p>
                     </div>
@@ -458,7 +491,7 @@ const BlogSection = ({ morePosts, basePath, formatDate }) => {
 const CategorySection = ({ categories, basePath }) => {
     if (!categories || categories.length === 0) return null;
     return (
-        <section className="py-10 md:py-14 bg-white overflow-hidden">
+        <section className="pt-10 pb-2 md:pt-14 md:pb-4 bg-white overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-10 md:mb-14">
                     <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Explore by Stream</h2>
@@ -474,7 +507,7 @@ const CategorySection = ({ categories, basePath }) => {
                                 <div className="w-12 h-12 bg-white group-hover:bg-blue-600 rounded-full flex items-center justify-center text-blue-600 group-hover:text-white mb-3 transition-colors shadow-sm">
                                     <GraduationCap className="w-6 h-6" />
                                 </div>
-                                <h3 className="font-bold text-slate-800 text-sm group-hover:text-blue-700 transition-colors whitespace-normal break-words w-full px-2 leading-tight">{cat.name}</h3>
+                                <h3 className="font-bold text-slate-800 text-sm group-hover:text-blue-700 transition-colors whitespace-normal break-words w-full px-2 leading-tight">{cat.name.toLowerCase() === 'eduction' ? 'Education' : cat.name}</h3>
                             </Link>
                         ))}
                     </div>
@@ -487,7 +520,7 @@ const CategorySection = ({ categories, basePath }) => {
 const StoriesSection = ({ stories, basePath }) => {
     if(!stories || stories.length === 0) return null;
     return (
-        <section className="py-10 md:py-14 bg-slate-50 border-y border-slate-200">
+        <section className="pt-20 pb-10 md:pt-24 md:pb-14 bg-slate-50 border-y border-slate-200">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-end mb-8 md:mb-10">
                     <div>
@@ -519,7 +552,7 @@ const SeoContent = () => (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
                 <div>
-                    <span className="text-blue-600 font-bold tracking-widest uppercase text-xs mb-3 block">About Us</span>
+                    <span className="text-blue-600 font-bold tracking-widest text-xs mb-3 block">About Us</span>
                     <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-6 leading-tight">Coaching in Sikar: Your Complete Education Guide</h2>
                     <div className="text-slate-600 text-base md:text-lg leading-relaxed space-y-4">
                         <p>Our mission is simple — to make educational information easier to find, understand, and compare. We research and publish useful guides covering coaching institutes, academic programs, exam preparation, results, facilities, courses, and student experiences.</p>
@@ -586,7 +619,7 @@ const FAQSection = () => {
     ];
 
     return (
-        <section className="py-16 md:py-24 bg-slate-50 border-t border-slate-200 relative overflow-hidden">
+        <section className="pt-6 pb-0 md:pt-10 md:pb-0 bg-slate-50 border-t border-slate-200 relative overflow-hidden">
             {/* Background Decorative Elements */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
                 <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
@@ -599,7 +632,7 @@ const FAQSection = () => {
                     {/* Left Column: Sticky Title & CTA */}
                     <div className="lg:col-span-5 lg:sticky lg:top-32 space-y-8">
                         <div>
-                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100/50 border border-blue-200 text-blue-700 text-xs font-bold uppercase tracking-wider mb-6">
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100/50 border border-blue-200 text-blue-700 text-xs font-bold tracking-wider mb-6">
                                 <MessageSquare className="w-4 h-4" /> Got Questions?
                             </div>
                             <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight leading-tight">

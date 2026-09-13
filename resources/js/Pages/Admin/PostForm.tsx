@@ -27,7 +27,6 @@ import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
 import { Node, Extension, mergeAttributes } from '@tiptap/core';
 import Youtube from '@tiptap/extension-youtube';
-import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import MediaPicker from './components/MediaPicker';
 
@@ -1143,9 +1142,8 @@ export default function PostForm({ post }: PostFormProps) {
 
    return (
       <div className={`sovereign-editor-v5-fixed`} style={rootContainerStyle}>
-         <AnimatePresence>
-            {distractionFree && (
-               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={deepWorkOverlayStyle}>
+                     {distractionFree && (
+               <div    style={deepWorkOverlayStyle}>
                   <div style={{ width: '100%', padding: '0 0 100px 0', height: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', background: '#fff' }}>
                      <div style={{ width: '100%', maxWidth: '1000px', marginTop: '40px' }}>
                       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
@@ -1292,10 +1290,9 @@ export default function PostForm({ post }: PostFormProps) {
                      <EditorContent editor={editor} className="tiptap-content prose-container" />
                      </div>
                   </div>
-               </motion.div>
+               </div>
             )}
-         </AnimatePresence>
-
+         
          <div role="banner" style={headerStyle}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: 1 }}>
                <button onClick={() => window.history.back()} style={navIconStyle}>
@@ -1549,9 +1546,8 @@ export default function PostForm({ post }: PostFormProps) {
                </div>
 
                <div style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
-                  <AnimatePresence mode="wait">
-                     {activeTab === 'editor' && (
-                        <motion.div key="editor" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                                       {activeTab === 'editor' && (
+                        <div key="editor"   >
                            <h3 style={sidebarHeadingStyle}>Google HCU Audit</h3>
                            <div style={hcuCardStyle}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
@@ -1559,7 +1555,7 @@ export default function PostForm({ post }: PostFormProps) {
                                  <span style={{ fontSize: '18px', fontWeight: 900, color: helpfulScore > 80 ? '#10b981' : '#f59e0b' }}>{helpfulScore}%</span>
                               </div>
                               <div style={{ height: '6px', background: '#e2e8f0', borderRadius: '3px', overflow: 'hidden', marginBottom: '20px' }}>
-                                 <motion.div initial={{ width: 0 }} animate={{ width: `${helpfulScore}%` }} style={{ height: '100%', background: helpfulScore > 80 ? '#10b981' : '#f59e0b' }} />
+                                 <div   style={{ height: '100%', background: helpfulScore > 80 ? '#10b981' : '#f59e0b' }} />
                               </div>
                               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                                  <StatBox label="INTENT" value={userIntent.toUpperCase()} />
@@ -1585,11 +1581,11 @@ export default function PostForm({ post }: PostFormProps) {
                                  </div>
                               ))}
                            </div>
-                        </motion.div>
+                        </div>
                      )}
 
                      {activeTab === 'snippets' && (
-                        <motion.div key="snippets" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                        <div key="snippets"  >
                            <h3 style={sidebarHeadingStyle}>Featured Snippet Audit</h3>
                            <div style={hcuCardStyle}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
@@ -1601,11 +1597,11 @@ export default function PostForm({ post }: PostFormProps) {
                            <h4 style={{ fontSize: '11px', fontWeight: 900, marginBottom: '12px' }}>OPTIMIZATION TIPS</h4>
                            {snippetTips.map((tip, i) => <div key={i} style={tipRowStyle}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '12px', height: '12px', color: '#10b981' }}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> {tip}</div>)}
 
-                        </motion.div>
+                        </div>
                      )}
 
                      {activeTab === 'eeat' && (
-                         <motion.div key="eeat" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                         <div key="eeat"  >
                             <h3 style={sidebarHeadingStyle}>EEAT Verification</h3>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                                {availableAuthors.length > 0 && (
@@ -1683,11 +1679,11 @@ export default function PostForm({ post }: PostFormProps) {
                                   <span>AI-Assisted (Disclosure Required)</span>
                                </div>
                             </div>
-                         </motion.div>
+                         </div>
                      )}
 
                      {activeTab === 'schema' && (
-                         <motion.div key="schema" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                         <div key="schema"  >
                             <h3 style={sidebarHeadingStyle}>FAQ Schema Nodes</h3>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                {faqs.map((faq, i) => (
@@ -1732,11 +1728,11 @@ export default function PostForm({ post }: PostFormProps) {
                                  <input placeholder="Country Code (e.g. IN)" value={localBusiness.addressCountry} onChange={e => setLocalBusiness({...localBusiness, addressCountry: e.target.value})} style={{...faqInputSmall, flex: 1}} />
                                </div>
                             </div>
-                         </motion.div>
+                         </div>
                      )}
 
                      {activeTab === 'strategy' && (
-                         <motion.div key="strategy" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                         <div key="strategy"  >
                             <h3 style={sidebarHeadingStyle}>Content Strategy</h3>
                             <div style={hcuCardStyle}>
                                <label style={metaLabelStyle}>PRIMARY SEARCH INTENT</label>
@@ -1839,11 +1835,11 @@ export default function PostForm({ post }: PostFormProps) {
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                                {lsiKeywords.map(k => <span key={k} style={lsiTagStyle}>{k}</span>)}
                             </div>
-                         </motion.div>
+                         </div>
                       )}
 
                      {activeTab === 'guardian' && (
-                        <motion.div key="guardian" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                        <div key="guardian"  >
                            <h3 style={sidebarHeadingStyle}>Sovereign Shield</h3>
                            <div style={guardianCard}>
                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '32px', height: '32px', color: '#2563eb' }}><path d="M2 12a10 10 0 0 1 20 0"/><path d="M7 12a5 5 0 0 1 5-5"/><path d="M12 20a8 8 0 0 1-8-8"/><path d="M12 20a8 8 0 0 0 8-8"/><path d="M12 12a2.5 2.5 0 0 1 5 0"/><path d="M12 12a2.5 2.5 0 0 1-5 0"/><path d="M20 12a8 8 0 0 0-8-8"/><path d="M22 12a10 10 0 0 0-10-10"/><path d="M2 12a10 10 0 0 0 10 10"/><path d="M4 12a8 8 0 0 0 8 8"/></svg>
@@ -1856,11 +1852,11 @@ export default function PostForm({ post }: PostFormProps) {
                                  <span style={{ fontSize: '14px', fontWeight: 900 }}>{humanScore}%</span>
                               </div>
                            </div>
-                        </motion.div>
+                        </div>
                      )}
 
                      {activeTab === 'meta' && (
-                        <motion.div key="meta" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                        <div key="meta"  >
                            <h3 style={sidebarHeadingStyle}>Search Engine Listing</h3>
                            <div style={hcuCardStyle}>
                               <button onClick={() => setPreviewMode('google')} style={{ ...addNodeBtn, background: '#f8fafc', marginBottom: '15px', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
@@ -1976,11 +1972,11 @@ export default function PostForm({ post }: PostFormProps) {
                               <label style={metaLabelStyle}>TWITTER DESCRIPTION</label>
                               <textarea value={twitterDescription} onChange={e => setTwitterDescription(e.target.value)} style={metaTextAreaStyle} placeholder="Description for Twitter" />
                            </div>
-                        </motion.div>
+                        </div>
                      )}
 
                      {activeTab === 'seo' && (
-                        <motion.div key="seo" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                        <div key="seo"  >
                            <h3 style={sidebarHeadingStyle}>AI SEO Audit</h3>
                            <div style={{ ...hcuCardStyle, background: 'linear-gradient(135deg, #fdf4ff 0%, #f3e8ff 100%)', border: '1px solid #e9d5ff' }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
@@ -2069,9 +2065,9 @@ export default function PostForm({ post }: PostFormProps) {
                               >
                                  {isIndexing ? (
                                     <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                       <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }} style={{ display: 'flex' }}>
+                                       <div   style={{ display: 'flex' }}>
                                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '14px', height: '14px' }}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                                       </motion.div>
+                                       </div>
                                        Pinging GSC API...
                                     </span>
                                  ) : (
@@ -2119,7 +2115,7 @@ export default function PostForm({ post }: PostFormProps) {
                                   <div>
                                      <strong>Discover Cover Image:</strong> {coverImage ? (coverImageWidth !== null ? `${coverImageWidth}px width` : 'Cover image set') : 'Cover image missing'}
                                      {coverImage && coverImageWidth !== null && coverImageWidth < 1200 && (
-                                        <p style={{ fontSize: '11px', color: '#b45309', margin: '2px 0 0 0' }}>Image is under 1200px wide. Google Discover requires ≥1200px width for premium layout cards.</p>
+                                        <p style={{ fontSize: '11px', color: '#b45309', margin: '2px 0 0 0' }}>Image is under 1200px wide. Google Discover requires ≥1200px width for premium  cards.</p>
                                      )}
                                      {!coverImage && <p style={{ fontSize: '11px', color: '#ef4444', margin: '2px 0 0 0' }}>Set a cover image for Discover and social sharing.</p>}
                                   </div>
@@ -2233,18 +2229,16 @@ export default function PostForm({ post }: PostFormProps) {
                               <option>High (0.9)</option>
                               <option>Critical (1.0)</option>
                            </select>
-                        </motion.div>
+                        </div>
                      )}
-                  </AnimatePresence>
-               </div>
+                                 </div>
              </aside>
           </div>
 
          {/* FAQ Modal */}
-         <AnimatePresence>
-            {faqModalOpen && (
+                     {faqModalOpen && (
                <div style={modalBackdropStyle}>
-                  <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} style={{ ...modalContentStyle, maxWidth: '650px' }}>
+                  <div    style={{ ...modalContentStyle, maxWidth: '650px' }}>
                      <div style={modalHeaderStyle}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', color: '#2563eb' }}><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
@@ -2301,17 +2295,17 @@ export default function PostForm({ post }: PostFormProps) {
                         <button onClick={() => setFaqModalOpen(false)} style={{ ...closeModalBtn, background: '#fff', border: '1px solid #e2e8f0', padding: '6px 14px', fontSize: '12px', fontWeight: 600 }}>Cancel</button>
                         <button onClick={handleApplyFaq} style={{ ...publishBtnStyle, flex: 0, padding: '6px 16px', fontSize: '12px', minWidth: 'max-content', whiteSpace: 'nowrap', color: '#ffffff' }}>{editor.isActive('faqBlock') ? 'Update FAQ Block' : 'Insert FAQ Block'}</button>
                      </div>
-                  </motion.div>
+                  </div>
                </div>
             )}
 
             {/* Quiz Modal */}
             {quizModalOpen && (
                <div style={modalBackdropStyle} onClick={() => setQuizModalOpen(false)}>
-                  <motion.div 
-                     initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                  <div 
+                     
+                     
+                     
                      onClick={e => e.stopPropagation()} 
                      style={{ ...modalContentStyle, maxWidth: '600px', display: 'flex', flexDirection: 'column', maxHeight: '85vh' }}
                   >
@@ -2380,17 +2374,17 @@ export default function PostForm({ post }: PostFormProps) {
                         <button onClick={() => setQuizModalOpen(false)} style={{ ...closeModalBtn, background: '#fff', border: '1px solid #e2e8f0', padding: '6px 14px', fontSize: '12px', fontWeight: 600 }}>Cancel</button>
                         <button onClick={handleApplyQuiz} style={{ ...publishBtnStyle, flex: 0, padding: '6px 16px', fontSize: '12px', minWidth: 'max-content', whiteSpace: 'nowrap', color: '#ffffff', background: '#2563eb' }}>{editor?.isActive('quizBlock') ? 'Update Quiz' : 'Insert Quiz'}</button>
                      </div>
-                  </motion.div>
+                  </div>
                </div>
             )}
 
             {/* Poll Modal */}
             {pollModalOpen && (
                <div style={modalBackdropStyle} onClick={() => setPollModalOpen(false)}>
-                  <motion.div 
-                     initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                  <div 
+                     
+                     
+                     
                      onClick={e => e.stopPropagation()} 
                      style={{ ...modalContentStyle, maxWidth: '600px', display: 'flex', flexDirection: 'column', maxHeight: '85vh' }}
                   >
@@ -2453,16 +2447,14 @@ export default function PostForm({ post }: PostFormProps) {
                         <button onClick={() => setPollModalOpen(false)} style={{ ...closeModalBtn, background: '#fff', border: '1px solid #e2e8f0', padding: '6px 14px', fontSize: '12px', fontWeight: 600 }}>Cancel</button>
                         <button onClick={handleApplyPoll} style={{ ...publishBtnStyle, flex: 0, padding: '6px 16px', fontSize: '12px', minWidth: 'max-content', whiteSpace: 'nowrap', color: '#ffffff', background: '#8b5cf6' }}>{editor?.isActive('pollBlock') ? 'Update Poll' : 'Insert Poll'}</button>
                      </div>
-                  </motion.div>
+                  </div>
                </div>
             )}
-         </AnimatePresence>
-
+         
          {/* Image Slider Modal */}
-         <AnimatePresence>
-            {sliderModalOpen && (
+                     {sliderModalOpen && (
                <div style={modalBackdropStyle}>
-                  <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} style={{ ...modalContentStyle, maxWidth: '600px' }}>
+                  <div    style={{ ...modalContentStyle, maxWidth: '600px' }}>
                      <div style={modalHeaderStyle}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', color: '#2563eb' }}><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
@@ -2524,16 +2516,14 @@ export default function PostForm({ post }: PostFormProps) {
                         <button onClick={() => setSliderModalOpen(false)} style={{ ...closeModalBtn, background: '#fff', border: '1px solid #e2e8f0', padding: '6px 14px', fontSize: '12px', fontWeight: 600 }}>Cancel</button>
                         <button onClick={handleApplySlider} style={{ ...publishBtnStyle, flex: 0, padding: '6px 16px', fontSize: '12px', minWidth: 'max-content', whiteSpace: 'nowrap', color: '#ffffff' }}>Insert Slider</button>
                      </div>
-                  </motion.div>
+                  </div>
                </div>
             )}
-         </AnimatePresence>
-
+         
          {/* Custom Link Modal */}
-         <AnimatePresence>
-            {linkModalOpen && (
+                     {linkModalOpen && (
                <div style={modalBackdropStyle}>
-                  <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} style={{ ...modalContentStyle, maxWidth: '450px' }}>
+                  <div    style={{ ...modalContentStyle, maxWidth: '450px' }}>
                      <div style={modalHeaderStyle}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', color: '#2563eb' }}><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
@@ -2570,16 +2560,14 @@ export default function PostForm({ post }: PostFormProps) {
                            <button onClick={() => { setLinkInputUrl(''); handleApplyLink(); }} style={{ ...iconBtnStyle, padding: '10px 20px' }}>Remove</button>
                         </div>
                      </div>
-                  </motion.div>
+                  </div>
                </div>
             )}
-         </AnimatePresence>
-
+         
          {/* Video Portal Modal */}
-         <AnimatePresence>
-            {videoModalOpen && (
+                     {videoModalOpen && (
                <div style={modalBackdropStyle}>
-                  <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} style={{ ...modalContentStyle, maxWidth: '500px' }}>
+                  <div    style={{ ...modalContentStyle, maxWidth: '500px' }}>
                      <div style={modalHeaderStyle}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', color: '#2563eb' }}><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 8-6 4 6 4V8Z"/></svg>
@@ -2632,15 +2620,13 @@ export default function PostForm({ post }: PostFormProps) {
                            </button>
                         </div>
                      </div>
-                  </motion.div>
+                  </div>
                </div>
             )}
-         </AnimatePresence>
-
-         <AnimatePresence>
-            {imageModalOpen && (
+         
+                     {imageModalOpen && (
                <div style={modalBackdropStyle}>
-                  <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} style={{ ...modalContentStyle, maxWidth: '450px' }}>
+                  <div    style={{ ...modalContentStyle, maxWidth: '450px' }}>
                      <div style={modalHeaderStyle}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', color: '#8b5cf6' }}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
@@ -2667,11 +2653,10 @@ export default function PostForm({ post }: PostFormProps) {
                            <button onClick={handleApplyImageAlt} style={{ ...publishBtnStyle, background: '#8b5cf6', flex: 1, padding: '10px' }}>Save Metadata</button>
                         </div>
                      </div>
-                  </motion.div>
+                  </div>
                </div>
             )}
-          </AnimatePresence>
-
+          
           {mediaPickerTarget && (
              <MediaPicker 
                 onSelect={(url) => {

@@ -72,9 +72,9 @@ export default function BlogFooter() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-blue-500/10 blur-[100px] rounded-full pointer-events-none"></div>
 
       <div className="w-full max-w-7xl mx-auto relative z-10 px-5">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-y-10 gap-x-6 lg:gap-12 mb-16">
 
-          <div className="md:col-span-2 lg:col-span-2 space-y-8">
+          <div className="col-span-2 md:col-span-2 lg:col-span-2 space-y-8">
             <div className="flex items-center space-x-3 group cursor-pointer" onClick={() => handleNavClick('landing')}>
               <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform overflow-hidden p-1">
                 <img loading="lazy" decoding="async" fetchPriority="low" src={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + "/uploads/logo.webp"} alt="Coaching Sikar Logo" className="w-full h-full object-contain" />
@@ -103,7 +103,7 @@ export default function BlogFooter() {
 
           {footerSections.map((section) => {
             return (
-              <div key={section.title} className="md:col-span-1 lg:col-span-1">
+              <div key={section.title} className="col-span-1 md:col-span-1 lg:col-span-1">
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-6 flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
                   {section.title}
@@ -127,7 +127,7 @@ export default function BlogFooter() {
             )
           })}
 
-          <div className="md:col-span-1 lg:col-span-1">
+          <div className="col-span-2 md:col-span-2 lg:col-span-1">
             <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-6 flex items-center gap-2">
                <span className="w-2 h-2 rounded-full bg-blue-500 inline-block"></span>
                Stay Updated
