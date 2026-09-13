@@ -29,6 +29,7 @@ class PostController extends Controller
                 'content' => $post->content,
                 'type' => $post->type,
                 'link_url' => $post->link_url,
+                'is_live_discussion' => $post->is_live_discussion,
             ];
         }
 
@@ -66,7 +67,7 @@ class PostController extends Controller
                 $filename = \Illuminate\Support\Str::uuid() . '_' . time() . '.webp';
                 
                 $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
-                $image = $manager->read($file->getRealPath());
+                $image = $manager->decodePath($file->getRealPath());
                 
                 // Scale down if width exceeds 1200
                 if ($image->width() > 1200) {
@@ -74,15 +75,15 @@ class PostController extends Controller
                 }
                 
                 $quality = 80;
-                $encoded = $image->toWebp($quality);
+                $encoded = $image->encodeUsingFileExtension('webp', $quality);
                 
                 // Iteratively reduce quality if file is > 100KB
-                while (strlen($encoded->toString()) > 102400 && $quality > 10) {
+                while (strlen((string) $encoded) > 102400 && $quality > 10) {
                     $quality -= 10;
-                    $encoded = $image->toWebp($quality);
+                    $encoded = $image->encodeUsingFileExtension('webp', $quality);
                 }
                 
-                \Illuminate\Support\Facades\Storage::disk('public')->put('uploads/' . $filename, $encoded->toString());
+                \Illuminate\Support\Facades\Storage::disk('public')->put('uploads/' . $filename, (string) $encoded);
                 $mediaUrls = json_encode(['/storage/uploads/' . $filename]);
             }
         }
@@ -91,12 +92,13 @@ class PostController extends Controller
             'community_id' => $validated['community_id'],
             'author_id' => auth()->id(),
             'title' => $validated['title'],
-            'content' => $validated['content'] ?? null,
+            'content' => isset($validated['content']) ? clean($validated['content']) : null,
             'type' => $postType,
             'link_url' => $validated['link_url'] ?? null,
             'media_urls' => $mediaUrls,
             'score' => 1,
             'published' => true,
+            'is_live_discussion' => $request->boolean('is_live_discussion', false),
         ]);
 
         $community = Community::find($validated['community_id']);
@@ -122,7 +124,7 @@ class PostController extends Controller
         $post->update([
             'community_id' => $validated['community_id'],
             'title' => $validated['title'],
-            'content' => $validated['content'] ?? null,
+            'content' => isset($validated['content']) ? clean($validated['content']) : null,
             'type' => $validated['type'],
             'link_url' => $validated['link_url'] ?? null,
         ]);
@@ -186,6 +188,7 @@ class PostController extends Controller
                 'score' => $post->score,
                 'comments_count' => $post->comments()->count(),
                 'created_at' => $post->created_at->diffForHumans(),
+                'published_at' => $post->created_at->toIso8601String(),
                 'slug' => \Illuminate\Support\Str::slug($post->title),
                 'is_saved' => auth()->check() ? auth()->user()->savedPosts()->where('post_id', $post->id)->exists() : false,
                 'user_vote' => auth()->check() ? \Illuminate\Support\Facades\DB::table('votes')->where('user_id', auth()->id())->where('votable_type', \App\Models\Post::class)->where('votable_id', $post->id)->value('value') : 0,
@@ -204,13 +207,17 @@ class PostController extends Controller
 
         $post = Post::findOrFail($postId);
 
-        \App\Models\Comment::create([
+        $comment = \App\Models\Comment::create([
             'post_id' => $post->id,
             'author_id' => auth()->id(),
             'parent_id' => $request->parent_id,
-            'content' => $request->content,
+            'content' => clean($request->content),
             'score' => 1
         ]);
+
+        $comment->load('author', 'replies');
+
+        broadcast(new \App\Events\CommentPosted($comment))->toOthers();
 
         return back();
     }

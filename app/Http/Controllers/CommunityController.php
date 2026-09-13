@@ -34,8 +34,23 @@ class CommunityController extends Controller
             $query->orderBy('created_at', 'desc');
         }
 
-        $posts = $query->paginate(15)
-            ->through(function ($post) {
+        $paginated = $query->paginate(15);
+        
+        $savedPostIds = [];
+        $userVotes = [];
+
+        if (auth()->check()) {
+            $postIds = $paginated->pluck('id')->toArray();
+            $savedPostIds = auth()->user()->savedPosts()->whereIn('post_id', $postIds)->pluck('post_id')->toArray();
+            $userVotes = \Illuminate\Support\Facades\DB::table('votes')
+                ->where('user_id', auth()->id())
+                ->where('votable_type', \App\Models\Post::class)
+                ->whereIn('votable_id', $postIds)
+                ->pluck('value', 'votable_id')
+                ->toArray();
+        }
+
+        $posts = $paginated->through(function ($post) use ($savedPostIds, $userVotes) {
                 return [
                     'id' => $post->id,
                     'title' => $post->title,
@@ -53,8 +68,8 @@ class CommunityController extends Controller
                     'comments_count' => $post->comments_count,
                     'created_at' => $post->created_at->diffForHumans(),
                     'slug' => \Illuminate\Support\Str::slug($post->title),
-                    'is_saved' => auth()->check() ? auth()->user()->savedPosts()->where('post_id', $post->id)->exists() : false,
-                    'user_vote' => auth()->check() ? \Illuminate\Support\Facades\DB::table('votes')->where('user_id', auth()->id())->where('votable_type', \App\Models\Post::class)->where('votable_id', $post->id)->value('value') : 0,
+                    'is_saved' => in_array($post->id, $savedPostIds),
+                    'user_vote' => $userVotes[$post->id] ?? 0,
                 ];
             });
 
@@ -84,8 +99,23 @@ class CommunityController extends Controller
             $query->orderBy('created_at', 'desc');
         }
 
-        $posts = $query->paginate(15)
-            ->through(function ($post) {
+        $paginated = $query->paginate(15);
+        
+        $savedPostIds = [];
+        $userVotes = [];
+
+        if (auth()->check()) {
+            $postIds = $paginated->pluck('id')->toArray();
+            $savedPostIds = auth()->user()->savedPosts()->whereIn('post_id', $postIds)->pluck('post_id')->toArray();
+            $userVotes = \Illuminate\Support\Facades\DB::table('votes')
+                ->where('user_id', auth()->id())
+                ->where('votable_type', \App\Models\Post::class)
+                ->whereIn('votable_id', $postIds)
+                ->pluck('value', 'votable_id')
+                ->toArray();
+        }
+
+        $posts = $paginated->through(function ($post) use ($savedPostIds, $userVotes) {
                 return [
                     'id' => $post->id,
                     'title' => $post->title,
@@ -102,8 +132,8 @@ class CommunityController extends Controller
                     'comments_count' => $post->comments_count,
                     'created_at' => $post->created_at->diffForHumans(),
                     'slug' => \Illuminate\Support\Str::slug($post->title),
-                    'is_saved' => auth()->check() ? auth()->user()->savedPosts()->where('post_id', $post->id)->exists() : false,
-                    'user_vote' => auth()->check() ? \Illuminate\Support\Facades\DB::table('votes')->where('user_id', auth()->id())->where('votable_type', \App\Models\Post::class)->where('votable_id', $post->id)->value('value') : 0,
+                    'is_saved' => in_array($post->id, $savedPostIds),
+                    'user_vote' => $userVotes[$post->id] ?? 0,
                 ];
             });
 

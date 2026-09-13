@@ -5,13 +5,15 @@
 
     RewriteEngine On
     
-    # Force HTTPS
-    RewriteCond %{HTTPS} off
-    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-
-    # Force non-www (redirect www to non-www)
-    RewriteCond %{HTTP_HOST} ^www\.coachingsinsikar\.com$ [NC]
-    RewriteRule ^(.*)$ https://coachingsinsikar.com/$1 [L,R=301]
+    # Redirect /public to /
+    RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /public/?([^\ ]*)\ HTTP/ [NC]
+    RewriteRule ^ /%1 [L,R=301]
+    
+    # Redirect HTTP to HTTPS and WWW to NON-WWW in a single hop
+    RewriteCond %{HTTPS} off [OR]
+    RewriteCond %{HTTP_HOST} ^www\. [NC]
+    RewriteCond %{HTTP_HOST} ^(?:www\.)?(.+)$ [NC]
+    RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
@@ -34,7 +36,13 @@
 
 <IfModule mod_headers.c>
     # HSTS Support
-    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" env=HTTPS
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    
+    # Bust Nginx Proxy Cache for HTML
+    <FilesMatch "\.(php|html)$">
+        Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+        Header set Pragma "no-cache"
+    </FilesMatch>
 </IfModule>
 
 <IfModule mod_expires.c>

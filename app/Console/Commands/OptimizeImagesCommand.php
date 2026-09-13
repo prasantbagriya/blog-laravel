@@ -28,6 +28,9 @@ class OptimizeImagesCommand extends Command
      */
     public function handle()
     {
+        set_time_limit(0);
+        ini_set('memory_limit', '1024M');
+        
         $uploadPath = public_path('uploads');
         if (!File::exists($uploadPath)) {
             $this->error("Uploads directory not found.");
@@ -42,19 +45,21 @@ class OptimizeImagesCommand extends Command
         foreach ($files as $file) {
             $extension = strtolower($file->getExtension());
             if (in_array($extension, ['jpg', 'jpeg', 'png', 'bmp'])) {
-                $oldSize = $file->getSize();
-                $originalPath = $file->getRealPath();
-                $filenameWithoutExt = pathinfo($originalPath, PATHINFO_FILENAME);
-                $newPath = $uploadPath . '/' . $filenameWithoutExt . '.webp';
-
-                $this->info("Optimizing: " . $file->getFilename());
-
                 try {
-                    $image = $manager->read($originalPath);
+                    $originalPath = $file->getPathname();
+                    if (!$originalPath) continue;
+                    
+                    $oldSize = @filesize($originalPath) ?: 0;
+                    $filenameWithoutExt = pathinfo($originalPath, PATHINFO_FILENAME);
+                    $newPath = $uploadPath . '/' . $filenameWithoutExt . '.webp';
+
+                    $this->info("Optimizing: " . $file->getFilename());
+                    $image = $manager->decodePath($originalPath);
                     if ($image->width() > 1920) {
                         $image->scaleDown(width: 1920);
                     }
-                    $image->toWebp(80)->save($newPath);
+                    $encoded = $image->encodeUsingFileExtension('webp', 80);
+                    file_put_contents($newPath, (string) $encoded);
                     
                     $newSize = filesize($newPath);
                     $savedBytes += ($oldSize - $newSize);

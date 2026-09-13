@@ -26,7 +26,7 @@ export default function EditCommunity({ community }) {
                             <span className="text-white font-black text-lg">N</span>
                         </div>
                         <span className="font-extrabold text-xl tracking-tight hidden sm:block">
-                            Nexus
+                            coachinginsikar
                         </span>
                     </Link>
                 </div>
@@ -48,7 +48,7 @@ export default function EditCommunity({ community }) {
                                 type="text"
                                 value={data.display_name}
                                 onChange={(e) => setData('display_name', e.target.value)}
-                                className="w-full bg-white border border-[#EDEFF1] focus:border-[#1C1C1C] rounded-md py-2.5 px-3 text-[14px] outline-none transition-colors"
+                                className="w-full bg-white border border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md py-2.5 px-3 text-[14px] outline-none transition-colors"
                             />
                             {errors.display_name && <p className="text-red-500 text-xs mt-1">{errors.display_name}</p>}
                         </div>
@@ -60,7 +60,7 @@ export default function EditCommunity({ community }) {
                                 value={data.description}
                                 onChange={(e) => setData('description', e.target.value)}
                                 rows="4"
-                                className="w-full bg-white border border-[#EDEFF1] focus:border-[#1C1C1C] rounded-md py-2.5 px-3 text-[14px] outline-none transition-colors resize-none"
+                                className="w-full bg-white border border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md py-2.5 px-3 text-[14px] outline-none transition-colors resize-none"
                             ></textarea>
                             {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
                         </div>

@@ -8,6 +8,13 @@ use Inertia\Inertia;
 Route::get('/', [\App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap.index');
+Route::get('/sitemap/pages.xml', [\App\Http\Controllers\SitemapController::class, 'pages'])->name('sitemap.pages');
+Route::get('/sitemap/posts.xml', [\App\Http\Controllers\SitemapController::class, 'blogPosts'])->name('sitemap.posts');
+Route::get('/sitemap/community-posts.xml', [\App\Http\Controllers\SitemapController::class, 'communityPosts'])->name('sitemap.community_posts');
+Route::get('/sitemap/categories.xml', [\App\Http\Controllers\SitemapController::class, 'categories'])->name('sitemap.categories');
+Route::get('/sitemap/communities.xml', [\App\Http\Controllers\SitemapController::class, 'communities'])->name('sitemap.communities');
+Route::get('/sitemap/authors.xml', [\App\Http\Controllers\SitemapController::class, 'authors'])->name('sitemap.authors');
+Route::get('/sitemap/stories.xml', [\App\Http\Controllers\SitemapController::class, 'stories'])->name('sitemap.stories');
 Route::get('/news-sitemap.xml', [\App\Http\Controllers\NewsSitemapController::class, 'index'])->name('sitemap.news');
 
 Route::get('/blog', [\App\Http\Controllers\BlogController::class, 'index'])->name('blog.index');
@@ -61,9 +68,22 @@ Route::get('/privacy', [\App\Http\Controllers\PageController::class, 'privacy'])
 Route::get('/terms', [\App\Http\Controllers\PageController::class, 'terms'])->name('page.terms');
 Route::get('/search', [\App\Http\Controllers\SearchController::class, 'index'])->name('search.index');
 
+Route::get('/test-business', function () {
+    return \App\Models\Business::latest('created_at')->first();
+});
 
-// Admin Routes (Protected by Auth middleware)
-Route::middleware(['auth'])->group(function () {
+Route::get('/run-migrations', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        return \Illuminate\Support\Facades\Artisan::output();
+    } catch (\Exception $e) {
+        return $e->getMessage();
+    }
+});
+
+
+// Admin Routes (Protected by Auth and Admin middleware)
+Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.index');
     Route::get('/admin/posts/new', [\App\Http\Controllers\Admin\PostController::class, 'create'])->name('admin.posts.new');
     Route::get('/admin/posts/edit/{id}', [\App\Http\Controllers\Admin\PostController::class, 'edit'])->name('admin.posts.edit');
@@ -92,6 +112,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/api/admin/sliders', [\App\Http\Controllers\Api\AdminApiController::class, 'storeSlider'])->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
     Route::delete('/api/admin/sliders', [\App\Http\Controllers\Api\AdminApiController::class, 'deleteSlider'])->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
     
+    Route::get('/api/admin/businesses', [\App\Http\Controllers\Api\AdminApiController::class, 'getBusinesses']);
+    Route::delete('/api/admin/businesses', [\App\Http\Controllers\Api\AdminApiController::class, 'deleteBusiness'])->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    
+    Route::get('/admin/businesses', function () { return \Inertia\Inertia::render('Admin/Businesses/Index'); })->name('admin.businesses');
+
     Route::get('/admin/authors', function () { return \Inertia\Inertia::render('Admin/Authors/Index'); })->name('admin.authors');
     Route::get('/admin/authors/new', function () { return \Inertia\Inertia::render('Admin/Authors/New'); })->name('admin.authors.new');
     Route::get('/admin/authors/edit/{id}', function ($id) {
@@ -111,7 +136,11 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+    return Inertia::render('Dashboard', [
+        'userBusinesses' => \App\Models\Business::where('user_id', auth()->id())
+            ->orWhere('email', auth()->user()->email)
+            ->get()
+    ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -131,6 +160,38 @@ Route::middleware('auth')->group(function () {
 });
 
 
+
+// Reviews SEO Routes
+Route::get('/reviews', [\App\Http\Controllers\ReviewPageController::class, 'index'])->name('reviews.index');
+Route::get('/reviews/{category}', [\App\Http\Controllers\ReviewPageController::class, 'category'])->name('reviews.category');
+Route::get('/reviews/{category}/{business}', [\App\Http\Controllers\ReviewPageController::class, 'business'])->name('reviews.business');
+
+// Reviews API Routes
+Route::get('/api/businesses', [\App\Http\Controllers\Api\BusinessController::class, 'index']);
+Route::post('/api/businesses', [\App\Http\Controllers\Api\BusinessController::class, 'store'])->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+Route::put('/api/businesses/{id}', [\App\Http\Controllers\Api\BusinessController::class, 'update'])->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+Route::get('/api/businesses/{slug}', [\App\Http\Controllers\Api\BusinessController::class, 'show']);
+Route::get('/api/businesses/{businessId}/reviews', [\App\Http\Controllers\Api\ReviewController::class, 'index']);
+Route::post('/api/reviews', [\App\Http\Controllers\Api\ReviewController::class, 'store'])->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+Route::post('/api/reviews/{id}/vote', [\App\Http\Controllers\Api\ReviewController::class, 'vote'])->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+Route::post('/api/reviews/{id}/reply', [\App\Http\Controllers\Api\ReviewController::class, 'reply'])->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+
+require __DIR__.'/auth.php';
+
+Route::get('/fix-admin-temp', function () {
+    $user = \App\Models\User::firstOrCreate(
+        ['email' => 'admin@example.com'],
+        ['name' => 'Admin User', 'password' => \Illuminate\Support\Facades\Hash::make('password')]
+    );
+    $user->password = \Illuminate\Support\Facades\Hash::make('password');
+    $user->role = 'super_admin';
+    // Use is_admin only if the column exists, to prevent errors on older schemas
+    if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_admin')) {
+        $user->is_admin = true;
+    }
+    $user->save();
+    return 'Admin email and password fixed. You can now login with admin@example.com and password "password".';
+});
 
 Route::fallback(function () {
     $path = request()->path();

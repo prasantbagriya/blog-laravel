@@ -24,6 +24,6 @@ class AppServiceProvider extends ServiceProvider
             \Illuminate\Support\Facades\URL::forceScheme('https');
             \Illuminate\Support\Facades\URL::forceRootUrl(config('app.url'));
         }
-        Vite::prefetch(concurrency: 3);
+        Vite::usePreloadTagAttributes(fn () => false);
     }
 }

@@ -9,7 +9,7 @@ export default function Contact() {
         <div className="bg-white min-h-screen flex flex-col">
             <Head title="Contact Us | Blog" />
             <GlobalNavbar />
-            <main className="container mx-auto px-4 pb-8 max-w-4xl min-h-[60vh] flex-grow" style={{ paddingTop: '160px' }}>
+            <main className="w-full px-[25px] pb-8 flex-grow" style={{ paddingTop: '100px' }}>
                 <h1 className="text-4xl font-bold mb-8">Contact Us</h1>
                 <div className="grid md:grid-cols-2 gap-12">
                     <div>

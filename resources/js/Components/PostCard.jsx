@@ -85,14 +85,14 @@ export default function PostCard({ post, auth, openReportModal }) {
             <div className="w-10 bg-[#F8F9FA] rounded-l-md flex flex-col items-center py-2 gap-1 flex-shrink-0">
                 <button 
                     onClick={(e) => handleVote(1, e)}
-                    className={`p-1 rounded transition-colors border-0 outline-none focus:outline-none focus:ring-0 shadow-none bg-transparent ${post.user_vote === 1 ? 'text-[#FF4500] bg-orange-50' : 'text-[#878A8C] hover:text-[#FF4500] hover:bg-[#EAEAEA]'}`}
+                    className={`transition-colors border-0 outline-none focus:outline-none focus:ring-0 shadow-none bg-transparent ${post.user_vote === 1 ? 'text-[#FF4500]' : 'text-[#878A8C] hover:text-[#FF4500]'}`}
                 >
                     <ArrowBigUp size={22} strokeWidth={1.5} className={post.user_vote === 1 ? 'fill-current' : ''} />
                 </button>
                 <span className={`text-[12px] font-bold ${post.user_vote === 1 ? 'text-[#FF4500]' : post.user_vote === -1 ? 'text-[#7193FF]' : 'text-[#1C1C1C]'}`}>{post.score}</span>
                 <button 
                     onClick={(e) => handleVote(-1, e)}
-                    className={`p-1 rounded transition-colors border-0 outline-none focus:outline-none focus:ring-0 shadow-none bg-transparent ${post.user_vote === -1 ? 'text-[#7193FF] bg-blue-50' : 'text-[#878A8C] hover:text-[#7193FF] hover:bg-[#EAEAEA]'}`}
+                    className={`transition-colors border-0 outline-none focus:outline-none focus:ring-0 shadow-none bg-transparent ${post.user_vote === -1 ? 'text-[#7193FF]' : 'text-[#878A8C] hover:text-[#7193FF]'}`}
                 >
                     <ArrowBigDown size={22} strokeWidth={1.5} className={post.user_vote === -1 ? 'fill-current' : ''} />
                 </button>

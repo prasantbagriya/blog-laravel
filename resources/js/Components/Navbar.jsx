@@ -42,8 +42,8 @@ export default function Navbar({ auth, searchQuery = '' }) {
                         <div className="w-8 h-8 rounded-full bg-[#4F46E5] flex items-center justify-center">
                             <span className="text-white font-black text-lg">N</span>
                         </div>
-                        <span className="font-extrabold text-xl tracking-tight hidden sm:block">
-                            Nexus
+                        <span className="hidden sm:inline-block font-bold text-[22px] tracking-tight ml-2">
+                            coachingsinsikar
                         </span>
                     </Link>
                 </div>
@@ -55,7 +55,7 @@ export default function Navbar({ auth, searchQuery = '' }) {
                     </div>
                     <input 
                         type="text" 
-                        placeholder="Search Nexus" 
+                        placeholder="Search coachingsinsikar" 
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         onKeyDown={handleSearch}
@@ -105,7 +105,7 @@ export default function Navbar({ auth, searchQuery = '' }) {
                                                     >
                                                         <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden bg-gray-200">
                                                             {notif.data.profile_picture ? (
-                                                                <img src={notif.data.profile_picture} className="w-full h-full object-cover" />
+                                                                <img loading="lazy" decoding="async" fetchPriority="low" src={notif.data.profile_picture} className="w-full h-full object-cover" />
                                                             ) : (
                                                                 <div className="w-full h-full bg-gradient-to-tr from-[#0079D3] to-[#4F46E5]"></div>
                                                             )}
@@ -132,7 +132,7 @@ export default function Navbar({ auth, searchQuery = '' }) {
                             <Link href="/dashboard" className="flex items-center gap-2 hover:bg-[#F6F7F8] px-2 py-1.5 rounded-full transition-colors">
                                 <div className="w-8 h-8 rounded-full bg-blue-100 overflow-hidden">
                                     {auth.user.profile_picture ? (
-                                        <img src={auth.user.profile_picture} className="w-full h-full object-cover" />
+                                        <img loading="lazy" decoding="async" fetchPriority="low" src={auth.user.profile_picture} className="w-full h-full object-cover" />
                                     ) : (
                                         <div className="w-full h-full bg-gradient-to-tr from-[#0079D3] to-[#4F46E5]"></div>
                                     )}

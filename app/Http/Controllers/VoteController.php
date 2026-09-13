@@ -25,7 +25,7 @@ class VoteController extends Controller
         $model = $type === 'post' ? Post::findOrFail($id) : Comment::findOrFail($id);
         $modelType = $type === 'post' ? Post::class : Comment::class;
 
-        DB::transaction(function () use ($user, $model, $modelType, $id, $value) {
+        DB::transaction(function () use ($user, $model, $modelType, $id, $value, $type) {
             $existingVote = DB::table('votes')
                 ->where('user_id', $user->id)
                 ->where('votable_type', $modelType)

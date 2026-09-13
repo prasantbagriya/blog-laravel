@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0">
     <channel>
-        <title>r/{{ $community->name }} - Nexus</title>
+        <title>r/{{ $community->name }} - coachinginsikar</title>
         <link>{{ url('/community/' . $community->name) }}</link>
         <description>{{ $community->description }}</description>
         <language>en-us</language>

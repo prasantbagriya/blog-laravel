@@ -148,7 +148,7 @@ export default function SliderManager() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>🖥️ Desktop Image</span>
               <div style={{ position: 'relative', width: '200px', height: '120px', borderRadius: '12px', overflow: 'hidden', flexShrink: 0, border: '2px solid #3b82f6' }}>
-                <img src={slide.image_url} alt="Desktop Slide" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img loading="lazy" decoding="async" fetchPriority="low" src={slide.image_url} alt="Desktop Slide" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 <button onClick={() => openMediaPicker(slide.id, 'image_url')} style={{ position: 'absolute', bottom: '6px', right: '6px', background: 'rgba(255,255,255,0.95)', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: 'none', cursor: 'pointer' }}>
                   Change
                 </button>
@@ -160,7 +160,7 @@ export default function SliderManager() {
               <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>📱 Mobile Image</span>
               {slide.mobile_image_url ? (
                 <div style={{ position: 'relative', width: '70px', height: '120px', borderRadius: '12px', overflow: 'hidden', flexShrink: 0, border: '2px solid #10b981' }}>
-                  <img src={slide.mobile_image_url} alt="Mobile Slide" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img loading="lazy" decoding="async" fetchPriority="low" src={slide.mobile_image_url} alt="Mobile Slide" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   <button onClick={() => openMediaPicker(slide.id, 'mobile_image_url')} style={{ position: 'absolute', bottom: '4px', left: '50%', transform: 'translateX(-50%)', background: 'rgba(255,255,255,0.95)', padding: '3px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: 700, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                     Change
                   </button>

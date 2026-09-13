@@ -1,0 +1,86 @@
+import { t as resolvePageComponent } from "./assets/laravel-vite-plugin-D9XPBWcO.js";
+import { createInertiaApp } from "@inertiajs/react";
+import createServer from "@inertiajs/react/server";
+import ReactDOMServer from "react-dom/server";
+import { jsx } from "react/jsx-runtime";
+//#region resources/js/ssr.jsx
+var appName = "coachingsinsikar";
+createServer((page) => createInertiaApp({
+	page,
+	render: ReactDOMServer.renderToString,
+	title: (title) => title ? `${title} | ${appName}` : appName,
+	resolve: (name) => resolvePageComponent([`./Pages/${name}.jsx`, `./Pages/${name}.tsx`], /* #__PURE__ */ Object.assign({
+		"./Pages/Admin/Authors/AuthorForm.tsx": () => import("./assets/AuthorForm-CVureTt-.js"),
+		"./Pages/Admin/Authors/Edit.jsx": () => import("./assets/Edit-2feGxL-8.js"),
+		"./Pages/Admin/Authors/Index.jsx": () => import("./assets/Index-CmSPKer-.js"),
+		"./Pages/Admin/Authors/New.jsx": () => import("./assets/New-BN2ZHUcJ.js"),
+		"./Pages/Admin/Businesses/Index.jsx": () => import("./assets/Index-BPZwbQgR.js"),
+		"./Pages/Admin/Categories/Index.jsx": () => import("./assets/Index-BHsS1nfw.js"),
+		"./Pages/Admin/DeleteButton.jsx": () => import("./assets/DeleteButton-4pbNZztV.js"),
+		"./Pages/Admin/Index.jsx": () => import("./assets/Index-DRhuPFSY.js"),
+		"./Pages/Admin/Media/Index.jsx": () => import("./assets/Index-D3Irxw5-.js"),
+		"./Pages/Admin/PostForm.tsx": () => import("./assets/PostForm-BjanLHH8.js"),
+		"./Pages/Admin/Posts/Edit.jsx": () => import("./assets/Edit-U5xyX6EQ.js"),
+		"./Pages/Admin/Posts/New.jsx": () => import("./assets/New-Do-ZwGIj.js"),
+		"./Pages/Admin/SeoAudit/Index.jsx": () => import("./assets/Index-CzhOTYPS.js"),
+		"./Pages/Admin/Settings/Slider.jsx": () => import("./assets/Slider-CsMGqqLx.js"),
+		"./Pages/Admin/Stories/Edit.jsx": () => import("./assets/Edit-Doc-TgKi.js"),
+		"./Pages/Admin/Stories/Index.jsx": () => import("./assets/Index-BDLhEfXx.js"),
+		"./Pages/Admin/Stories/New.jsx": () => import("./assets/New-DPd2cmP3.js"),
+		"./Pages/Admin/Stories/StoryForm.tsx": () => import("./assets/StoryForm-DAJL6eDR.js"),
+		"./Pages/Admin/components/MediaPicker.tsx": () => import("./assets/MediaPicker-DhMqFL25.js").then((n) => n.n),
+		"./Pages/Auth/ConfirmPassword.jsx": () => import("./assets/ConfirmPassword-NnGER4Lg.js"),
+		"./Pages/Auth/ForgotPassword.jsx": () => import("./assets/ForgotPassword-DJY1nPIa.js"),
+		"./Pages/Auth/Login.jsx": () => import("./assets/Login-Dl4OayK1.js"),
+		"./Pages/Auth/Register.jsx": () => import("./assets/Register-CzR3S_zi.js"),
+		"./Pages/Auth/ResetPassword.jsx": () => import("./assets/ResetPassword-CHttqszS.js"),
+		"./Pages/Auth/VerifyEmail.jsx": () => import("./assets/VerifyEmail-BZ8zw0zU.js"),
+		"./Pages/Author/Index.jsx": () => import("./assets/Index-C-C7YixP.js"),
+		"./Pages/Author/Show.jsx": () => import("./assets/Show-Bk1m1fM7.js"),
+		"./Pages/Blog/Index.jsx": () => import("./assets/Index-B4rkLUDe2.js"),
+		"./Pages/Blog/Show.jsx": () => import("./assets/Show-Vm6QKP7x.js"),
+		"./Pages/Category/Index.jsx": () => import("./assets/Index-D8VLSRmI.js"),
+		"./Pages/Category/Show.jsx": () => import("./assets/Show-DnMw2JKq.js"),
+		"./Pages/Community/Create.jsx": () => import("./assets/Create-CI1Ze0bi.js"),
+		"./Pages/Community/Edit.jsx": () => import("./assets/Edit-DJc4wBV3.js"),
+		"./Pages/Community/Feed.jsx": () => import("./assets/Feed-D2wta18C.js"),
+		"./Pages/Community/ModQueue.jsx": () => import("./assets/ModQueue-D2p4rdJn.js"),
+		"./Pages/Community/Show.jsx": () => import("./assets/Show-D-BfOvBx.js"),
+		"./Pages/Dashboard.jsx": () => import("./assets/Dashboard-BOLOmGPC.js"),
+		"./Pages/Post/Create.jsx": () => import("./assets/Create-DLdsZMs4.js"),
+		"./Pages/Post/Show.jsx": () => import("./assets/Show-Czfw51xN.js"),
+		"./Pages/Profile/Edit.jsx": () => import("./assets/Edit-DkmEx2FN.js"),
+		"./Pages/Profile/Partials/DeleteUserForm.jsx": () => import("./assets/DeleteUserForm-C1SXtG3w.js"),
+		"./Pages/Profile/Partials/UpdatePasswordForm.jsx": () => import("./assets/UpdatePasswordForm-ZqjB2oSu.js"),
+		"./Pages/Profile/Partials/UpdateProfileInformationForm.jsx": () => import("./assets/UpdateProfileInformationForm-B8U9BQfc.js"),
+		"./Pages/Reviews/Index.tsx": () => import("./assets/Index-DFRJ7Pa4.js"),
+		"./Pages/Reviews/components/AdminPanel.tsx": () => import("./assets/AdminPanel-CFYriZy2.js"),
+		"./Pages/Reviews/components/AiSearchModal.tsx": () => import("./assets/AiSearchModal-CfFlaLO8.js"),
+		"./Pages/Reviews/components/ApiDocsModal.tsx": () => import("./assets/ApiDocsModal-Cnw480tN.js"),
+		"./Pages/Reviews/components/BusinessCard.tsx": () => import("./assets/BusinessCard-BBb6DzZ2.js"),
+		"./Pages/Reviews/components/BusinessDashboard.tsx": () => import("./assets/BusinessDashboard-C1JazekU.js"),
+		"./Pages/Reviews/components/BusinessProfileView.tsx": () => import("./assets/BusinessProfileView-C5Kh_AO5.js"),
+		"./Pages/Reviews/components/CategoryGrid.tsx": () => import("./assets/CategoryGrid-fqs6Yhby.js"),
+		"./Pages/Reviews/components/CreateBusinessModal.tsx": () => import("./assets/CreateBusinessModal-DcLw8nnK.js"),
+		"./Pages/Reviews/components/Footer.tsx": () => import("./assets/Footer-D7_QkJak.js"),
+		"./Pages/Reviews/components/HeroSection.tsx": () => import("./assets/HeroSection-mMxHwLZj.js"),
+		"./Pages/Reviews/components/ModeratorPanel.tsx": () => import("./assets/ModeratorPanel-ChuM8IO4.js"),
+		"./Pages/Reviews/components/Navbar.tsx": () => import("./assets/Navbar-DUwnxxSy.js"),
+		"./Pages/Reviews/components/SubmitReviewModal.tsx": () => import("./assets/SubmitReviewModal-cV6ol9sx.js"),
+		"./Pages/Search/Index.jsx": () => import("./assets/Index-omTWTHsQ.js"),
+		"./Pages/Static/About.jsx": () => import("./assets/About-C8VoFuzf.js"),
+		"./Pages/Static/Contact.jsx": () => import("./assets/Contact-D2-J7xl9.js"),
+		"./Pages/Static/EditorialPolicy.jsx": () => import("./assets/EditorialPolicy-56GW5jft.js"),
+		"./Pages/Static/FactCheckingPolicy.jsx": () => import("./assets/FactCheckingPolicy-BAolqmCg.js"),
+		"./Pages/Static/Privacy.jsx": () => import("./assets/Privacy-BkdHWMMY.js"),
+		"./Pages/Static/Terms.jsx": () => import("./assets/Terms-gxVLlaHq.js"),
+		"./Pages/Story/Index.jsx": () => import("./assets/Index-XrGrkBZs.js"),
+		"./Pages/User/Show.jsx": () => import("./assets/Show-CzzXPhXJ.js"),
+		"./Pages/Welcome.jsx": () => import("./assets/Welcome-COi6prK6.js")
+	})),
+	setup({ App, props }) {
+		return /* @__PURE__ */ jsx(App, { ...props });
+	}
+}));
+//#endregion
+export {};

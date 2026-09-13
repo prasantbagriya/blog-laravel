@@ -6,7 +6,9 @@ import React from 'react';
 // Polyfill for Next.js Image
 const Image = ({ src, alt, fill, style, sizes, priority, fetchPriority, ...props }) => {
     const imgStyle = fill ? { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%', ...style } : style;
-    return <img src={src} alt={alt} style={imgStyle} sizes={sizes} {...props} />;
+    const finalFetchPriority = priority ? 'high' : (fetchPriority || 'auto');
+    const loadingAttr = priority ? 'eager' : 'lazy';
+    return <img src={src} alt={alt} style={imgStyle} sizes={sizes} fetchPriority={finalFetchPriority} loading={loadingAttr} decoding={priority ? 'sync' : 'async'} {...props} />;
 };
 
 export default function StoryIndex({ stories }) {

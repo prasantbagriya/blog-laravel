@@ -8,7 +8,7 @@ export default function Privacy() {
         <div className="bg-white min-h-screen flex flex-col">
             <Head title="Privacy Policy | Blog" />
             <GlobalNavbar />
-            <main className="container mx-auto px-4 pb-8 max-w-4xl min-h-[60vh] flex-grow" style={{ paddingTop: '160px' }}>
+            <main className="w-full px-[25px] pb-8 flex-grow" style={{ paddingTop: '100px' }}>
                 <h1 className="text-4xl font-bold mb-8">Privacy Policy</h1>
                 <div className="prose max-w-none text-gray-700 space-y-6">
                     <p>Last updated: {new Date().toLocaleDateString()}</p>

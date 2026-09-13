@@ -13,6 +13,11 @@ class Story extends Model
 
     protected $casts = [
         'pages' => 'array',
+        'seo_meta' => 'array',
+        'tags' => 'array',
+        'authorSocials' => 'array',
+        'isSponsored' => 'boolean',
+        'isNoIndex' => 'boolean',
         'published' => 'boolean',
         'date' => 'datetime',
     ];

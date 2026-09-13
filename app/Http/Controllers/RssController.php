@@ -24,4 +24,16 @@ class RssController extends Controller
             'posts' => $posts
         ])->header('Content-Type', 'application/rss+xml; charset=utf-8');
     }
+    public function blogFeed()
+    {
+        $posts = Post::where('published', true)
+            ->where('isNoIndex', false)
+            ->orderBy('created_at', 'desc')
+            ->take(30)
+            ->get();
+
+        return response()->view('rss.blog', [
+            'posts' => $posts
+        ])->header('Content-Type', 'application/rss+xml; charset=utf-8');
+    }
 }

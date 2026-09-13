@@ -2,39 +2,17 @@ import { Head, Link } from '@inertiajs/react';
 import GlobalNavbar from '../../NextComponents/GlobalNavbar';
 import BlogFooter from '../../NextComponents/BlogFooter';
 import React from 'react';
+import SeoMeta from '../../NextComponents/SeoMeta';
 
 // Polyfill for Next.js Image
 const Image = ({ src, alt, fill, style, sizes, priority, fetchPriority, ...props }) => {
     const imgStyle = fill ? { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%', ...style } : style;
-    return <img src={src} alt={alt} style={imgStyle} sizes={sizes} {...props} />;
+    const finalFetchPriority = priority ? 'high' : (fetchPriority || 'auto');
+    const loadingAttr = priority ? 'eager' : 'lazy';
+    return <img src={src} alt={alt} style={imgStyle} sizes={sizes} fetchPriority={finalFetchPriority} loading={loadingAttr} decoding={priority ? 'sync' : 'async'} {...props} />;
 };
 
-export default function Index({ posts }) {
-    const collectionSchema = {
-        "@context": "https://schema.org",
-        "@type": "CollectionPage",
-        "name": "All Articles & Insights | Blog",
-        "url": typeof window !== 'undefined' ? window.location.href : "https://coachingsinsikar.com/blog",
-        "description": "Read the latest articles, insights, and news from our official blog.",
-        "publisher": {
-            "@type": "Organization",
-            "name": "Nexus",
-            "logo": {
-                "@type": "ImageObject",
-                "url": "https://coachingsinsikar.com/images/logo.png"
-            }
-        },
-        "hasPart": posts.map(post => ({
-            "@type": "Article",
-            "headline": post.title,
-            "url": `https://coachingsinsikar.com/blog/${post.slug}`,
-            "author": {
-                "@type": "Person",
-                "name": post.author
-            }
-        }))
-    };
-
+export default function Index({ posts, meta }) {
     const formatDate = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);
@@ -43,16 +21,11 @@ export default function Index({ posts }) {
 
     return (
         <div className="bg-white min-h-screen">
-            <Head title="All Posts | Blog">
-                <meta name="description" content="Read the latest articles, insights, and news from our official blog." />
-                <script type="application/ld+json">
-                    {JSON.stringify(collectionSchema)}
-                </script>
-            </Head>
+            <SeoMeta meta={meta} />
             
             <GlobalNavbar />
             
-            <main className="container mx-auto px-4 pb-8 max-w-6xl min-h-[60vh]" style={{ paddingTop: '160px' }}>
+            <main className="w-full px-[25px] pb-8" style={{ paddingTop: '100px' }}>
                 <h1 className="text-4xl font-bold mb-12">All Articles & Insights</h1>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: 'Newsreader', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --color-editorial-blue: #0052FF;
+  --color-editorial-bg: #FDFCFB;
+  --color-editorial-card: #FFFFFF;
+  --color-editorial-subcard: #F5F5F2;
+  --color-editorial-border: #E5E5E1;
+  --color-editorial-dark: #1A1A1A;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-editorial-bg);
+  color: #1A1A1A;
+  -webkit-font-smoothing: antialiased;
+}
+
+.dark body {
+  background-color: #0F0F0E;
+  color: #F5F5F2;
+}
+
+/* Custom Editorial utilities */
+.font-editorial-serif {
+  font-family: var(--font-serif);
+}
+
+.border-editorial {
+  border-color: #E5E5E1;
+}
+
+.dark .border-editorial {
+  border-color: #2A2A28;
+}
+
+.bg-editorial-bg {
+  background-color: #FDFCFB;
+}
+
+.dark .bg-editorial-bg {
+  background-color: #0F0F0E;
+}
+
+.bg-editorial-subcard {
+  background-color: #F5F5F2;
+}
+
+.dark .bg-editorial-subcard {
+  background-color: #161615;
+}

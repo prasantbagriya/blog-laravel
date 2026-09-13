@@ -35,6 +35,15 @@
   margin: 0;
 }
 
+/* Remove default focus outline (black line) globally */
+*:focus {
+  outline: none !important;
+}
+button {
+  outline: none !important;
+  border: none;
+}
+
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;
@@ -262,21 +271,44 @@ section:not(:first-of-type):not(.lcp-section):not(.hero-skeleton) {
 .tiptap-content table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: auto;
   margin: 1.5rem 0;
   font-size: 0.9375rem;
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid #94a3b8;
+}
+
+.tiptap-content th,
+.tiptap-content td {
+  min-width: 1em;
+  padding: 0.75rem 1rem;
+  border: 1px solid #94a3b8;
+  vertical-align: top;
+  box-sizing: border-box;
+  position: relative;
 }
 
 .tiptap-content th {
   background: var(--muted);
-  padding: 0.75rem 1rem;
   text-align: left;
   font-weight: 700;
-  border: 1px solid var(--border);
 }
 
-.tiptap-content td {
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--border);
+.tiptap-content td p,
+.tiptap-content th p {
+  margin: 0;
+}
+
+.tiptap-content .column-resize-handle {
+  background-color: var(--primary);
+  bottom: -2px;
+  position: absolute;
+  right: -2px;
+  pointer-events: none;
+  top: 0;
+  width: 4px;
 }
 
 .tiptap-content tr:hover td { background: var(--accent); }
@@ -557,5 +589,24 @@ div[data-image-slider="true"] {
   scrollbar-width: none !important;
 }
 
-
-
+/* Ensure Tailwind prose tables also render properly even when empty */
+.prose table {
+  table-layout: auto !important;
+  display: block !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  border-collapse: collapse !important;
+  border: 1px solid #94a3b8 !important;
+  width: 100% !important;
+}
+.prose th, .prose td {
+  min-width: 1em !important;
+  position: relative !important;
+  box-sizing: border-box !important;
+  border: 1px solid #94a3b8 !important;
+  padding: 0.75rem 1rem !important;
+}
+.prose thead th {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}

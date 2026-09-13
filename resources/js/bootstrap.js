@@ -34,3 +34,28 @@ window.fetch = async function () {
 
     return originalFetch(resource, config);
 };
+
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
+
+window.Pusher = Pusher;
+
+if (import.meta.env.VITE_BROADCAST_ENABLED === 'true') {
+    window.Echo = new Echo({
+        broadcaster: 'reverb',
+        key: import.meta.env.VITE_REVERB_APP_KEY,
+        wsHost: import.meta.env.VITE_REVERB_HOST,
+        wsPort: import.meta.env.VITE_REVERB_PORT ?? 8080,
+        wssPort: import.meta.env.VITE_REVERB_PORT ?? 443,
+        forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
+        enabledTransports: ['ws', 'wss'],
+    });
+} else {
+    // Provide a dummy Echo object to prevent JS errors when calling Echo.join()
+    window.Echo = {
+        join: () => ({ listen: () => ({}) }),
+        leave: () => {},
+        channel: () => ({ listen: () => ({}) }),
+        private: () => ({ listen: () => ({}) }),
+    };
+}

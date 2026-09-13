@@ -209,11 +209,15 @@ export default function TipTapEditor({ value, onChange }) {
                 openOnClick: false,
                 HTMLAttributes: {
                     class: 'text-[#0079D3] hover:underline',
+                    rel: 'ugc nofollow',
+                    target: '_blank'
                 },
             }),
             Image.configure({
                 HTMLAttributes: {
-                    class: 'max-w-full rounded-md mt-4 mb-4',
+                    class: 'max-w-full rounded-md mt-4 mb-4 bg-gray-50',
+                    loading: 'lazy',
+                    decoding: 'async'
                 },
             }),
             Youtube.configure({

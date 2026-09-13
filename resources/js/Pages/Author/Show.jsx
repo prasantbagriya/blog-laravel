@@ -1,48 +1,21 @@
 import React from 'react';
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
+import SeoMeta from '../../NextComponents/SeoMeta';
 import GlobalNavbar from '../../NextComponents/GlobalNavbar';
 import BlogFooter from '../../NextComponents/BlogFooter';
 
 // Polyfill for Next.js Image
 const Image = ({ src, alt, fill, style, sizes, priority, fetchPriority, ...props }) => {
     const imgStyle = fill ? { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%', ...style } : style;
-    return <img src={src} alt={alt} style={imgStyle} sizes={sizes} {...props} />;
+    const finalFetchPriority = priority ? 'high' : (fetchPriority || 'auto');
+    const loadingAttr = priority ? 'eager' : 'lazy';
+    return <img src={src} alt={alt} style={imgStyle} sizes={sizes} fetchPriority={finalFetchPriority} loading={loadingAttr} decoding={priority ? 'sync' : 'async'} {...props} />;
 };
 
-export default function AuthorShow({ author, posts }) {
-    const currentUrl = typeof window !== 'undefined' ? window.location.href : `https://coachingsinsikar.com/author/${author.slug}`;
-    const cleanBio = author.bio ? author.bio.replace(/<[^>]*>?/gm, '').substring(0, 160) : `Articles by ${author.name}`;
-    
-    const profileSchema = {
-        "@context": "https://schema.org",
-        "@type": "ProfilePage",
-        "mainEntity": {
-            "@type": "Person",
-            "name": author.name,
-            "jobTitle": author.jobTitle || "Author",
-            "image": author.image || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80",
-            "description": cleanBio,
-            "url": currentUrl,
-            "worksFor": {
-                "@type": "Organization",
-                "name": "Nexus"
-            }
-        }
-    };
-
+export default function AuthorShow({ author, posts, meta }) {
     return (
         <div className="bg-white min-h-screen flex flex-col">
-            <Head title={`${author.name} | Author | Blog`}>
-                <meta name="description" content={cleanBio} />
-                <link rel="canonical" href={currentUrl} />
-                <meta property="og:title" content={`${author.name} | Author`} />
-                <meta property="og:description" content={cleanBio} />
-                <meta property="og:image" content={author.image || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80"} />
-                <meta property="og:type" content="profile" />
-                <script type="application/ld+json">
-                    {JSON.stringify(profileSchema)}
-                </script>
-            </Head>
+            <SeoMeta meta={meta} />
             <GlobalNavbar />
             <main className="container mx-auto px-4 py-8 max-w-6xl mt-16 flex-grow">
                 <header className="mb-12 border-b pb-8 flex flex-col md:flex-row gap-8 items-center md:items-start text-center md:text-left">

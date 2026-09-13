@@ -380,6 +380,8 @@ interface PostFormProps {
 export default function PostForm({ post }: PostFormProps) {
    const [isMobile, setIsMobile] = useState(false);
 
+   const [postId] = useState(post?.id || crypto.randomUUID());
+
    useEffect(() => {
      const handleResize = () => setIsMobile(window.innerWidth < 1024); // Use 1024px for tablet/mobile to collapse sidebar
      handleResize();
@@ -391,12 +393,13 @@ export default function PostForm({ post }: PostFormProps) {
    const [metaDescription, setMetaDescription] = useState(post?.metaDescription || '');
    const [excerpt, setExcerpt] = useState(post?.excerpt || '');
    const [coverImage, setCoverImage] = useState(post?.coverImage || '');
+   const [coverImageAlt, setCoverImageAlt] = useState(post?.coverImageAlt || '');
    const [authorImage, setAuthorImage] = useState(post?.authorImage || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80');
    const [author, setAuthor] = useState(post?.author || 'Admin');
    const [availableAuthors, setAvailableAuthors] = useState<any[]>([]);
    const [availableCategories, setAvailableCategories] = useState<any[]>([]);
   
-   const [focusKeyword, setFocusKeyword] = useState('');
+   const [focusKeyword, setFocusKeyword] = useState(post?.focusKeyword || '');
    const [category, setCategory] = useState(post?.category || 'General');
    const [tags, setTags] = useState<string[]>(post?.tags || []);
    const [tagInput, setTagInput] = useState('');
@@ -405,10 +408,16 @@ export default function PostForm({ post }: PostFormProps) {
    const [seoTitle, setSeoTitle] = useState(post?.seoTitle || '');
    const [ogTitle, setOgTitle] = useState(post?.ogTitle || '');
    const [ogDescription, setOgDescription] = useState(post?.ogDescription || '');
+   const [twitterCard, setTwitterCard] = useState(post?.twitterCard || 'summary_large_image');
+   const [twitterTitle, setTwitterTitle] = useState(post?.twitterTitle || '');
+   const [twitterDescription, setTwitterDescription] = useState(post?.twitterDescription || '');
    const [canonicalUrl, setCanonicalUrl] = useState(post?.canonicalUrl || '');
    const [keywords, setKeywords] = useState(post?.keywords || '');
 
    const [faqs, setFaqs] = useState<{ question: string; answer: string }[]>(post?.faqs || []);
+   const [howToSteps, setHowToSteps] = useState<{ name: string; text: string }[]>(post?.howToSteps || []);
+   const [localBusiness, setLocalBusiness] = useState<{ name: string; telephone: string; ratingValue: string; reviewCount: string; priceRange: string; streetAddress: string; addressLocality: string; addressRegion: string; postalCode: string; addressCountry: string; }>(post?.localBusiness || { name: '', telephone: '', ratingValue: '', reviewCount: '', priceRange: '', streetAddress: '', addressLocality: '', addressRegion: '', postalCode: '', addressCountry: '' });
+   const [howToModalOpen, setHowToModalOpen] = useState(false);
    const [faqSchemaEnabled, setFaqSchemaEnabled] = useState(true);
    const [snippetScore, setSnippetScore] = useState(0);
    const [snippetTips, setSnippetTips] = useState<string[]>([]);
@@ -456,7 +465,7 @@ export default function PostForm({ post }: PostFormProps) {
    const [isPillarPage, setIsPillarPage] = useState<boolean>(post?.isPillarPage || false);
    const [isAiAssisted, setIsAiAssisted] = useState<boolean>(post?.isAiAssisted || false);
    const [reviewCycleDays, setReviewCycleDays] = useState<number>(post?.reviewCycleDays || 90);
-   const [nextReviewDate, setNextReviewDate] = useState<string>(post?.nextReviewDate || '');
+   const [nextReviewDate, setNextReviewDate] = useState<string>(post?.nextReviewDate ? post.nextReviewDate.split('T')[0] : '');
    const [corrections, setCorrections] = useState<{ date: string; note: string }[]>(post?.corrections || []);
    const [newCorrectionNote, setNewCorrectionNote] = useState('');
    const [coverImageWidth, setCoverImageWidth] = useState<number | null>(null);
@@ -465,6 +474,20 @@ export default function PostForm({ post }: PostFormProps) {
    const [isAiAuditing, setIsAiAuditing] = useState(false);
    const [aiSuggestions, setAiSuggestions] = useState<any>(null);
    const [appliedAiSuggestions, setAppliedAiSuggestions] = useState<Record<string, boolean>>({});
+
+   const handleSaveRef = useRef<any>(null);
+   useEffect(() => {
+      handleSaveRef.current = handleSave;
+   });
+
+   useEffect(() => {
+      const timer = setInterval(() => {
+         if (handleSaveRef.current && title.trim() !== '') {
+             handleSaveRef.current(false, true);
+         }
+      }, 5000);
+      return () => clearInterval(timer);
+   }, [title]);
 
    const runAiAudit = async () => {
       setIsAiAuditing(true);
@@ -475,7 +498,7 @@ export default function PostForm({ post }: PostFormProps) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-               title, content: editor?.getHTML(), metaDescription, excerpt, seoTitle, ogTitle, ogDescription, keywords, tags, faqs, keyTakeaways, category
+               title, content: editor?.getHTML(), metaDescription, excerpt, seoTitle, ogTitle, ogDescription, keywords, tags, faqs, howToSteps, localBusiness, keyTakeaways, category
             })
          });
          const data = await res.json();
@@ -503,6 +526,8 @@ export default function PostForm({ post }: PostFormProps) {
             setTags(Array.isArray(val) ? val : (typeof val === 'string' ? val.split(',').map((t: string) => t.trim()).filter((t: string) => t.length > 0) : [])); 
             break;
          case 'faqs': setFaqs(Array.isArray(val) ? val : []); break;
+         case 'howToSteps': setHowToSteps(Array.isArray(val) ? val : []); break;
+         case 'localBusiness': setLocalBusiness(val || { name: '', telephone: '', ratingValue: '', reviewCount: '', priceRange: '', streetAddress: '', addressLocality: '', addressRegion: '', postalCode: '', addressCountry: '' }); break;
          case 'keyTakeaways': setKeyTakeaways(Array.isArray(val) ? val : []); break;
          case 'optimizedContent': editor?.commands.setContent(val); break;
       }
@@ -561,7 +586,7 @@ export default function PostForm({ post }: PostFormProps) {
    const sliderInputRef = useRef<HTMLInputElement>(null);
     const authorInputRef = useRef<HTMLInputElement>(null);
 
-   const [lsiKeywords, setLsiKeywords] = useState<string[]>(['Search Intent', 'Entity SEO', 'Dwell Time', 'Core Web Vitals']);
+   const [lsiKeywords, setLsiKeywords] = useState<string[]>(post?.lsiKeywords || []);
    const [scheduleDate, setScheduleDate] = useState<string>('');
    const [visualHealth, setVisualHealth] = useState({ imageCount: 0, altMissing: 0, score: 0 });
 
@@ -840,7 +865,7 @@ export default function PostForm({ post }: PostFormProps) {
          if (result.success && result.url) {
             setCoverImage(result.url);
          } else {
-            alert(`Cover upload failed: ${result.error || 'Unknown error'}`);
+            alert(`Cover upload failed: ${result.message || result.error || 'Unknown error'}`);
          }
       } catch (error) {
          console.error('Cover upload failed:', error);
@@ -863,7 +888,7 @@ export default function PostForm({ post }: PostFormProps) {
           if (result.success && result.url) {
              setAuthorImage(result.url);
           } else {
-             alert(`Author image upload failed: ${result.error || 'Unknown error'}`);
+             alert(`Author image upload failed: ${result.message || result.error || 'Unknown error'}`);
           }
        } catch (error: any) {
           console.error('Author image upload failed:', error);
@@ -1034,7 +1059,7 @@ export default function PostForm({ post }: PostFormProps) {
       setSeoTips(newTips);
    }, [entities.length]);
 
-   const handleSave = async (published: boolean = true) => {
+   const handleSave = async (published: boolean = true, isAutoSave: boolean = false) => {
       if (!editor) return;
       startTransition(async () => {
          const cleanSlug = (slug || title)
@@ -1045,17 +1070,18 @@ export default function PostForm({ post }: PostFormProps) {
             .replace(/^-+|-+$/g, '');
          const updatedPost: Post = {
             ...post,
-            id: post?.id || crypto.randomUUID(),
+            id: postId,
             title,
             slug: cleanSlug,
             content: editor.getHTML(),
             metaDescription,
             excerpt: excerpt || metaDescription || title,
-            coverImage,
+            coverImage, coverImageAlt,
             authorImage,
             authorSocials,
             seoTitle, ogTitle, ogDescription, canonicalUrl, keywords,
-            category, tags, faqs,
+            twitterCard, twitterTitle, twitterDescription,
+            category, tags, faqs, howToSteps, localBusiness,
             published,
             date: post?.date || format(new Date(), 'yyyy-MM-dd'),
             author: author || 'Admin',
@@ -1084,6 +1110,8 @@ export default function PostForm({ post }: PostFormProps) {
             isPillarPage: isPillarPage || undefined,
             isAiAssisted: isAiAssisted || undefined,
             corrections: corrections.length > 0 ? corrections : undefined,
+            focusKeyword: focusKeyword || undefined,
+            lsiKeywords: lsiKeywords.length > 0 ? lsiKeywords : undefined,
          };
 
          const res = await fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/posts', {
@@ -1091,11 +1119,23 @@ export default function PostForm({ post }: PostFormProps) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedPost)
          });
-         if (!res.ok) throw new Error('Failed to save post');
-         const BASE = typeof window !== 'undefined' && window.location.pathname.startsWith('/list/public') ? '/list/public' : '';
-         setTimeout(() => {
-            router.visit(BASE + '/admin');
-         });
+         
+         if (!res.ok) {
+             if (!isAutoSave) {
+                 const errData = await res.json().catch(() => null);
+                 alert(`Failed to save post. Error: ${errData?.message || res.statusText}`);
+             }
+             return;
+         }
+         
+         if (isAutoSave) {
+            setLastSaved(new Date().toLocaleTimeString());
+         } else {
+            const BASE = typeof window !== 'undefined' && window.location.pathname.startsWith('/list/public') ? '/list/public' : '';
+            setTimeout(() => {
+               router.visit(BASE + '/admin');
+            });
+         }
       });
    };
 
@@ -1249,7 +1289,7 @@ export default function PostForm({ post }: PostFormProps) {
                          )}
                       </div>
 
-                     <EditorContent editor={editor} className="prose-container" />
+                     <EditorContent editor={editor} className="tiptap-content prose-container" />
                      </div>
                   </div>
                </motion.div>
@@ -1284,7 +1324,8 @@ export default function PostForm({ post }: PostFormProps) {
                <button onClick={() => setPreviewMode('google')} style={iconBtnStyle} title="Search Preview">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                </button>
-               <button onClick={() => handleSave(true)} disabled={isPending} style={publishBtnStyle}>{isPending ? 'Syncing...' : 'Deploy'}</button>
+               {lastSaved && <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>Saved: {lastSaved}</span>}
+               <button onClick={() => handleSave(true, false)} disabled={isPending} style={publishBtnStyle}>{isPending ? 'Syncing...' : 'Deploy'}</button>
 
             </div>
          </div>
@@ -1409,7 +1450,7 @@ export default function PostForm({ post }: PostFormProps) {
 
                       {/* Advanced Tables */}
                       <div style={{ display: 'flex', gap: '4px' }}>
-                         <SovereignToolBtn onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3 }).run()} title="Insert Table">
+                         <SovereignToolBtn onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} title="Insert Table">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
                          </SovereignToolBtn>
                          <SovereignToolBtn onClick={() => editor.chain().focus().addRowAfter().run()} title="Add Row">
@@ -1485,7 +1526,7 @@ export default function PostForm({ post }: PostFormProps) {
                             })()}
                          </div>
                      </BubbleMenu>
-                     <EditorContent editor={editor} />
+                     <EditorContent editor={editor} className="tiptap-content" />
                    </div>
              </main>
 
@@ -1643,7 +1684,7 @@ export default function PostForm({ post }: PostFormProps) {
                                </div>
                             </div>
                          </motion.div>
-                      )}
+                     )}
 
                      {activeTab === 'schema' && (
                          <motion.div key="schema" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
@@ -1656,6 +1697,40 @@ export default function PostForm({ post }: PostFormProps) {
                                   </div>
                                ))}
                                <button onClick={() => handleSidebarFaqChange([...faqs, { question: '', answer: '' }])} style={addNodeBtn}>+ Add FAQ Node</button>
+                            </div>
+                            
+                            <h3 style={{ ...sidebarHeadingStyle, marginTop: '24px' }}>HowTo Schema Nodes</h3>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                               {howToSteps.map((step, i) => (
+                                  <div key={i} style={faqNodeStyle}>
+                                     <input placeholder="Step Name (e.g. Prepare Ingredients)" value={step.name} onChange={e => { const n = [...howToSteps]; n[i].name = e.target.value; setHowToSteps(n); }} style={faqInputSmall} />
+                                     <textarea placeholder="Step Description..." value={step.text} onChange={e => { const n = [...howToSteps]; n[i].text = e.target.value; setHowToSteps(n); }} style={faqTextArea} />
+                                     <button onClick={() => setHowToSteps(howToSteps.filter((_, idx) => idx !== i))} style={{ ...closeModalBtn, background: '#fee2e2', color: '#ef4444', width: '100%', marginTop: '8px' }}>Remove Step</button>
+                                  </div>
+                               ))}
+                               <button onClick={() => setHowToSteps([...howToSteps, { name: '', text: '' }])} style={addNodeBtn}>+ Add HowTo Step</button>
+                            </div>
+
+                            <h3 style={{ ...sidebarHeadingStyle, marginTop: '24px' }}>LocalBusiness Schema Details</h3>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                               <input placeholder="Business Name (e.g. Sikar Coaching)" value={localBusiness.name} onChange={e => setLocalBusiness({...localBusiness, name: e.target.value})} style={faqInputSmall} />
+                               <input placeholder="Telephone (e.g. +91 9999999999)" value={localBusiness.telephone} onChange={e => setLocalBusiness({...localBusiness, telephone: e.target.value})} style={{...faqInputSmall, marginBottom: 0}} />
+                               <div style={{ display: 'flex', gap: '8px' }}>
+                                 <input placeholder="Rating (e.g. 4.8)" value={localBusiness.ratingValue} onChange={e => setLocalBusiness({...localBusiness, ratingValue: e.target.value})} style={{...faqInputSmall, flex: 1}} />
+                                 <input placeholder="Reviews Count" value={localBusiness.reviewCount} onChange={e => setLocalBusiness({...localBusiness, reviewCount: e.target.value})} style={{...faqInputSmall, flex: 1}} />
+                               </div>
+                               <input placeholder="Price Range (e.g. $$, INR 500-1000)" value={localBusiness.priceRange} onChange={e => setLocalBusiness({...localBusiness, priceRange: e.target.value})} style={faqInputSmall} />
+                               
+                               <div style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', marginTop: '8px' }}>Address Details</div>
+                               <input placeholder="Street Address" value={localBusiness.streetAddress} onChange={e => setLocalBusiness({...localBusiness, streetAddress: e.target.value})} style={{...faqInputSmall, marginBottom: 0}} />
+                               <div style={{ display: 'flex', gap: '8px' }}>
+                                 <input placeholder="City" value={localBusiness.addressLocality} onChange={e => setLocalBusiness({...localBusiness, addressLocality: e.target.value})} style={{...faqInputSmall, flex: 1, marginBottom: 0}} />
+                                 <input placeholder="Region/State" value={localBusiness.addressRegion} onChange={e => setLocalBusiness({...localBusiness, addressRegion: e.target.value})} style={{...faqInputSmall, flex: 1, marginBottom: 0}} />
+                               </div>
+                               <div style={{ display: 'flex', gap: '8px' }}>
+                                 <input placeholder="Postal Code" value={localBusiness.postalCode} onChange={e => setLocalBusiness({...localBusiness, postalCode: e.target.value})} style={{...faqInputSmall, flex: 1}} />
+                                 <input placeholder="Country Code (e.g. IN)" value={localBusiness.addressCountry} onChange={e => setLocalBusiness({...localBusiness, addressCountry: e.target.value})} style={{...faqInputSmall, flex: 1}} />
+                               </div>
                             </div>
                          </motion.div>
                      )}
@@ -1812,7 +1887,7 @@ export default function PostForm({ post }: PostFormProps) {
                               <label style={metaLabelStyle}>COVER IMAGE</label>
                               {coverImage && (
                                  <div style={{ position: 'relative', marginBottom: '10px' }}>
-                                    <img src={coverImage} alt="Cover" style={{ width: '100%', height: '120px', objectFit: 'cover', borderRadius: '12px' }} />
+                                    <img loading="lazy" decoding="async" fetchPriority="low" src={coverImage} alt="Cover" style={{ width: '100%', height: '120px', objectFit: 'cover', borderRadius: '12px' }} />
                                     <button onClick={() => setCoverImage('')} style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(0,0,0,0.5)', border: 'none', color: '#fff', padding: '4px', borderRadius: '6px', cursor: 'pointer' }}>
                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '12px', height: '12px' }}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                                     </button>
@@ -1828,6 +1903,11 @@ export default function PostForm({ post }: PostFormProps) {
                                  <button type="button" onClick={() => coverInputRef.current?.click()} style={{ ...addNodeBtn, background: '#fff', border: '1px dashed #cbd5e1', flex: 1 }}>{coverImage ? 'Change Cover Photo' : 'Upload Cover Photo'}</button>
                               </div>
                               <input type="file" ref={coverInputRef} onChange={handleCoverUpload} style={{ display: 'none' }} accept="image/*" />
+                              {coverImage && (
+                                 <div style={{ marginTop: '10px' }}>
+                                    <InputGroup label="COVER IMAGE ALT TEXT" value={coverImageAlt} onChange={setCoverImageAlt} placeholder="Describe the image for SEO and accessibility" />
+                                 </div>
+                              )}
                            </div>
 
                            <h3 style={sidebarHeadingStyle}>Keywords & Indexing</h3>
@@ -1886,6 +1966,15 @@ export default function PostForm({ post }: PostFormProps) {
                               <div style={{ height: '15px' }} />
                               <label style={metaLabelStyle}>OG DESCRIPTION</label>
                               <textarea value={ogDescription} onChange={e => setOgDescription(e.target.value)} style={metaTextAreaStyle} placeholder="Display on Facebook/Twitter" />
+                           </div>
+                           <h3 style={sidebarHeadingStyle}>Twitter Settings</h3>
+                           <div style={hcuCardStyle}>
+                              <InputGroup label="TWITTER CARD TYPE" value={twitterCard} onChange={setTwitterCard} placeholder="e.g. summary_large_image" />
+                              <div style={{ height: '15px' }} />
+                              <InputGroup label="TWITTER TITLE" value={twitterTitle} onChange={setTwitterTitle} placeholder="Title for Twitter" />
+                              <div style={{ height: '15px' }} />
+                              <label style={metaLabelStyle}>TWITTER DESCRIPTION</label>
+                              <textarea value={twitterDescription} onChange={e => setTwitterDescription(e.target.value)} style={metaTextAreaStyle} placeholder="Description for Twitter" />
                            </div>
                         </motion.div>
                      )}
@@ -2397,7 +2486,7 @@ export default function PostForm({ post }: PostFormProps) {
                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
                               {sliderImages.map((img, idx) => (
                                  <div key={idx} style={{ display: 'flex', gap: '10px', background: '#f8fafc', padding: '6px', borderRadius: '10px', border: '1px solid #e2e8f0', alignItems: 'center' }}>
-                                    <img src={img.src} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '6px' }} alt="thumb" />
+                                    <img loading="lazy" decoding="async" fetchPriority="low" src={img.src} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '6px' }} alt="thumb" />
                                     <input 
                                        placeholder="Alt Text (SEO)" 
                                        value={img.alt} 

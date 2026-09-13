@@ -143,7 +143,7 @@ const CommentThread = ({ comment, postId, auth, userCommentVotes }) => {
                                     value={data.content}
                                     onChange={e => setData('content', e.target.value)}
                                     placeholder="What are your thoughts?"
-                                    className="w-full bg-white border border-[#EDEFF1] focus:border-[#1C1C1C] hover:border-[#878A8C] rounded-md py-2 px-3 text-[14px] outline-none transition-colors min-h-[100px]"
+                                    className="w-full bg-white border border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md py-2 px-3 text-[14px] outline-none transition-colors min-h-[100px]"
                                 ></textarea>
                                 <div className="flex justify-end gap-2 mt-2">
                                     <button 
@@ -187,7 +187,7 @@ export default function ShowPost({ auth, community, post, comments, userCommentV
     });
 
     const plainTextContent = post.excerpt || (post.content ? post.content.replace(/<[^>]*>?/gm, '').substring(0, 160) : `Read this post by u/${post.author.username} in r/${community.name}.`);
-    const pageTitle = `${post.title} - r/${community.name} - Nexus`;
+    const pageTitle = `${post.title} - r/${community.name} - coachinginsikar`;
     const currentUrl = typeof window !== 'undefined' ? window.location.href : `https://coachingsinsikar.com/r/${community.name}/comments/${post.id}/${post.slug || ''}`;
 
     const submitComment = (e) => {
@@ -219,7 +219,7 @@ export default function ShowPost({ auth, community, post, comments, userCommentV
                             <span className="text-white font-black text-lg">N</span>
                         </div>
                         <span className="font-extrabold text-xl tracking-tight hidden sm:block">
-                            Nexus
+                            coachinginsikar
                         </span>
                     </Link>
                 </div>
@@ -349,7 +349,7 @@ export default function ShowPost({ auth, community, post, comments, userCommentV
                                         value={data.content}
                                         onChange={e => setData('content', e.target.value)}
                                         placeholder="What are your thoughts?"
-                                        className="w-full bg-white border border-[#EDEFF1] focus:border-[#1C1C1C] hover:border-[#878A8C] rounded-md py-2 px-3 text-[14px] outline-none transition-colors min-h-[140px]"
+                                        className="w-full bg-white border border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md py-2 px-3 text-[14px] outline-none transition-colors min-h-[140px]"
                                     ></textarea>
                                     <div className="flex justify-end mt-2 bg-[#F6F7F8] border border-t-0 border-[#EDEFF1] rounded-b-md p-2 -mt-1">
                                         <button 
@@ -366,7 +366,7 @@ export default function ShowPost({ auth, community, post, comments, userCommentV
                             <div className="flex items-center justify-between border border-[#EDEFF1] rounded-md p-4 mb-6">
                                 <h2 className="text-[#1C1C1C] font-medium">Log in or sign up to leave a comment</h2>
                                 <div className="flex gap-2">
-                                    <Link href="/login" className="px-6 py-1.5 font-bold text-[14px] text-[#0079D3] border border-[#0079D3] rounded-full hover:bg-[#F6F7F8]">Log In</Link>
+                                    <Link href="/login" className="px-6 py-1.5 font-bold text-[14px] text-[#0079D3] rounded-full hover:bg-[#F6F7F8]">Log In</Link>
                                     <Link href="/register" className="px-6 py-1.5 font-bold text-[14px] text-white bg-[#0079D3] rounded-full hover:bg-[#005EAC]">Sign Up</Link>
                                 </div>
                             </div>

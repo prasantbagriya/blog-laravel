@@ -47,16 +47,6 @@ class ReportController extends Controller
             'status' => 'pending',
         ]);
 
-        // Auto-Moderation Logic
-        $pendingReportsCount = Report::where('reportable_id', $reportable->id)
-            ->where('reportable_type', $modelClass)
-            ->where('status', 'pending')
-            ->count();
-
-        if ($pendingReportsCount >= 3) {
-            $reportable->update(['status' => 'hidden']);
-        }
-
-        return back()->with('success', 'Report submitted successfully.');
+        return back()->with('success', 'Report submitted successfully. It will be reviewed by a moderator.');
     }
 }

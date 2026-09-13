@@ -15,6 +15,8 @@ interface Post {
   canonicalUrl?: string;
   keywords?: string;
   faqs?: { question: string; answer: string }[];
+  howToSteps?: { name: string; text: string }[];
+  localBusiness?: { name: string; telephone: string; ratingValue: string; reviewCount: string; priceRange: string; streetAddress: string; addressLocality: string; addressRegion: string; postalCode: string; addressCountry: string; };
   keyTakeaways?: string[];
   targetRegion?: string;
   targetLanguage?: string;
@@ -43,6 +45,12 @@ interface Post {
   published?: boolean;
   searchIntent?: string;
   seoScore?: number;
+  focusKeyword?: string;
+  lsiKeywords?: string[];
+  twitterCard?: string;
+  twitterTitle?: string;
+  twitterDescription?: string;
+  coverImageAlt?: string;
 }
 
 interface WebStory {

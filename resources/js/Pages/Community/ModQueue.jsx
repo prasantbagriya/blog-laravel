@@ -27,7 +27,7 @@ export default function ModQueue({ auth, community, reports }) {
                             <span className="text-white font-black text-lg">N</span>
                         </div>
                         <span className="font-extrabold text-xl tracking-tight hidden sm:block">
-                            Nexus
+                            coachinginsikar
                         </span>
                     </Link>
                 </div>

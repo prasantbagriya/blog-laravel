@@ -138,8 +138,8 @@ export default function Show({ auth, profileUser, posts, currentSort = 'new' }) 
                             <p className="font-medium text-[16px]">hmm... u/{profileUser.username} hasn't posted anything</p>
                         </div>
                     ) : (
-                        allPosts.map((post) => (
-                            <PostCard key={post.id} post={post} auth={auth} openReportModal={setReportPostId} />
+                        allPosts.map((post, index) => (
+                            <PostCard key={post.id} post={post} auth={auth} openReportModal={setReportPostId} priorityLoad={index === 0} />
                         ))
                     )}
                     
@@ -162,7 +162,7 @@ export default function Show({ auth, profileUser, posts, currentSort = 'new' }) 
                             style={profileUser.banner_image ? { backgroundImage: `url(${profileUser.banner_image})` } : {}}
                         ></div>
                         <div className="p-3 pt-0">
-                            <img 
+                            <img loading="lazy" decoding="async" fetchPriority="low" 
                                 src={profileUser.profile_picture || 'https://www.redditstatic.com/avatars/defaults/v2/avatar_default_1.png'} 
                                 className="w-[84px] h-[84px] rounded-md border-4 border-white bg-white -mt-10 mb-2 relative z-10 object-cover"
                             />

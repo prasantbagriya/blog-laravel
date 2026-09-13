@@ -1,5 +1,6 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { Mail, Lock, ArrowRight, ShieldCheck } from 'lucide-react';
 
 export default function Login({ status, canResetPassword }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -7,8 +8,6 @@ export default function Login({ status, canResetPassword }) {
         password: '',
         remember: false,
     });
-
-    const [isFocused, setIsFocused] = useState('');
 
     const submit = (e) => {
         e.preventDefault();
@@ -18,285 +17,119 @@ export default function Login({ status, canResetPassword }) {
     };
 
     return (
-        <div style={styles.container}>
-            <Head title="Admin Login" />
+        <div className="min-h-screen bg-[#F5F5F2] dark:bg-[#161615] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans transition-colors selection:bg-[#0052FF]/30">
+            <Head title="Sign In | CoachingInSikar" />
 
-            {/* Background elements */}
-            <div style={styles.blob1}></div>
-            <div style={styles.blob2}></div>
-            <div style={styles.blob3}></div>
-
-            <div style={styles.glassCard}>
-                <div style={styles.cardHeader}>
-                    <div style={styles.logoContainer}>
-                        <div style={styles.logoIcon}>⚡</div>
+            <div className="sm:mx-auto sm:w-full sm:max-w-md">
+                <Link href="/" className="flex justify-center items-center gap-2 mb-6 group">
+                    <div className="w-10 h-10 rounded-xl bg-[#0052FF] flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+                        <ShieldCheck className="w-5 h-5 text-white" />
                     </div>
-                    <h2 style={styles.title}>Welcome Back</h2>
-                    <p style={styles.subtitle}>Sign in to access your dashboard</p>
+                    <span className="text-xl font-bold text-[#1A1A1A] dark:text-white tracking-tight">
+                        CoachingInSikar
+                    </span>
+                </Link>
+                <h2 className="mt-2 text-center text-3xl font-extrabold text-[#1A1A1A] dark:text-white tracking-tight">
+                    Welcome back
+                </h2>
+                <p className="mt-2 text-center text-sm text-[#555555] dark:text-[#A0A09C]">
+                    Sign in to your account to continue
+                </p>
+            </div>
+
+            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+                <div className="bg-white dark:bg-[#20201F] py-8 px-4 shadow-xl shadow-black/5 dark:shadow-black/20 sm:rounded-2xl sm:px-10 border border-[#E5E5E1] dark:border-[#2A2A28]">
+                    
+                    {status && (
+                        <div className="mb-4 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 px-4 py-3 rounded-lg text-sm font-medium text-center">
+                            {status}
+                        </div>
+                    )}
+
+                    <form className="space-y-6" onSubmit={submit}>
+                        <div>
+                            <label className="block text-sm font-semibold text-[#1A1A1A] dark:text-[#F5F5F2] mb-1.5">
+                                Email address
+                            </label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <Mail className="h-5 w-5 text-gray-400 dark:text-gray-500 stroke-[1.5]" />
+                                </div>
+                                <input
+                                    type="email"
+                                    value={data.email}
+                                    onChange={(e) => setData('email', e.target.value)}
+                                    className="block w-full pl-10 pr-3 py-2.5 bg-white dark:bg-[#161615] border border-[#E5E5E1] dark:border-[#3A3A38] rounded-lg text-sm text-[#1A1A1A] dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] transition-all"
+                                    placeholder="you@example.com"
+                                    required
+                                    autoFocus
+                                />
+                            </div>
+                            {errors.email && <p className="mt-1.5 text-sm font-medium text-red-500">{errors.email}</p>}
+                        </div>
+
+                        <div>
+                            <div className="flex items-center justify-between mb-1.5">
+                                <label className="block text-sm font-semibold text-[#1A1A1A] dark:text-[#F5F5F2]">
+                                    Password
+                                </label>
+                                {canResetPassword && (
+                                    <Link href={route('password.request')} className="text-xs font-semibold text-[#0052FF] hover:text-[#0040D0] transition-colors">
+                                        Forgot password?
+                                    </Link>
+                                )}
+                            </div>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <Lock className="h-5 w-5 text-gray-400 dark:text-gray-500 stroke-[1.5]" />
+                                </div>
+                                <input
+                                    type="password"
+                                    value={data.password}
+                                    onChange={(e) => setData('password', e.target.value)}
+                                    className="block w-full pl-10 pr-3 py-2.5 bg-white dark:bg-[#161615] border border-[#E5E5E1] dark:border-[#3A3A38] rounded-lg text-sm text-[#1A1A1A] dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] transition-all"
+                                    placeholder="••••••••"
+                                    required
+                                />
+                            </div>
+                            {errors.password && <p className="mt-1.5 text-sm font-medium text-red-500">{errors.password}</p>}
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center">
+                                <input
+                                    id="remember-me"
+                                    type="checkbox"
+                                    checked={data.remember}
+                                    onChange={(e) => setData('remember', e.target.checked)}
+                                    className="h-4 w-4 rounded border-[#E5E5E1] dark:border-[#3A3A38] text-[#0052FF] focus:ring-[#0052FF] bg-white dark:bg-[#161615] transition-all cursor-pointer"
+                                />
+                                <label htmlFor="remember-me" className="ml-2 block text-sm font-medium text-[#555555] dark:text-[#A0A09C] cursor-pointer">
+                                    Remember me
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <button
+                                type="submit"
+                                disabled={processing}
+                                className="group w-full flex justify-center items-center gap-2 py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-[#1A1A1A] hover:bg-black dark:bg-white dark:text-[#1A1A1A] dark:hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#1A1A1A] disabled:opacity-70 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+                            >
+                                {processing ? 'Signing in...' : 'Sign In'}
+                                {!processing && <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />}
+                            </button>
+                        </div>
+                    </form>
+
+                    <div className="mt-8 text-center text-sm text-[#555555] dark:text-[#A0A09C]">
+                        Don't have an account?{' '}
+                        <Link href={route('register')} className="font-bold text-[#1A1A1A] dark:text-white hover:text-[#0052FF] dark:hover:text-[#80B0FF] transition-colors">
+                            Sign up for free
+                        </Link>
+                    </div>
                 </div>
-
-                {status && <div style={styles.statusMessage}>{status}</div>}
-
-                <form onSubmit={submit} style={styles.form}>
-                    <div style={styles.inputGroup}>
-                        <label style={styles.label}>Email Address</label>
-                        <div style={{...styles.inputWrapper, ...(isFocused === 'email' ? styles.inputWrapperFocused : {})}}>
-                            <span style={styles.inputIcon}>✉️</span>
-                            <input
-                                type="email"
-                                value={data.email}
-                                onChange={(e) => setData('email', e.target.value)}
-                                onFocus={() => setIsFocused('email')}
-                                onBlur={() => setIsFocused('')}
-                                style={styles.input}
-                                placeholder="admin@example.com"
-                                autoFocus
-                            />
-                        </div>
-                        {errors.email && <span style={styles.errorText}>{errors.email}</span>}
-                    </div>
-
-                    <div style={styles.inputGroup}>
-                        <div style={styles.labelRow}>
-                            <label style={styles.label}>Password</label>
-                            {canResetPassword && (
-                                <Link href={route('password.request')} style={styles.forgotLink}>
-                                    Forgot password?
-                                </Link>
-                            )}
-                        </div>
-                        <div style={{...styles.inputWrapper, ...(isFocused === 'password' ? styles.inputWrapperFocused : {})}}>
-                            <span style={styles.inputIcon}>🔒</span>
-                            <input
-                                type="password"
-                                value={data.password}
-                                onChange={(e) => setData('password', e.target.value)}
-                                onFocus={() => setIsFocused('password')}
-                                onBlur={() => setIsFocused('')}
-                                style={styles.input}
-                                placeholder="••••••••"
-                            />
-                        </div>
-                        {errors.password && <span style={styles.errorText}>{errors.password}</span>}
-                    </div>
-
-                    <div style={styles.rememberGroup}>
-                        <label style={styles.checkboxLabel}>
-                            <input
-                                type="checkbox"
-                                checked={data.remember}
-                                onChange={(e) => setData('remember', e.target.checked)}
-                                style={styles.checkbox}
-                            />
-                            <span style={styles.checkboxText}>Remember me for 30 days</span>
-                        </label>
-                    </div>
-
-                    <button type="submit" disabled={processing} style={{
-                        ...styles.submitBtn,
-                        ...(processing ? styles.submitBtnDisabled : {})
-                    }}>
-                        {processing ? 'Signing in...' : 'Sign In'}
-                    </button>
-                </form>
             </div>
         </div>
     );
 }
-
-const styles = {
-    container: {
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#0f172a',
-        position: 'relative',
-        overflow: 'hidden',
-        fontFamily: "'Inter', system-ui, -apple-system, sans-serif"
-    },
-    blob1: {
-        position: 'absolute',
-        top: '-10%',
-        left: '-10%',
-        width: '500px',
-        height: '500px',
-        borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(56,189,248,0.15) 0%, rgba(15,23,42,0) 70%)',
-        filter: 'blur(40px)',
-    },
-    blob2: {
-        position: 'absolute',
-        bottom: '-20%',
-        right: '-10%',
-        width: '600px',
-        height: '600px',
-        borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(99,102,241,0.15) 0%, rgba(15,23,42,0) 70%)',
-        filter: 'blur(40px)',
-    },
-    blob3: {
-        position: 'absolute',
-        top: '20%',
-        right: '20%',
-        width: '300px',
-        height: '300px',
-        borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(236,72,153,0.1) 0%, rgba(15,23,42,0) 70%)',
-        filter: 'blur(40px)',
-    },
-    glassCard: {
-        background: 'rgba(30, 41, 59, 0.7)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        borderRadius: '24px',
-        padding: '48px 40px',
-        width: '100%',
-        maxWidth: '440px',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-        position: 'relative',
-        zIndex: 10
-    },
-    cardHeader: {
-        textAlign: 'center',
-        marginBottom: '36px'
-    },
-    logoContainer: {
-        width: '64px',
-        height: '64px',
-        background: 'linear-gradient(135deg, #38bdf8 0%, #6366f1 100%)',
-        borderRadius: '16px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        margin: '0 auto 20px',
-        boxShadow: '0 10px 25px -5px rgba(99, 102, 241, 0.4)'
-    },
-    logoIcon: {
-        fontSize: '28px',
-        color: '#ffffff'
-    },
-    title: {
-        fontSize: '28px',
-        fontWeight: '700',
-        color: '#f8fafc',
-        margin: '0 0 8px',
-        letterSpacing: '-0.02em'
-    },
-    subtitle: {
-        fontSize: '15px',
-        color: '#94a3b8',
-        margin: 0
-    },
-    statusMessage: {
-        background: 'rgba(16, 185, 129, 0.1)',
-        border: '1px solid rgba(16, 185, 129, 0.2)',
-        color: '#34d399',
-        padding: '12px 16px',
-        borderRadius: '12px',
-        fontSize: '14px',
-        fontWeight: '500',
-        marginBottom: '24px',
-        textAlign: 'center'
-    },
-    form: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '24px'
-    },
-    inputGroup: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '8px'
-    },
-    labelRow: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-    },
-    label: {
-        fontSize: '14px',
-        fontWeight: '500',
-        color: '#cbd5e1'
-    },
-    forgotLink: {
-        fontSize: '13px',
-        color: '#38bdf8',
-        textDecoration: 'none',
-        fontWeight: '500',
-        transition: 'color 0.2s'
-    },
-    inputWrapper: {
-        display: 'flex',
-        alignItems: 'center',
-        background: 'rgba(15, 23, 42, 0.6)',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
-        borderRadius: '12px',
-        padding: '0 16px',
-        height: '52px',
-        transition: 'all 0.2s ease',
-    },
-    inputWrapperFocused: {
-        borderColor: '#38bdf8',
-        boxShadow: '0 0 0 4px rgba(56, 189, 248, 0.1)',
-        background: 'rgba(15, 23, 42, 0.8)',
-    },
-    inputIcon: {
-        marginRight: '12px',
-        fontSize: '16px',
-        opacity: 0.5
-    },
-    input: {
-        flex: 1,
-        background: 'transparent',
-        border: 'none',
-        color: '#f8fafc',
-        fontSize: '15px',
-        outline: 'none',
-        width: '100%'
-    },
-    errorText: {
-        color: '#f87171',
-        fontSize: '13px',
-        marginTop: '4px'
-    },
-    rememberGroup: {
-        display: 'flex',
-        alignItems: 'center'
-    },
-    checkboxLabel: {
-        display: 'flex',
-        alignItems: 'center',
-        cursor: 'pointer',
-        gap: '10px'
-    },
-    checkbox: {
-        width: '18px',
-        height: '18px',
-        borderRadius: '6px',
-        accentColor: '#38bdf8',
-        cursor: 'pointer'
-    },
-    checkboxText: {
-        fontSize: '14px',
-        color: '#94a3b8'
-    },
-    submitBtn: {
-        background: 'linear-gradient(135deg, #38bdf8 0%, #6366f1 100%)',
-        color: '#ffffff',
-        border: 'none',
-        borderRadius: '12px',
-        height: '52px',
-        fontSize: '16px',
-        fontWeight: '600',
-        cursor: 'pointer',
-        marginTop: '8px',
-        transition: 'transform 0.1s, boxShadow 0.2s',
-        boxShadow: '0 10px 20px -5px rgba(99, 102, 241, 0.4)'
-    },
-    submitBtnDisabled: {
-        opacity: 0.7,
-        cursor: 'not-allowed'
-    }
-};

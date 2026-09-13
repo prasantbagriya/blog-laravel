@@ -50,7 +50,7 @@ export default function AuthorsPage() {
         {authors.map(author => (
           <div key={author.id} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <img src={author.image || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80'} alt={author.name} style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover' }} />
+              <img loading="lazy" decoding="async" fetchPriority="low" src={author.image || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80'} alt={author.name} style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover' }} />
               <div>
                 <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800 }}>{author.name}</h3>
                 <div style={{ fontSize: '14px', color: '#64748b' }}>{author.jobTitle}</div>

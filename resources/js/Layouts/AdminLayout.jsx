@@ -5,6 +5,7 @@ export default function AdminLayout({ children }) {
   const { url: pathname } = usePage();
   const [isMobile, setIsMobile] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   // ✅ Handle responsive window sizing
   useEffect(() => {
@@ -20,7 +21,7 @@ export default function AdminLayout({ children }) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const BASE = window.location.pathname.startsWith('/list/public') ? '/list/public' : '';
+  const BASE = typeof window !== 'undefined' && window.location.pathname.startsWith('/list/public') ? '/list/public' : '';
   const menuItems = [
     { label: 'Dashboard', href: BASE + '/admin', icon: '🏠' },
     { label: 'All Posts', href: BASE + '/admin', icon: '📌' },
@@ -28,6 +29,7 @@ export default function AdminLayout({ children }) {
     { label: 'Categories', href: BASE + '/admin/categories', icon: '📁' },
     { label: 'Add New', href: BASE + '/admin/posts/new', icon: '➕' },
     { label: 'Web Stories', href: BASE + '/admin/stories', icon: '⚡' },
+    { label: 'Businesses', href: BASE + '/admin/businesses', icon: '🏢' },
     { label: 'Media Library', href: BASE + '/admin/media', icon: '🖼️' },
     { label: 'SEO Audit', href: BASE + '/admin/seo-audit', icon: '📈' },
     { label: 'Home Slider', href: BASE + '/admin/slider', icon: '🖼️' },
@@ -62,7 +64,7 @@ export default function AdminLayout({ children }) {
 
       {/* ✅ Modern Responsive SaaS Sidebar */}
       <aside style={{ 
-        width: '260px', 
+        width: isCollapsed && !isMobile ? '80px' : '260px', 
         background: '#ffffff', 
         borderRight: '1px solid #e2e8f0', 
         display: 'flex', 
@@ -75,14 +77,14 @@ export default function AdminLayout({ children }) {
         transform: isMobile 
           ? (isSidebarOpen ? 'translateX(0)' : 'translateX(-260px)') 
           : 'translateX(0)',
-        transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
       }}>
-        <div style={{ height: '72px', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9' }}>
+        <div style={{ height: '72px', padding: isCollapsed && !isMobile ? '0' : '0 24px', display: 'flex', alignItems: 'center', justifyContent: isCollapsed && !isMobile ? 'center' : 'space-between', borderBottom: '1px solid #f1f5f9', transition: 'padding 0.3s' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ background: 'linear-gradient(135deg, #2563eb, #4f46e5)', color: '#fff', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '16px' }}>
+            <div style={{ background: 'linear-gradient(135deg, #2563eb, #4f46e5)', color: '#fff', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '16px', flexShrink: 0 }}>
               C
             </div>
-            <span style={{ fontSize: '18px', fontWeight: 700, letterSpacing: '-0.5px' }}>Blog Admin</span>
+            {!(isCollapsed && !isMobile) && <span style={{ fontSize: '18px', fontWeight: 700, letterSpacing: '-0.5px', whiteSpace: 'nowrap' }}>Blog Admin</span>}
           </div>
           {isMobile && (
             <button 
@@ -95,8 +97,8 @@ export default function AdminLayout({ children }) {
           )}
         </div>
         
-        <nav style={{ padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, overflowY: 'auto' }}>
-          <div style={{ fontSize: '11px', fontWeight: 600, color: '#94a3b8', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px', paddingLeft: '8px' }}>Content</div>
+        <nav style={{ padding: isCollapsed && !isMobile ? '24px 8px' : '24px 16px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, overflowY: 'auto' }}>
+          {!(isCollapsed && !isMobile) && <div style={{ fontSize: '11px', fontWeight: 600, color: '#94a3b8', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px', paddingLeft: '8px' }}>Content</div>}
           {menuItems.map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -107,6 +109,7 @@ export default function AdminLayout({ children }) {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
+                  justifyContent: isCollapsed && !isMobile ? 'center' : 'flex-start',
                   gap: '12px',
                   padding: '10px 12px',
                   fontSize: '14px',
@@ -118,33 +121,35 @@ export default function AdminLayout({ children }) {
                   transition: 'all 0.2s ease'
                 }}
               >
-                <span style={{ fontSize: '16px', filter: isActive ? 'none' : 'grayscale(100%)', opacity: 1 }}>{item.icon}</span>
-                {item.label}
+                <span style={{ fontSize: '16px', filter: isActive ? 'none' : 'grayscale(100%)', opacity: 1 }} title={isCollapsed ? item.label : undefined}>{item.icon}</span>
+                {!(isCollapsed && !isMobile) && <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>}
               </Link>
             )
           })}
         </nav>
 
-        <div style={{ padding: '24px', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, color: '#475569' }}>
+        <div style={{ padding: isCollapsed && !isMobile ? '24px 0' : '24px', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: isCollapsed && !isMobile ? 'center' : 'flex-start', gap: '12px' }}>
+          <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, color: '#475569', flexShrink: 0 }}>
             A
           </div>
-          <div>
-            <div style={{ fontSize: '13px', fontWeight: 600 }}>Admin User</div>
-            <div style={{ fontSize: '11px', color: '#64748b' }}>editorial@blog.com</div>
-          </div>
+          {!(isCollapsed && !isMobile) && (
+            <div style={{ overflow: 'hidden' }}>
+              <div style={{ fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap' }}>Admin User</div>
+              <div style={{ fontSize: '11px', color: '#64748b', whiteSpace: 'nowrap' }}>editorial@blog.com</div>
+            </div>
+          )}
         </div>
       </aside>
 
       {/* ✅ Responsive Main Content Area */}
       <div style={{ 
         flex: 1, 
-        marginLeft: isMobile ? 0 : '260px', 
+        marginLeft: isMobile ? 0 : (isCollapsed ? '80px' : '260px'), 
         display: 'flex', 
         flexDirection: 'column', 
         minHeight: '100vh', 
-        width: isMobile ? '100vw' : 'calc(100% - 260px)',
-        transition: 'margin-left 0.3s ease'
+        width: isMobile ? '100vw' : `calc(100% - ${isCollapsed ? '80px' : '260px'})`,
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
       }}>
         {/* Modern Header */}
         <header style={{ 
@@ -183,6 +188,31 @@ export default function AdminLayout({ children }) {
                 ☰
               </button>
             )}
+            
+            {/* ✅ Desktop Collapse Toggle */}
+            {!isMobile && (
+              <button
+                onClick={() => setIsCollapsed(!isCollapsed)}
+                aria-label="Toggle sidebar"
+                style={{
+                  background: 'none',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '6px',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '16px',
+                  cursor: 'pointer',
+                  color: '#334155',
+                  marginRight: '8px'
+                }}
+              >
+                {isCollapsed ? '⇥' : '⇤'}
+              </button>
+            )}
+            
             <div style={{ fontSize: '15px', fontWeight: 700, color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: isMobile ? '120px' : 'none' }}>
               {(pathname || '').includes('/new') ? 'Create' : (pathname || '').includes('/stories') ? 'Web Stories' : 'Dashboard'}
             </div>
@@ -190,7 +220,7 @@ export default function AdminLayout({ children }) {
           <div style={{ display: 'flex', gap: isMobile ? '8px' : '16px', alignItems: 'center' }}>
             {!isMobile && (
               <>
-                <a href={window.BASE_PATH + "/"} target="_blank" style={{ fontSize: '13px', fontWeight: 600, color: '#475569', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <a href={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + "/"} target="_blank" style={{ fontSize: '13px', fontWeight: 600, color: '#475569', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   ↗ View Live Site
                 </a>
                 <div style={{ width: '1px', height: '24px', background: '#e2e8f0' }}></div>
@@ -203,7 +233,7 @@ export default function AdminLayout({ children }) {
         </header>
 
         {/* ✅ Dashboard Content Container with Proper Spacing/Padding */}
-        <main style={{ padding: isMobile ? '1rem' : '2.5rem 2rem', width: '100%', maxWidth: '1200px', margin: '0 auto', flex: 1, overflowX: 'hidden' }}>
+        <main style={{ padding: isMobile ? '0.5rem' : '1.5rem', width: '100%', flex: 1, overflowX: 'hidden' }}>
           {children}
         </main>
       </div>

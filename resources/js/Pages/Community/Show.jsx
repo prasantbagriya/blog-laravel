@@ -96,7 +96,7 @@ export default function Show({ auth, community, posts, currentSort = 'new' }) {
                             </div>
                             <div className="flex gap-2 mt-1">
                                 {(community.is_owner || community.is_moderator) && (
-                                    <Link href={`/community/${community.name}/edit`} className="px-4 py-1.5 font-bold rounded-full transition-colors text-[14px] border border-[#1C1C1C] bg-white text-[#1C1C1C] hover:bg-[#F6F7F8] flex items-center gap-1">
+                                    <Link href={`/community/${community.name}/edit`} className="px-4 py-1.5 font-bold rounded-full transition-colors text-[14px] bg-white text-[#1C1C1C] hover:bg-[#F6F7F8] flex items-center gap-1">
                                         Mod Tools
                                     </Link>
                                 )}
@@ -113,7 +113,7 @@ export default function Show({ auth, community, posts, currentSort = 'new' }) {
                                 >
                                     {community.is_member ? 'Joined' : 'Join'}
                                 </button>
-                                <button className="px-3 py-1.5 bg-[#F6F7F8] hover:bg-[#E2E7E9] text-[#1C1C1C] rounded-full transition-colors">
+                                <button className="text-[#1C1C1C] hover:text-[#0079D3] transition-colors">
                                     <MoreHorizontal size={20} />
                                 </button>
                             </div>
@@ -138,7 +138,7 @@ export default function Show({ auth, community, posts, currentSort = 'new' }) {
                         >
                             Create Post
                         </div>
-                        <button className="p-2 text-[#878A8C] hover:bg-[#F6F7F8] rounded-full transition-colors mr-1">
+                        <button className="text-[#878A8C] hover:text-[#1C1C1C] transition-colors mr-1">
                             <Plus size={24} />
                         </button>
                     </Link>
@@ -207,7 +207,7 @@ export default function Show({ auth, community, posts, currentSort = 'new' }) {
                         </div>
                         
                         {(community.is_owner || community.is_moderator) && (
-                            <Link href={`/community/${community.name}/modqueue`} className="flex items-center justify-center w-full py-1.5 bg-white border border-[#0079D3] text-[#0079D3] hover:bg-[#F6F7F8] font-bold rounded-full text-[14px] transition-colors mb-2">
+                            <Link href={`/community/${community.name}/modqueue`} className="flex items-center justify-center w-full py-1.5 bg-white text-[#0079D3] hover:bg-[#F6F7F8] font-bold rounded-full text-[14px] transition-colors mb-2">
                                 Mod Queue
                             </Link>
                         )}

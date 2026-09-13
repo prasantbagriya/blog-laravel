@@ -18,8 +18,11 @@ class Post extends Model
         'authorSocials' => 'array',
         'tags' => 'array',
         'faqs' => 'array',
+        'howToSteps' => 'array',
+        'localBusiness' => 'array',
         'sources' => 'array',
         'published' => 'boolean',
+        'is_live_discussion' => 'boolean',
         'date' => 'datetime',
         'authorAwards' => 'array',
         'authorAlumniOf' => 'array',
@@ -32,6 +35,7 @@ class Post extends Model
         'isPillarPage' => 'boolean',
         'isAiAssisted' => 'boolean',
         'nextReviewDate' => 'datetime',
+        'lsiKeywords' => 'array',
     ];
 
     public function community()

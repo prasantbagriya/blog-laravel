@@ -8,7 +8,8 @@ export default function SearchIndex({ auth, posts, communities, users, query }) 
 
     return (
         <div className="min-h-screen bg-[#F2F4F5] text-[#1C1C1C] font-sans pb-20">
-            <Head title={`Search Results for "${query}" - Nexus`} />
+            <Head title={`Search Results for "${query}" - coachingsinsikar`}>
+            </Head>
             
             <Navbar auth={auth} searchQuery={query} />
 
@@ -87,7 +88,7 @@ export default function SearchIndex({ auth, posts, communities, users, query }) 
                                         <Link key={community.id} href={`/r/${community.name}`} className="flex items-center gap-4 p-4 border-b border-[#EDEFF1] hover:bg-[#F6F7F8] transition-colors last:border-0">
                                             <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden flex-shrink-0">
                                                 {community.icon_image ? (
-                                                    <img src={community.icon_image} className="w-full h-full object-cover" />
+                                                    <img loading="lazy" decoding="async" fetchPriority="low" src={community.icon_image} className="w-full h-full object-cover" />
                                                 ) : (
                                                     <Compass size={24} className="text-[#0079D3]" />
                                                 )}
@@ -113,7 +114,7 @@ export default function SearchIndex({ auth, posts, communities, users, query }) 
                                         <Link key={user.id} href={`/u/${user.username}`} className="flex items-center gap-4 p-4 border-b border-[#EDEFF1] hover:bg-[#F6F7F8] transition-colors last:border-0">
                                             <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
                                                 {user.profile_picture ? (
-                                                    <img src={user.profile_picture} className="w-full h-full object-cover" />
+                                                    <img loading="lazy" decoding="async" fetchPriority="low" src={user.profile_picture} className="w-full h-full object-cover" />
                                                 ) : (
                                                     <UserIcon size={24} className="text-[#878A8C]" />
                                                 )}

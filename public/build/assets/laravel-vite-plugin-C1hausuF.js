@@ -1,0 +1,1 @@
+async function e(e,t){for(let n of Array.isArray(e)?e:[e]){let e=t[n];if(e!==void 0)return typeof e==`function`?e():e}throw Error(`Page not found: ${e}`)}export{e as t};

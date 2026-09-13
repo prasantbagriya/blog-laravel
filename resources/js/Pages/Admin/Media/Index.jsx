@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Head } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
+import axios from 'axios';
 
 export default function MediaLibraryPage() {
   const BASE = typeof window !== 'undefined' && window.location.pathname.startsWith('/list/public') ? '/list/public' : '';
@@ -13,10 +14,9 @@ export default function MediaLibraryPage() {
 
   const fetchMedia = () => {
     setLoading(true);
-    fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/media')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) setMedia(data);
+    axios.get((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/media')
+      .then(res => {
+        if (Array.isArray(res.data)) setMedia(res.data);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -44,21 +44,13 @@ export default function MediaLibraryPage() {
     formData.append('file', file);
 
     try {
-      const res = await fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/media', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (res.ok) {
-        alert('Image replaced successfully! All articles have been updated.');
-        setSelectedMedia(null);
-        fetchMedia();
-      } else {
-        const errorData = await res.json();
-        alert(errorData.error || 'Failed to replace image.');
-      }
+      const res = await axios.post((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/media', formData);
+      alert('Image replaced successfully! All articles have been updated.');
+      setSelectedMedia(null);
+      fetchMedia();
     } catch (err) {
-      alert('An error occurred during replacement.');
+      const errorMsg = err.response?.data?.message || err.response?.data?.error || 'Failed to replace image.';
+      alert(errorMsg);
     } finally {
       setIsReplacing(false);
     }
@@ -75,13 +67,9 @@ export default function MediaLibraryPage() {
     }
 
     try {
-      const res = await fetch((window.location.pathname.startsWith('/list/public') ? '/list/public' : '') + `/api/admin/media?filename=${filename}`, { method: 'DELETE' });
-      if (res.ok) {
-        setSelectedMedia(null);
-        fetchMedia();
-      } else {
-        alert('Failed to delete file');
-      }
+      await axios.delete((window.location.pathname.startsWith('/list/public') ? '/list/public' : '') + `/api/admin/media?filename=${filename}`);
+      setSelectedMedia(null);
+      fetchMedia();
     } catch (e) {
       alert('Error deleting file');
     }
@@ -114,13 +102,11 @@ export default function MediaLibraryPage() {
                   const formData = new FormData();
                   formData.append('file', file);
                   try {
-                    const res = await fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/media', {
-                      method: 'POST',
-                      body: formData,
-                    });
-                    if (res.ok) fetchMedia();
-                    else alert('Upload failed');
-                  } catch(e) { alert('Upload error'); }
+                    await axios.post((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/media', formData);
+                    fetchMedia();
+                  } catch(e) { 
+                    alert(e.response?.data?.message || 'Upload error'); 
+                  }
                 }}
               />
             </label>
@@ -172,7 +158,7 @@ export default function MediaLibraryPage() {
               onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
             >
               <div style={{ width: '100%', paddingBottom: '100%', position: 'relative', background: '#f1f5f9' }}>
-                <img 
+                <img loading="lazy" decoding="async" fetchPriority="low" 
                   src={item.url} 
                   alt={item.name} 
                   style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }} 
@@ -214,7 +200,7 @@ export default function MediaLibraryPage() {
               onMouseEnter={(e) => e.currentTarget.style.transform = 'translateX(4px)'}
               onMouseLeave={(e) => e.currentTarget.style.transform = 'translateX(0)'}
             >
-              <img src={item.url} alt={item.name} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', background: '#f1f5f9' }} />
+              <img loading="lazy" decoding="async" fetchPriority="low" src={item.url} alt={item.name} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', background: '#f1f5f9' }} />
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 700, color: '#0f172a' }}>{item.name}</div>
                 <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : ''}</div>
@@ -248,7 +234,7 @@ export default function MediaLibraryPage() {
             <div style={{ display: 'flex', flexWrap: 'wrap', flex: 1, overflowY: 'auto' }}>
               {/* Image Preview */}
               <div style={{ flex: '1 1 300px', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '300px', borderRight: '1px solid #e2e8f0' }}>
-                <img src={selectedMedia.url} style={{ maxWidth: '100%', maxHeight: '400px', objectFit: 'contain' }} alt="Preview" />
+                <img loading="lazy" decoding="async" fetchPriority="low" src={selectedMedia.url} style={{ maxWidth: '100%', maxHeight: '400px', objectFit: 'contain' }} alt="Preview" />
               </div>
               
               {/* Image Meta & Usage */}

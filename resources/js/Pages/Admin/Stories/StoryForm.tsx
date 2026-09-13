@@ -12,7 +12,11 @@ export default function StoryForm({ story }: { story?: any }) {
   const [title, setTitle] = useState(story?.title || '');
   const [slug, setSlug] = useState(story?.slug || '');
   const [description, setDescription] = useState(story?.description || '');
-  const [seoTitle, setSeoTitle] = useState(story?.seoTitle || '');
+  const [seoTitle, setSeoTitle] = useState(story?.seo_meta?.seo_title || story?.seoTitle || '');
+  const [ogTitle, setOgTitle] = useState(story?.seo_meta?.og_title || '');
+  const [ogDescription, setOgDescription] = useState(story?.seo_meta?.og_description || '');
+  const [ogImage, setOgImage] = useState(story?.seo_meta?.og_image || '');
+  const [articleLink, setArticleLink] = useState(story?.articleLink || '');
   const [category, setCategory] = useState(story?.category || 'General');
   const [tags, setTags] = useState<string[]>(story?.tags || []);
   const [posterImage, setPosterImage] = useState(story?.posterImage || '');
@@ -23,8 +27,7 @@ export default function StoryForm({ story }: { story?: any }) {
   const [authorBio, setAuthorBio] = useState(story?.authorBio || '');
   const [authorImage, setAuthorImage] = useState(story?.authorImage || '');
   const [authorSocials, setAuthorSocials] = useState(story?.authorSocials || { twitter: '', linkedin: '', website: '' });
-  const [publisherLogo, setPublisherLogo] = useState(story?.publisherLogo || 'https://blog.com/logo-96x96.png');
-  const [slides, setSlides] = useState<any[]>(story?.slides || [
+  const [slides, setSlides] = useState<any[]>(story?.pages || story?.slides || [
     { id: 'sl1', image: '', text: 'Slide 1' }
   ]);
   const [id, setId] = useState(story?.id || '');
@@ -32,12 +35,28 @@ export default function StoryForm({ story }: { story?: any }) {
   const [isSponsored, setIsSponsored] = useState(story?.isSponsored || false);
   const [isNoIndex, setIsNoIndex] = useState(story?.isNoIndex || false);
   
-  const [mediaPickerTarget, setMediaPickerTarget] = useState<{type: 'poster' | 'square' | 'landscape' | 'author' | 'slide', index?: number} | null>(null);
+  const [mediaPickerTarget, setMediaPickerTarget] = useState<{type: 'poster' | 'square' | 'landscape' | 'author' | 'slide' | 'ogImage', index?: number} | null>(null);
+  const [availableAuthors, setAvailableAuthors] = useState<any[]>([]);
+  const [availableCategories, setAvailableCategories] = useState<any[]>([]);
 
   useEffect(() => {
     if (!id && !story?.id) {
       setId(crypto.randomUUID());
     }
+
+    fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/authors')
+        .then(r => r.json())
+        .then(data => {
+            if (Array.isArray(data)) setAvailableAuthors(data);
+        })
+        .catch(e => console.error("Failed to load authors", e));
+
+    fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/categories')
+        .then(r => r.json())
+        .then(data => {
+            if (Array.isArray(data)) setAvailableCategories(data);
+        })
+        .catch(e => console.error("Failed to load categories", e));
   }, [id, story?.id]);
 
   const [uploading, setUploading] = useState(false);
@@ -88,12 +107,16 @@ export default function StoryForm({ story }: { story?: any }) {
         .replace(/[^\w\s-]/g, '')
         .replace(/[\s_-]+/g, '-')
         .replace(/^-+|-+$/g, '');
-      const updatedStory: WebStory = {
+      const updatedStory: any = {
         id: id,
         title,
         slug: cleanSlug,
         description,
         seoTitle: seoTitle || undefined,
+        ogTitle: ogTitle || undefined,
+        ogDescription: ogDescription || undefined,
+        ogImage: ogImage || undefined,
+        articleLink: articleLink || undefined,
         category,
         tags,
         posterImage: posterImage || 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=640&h=853&q=80',
@@ -106,7 +129,6 @@ export default function StoryForm({ story }: { story?: any }) {
         authorBio: authorBio || undefined,
         authorImage: authorImage || undefined,
         authorSocials: (authorSocials.twitter || authorSocials.linkedin || authorSocials.website) ? authorSocials : undefined,
-        publisherLogo,
         slides,
         published,
         // ✅ GSC: Disclosure and indexing controls
@@ -158,13 +180,24 @@ export default function StoryForm({ story }: { story?: any }) {
           <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="Meta Description for SEO (150-160 chars)" style={{ ...inputStyle, minHeight: '80px' }} />
           <input value={seoTitle} onChange={e => setSeoTitle(e.target.value)} placeholder="SEO Title Override (max 90 chars, leave empty to use title)" maxLength={90} style={inputStyle} />
           <div style={{ display: 'flex', gap: '10px' }}>
-            <input value={category} onChange={e => setCategory(e.target.value)} placeholder="Category (e.g. SEO, Technology)" style={{ ...inputStyle, flex: 1, marginBottom: 0 }} />
+            <select 
+              value={category} 
+              onChange={e => setCategory(e.target.value)} 
+              style={{ ...inputStyle, flex: 1, marginBottom: 0 }}
+            >
+              <option value="">-- Select Category --</option>
+              <option value="General">General</option>
+              {availableCategories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+            </select>
             <input
               value={tags.join(', ')}
               onChange={e => setTags(e.target.value.split(',').map(t => t.trim()).filter(Boolean))}
               placeholder="Tags (comma separated)"
               style={{ ...inputStyle, flex: 2, marginBottom: 0 }}
             />
+          </div>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <input value={articleLink} onChange={e => setArticleLink(e.target.value)} placeholder="Swipe Up / Read Full Article Link (e.g. https://...)" style={{ ...inputStyle, marginBottom: 0 }} />
           </div>
 
           {/* ✅ GSC Controls */}
@@ -176,6 +209,30 @@ export default function StoryForm({ story }: { story?: any }) {
             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, color: isNoIndex ? '#dc2626' : '#475569' }}>
               <input type="checkbox" checked={isNoIndex} onChange={e => setIsNoIndex(e.target.checked)} />
               🚫 No Index (Exclude from Google)
+            </label>
+          </div>
+        </div>
+
+        {/* ✅ Social / Open Graph Panel */}
+        <div style={panelStyle}>
+          <h2 style={panelHeader}>🌐 Social Media & Open Graph</h2>
+          <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px', lineHeight: 1.5 }}>Customize how this story appears when shared on Twitter, Facebook, LinkedIn, etc. If left empty, it will fall back to the main Story Title, Description, and Poster Image.</p>
+          
+          <input value={ogTitle} onChange={e => setOgTitle(e.target.value)} placeholder="Open Graph Title (Optional)" maxLength={90} style={inputStyle} />
+          <textarea value={ogDescription} onChange={e => setOgDescription(e.target.value)} placeholder="Open Graph Description (Optional)" style={{ ...inputStyle, minHeight: '60px' }} />
+          
+          <label style={fieldLabel}>Open Graph Image (1200x630 recommended)</label>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <input value={ogImage} onChange={e => setOgImage(e.target.value)} placeholder="Open Graph Image URL (Optional)" style={{ ...inputStyle, flex: 1, marginBottom: 0 }} />
+            <button type="button" onClick={() => setMediaPickerTarget({type: 'ogImage'})} style={{ ...uploadBtnStyle, background: '#f8fafc', border: '1px solid #e2e8f0' }}>Library</button>
+            <label style={uploadBtnStyle}>
+              {uploading ? '...' : 'Upload'}
+              <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async e => {
+                if (e.target.files?.[0]) {
+                  const url = await uploadFile(e.target.files[0]);
+                  if (url) setOgImage(url);
+                }
+              }} />
             </label>
           </div>
         </div>
@@ -234,34 +291,28 @@ export default function StoryForm({ story }: { story?: any }) {
         {/* ✅ Author & Publisher Panel */}
         <div style={panelStyle}>
           <h2 style={panelHeader}>Author & Publisher</h2>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <input value={author} onChange={e => setAuthor(e.target.value)} placeholder="Author Name" style={{ ...inputStyle, flex: 1 }} />
-            <input value={publisherLogo} onChange={e => setPublisherLogo(e.target.value)} placeholder="Publisher Logo URL" style={{ ...inputStyle, flex: 1 }} />
-          </div>
-          
-          <label style={fieldLabel}>Author Avatar Image</label>
-          <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
-            <input value={authorImage} onChange={e => setAuthorImage(e.target.value)} placeholder="Author image URL (https://...)" style={{ ...inputStyle, flex: 1, marginBottom: 0 }} />
-            <button type="button" onClick={() => setMediaPickerTarget({type: 'author'})} style={{ ...uploadBtnStyle, background: '#f8fafc', border: '1px solid #e2e8f0' }}>Library</button>
-            <label style={uploadBtnStyle}>
-              {uploading ? '...' : 'Upload'}
-              <input type="file" accept="image/*" ref={authorImgRef} style={{ display: 'none' }} onChange={async e => {
-                if (e.target.files?.[0]) {
-                  const url = await uploadFile(e.target.files[0]);
-                  if (url) setAuthorImage(url);
-                }
-              }} />
-            </label>
-          </div>
 
-          <textarea value={authorBio} onChange={e => setAuthorBio(e.target.value)} placeholder="Author biography / short professional summary..." style={{ ...inputStyle, minHeight: '80px' }} />
-          
-          <label style={fieldLabel}>Author Social Links (E-E-A-T)</label>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
-            <input value={authorSocials.twitter || ''} onChange={e => setAuthorSocials({...authorSocials, twitter: e.target.value})} placeholder="Twitter URL" style={{ ...inputStyle, marginBottom: 0 }} />
-            <input value={authorSocials.linkedin || ''} onChange={e => setAuthorSocials({...authorSocials, linkedin: e.target.value})} placeholder="LinkedIn URL" style={{ ...inputStyle, marginBottom: 0 }} />
-            <input value={authorSocials.website || ''} onChange={e => setAuthorSocials({...authorSocials, website: e.target.value})} placeholder="Website URL" style={{ ...inputStyle, marginBottom: 0 }} />
-          </div>
+          {availableAuthors.length > 0 && (
+            <div style={{ marginBottom: '16px', background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+              <label style={fieldLabel}>Select Saved Author Profile</label>
+              <select 
+                  style={{ ...inputStyle, marginBottom: 0 }}
+                  value={availableAuthors.find(a => a.name === author)?.id || ''}
+                  onChange={e => {
+                      const selected = availableAuthors.find(a => a.id === e.target.value);
+                      if (selected) {
+                          setAuthor(selected.name);
+                          if (selected.image) setAuthorImage(selected.image);
+                          if (selected.bio) setAuthorBio(selected.bio);
+                          if (selected.socials) setAuthorSocials(selected.socials);
+                      }
+                  }}
+              >
+                  <option value="">-- Select an Author --</option>
+                  {availableAuthors.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+              </select>
+            </div>
+          )}
         </div>
 
         {/* ✅ Slides Panel */}
@@ -291,7 +342,7 @@ export default function StoryForm({ story }: { story?: any }) {
                 </div>
                 {slide.image && (
                   <div style={{ width: '120px', height: '160px', background: '#e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
-                    <img src={slide.image} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img loading="lazy" decoding="async" fetchPriority="low" src={slide.image} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
                 )}
             </div>
@@ -307,6 +358,7 @@ export default function StoryForm({ story }: { story?: any }) {
             if (mediaPickerTarget.type === 'poster') setPosterImage(url);
             if (mediaPickerTarget.type === 'square') setSquarePoster(url);
             if (mediaPickerTarget.type === 'landscape') setLandscapePoster(url);
+            if (mediaPickerTarget.type === 'ogImage') setOgImage(url);
             if (mediaPickerTarget.type === 'author') setAuthorImage(url);
             if (mediaPickerTarget.type === 'slide' && mediaPickerTarget.index !== undefined) {
               updateSlide(mediaPickerTarget.index, 'image', url);

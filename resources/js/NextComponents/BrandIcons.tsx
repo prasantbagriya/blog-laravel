@@ -105,3 +105,15 @@ export const Threads = (props: React.SVGProps<SVGSVGElement>) => (
     <circle cx="12" cy="12" r="3" />
   </svg>
 );
+
+export const Pinterest = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M12 2C6.48 2 2 6.48 2 12c0 4.25 2.66 7.9 6.44 9.34-.1-.78-.18-2 0-2.85l1.2-5.1s-.32-.64-.32-1.58c0-1.48.86-2.58 1.93-2.58.9 0 1.34.68 1.34 1.48 0 .9-.58 2.26-.88 3.52-.26 1.05.53 1.9 1.57 1.9 1.88 0 3.32-1.98 3.32-4.85 0-2.55-1.84-4.34-4.48-4.34-3.05 0-4.84 2.3-4.84 4.65 0 .9.35 1.86.78 2.38.08.1.1.2.08.3l-.26 1.05c-.04.14-.14.17-.28.1-1.3-.6-2.12-2.5-2.12-4.02 0-3.26 2.37-6.26 6.84-6.26 3.6 0 6.38 2.56 6.38 5.97 0 3.58-2.25 6.46-5.38 6.46-1.05 0-2.04-.55-2.38-1.2l-.65 2.47c-.24.9-.66 2.03-1 2.72 1.04.3 2.15.48 3.32.48 5.52 0 10-4.48 10-10S17.52 2 12 2z" />
+  </svg>
+);
+
+export const Tumblr = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M14.563 24c-5.093 0-7.031-3.756-7.031-6.411V9.747H5.116V6.648c3.63-1.313 4.512-4.596 4.71-6.469C9.84.051 9.941 0 9.999 0h3.517v6.114h4.801v3.633h-4.82v7.47c.016 1.001.375 2.371 2.207 2.371h.09c.631-.02 1.486-.205 1.936-.419l1.156 3.425c-.436.636-2.4 1.364-4.323 1.406z"/>
+  </svg>
+);

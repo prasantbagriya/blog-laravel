@@ -2,30 +2,633 @@ import { Head, Link } from '@inertiajs/react';
 import GlobalNavbar from '../NextComponents/GlobalNavbar';
 import BlogFooter from '../NextComponents/BlogFooter';
 import React, { useState, useEffect } from 'react';
+import SeoMeta from '../NextComponents/SeoMeta';
+import { Search, ChevronRight, GraduationCap, Award, Star, ArrowRight, ShieldCheck, PlayCircle, Library, MapPin, CheckCircle2, MessageSquare, ThumbsUp, TrendingUp, ChevronDown } from 'lucide-react';
 
 // Simple polyfill for Next.js Image
-const Image = ({ src, alt, fill, style, sizes, priority, ...props }) => {
+const Image = ({ src, alt, fill, style, sizes, priority, fetchPriority, className, ...props }) => {
     const imgStyle = fill ? { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%', ...style } : style;
-    const fetchPriority = priority ? "high" : "auto";
-    const loadingAttr = priority ? "eager" : "lazy";
+    const finalFetchPriority = priority ? 'high' : (fetchPriority || 'auto');
+    const loadingAttr = priority ? 'eager' : 'lazy';
     
-    return <img src={src} alt={alt} style={imgStyle} sizes={sizes} fetchpriority={fetchPriority} loading={loadingAttr} {...props} />;
+    return <img src={src} alt={alt} style={imgStyle} sizes={sizes} fetchPriority={finalFetchPriority} loading={loadingAttr} decoding={priority ? 'sync' : 'async'} className={className} {...props} />;
 };
 
-const sliderImages = [
-    'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80',
-    'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&q=80',
-    'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80',
-    'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80',
-    'https://images.unsplash.com/photo-1522542550221-31fd19575a2d?w=800&q=80'
-];
-
-export default function Welcome({ featuredPost, recentPosts, publishedStories, sliders, meta }) {
-    recentPosts = recentPosts || [];
-    publishedStories = publishedStories || [];
+const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses }) => {
+    const [searchQuery, setSearchQuery] = useState("");
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
     
-    const activeSlides = sliders?.length > 0 ? sliders : sliderImages;
-    const [currentSlide, setCurrentSlide] = useState(0);
+    // Default fallback if no slides
+    const validSlides = (activeSlides && activeSlides.length > 0) ? activeSlides : [
+        { image_url: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1600&q=80' }
+    ];
+
+    useEffect(() => {
+        if (validSlides.length > 1) {
+            const interval = setInterval(() => {
+                setCurrentSlideIndex((prev) => (prev + 1) % validSlides.length);
+            }, 5000);
+            return () => clearInterval(interval);
+        }
+    }, [validSlides.length]);
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (searchQuery.trim()) {
+            window.location.href = `${basePath}/search?q=${encodeURIComponent(searchQuery)}`;
+        }
+    };
+
+    return (
+        <section className="relative w-full min-h-[500px] md:min-h-[600px] flex items-center overflow-hidden bg-slate-900">
+            {/* Background Image Slider */}
+            {validSlides.map((slide, index) => {
+                const imgUrl = typeof slide === 'string' ? slide : (slide.image_url || slide.image || slide.coverImage);
+                return (
+                    <div 
+                        key={index}
+                        className={`absolute inset-0 z-0 bg-cover bg-center transition-opacity duration-1000 ${index === currentSlideIndex ? 'opacity-100' : 'opacity-0'}`}
+                        style={{ backgroundImage: `url('${imgUrl}')` }}
+                    ></div>
+                );
+            })}
+            
+            <div className="absolute inset-0 z-0 bg-slate-900/80"></div>
+            
+            <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
+                <div className="grid lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+                    <div className="lg:col-span-7 text-white">
+                        <p className="text-amber-400 text-xs font-bold uppercase tracking-[0.12em] mb-4">Coaching and School Discovery Platform</p>
+                        <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-[4rem] font-extrabold leading-[1.1] mb-6 tracking-tight">
+                            Find the Right Coaching.<br className="hidden sm:block" />Build the Right Future.
+                        </h1>
+                        <p className="text-base md:text-lg text-white/80 max-w-xl mb-8">
+                            Explore coaching institutes, courses, fees, rankings, and admission opportunities — all in one place.
+                        </p>
+
+                        <div className="relative max-w-xl mb-6">
+                            <form onSubmit={handleSearch}>
+                                <div className="relative flex items-center gap-2 rounded-full bg-white p-2 shadow-lg z-20">
+                                    <Search className="w-5 h-5 text-slate-400 ml-3 flex-shrink-0" />
+                                    <input 
+                                        type="text" 
+                                        name="q" 
+                                        className="flex-1 border-0 outline-none focus:ring-0 text-slate-900 text-sm md:text-base py-2.5 bg-transparent placeholder-slate-400" 
+                                        placeholder="Search coaching, schools, courses, exams..." 
+                                        value={searchQuery} 
+                                        onChange={(e) => {
+                                            setSearchQuery(e.target.value);
+                                            setShowSuggestions(true);
+                                        }}
+                                        onFocus={() => setShowSuggestions(true)}
+                                        onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                                        autoComplete="off"
+                                    />
+                                    <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full px-6 py-2.5 transition-colors shrink-0 border-none outline-none focus:outline-none ring-0 focus:ring-0">
+                                        Search
+                                    </button>
+                                </div>
+                                
+                                {/* Search Suggestions Dropdown */}
+                                {showSuggestions && searchQuery.trim().length > 0 && (
+                                    <div className="absolute top-full left-0 right-0 mt-3 bg-white rounded-2xl shadow-2xl overflow-hidden z-50 border border-slate-100 max-h-[300px] overflow-y-auto">
+                                        {(() => {
+                                            const filteredBiz = (featuredBusinesses || []).filter(b => b.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 4);
+                                            const filteredCat = (categories || []).filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 2);
+                                            
+                                            if (filteredBiz.length === 0 && filteredCat.length === 0) {
+                                                return <div className="p-4 text-center text-slate-500 text-sm">No results found for "{searchQuery}"</div>;
+                                            }
+                                            
+                                            return (
+                                                <div className="py-2">
+                                                    {filteredCat.length > 0 && (
+                                                        <div className="mb-2">
+                                                            <div className="px-4 py-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider">Categories</div>
+                                                            {filteredCat.map(cat => (
+                                                                <Link 
+                                                                    key={`cat-${cat.id}`} 
+                                                                    href={`${basePath}/category/${cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-')}`}
+                                                                    className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors"
+                                                                >
+                                                                    <div className="bg-blue-50 p-2 rounded-lg text-blue-600"><GraduationCap size={16} /></div>
+                                                                    <span className="font-medium text-slate-800">{cat.name}</span>
+                                                                </Link>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                    
+                                                    {filteredBiz.length > 0 && (
+                                                        <div>
+                                                            <div className="px-4 py-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider">Institutes</div>
+                                                            {filteredBiz.map(biz => (
+                                                                <Link 
+                                                                    key={`biz-${biz.id}`} 
+                                                                    href={`${basePath}/reviews/${biz.category || 'coaching-institutes'}/${biz.slug}`}
+                                                                    className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors"
+                                                                >
+                                                                    <div className="w-10 h-10 bg-slate-100 rounded-lg overflow-hidden flex-shrink-0 relative border border-slate-200">
+                                                                        <Image src={biz.logo || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80'} alt={biz.name} fill style={{objectFit: 'contain'}} />
+                                                                    </div>
+                                                                    <div className="flex flex-col">
+                                                                        <span className="font-medium text-slate-800">{biz.name}</span>
+                                                                        <span className="text-xs text-slate-500">{biz.categoryName || biz.category}</span>
+                                                                    </div>
+                                                                </Link>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })()}
+                                    </div>
+                                )}
+                            </form>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2 mb-8 text-sm">
+                            <span className="text-white/60 mr-1">Popular:</span>
+                            <Link href={`${basePath}/search?q=NEET`} className="px-4 py-1.5 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors font-semibold">NEET</Link>
+                            <Link href={`${basePath}/search?q=JEE`} className="px-4 py-1.5 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors font-semibold">JEE</Link>
+                            <Link href={`${basePath}/search?q=Foundation`} className="px-4 py-1.5 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors font-semibold">Foundation</Link>
+                        </div>
+
+                        <div className="flex flex-wrap gap-3">
+                            <Link href={`${basePath}/reviews`} className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-6 py-3 rounded-md transition-colors text-center inline-flex items-center justify-center">
+                                Explore Institutes
+                            </Link>
+                            <Link href={`${basePath}/blog`} className="bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-3 rounded-md transition-colors text-center inline-flex items-center justify-center">
+                                Browse Articles
+                            </Link>
+                        </div>
+                    </div>
+
+                    <div className="lg:col-span-5 relative hidden md:block">
+                        <div className="relative w-full h-[500px] flex items-center justify-center">
+                            {/* Floating elements mimicking reference hero-side-image */}
+                            <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/20 to-transparent rounded-full blur-3xl"></div>
+                            
+                            {validSlides.map((slide, index) => {
+                                const imgUrl = typeof slide === 'string' ? slide : (slide.image_url || slide.image || slide.coverImage);
+                                return (
+                                    <img 
+                                        key={`side-${index}`}
+                                        src={imgUrl} 
+                                        alt="Slide" 
+                                        className={`absolute z-10 w-full max-w-sm rounded-2xl shadow-2xl border-4 border-white/10 object-cover aspect-[4/5] transition-all duration-1000 ${index === currentSlideIndex ? 'opacity-100 scale-100 hover:-translate-y-2' : 'opacity-0 scale-95 pointer-events-none'}`}
+                                    />
+                                );
+                            })}
+                            
+                            <div className="absolute top-10 -left-10 bg-white p-4 rounded-xl shadow-xl z-20 flex items-center gap-3 animate-float">
+                                <div className="bg-green-100 p-2 rounded-full text-green-600"><CheckCircle2 className="w-6 h-6" /></div>
+                                <div><div className="font-bold text-slate-800">Verified</div><div className="text-xs text-slate-500">Institutes</div></div>
+                            </div>
+                            <div className="absolute bottom-20 -right-5 bg-white p-4 rounded-xl shadow-xl z-20 flex items-center gap-3 animate-float-delayed">
+                                <div className="bg-amber-100 p-2 rounded-full text-amber-600"><Star className="w-6 h-6 fill-current" /></div>
+                                <div><div className="font-bold text-slate-800">Top Rated</div><div className="text-xs text-slate-500">Reviews</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+};
+
+const TrustMarquee = ({ categories }) => {
+    // Generate some placeholder trust logos based on categories or a static list
+    const items = categories && categories.length > 0 ? categories : [
+        {name: "Engineering", id: 1}, {name: "Medical", id: 2}, {name: "Foundation", id: 3}, 
+        {name: "Commerce", id: 4}, {name: "Arts", id: 5}, {name: "Law", id: 6}
+    ];
+
+    return (
+        <section className="py-6 bg-white border-b border-slate-100 overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-4">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Trusted Categories & Streams</p>
+            </div>
+            <div className="relative flex w-full flex-nowrap overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
+                <div className="flex animate-marquee items-center justify-center space-x-8 md:space-x-16 whitespace-nowrap">
+                    {[...items, ...items, ...items].map((item, idx) => (
+                        <div key={`${item.id}-${idx}`} className="text-slate-400 font-bold text-xl md:text-2xl opacity-60 hover:opacity-100 transition-opacity flex items-center gap-2">
+                            <GraduationCap className="w-6 h-6" /> {item.name}
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+};
+
+const InstitutesSection = ({ featuredBusinesses, basePath }) => {
+    const businesses = featuredBusinesses || [];
+    if(businesses.length === 0) return null;
+    
+    return (
+        <section className="py-10 md:py-14 bg-slate-50 border-b border-slate-200">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex justify-between items-end mb-8 md:mb-10">
+                    <div>
+                        <p className="text-amber-500 text-sm font-bold uppercase tracking-wider mb-1">Popular Reviews</p>
+                        <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Explore India's Popular Institutes</h2>
+                        <p className="text-slate-500 mt-2 text-base md:text-lg">Discover institutions students are searching for right now.</p>
+                    </div>
+                    <Link href={`${basePath}/reviews`} className="hidden md:block bg-blue-600 hover:bg-blue-700 text-white text-center font-medium py-2 px-4 rounded-md transition-colors text-sm">
+                        View All
+                    </Link>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {businesses.map((biz) => {
+                        const categorySlug = biz.category || 'coaching-institutes';
+                        const reviewUrl = `${basePath}/reviews/${categorySlug}/${biz.slug}`;
+                        
+                        return (
+                        <article key={biz.id} className="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex flex-col group">
+                            <Link href={reviewUrl} className="relative aspect-[16/9] w-full block overflow-hidden bg-slate-100 flex items-center justify-center p-4">
+                                <Image src={biz.logo || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80'} alt={biz.name} fill style={{objectFit: 'contain'}} className="group-hover:scale-105 transition-transform duration-500" />
+                            </Link>
+                            
+                            <div className="p-4 md:p-5 flex-grow flex flex-col border-t border-slate-100">
+                                <h3 className="text-base md:text-lg font-bold text-slate-900 leading-snug mb-2 group-hover:text-blue-600 transition-colors">
+                                    <Link href={reviewUrl} className="focus:outline-none">{biz.name}</Link>
+                                </h3>
+                                
+                                <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500 mb-3">
+                                    <span className="inline-flex items-center gap-1 text-amber-500 font-semibold">
+                                        <Star className="w-3.5 h-3.5 fill-amber-500" /> {biz.rating || 4.5}
+                                    </span>
+                                    <span className="inline-flex items-center gap-1">
+                                        <ShieldCheck className="w-3.5 h-3.5 text-blue-500" /> Trust: {biz.trustScore || 85}/100
+                                    </span>
+                                </div>
+                                
+                                <div className="flex flex-wrap gap-1.5 mb-4">
+                                    <span className="bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded border border-blue-100">{biz.categoryName || biz.category}</span>
+                                    {biz.isVerified && <span className="bg-green-50 text-green-700 text-xs font-semibold px-2 py-0.5 rounded border border-green-200">Verified</span>}
+                                </div>
+                                
+                                <div className="mt-auto pt-4 border-t border-slate-100 space-y-1 text-sm text-slate-600">
+                                    <Link href={reviewUrl} className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center font-medium py-2 rounded-md transition-colors text-sm">
+                                        Read Reviews ({biz.reviewCount || 0})
+                                    </Link>
+                                </div>
+                            </div>
+                        </article>
+                    )})}
+                </div>
+            </div>
+        </section>
+    );
+};
+
+const CommunityFeedSection = ({ basePath }) => {
+    const feedPosts = [
+        {
+            id: 1,
+            community: 'JEEPreparation',
+            title: 'What is the best strategy for JEE Advanced Physics?',
+            author: 'student2025',
+            time: '2 hours ago',
+            score: 125,
+            comments: 42,
+            type: 'TEXT',
+            content: 'I have covered HC Verma and Irodov, but still struggling with multiple correct questions in mock tests. Any advice from seniors?'
+        },
+        {
+            id: 2,
+            community: 'NEETAspirants',
+            title: 'My review of Allen Kota phase 3 batch',
+            author: 'future_doc',
+            time: '5 hours ago',
+            score: 340,
+            comments: 89,
+            type: 'TEXT',
+            content: 'The faculty is great but the pace is extremely fast. If your basics from 11th are weak, you might struggle. Here is my detailed review...'
+        },
+        {
+            id: 3,
+            community: 'StudyMaterials',
+            title: 'Best organic chemistry notes PDF [Free Download]',
+            author: 'chem_wizard',
+            time: '1 day ago',
+            score: 512,
+            comments: 156,
+            type: 'LINK',
+            content: ''
+        }
+    ];
+
+    return (
+        <section className="py-10 md:py-14 bg-white border-b border-slate-200">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex justify-between items-end mb-8 md:mb-10">
+                    <div>
+                        <p className="text-blue-500 text-sm font-bold uppercase tracking-wider mb-1">Student Community</p>
+                        <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Recent Discussions</h2>
+                        <p className="text-slate-500 mt-2 text-base md:text-lg">Join the conversation with thousands of students.</p>
+                    </div>
+                    <Link href={`${basePath}/community`} className="hidden md:block bg-blue-600 hover:bg-blue-700 text-white text-center font-medium py-2 px-4 rounded-md transition-colors text-sm">
+                        View Feed
+                    </Link>
+                </div>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-2 space-y-4">
+                        {feedPosts.map((post) => (
+                            <div key={post.id} className="bg-white border border-slate-200 hover:border-blue-300 rounded-xl p-4 md:p-5 flex gap-4 transition-all hover:shadow-md cursor-pointer">
+                                <div className="hidden sm:flex flex-col items-center gap-1 min-w-[40px]">
+                                    <button className="p-1 rounded text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors border-none outline-none focus:outline-none ring-0 focus:ring-0"><TrendingUp size={20} /></button>
+                                    <span className="font-bold text-sm text-slate-700">{post.score}</span>
+                                </div>
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-2 text-xs text-slate-500 mb-2">
+                                        <span className="font-bold text-slate-900">r/{post.community}</span>
+                                        <span>•</span>
+                                        <span>Posted by u/{post.author}</span>
+                                        <span>•</span>
+                                        <span>{post.time}</span>
+                                    </div>
+                                    <h3 className="text-lg font-bold text-slate-900 mb-2 leading-tight">{post.title}</h3>
+                                    {post.type === 'TEXT' && (
+                                        <p className="text-sm text-slate-600 line-clamp-2 mb-3">{post.content}</p>
+                                    )}
+                                    <div className="flex items-center gap-4 text-xs font-semibold text-slate-500 mt-3">
+                                        <div className="flex items-center gap-1.5 hover:bg-slate-100 px-2 py-1.5 rounded-md transition-colors text-slate-600">
+                                            <MessageSquare size={16} /> {post.comments} Comments
+                                        </div>
+                                        <div className="flex items-center gap-1.5 hover:bg-slate-100 px-2 py-1.5 rounded-md transition-colors text-slate-600">
+                                            <ThumbsUp size={16} /> Share
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                        <Link href={`${basePath}/community`} className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center font-medium py-2 rounded-md transition-colors text-sm">
+                            Explore More Discussions
+                        </Link>
+                    </div>
+                    
+                    <div className="space-y-6">
+                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-5">
+                            <h3 className="font-bold text-lg text-slate-900 mb-4">Top Communities</h3>
+                            <div className="space-y-4">
+                                {['JEEPreparation', 'NEETAspirants', 'UPSC_Civil_Services', 'CATPrep'].map((community, i) => (
+                                    <div key={community} className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+                                                {community.charAt(0)}
+                                            </div>
+                                            <div>
+                                                <div className="font-bold text-sm text-slate-900">r/{community}</div>
+                                                <div className="text-xs text-slate-500">{(100 - i * 15)}k members</div>
+                                            </div>
+                                        </div>
+                                        <button className="text-blue-600 hover:bg-blue-50 px-3 py-1 text-sm font-semibold rounded-full transition-colors">Join</button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+};
+
+const BlogSection = ({ morePosts, basePath, formatDate }) => {
+    const posts = (morePosts || []).slice(0, 4);
+    if(posts.length === 0) return null;
+    
+    return (
+        <section className="py-10 md:py-14 bg-slate-50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex justify-between items-end mb-8 md:mb-10">
+                    <div>
+                        <p className="text-blue-500 text-sm font-bold uppercase tracking-wider mb-1">Editor's Picks</p>
+                        <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Explore the Blog</h2>
+                        <p className="text-slate-500 mt-2 text-base md:text-lg">Read the latest articles, guides, and updates.</p>
+                    </div>
+                    <Link href={`${basePath}/blog`} className="hidden md:block bg-blue-600 hover:bg-blue-700 text-white text-center font-medium py-2 px-4 rounded-md transition-colors text-sm">
+                        View All Blog
+                    </Link>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {posts.map((post) => (
+                        <article key={post.id} className="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex flex-col group">
+                            <Link href={`${basePath}/blog/${post.slug}`} className="relative aspect-[16/9] w-full block overflow-hidden">
+                                <Image src={post.coverImage || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80'} alt={post.title} fill style={{objectFit: 'cover'}} className="group-hover:scale-105 transition-transform duration-500" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            </Link>
+                            
+                            <div className="p-4 md:p-5 flex-grow flex flex-col">
+                                <h3 className="text-base md:text-lg font-bold text-slate-900 leading-snug mb-2 group-hover:text-blue-600 transition-colors">
+                                    <Link href={`${basePath}/blog/${post.slug}`} className="focus:outline-none">{post.title}</Link>
+                                </h3>
+                                
+                                <div className="flex flex-wrap gap-1.5 mb-4">
+                                    <span className="bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded border border-blue-100">{post.category || 'Article'}</span>
+                                </div>
+                                
+                                <div className="mt-auto pt-4 border-t border-slate-100 space-y-1 text-sm text-slate-600">
+                                    <div className="flex justify-between items-center mb-3">
+                                        <span className="text-slate-500">Posted:</span>
+                                        <span className="font-semibold text-slate-800">{formatDate(post.date)}</span>
+                                    </div>
+                                    <Link href={`${basePath}/blog/${post.slug}`} className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center font-medium py-2 rounded-md transition-colors text-sm">
+                                        Read Article
+                                    </Link>
+                                </div>
+                            </div>
+                        </article>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+};
+
+const CategorySection = ({ categories, basePath }) => {
+    if (!categories || categories.length === 0) return null;
+    return (
+        <section className="py-10 md:py-14 bg-white overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="text-center mb-10 md:mb-14">
+                    <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Explore by Stream</h2>
+                    <p className="text-slate-500 mt-2 text-base md:text-lg">Find the right path for your career goals.</p>
+                </div>
+                
+                {/* Infinite Scrolling Marquee for Categories */}
+                <div className="relative flex w-full flex-nowrap overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
+                    <div className="flex animate-marquee-fast items-center justify-center space-x-4 md:space-x-6 whitespace-nowrap pt-2 pb-6">
+                        {[...categories, ...categories, ...categories, ...categories].map((cat, i) => (
+                            <Link key={`${cat.id}-${i}`} href={`${basePath}/category/${cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-')}`} 
+                                className="bg-slate-50 w-40 h-40 rounded-xl border border-slate-100 hover:border-blue-500 hover:bg-blue-50 hover:shadow-md transition-all duration-300 group flex flex-col items-center justify-center text-center shrink-0">
+                                <div className="w-12 h-12 bg-white group-hover:bg-blue-600 rounded-full flex items-center justify-center text-blue-600 group-hover:text-white mb-3 transition-colors shadow-sm">
+                                    <GraduationCap className="w-6 h-6" />
+                                </div>
+                                <h3 className="font-bold text-slate-800 text-sm group-hover:text-blue-700 transition-colors whitespace-normal break-words w-full px-2 leading-tight">{cat.name}</h3>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+};
+
+const StoriesSection = ({ stories, basePath }) => {
+    if(!stories || stories.length === 0) return null;
+    return (
+        <section className="py-10 md:py-14 bg-slate-50 border-y border-slate-200">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex justify-between items-end mb-8 md:mb-10">
+                    <div>
+                        <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Visual Web Stories</h2>
+                        <p className="text-slate-500 mt-2 text-base md:text-lg">Bite-sized visual guides for modern students.</p>
+                    </div>
+                </div>
+                <div className="flex overflow-x-auto pb-6 -mx-4 px-4 sm:mx-0 sm:px-0 gap-4 snap-x hide-scrollbar">
+                    {stories.map(story => (
+                        <Link key={story.id} href={`${basePath}/stories/${story.slug}`} className="relative flex-none w-[220px] md:w-[260px] aspect-[9/16] rounded-xl overflow-hidden snap-start group shadow-sm hover:shadow-xl transition-all duration-300">
+                            <Image src={story.posterImage || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80'} alt={story.title} fill style={{objectFit: 'cover'}} className="group-hover:scale-105 transition-transform duration-700"/>
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent opacity-90 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm rounded-full p-2 text-white">
+                                <PlayCircle className="w-5 h-5" />
+                            </div>
+                            <div className="absolute bottom-0 left-0 right-0 p-5">
+                                <h3 className="text-white font-bold text-base md:text-lg leading-snug drop-shadow-md">{story.title}</h3>
+                            </div>
+                        </Link>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+};
+
+const SeoContent = () => (
+    <section className="py-10 md:py-14 bg-slate-50 border-t border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+                <div>
+                    <span className="text-blue-600 font-bold tracking-widest uppercase text-xs mb-3 block">About Us</span>
+                    <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-6 leading-tight">Coaching in Sikar: Your Complete Education Guide</h2>
+                    <div className="text-slate-600 text-base md:text-lg leading-relaxed space-y-4">
+                        <p>Our mission is simple — to make educational information easier to find, understand, and compare. We research and publish useful guides covering coaching institutes, academic programs, exam preparation, results, facilities, courses, and student experiences.</p>
+                        <p>Sikar has rapidly emerged as a major educational hub in Rajasthan, attracting thousands of students every year who dream of securing top ranks in national-level competitive exams like NEET and IIT-JEE.</p>
+                    </div>
+                    <div className="mt-8 flex flex-wrap items-center gap-6">
+                        <div className="flex items-center gap-3">
+                            <div className="bg-green-100 p-3 rounded-full text-green-600">
+                                <ShieldCheck className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <div className="font-bold text-slate-800">Verified Data</div>
+                                <div className="text-sm text-slate-500">Trusted reviews</div>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <div className="bg-amber-100 p-3 rounded-full text-amber-600">
+                                <Award className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <div className="font-bold text-slate-800">Top Institutes</div>
+                                <div className="text-sm text-slate-500">Ranked accurately</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="relative mt-8 lg:mt-0">
+                    <div className="absolute inset-0 bg-blue-600/10 rounded-[2rem] transform translate-x-4 translate-y-4 md:translate-x-6 md:translate-y-6"></div>
+                    <img 
+                        src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80" 
+                        alt="Students studying" 
+                        className="relative z-10 rounded-[2rem] shadow-xl w-full object-cover aspect-[4/3] border-4 border-white"
+                    />
+                </div>
+            </div>
+        </div>
+    </section>
+);
+
+const FAQSection = () => {
+    const [openIndex, setOpenIndex] = useState(null);
+
+    const faqs = [
+        {
+            question: "How do I choose the best coaching institute in Sikar?",
+            answer: "Choosing the right coaching depends on your goals, budget, and learning style. We recommend checking verified reviews, past year results, faculty profiles, and visiting the campus for a demo class before making a decision."
+        },
+        {
+            question: "Are the reviews on Coaching Sikar verified?",
+            answer: "Yes, we have a strict verification process. We ensure that reviews are submitted by genuine students or parents who have actual experience with the respective coaching institutes."
+        },
+        {
+            question: "Which are the top courses offered by institutes in Sikar?",
+            answer: "Sikar is widely known for JEE (Main & Advanced) and NEET preparation. Additionally, many institutes offer excellent foundation courses for classes 8th to 10th, NDA, and other competitive exams."
+        },
+        {
+            question: "Is hostel facility available for students outside Sikar?",
+            answer: "Absolutely. Sikar is a major education hub and has hundreds of secure, well-equipped hostels for both boys and girls, many of which are directly affiliated with top coaching institutes."
+        },
+        {
+            question: "Can I get scholarships for coaching in Sikar?",
+            answer: "Yes, almost all major institutes conduct their own scholarship cum admission tests (like ASAT, TALLENTEX, etc.) offering up to 90% scholarships based on your performance."
+        }
+    ];
+
+    return (
+        <section className="py-14 md:py-20 bg-white border-t border-slate-200">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="text-center mb-10 md:mb-14">
+                    <p className="text-blue-600 font-bold tracking-widest uppercase text-xs mb-3">Got Questions?</p>
+                    <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">Frequently Asked Questions</h2>
+                    <p className="text-slate-500 text-base md:text-lg">Everything you need to know about coaching institutes and education in Sikar.</p>
+                </div>
+                
+                <div className="space-y-4">
+                    {faqs.map((faq, index) => {
+                        const isOpen = openIndex === index;
+                        return (
+                            <div 
+                                key={index} 
+                                className={`border border-slate-200 rounded-2xl overflow-hidden transition-all duration-300 ${isOpen ? 'bg-blue-50/50 shadow-md border-blue-200' : 'bg-white hover:border-blue-300'}`}
+                            >
+                                <button 
+                                    className="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none focus:ring-0 ring-0 border-none bg-transparent cursor-pointer"
+                                    onClick={() => setOpenIndex(isOpen ? null : index)}
+                                    aria-expanded={isOpen}
+                                >
+                                    <span className={`font-bold text-base md:text-lg pr-4 ${isOpen ? 'text-blue-700' : 'text-slate-800'}`}>
+                                        {faq.question}
+                                    </span>
+                                    <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-transform duration-300 ${isOpen ? 'bg-blue-100 text-blue-600 rotate-180' : 'bg-slate-100 text-slate-500'}`}>
+                                        <ChevronDown className="w-5 h-5" />
+                                    </div>
+                                </button>
+                                <div 
+                                    className={`px-6 overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-96 pb-6 opacity-100' : 'max-h-0 pb-0 opacity-0'}`}
+                                >
+                                    <p className="text-slate-600 leading-relaxed text-sm md:text-base m-0">
+                                        {faq.answer}
+                                    </p>
+                                </div>
+                            </div>
+                        )
+                    })}
+                </div>
+            </div>
+        </section>
+    );
+};
+
+export default function Welcome(props) {
+    const { featuredPost, recentPosts, morePosts, publishedStories, sliders, categories, authors, meta, featuredBusinesses } = props;
+    const basePath = typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '';
 
     const formatDate = (dateString) => {
         if (!dateString) return '';
@@ -33,222 +636,62 @@ export default function Welcome({ featuredPost, recentPosts, publishedStories, s
         return isNaN(date.getTime()) ? dateString : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     };
 
-    useEffect(() => {
-        if (!activeSlides || activeSlides.length <= 1) return;
-        const interval = setInterval(() => {
-            setCurrentSlide(prev => (prev + 1) % activeSlides.length);
-        }, 5000);
-        return () => clearInterval(interval);
-    }, [activeSlides]);
-    
     return (
-        <div className="bg-white min-h-screen">
-            <Head title={meta?.title || "Home"}>
-                <meta head-key="description" name="description" content={meta?.description || "Expert insights, visual web stories, and high-performance strategies to dominate Google search and AI overviews in 2026."} />
-            </Head>
-            
+        <div className="bg-white min-h-screen font-sans">
+            <SeoMeta meta={meta} />
             <GlobalNavbar />
             
-            <main className="min-h-screen">
-                <div className="container mx-auto px-4 max-w-6xl mt-4 mb-2">
-                    <h1 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">
-                        {meta?.title || "cochinginsikar"}
-                    </h1>
-                </div>
-
-                {/* Hero Section Carousel */}
-                <section className="w-full h-[40vh] md:h-[60vh] min-h-[300px] md:min-h-[400px] relative mt-0 mb-8 md:mb-12 overflow-hidden">
-                    {activeSlides.map((slide, index) => {
-                        const imgSrc = typeof slide === 'string' ? slide : slide.image_url;
-                        const title = typeof slide === 'object' ? slide.title : null;
-                        const subtitle = typeof slide === 'object' ? slide.subtitle : null;
-                        const link = typeof slide === 'object' ? slide.link : null;
-                        
-                        const slideContent = (
-                            <>
-                                <>
-                                    {slide.mobile_image_url ? (
-                                        <picture>
-                                            <source media="(min-width: 768px)" srcSet={imgSrc} />
-                                            <img
-                                                src={slide.mobile_image_url}
-                                                alt={title || `Slide ${index}`}
-                                                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-                                                fetchpriority={index === 0 ? "high" : "auto"}
-                                                loading={index === 0 ? "eager" : "lazy"}
-                                            />
-                                        </picture>
-                                    ) : (
-                                        <Image
-                                            src={imgSrc}
-                                            alt={title || `Slide ${index}`}
-                                            fill
-                                            style={{ objectFit: 'cover' }}
-                                            priority={index === 0}
-                                        />
-                                    )}
-                                </>
-                                {(title || subtitle) && (
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-6 md:p-12 text-white">
-                                        <div className="max-w-7xl mx-auto w-full">
-                                            {title && <h2 className="m-0 mb-2 md:mb-4 text-2xl md:text-5xl font-black drop-shadow-md">{title}</h2>}
-                                            {subtitle && <p className="m-0 text-base md:text-xl opacity-90 max-w-2xl drop-shadow-md">{subtitle}</p>}
-                                        </div>
-                                    </div>
-                                )}
-                            </>
-                        );
-
-                        return (
-                            <div key={index} style={{
-                                position: 'absolute',
-                                inset: 0,
-                                opacity: currentSlide === index ? 1 : 0,
-                                transition: 'opacity 0.8s ease-in-out',
-                                zIndex: currentSlide === index ? 10 : 1
-                            }}>
-                                {link ? (
-                                    <a href={link} style={{ display: 'block', width: '100%', height: '100%' }}>
-                                        {slideContent}
-                                    </a>
-                                ) : slideContent}
-                            </div>
-                        );
-                    })}
-                    
-                    {/* Carousel Indicators */}
-                    {activeSlides.length > 1 && (
-                        <div style={{ position: 'absolute', bottom: '1.5rem', left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: '8px', zIndex: 20 }}>
-                            {activeSlides.map((_, i) => (
-                                <button 
-                                    key={i} 
-                                    aria-label={`Go to slide ${i + 1}`}
-                                    onClick={() => setCurrentSlide(i)}
-                                    style={{ 
-                                        width: '48px', height: '48px', padding: '19px', borderRadius: '50%',
-                                        background: currentSlide === i ? '#fff' : 'rgba(255,255,255,0.4)',
-                                        backgroundClip: 'content-box',
-                                        border: 'none', cursor: 'pointer', transition: 'background 0.3s' 
-                                    }} 
-                                />
-                            ))}
-                        </div>
-                    )}
-                </section>
-
-                <div className="container mx-auto px-4 max-w-6xl">
-                    {/* Featured Insight */}
-                    {featuredPost && (
-                        <section className="lcp-section" style={{ marginBottom: '5rem' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.5rem' }}>
-                                <h2 style={{ fontSize: '1.75rem', fontWeight: 800, margin: 0 }}>Featured Insight</h2>
-                                <Link href={window.BASE_PATH + "/blog"} style={{ color: 'var(--primary)', fontWeight: 700, fontSize: '0.9375rem', padding: '0.5rem 0' }}>View All Posts →</Link>
-                            </div>
-                            <article className="glass-panel card-hover rounded-xl" style={{ 
-                                display: 'grid', 
-                                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', 
-                                overflow: 'hidden', 
-                                minHeight: '480px',
-                                border: '1px solid var(--border)',
-                                boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.05)'
-                            }}>
-                                <Link href={window.BASE_PATH + `/blog/${featuredPost.slug}`} style={{ position: 'relative', minHeight: '320px', display: 'block' }}>
-                                    <Image 
-                                        src={featuredPost.coverImage || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80'} 
-                                        alt={featuredPost.title} 
-                                        fill 
-                                        style={{ objectFit: 'contain', backgroundColor: '#f9fafb' }}
-                                    />
-                                </Link>
-                                <div style={{ padding: 'clamp(1.25rem, 5vw, 3.5rem)', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: '#ffffff' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
-                                        <span style={{ background: 'var(--primary, blue)', color: 'white', fontSize: '0.7rem', fontWeight: 900, padding: '4px 10px', borderRadius: '20px', textTransform: 'uppercase' }}>FEATURED</span>
-                                        <span style={{ color: 'var(--muted-foreground)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{featuredPost.category}</span>
-                                    </div>
-                                    <h3 style={{ fontSize: 'clamp(1.5rem, 4vw, 2.5rem)', marginBottom: 'clamp(1rem, 2vw, 1.5rem)', lineHeight: 1.15, fontWeight: 900, letterSpacing: '-0.03em' }}>
-                                        <Link href={window.BASE_PATH + `/blog/${featuredPost.slug}`} style={{ color: 'inherit', textDecoration: 'none' }}>{featuredPost.title}</Link>
-                                    </h3>
-                                    <p style={{ color: 'var(--muted-foreground)', fontSize: 'clamp(0.95rem, 2vw, 1.125rem)', marginBottom: 'clamp(1.25rem, 3vw, 2.5rem)', lineHeight: 1.6 }}>{featuredPost.excerpt}</p>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: 'auto' }}>
-                                        <div style={{ width: '48px', height: '48px', borderRadius: '50%', overflow: 'hidden', position: 'relative', border: '2px solid var(--primary)' }}>
-                                        <Image src={featuredPost.authorImage || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80'} alt={featuredPost.author} fill style={{ objectFit: 'cover' }} />
-                                        </div>
-                                        <div>
-                                        <div style={{ fontWeight: 800, fontSize: '1rem' }}>{featuredPost.author}</div>
-                                        <div style={{ fontSize: '0.8125rem', color: 'var(--muted-foreground)', fontWeight: 600 }}>{formatDate(featuredPost.date)}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </article>
-                        </section>
-                    )}
-
-                    {/* Visual Web Stories Hub */}
-                    {publishedStories.length > 0 && (
-                        <section style={{ marginBottom: '5rem' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.5rem' }}>
-                                <div>
-                                <h2 style={{ fontSize: '1.75rem', fontWeight: 800, margin: 0 }}>Visual Web Stories</h2>
-                                <p style={{ color: 'var(--muted-foreground)', fontSize: '0.9375rem', marginTop: '0.25rem' }}>Bite-sized visual guides for modern SEO.</p>
-                                </div>
-                                <Link href={window.BASE_PATH + "/stories"} style={{ color: 'var(--primary)', fontWeight: 700, fontSize: '0.9375rem', padding: '0.5rem 0' }}>Explore Stories →</Link>
-                            </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1.5rem' }}>
-                                {publishedStories.map((story) => (
-                                <Link key={story.id} href={window.BASE_PATH + `/stories/${story.slug}`} style={{ display: 'block', aspectRatio: '3/4', position: 'relative', borderRadius: 'var(--radius, 12px)', overflow: 'hidden', boxShadow: 'var(--shadow)' }} className="card-hover">
-                                    <Image src={story.posterImage || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80'} alt={story.title} fill style={{ objectFit: 'cover' }} />
-                                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.9), transparent)', padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-                                    <h3 style={{ color: 'white', fontSize: '1.125rem', fontWeight: 700, margin: 0, lineHeight: 1.3 }}>{story.title}</h3>
-                                    </div>
-                                </Link>
-                                ))}
-                            </div>
-                        </section>
-                    )}
-
-                    {/* Recent Analysis Grid */}
-                    {recentPosts.length > 0 && (
-                        <section style={{ marginBottom: '5rem' }}>
-                            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '1.5rem' }}>Latest Technical Audits</h2>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 350px), 1fr))', gap: '2rem' }}>
-                                {recentPosts.map((post) => (
-                                <article key={post.id} className="glass-panel card-hover rounded-xl" style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', border: '1px solid #eee' }}>
-                                    <Link href={window.BASE_PATH + `/blog/${post.slug}`} style={{ position: 'relative', width: '100%', height: '220px', display: 'block' }}>
-                                    <Image src={post.coverImage || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80'} alt={post.title} fill style={{ objectFit: 'cover' }} />
-                                    </Link>
-                                    <div style={{ padding: '2rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                                    <span style={{ color: 'var(--primary, blue)', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.75rem', display: 'block' }}>{post.category || 'Insight'}</span>
-                                    <h3 style={{ fontSize: '1.375rem', marginBottom: '1rem', lineHeight: 1.3, fontWeight: 700 }}>
-                                        <Link href={window.BASE_PATH + `/blog/${post.slug}`} style={{ color: 'inherit', textDecoration: 'none' }}>{post.title}</Link>
-                                    </h3>
-                                    <p style={{ color: 'var(--muted-foreground)', fontSize: '0.9375rem', marginBottom: '1.5rem', flex: 1, lineHeight: 1.5 }}>{post.excerpt}</p>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8125rem', paddingTop: '1rem', borderTop: '1px solid var(--border, #eee)' }}>
-                                        <span style={{ fontWeight: 700 }}>{formatDate(post.date)}</span>
-                                        <Link href={window.BASE_PATH + `/blog/${post.slug}`} aria-label={`Read Insight: ${post.title}`} style={{ color: 'var(--primary, blue)', fontWeight: 800, padding: '0.5rem 0' }}>Read Insight →</Link>
-                                    </div>
-                                    </div>
-                                </article>
-                                ))}
-                            </div>
-                        </section>
-                    )}
-                    
-                    {/* SEO Text Block for Word Count */}
-                    <section className="bg-slate-50 border border-slate-100 p-8 md:p-12 mt-8 mb-8 rounded-2xl shadow-sm">
-                        <div className="max-w-4xl mx-auto text-center">
-                            <h2 className="text-2xl font-bold text-slate-800 mb-4">Mastering Modern Web & SEO Strategies</h2>
-                            <p className="text-slate-600 mb-4 leading-relaxed text-lg">
-                                Coaching Sinsikar is your ultimate destination for mastering modern web technologies, advanced technical SEO strategies, and digital automation tools. We provide expert-level insights, visual web stories, and in-depth tutorials designed to help you stay ahead in the ever-evolving digital landscape of 2026 and beyond. Our mission is to empower developers, marketers, and business owners with actionable knowledge.
-                            </p>
-                            <p className="text-slate-600 leading-relaxed text-lg">
-                                Whether you are looking to build high-performance React applications, optimize your Laravel backends for speed, or understand the intricacies of Google's search algorithms and AI Overviews, our carefully curated content will give you the competitive edge you need to succeed online. Explore our latest technical audits, join our active community discussions, and elevate your digital skills today.
-                            </p>
-                        </div>
-                    </section>
-                </div>
+            <main>
+                <HomeHero activeSlides={sliders || []} basePath={basePath} categories={categories || []} featuredBusinesses={featuredBusinesses || []} />
+                <TrustMarquee categories={categories || []} />
+                <InstitutesSection featuredBusinesses={featuredBusinesses || []} basePath={basePath} formatDate={formatDate} />
+                <CommunityFeedSection basePath={basePath} />
+                <SeoContent />
+                <BlogSection morePosts={morePosts || []} basePath={basePath} formatDate={formatDate} />
+                <CategorySection categories={categories || []} basePath={basePath} />
+                <StoriesSection stories={publishedStories || []} basePath={basePath} />
+                <FAQSection />
             </main>
 
             <BlogFooter />
+            
+            <style jsx global>{`
+                .hide-scrollbar::-webkit-scrollbar {
+                    display: none;
+                }
+                .hide-scrollbar {
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                }
+                
+                @keyframes float {
+                    0% { transform: translateY(0px); }
+                    50% { transform: translateY(-10px); }
+                    100% { transform: translateY(0px); }
+                }
+                @keyframes float-delayed {
+                    0% { transform: translateY(0px); }
+                    50% { transform: translateY(10px); }
+                    100% { transform: translateY(0px); }
+                }
+                .animate-float {
+                    animation: float 6s ease-in-out infinite;
+                }
+                .animate-float-delayed {
+                    animation: float-delayed 7s ease-in-out infinite;
+                }
+                
+                @keyframes marquee {
+                    0% { transform: translateX(0); }
+                    100% { transform: translateX(-33.333333%); }
+                }
+                .animate-marquee {
+                    animation: marquee 30s linear infinite;
+                }
+                .animate-marquee-fast {
+                    animation: marquee 25s linear infinite;
+                }
+            `}</style>
         </div>
     );
 }

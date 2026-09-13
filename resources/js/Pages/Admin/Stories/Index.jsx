@@ -39,7 +39,7 @@ export default function StoriesDashboard() {
         {stories.map((story) => (
           <div key={story.id} style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
             <div style={{ position: 'relative', width: '100%', aspectRatio: '3/4' }}>
-              <img src={story.posterImage || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80'} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img loading="lazy" decoding="async" fetchPriority="low" src={story.posterImage || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80'} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '20px', background: 'linear-gradient(transparent, rgba(0,0,0,0.8))', color: '#fff' }}>
                 <h3 style={{ fontSize: '14px', fontWeight: 700, margin: 0 }}>{story.title}</h3>
                 <div style={{ fontSize: '11px', opacity: 0.8 }}>{story.slides?.length || 0} Slides</div>
@@ -50,7 +50,7 @@ export default function StoriesDashboard() {
                 <Link href={BASE + `/admin/stories/edit/${story.id}`} style={{ color: '#2563eb', fontWeight: 600 }}>Edit</Link>
                 <DeleteButton id={story.id} endpoint="/api/admin/stories" onSuccess={() => setStories(s => s.filter(x => x.id !== story.id))} label="Delete" />
               </div>
-              <Link href={BASE + `/stories/${story.slug}`} style={{ fontSize: '12px', color: '#64748b' }}>View ↗</Link>
+              <a href={BASE + `/stories/${story.slug}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '12px', color: '#64748b' }}>View ↗</a>
             </div>
           </div>
         ))}

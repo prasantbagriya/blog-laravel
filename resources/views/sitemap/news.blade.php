@@ -6,7 +6,7 @@
             <loc>{{ route('blog.show', $post->slug) }}</loc>
             <news:news>
                 <news:publication>
-                    <news:name>Nexus</news:name>
+                    <news:name>{{ config('app.name') }}</news:name>
                     <news:language>en</news:language>
                 </news:publication>
                 <news:publication_date>{{ $post->created_at->tz('UTC')->toAtomString() }}</news:publication_date>

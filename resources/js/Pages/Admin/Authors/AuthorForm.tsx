@@ -121,7 +121,7 @@ export default function AuthorForm({ author }: { author?: any }) {
               <input type="file" hidden accept="image/*" onChange={handleImageUpload} />
             </label>
           </div>
-          {image && <img src={image} alt="Preview" style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', marginTop: '10px' }} />}
+          {image && <img loading="lazy" decoding="async" fetchPriority="low" src={image} alt="Preview" style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', marginTop: '10px' }} />}
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

@@ -42,7 +42,7 @@ export default function CreatePost({ communities, default_community_id, editPost
                             <span className="text-white font-black text-lg">N</span>
                         </div>
                         <span className="font-extrabold text-xl tracking-tight hidden sm:block">
-                            Nexus
+                            coachinginsikar
                         </span>
                     </Link>
                 </div>
@@ -59,7 +59,7 @@ export default function CreatePost({ communities, default_community_id, editPost
                         <select 
                             value={data.community_id}
                             onChange={(e) => setData('community_id', e.target.value)}
-                            className="w-full bg-white border border-[#EDEFF1] hover:border-[#1C1C1C] focus:border-[#1C1C1C] rounded-md py-2 px-3 text-[14px] font-medium outline-none appearance-none transition-colors cursor-pointer"
+                            className="w-full bg-white border border-black hover:border-[#1C1C1C] focus:border-[#1C1C1C] rounded-md py-2 px-3 text-[14px] font-medium outline-none appearance-none transition-colors cursor-pointer"
                         >
                             <option value="" disabled>Choose a community</option>
                             {communities.map((c) => (
@@ -110,7 +110,7 @@ export default function CreatePost({ communities, default_community_id, editPost
                                         value={data.title}
                                         onChange={(e) => setData('title', e.target.value)}
                                         maxLength={300}
-                                        className="w-full bg-white border border-[#EDEFF1] hover:border-[#878A8C] focus:border-[#1C1C1C] rounded-md py-2 px-3 text-[14px] font-medium outline-none transition-colors"
+                                        className="w-full bg-white border border-black focus:ring-1 focus:ring-black rounded-md py-2 px-3 text-[14px] font-medium outline-none transition-colors"
                                     />
                                     <div className="absolute right-3 top-2.5 text-[12px] text-[#878A8C] font-medium">
                                         {data.title.length}/300
@@ -160,7 +160,7 @@ export default function CreatePost({ communities, default_community_id, editPost
                                             value={data.link_url}
                                             onChange={(e) => setData('link_url', e.target.value)}
                                             rows="3"
-                                            className="w-full bg-white border border-[#EDEFF1] hover:border-[#878A8C] focus:border-[#1C1C1C] rounded-md py-2 px-3 text-[14px] outline-none transition-colors resize-y"
+                                            className="w-full bg-white border border-black focus:ring-1 focus:ring-black rounded-md py-2 px-3 text-[14px] outline-none transition-colors resize-y"
                                         ></textarea>
                                         {errors.link_url && <p className="text-red-500 text-xs mt-1">{errors.link_url}</p>}
                                     </div>
@@ -184,7 +184,7 @@ export default function CreatePost({ communities, default_community_id, editPost
                     <div className="bg-white rounded-md border border-[#EDEFF1] p-3 mb-4">
                         <div className="flex items-center gap-2 mb-3">
                             <img src="https://www.redditstatic.com/desktop2x/img/snoo-home@2x.png" className="w-10 h-10 object-contain" />
-                            <h2 className="font-medium text-[16px]">Posting to Nexus</h2>
+                            <h2 className="font-medium text-[16px]">Posting to coachinginsikar</h2>
                         </div>
                         <ol className="text-[14px] text-[#1C1C1C] font-medium space-y-2 border-t border-[#EDEFF1] pt-3">
                             <li className="border-b border-[#EDEFF1] pb-2">1. Remember the human</li>

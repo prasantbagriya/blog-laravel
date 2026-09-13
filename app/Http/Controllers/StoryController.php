@@ -25,8 +25,8 @@ class StoryController extends Controller
             abort(404);
         }
 
-        return Inertia::render('Story/Show', [
-            'story' => $story->toArray()
+        return view('story.amp', [
+            'story' => $story
         ]);
     }
 }

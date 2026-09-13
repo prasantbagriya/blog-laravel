@@ -186,12 +186,13 @@ export default function AdminPage() {
       if (p.nextReviewDate) {
         const isStale = new Date(p.nextReviewDate) < new Date();
         if (isStale) {
+          const formattedDate = new Date(p.nextReviewDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
           alerts.push({
             id: `stale-${p.id}`,
             postTitle: p.title || 'Untitled Post',
             postId: p.id,
             severity: 'info',
-            message: `Review Overdue: Content review date was scheduled for ${p.nextReviewDate}. Updates required.`,
+            message: `Review Overdue: Content review date was scheduled for ${formattedDate}. Updates required.`,
             type: 'Staleness'
           });
         }
@@ -476,9 +477,14 @@ export default function AdminPage() {
         <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <h3 style={{ fontSize: '1.125rem', fontWeight: 800, margin: 0 }}>Content Catalog ({posts.length} items)</h3>
-            <Link href={BASE + "/admin/posts/new"} style={{ background: 'var(--primary)', color: '#fff', padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.875rem', fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)' }}>
-              + Create New Post
-            </Link>
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              <a href={BASE + "/admin/export-seo"} style={{ background: '#10b981', color: '#fff', padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.875rem', fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)' }}>
+                Export SEO CSV
+              </a>
+              <Link href={BASE + "/admin/posts/new"} style={{ background: 'var(--primary)', color: '#fff', padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.875rem', fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)' }}>
+                + Create New Post
+              </Link>
+            </div>
           </div>
 
           {isMobile ? (
@@ -500,7 +506,7 @@ export default function AdminPage() {
                     
                     <div style={{ fontSize: '11px', color: '#64748b', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                       <span>📁 {post.category}</span>
-                      <span>📅 {post.date}</span>
+                      <span>📅 {post.date ? new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : ''}</span>
                       <span>✍️ {words} words</span>
                       <span style={{ color: (post.seoScore || 0) >= 80 ? '#059669' : '#d97706', fontWeight: 700 }}>📈 {post.seoScore || 0}% SEO</span>
                     </div>
@@ -545,7 +551,7 @@ export default function AdminPage() {
                             <div style={{ fontSize: '11px', color: '#64748b', marginTop: '0.25rem', display: 'flex', gap: '8px' }}>
                               <span>📁 {post.category}</span>
                               <span>•</span>
-                              <span>📅 {post.date}</span>
+                              <span>📅 {post.date ? new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : ''}</span>
                               <span>•</span>
                               <span>✍️ {words} words</span>
                             </div>
