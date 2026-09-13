@@ -106,10 +106,10 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
             View Profile
           </button>
           
-          {/* Write Review — Light outlined button */}
+          {/* Write Review — Blue pill button (Comments style) */}
           <button
             onClick={() => onOpenWriteReview(business.id)}
-            className="flex-1 flex items-center justify-center gap-1.5 bg-transparent hover:bg-amber-50 dark:hover:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-2 border-amber-500 dark:border-amber-500 hover:border-amber-600 text-center font-bold py-2.5 rounded-xl transition-all text-sm active:scale-[0.98]"
+            className="flex-1 flex items-center justify-center gap-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-center font-bold py-2.5 rounded-xl transition-all text-sm active:scale-[0.98]"
           >
             Write Review
           </button>

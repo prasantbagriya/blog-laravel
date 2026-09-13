@@ -314,7 +314,7 @@
     ]
   },
   "resources/js/Pages/Admin/PostForm.tsx": {
-    "file": "assets/PostForm-CwnsA2Nc.js",
+    "file": "assets/PostForm-Dq7Zxy8D.js",
     "name": "PostForm",
     "src": "resources/js/Pages/Admin/PostForm.tsx",
     "isDynamicEntry": true,
@@ -330,7 +330,7 @@
     ]
   },
   "resources/js/Pages/Admin/Posts/Edit.jsx": {
-    "file": "assets/Edit-BecUX19v.js",
+    "file": "assets/Edit-IeNUd_zm.js",
     "name": "Edit",
     "src": "resources/js/Pages/Admin/Posts/Edit.jsx",
     "isDynamicEntry": true,
@@ -343,7 +343,7 @@
     ]
   },
   "resources/js/Pages/Admin/Posts/New.jsx": {
-    "file": "assets/New-xJl_W5Cy.js",
+    "file": "assets/New-BN3Er1ep.js",
     "name": "New",
     "src": "resources/js/Pages/Admin/Posts/New.jsx",
     "isDynamicEntry": true,
@@ -778,7 +778,7 @@
     ]
   },
   "resources/js/Pages/Reviews/Index.tsx": {
-    "file": "assets/Index-CFIx0C-7.js",
+    "file": "assets/Index-C7j6pv98.js",
     "name": "Index",
     "src": "resources/js/Pages/Reviews/Index.tsx",
     "isDynamicEntry": true,
@@ -843,7 +843,7 @@
     ]
   },
   "resources/js/Pages/Reviews/components/BusinessCard.tsx": {
-    "file": "assets/BusinessCard-D_8uSomS.js",
+    "file": "assets/BusinessCard-DvWDFxZm.js",
     "name": "BusinessCard",
     "src": "resources/js/Pages/Reviews/components/BusinessCard.tsx",
     "isDynamicEntry": true,
@@ -944,7 +944,7 @@
     ]
   },
   "resources/js/Pages/Reviews/components/Navbar.tsx": {
-    "file": "assets/Navbar-By20SwnO.js",
+    "file": "assets/Navbar-B4V991hv.js",
     "name": "Navbar",
     "src": "resources/js/Pages/Reviews/components/Navbar.tsx",
     "isDynamicEntry": true,
@@ -1102,7 +1102,7 @@
     ]
   },
   "resources/js/Pages/Welcome.jsx": {
-    "file": "assets/Welcome-qJqX3Jfb.js",
+    "file": "assets/Welcome-ChY44x7c.js",
     "name": "Welcome",
     "src": "resources/js/Pages/Welcome.jsx",
     "isDynamicEntry": true,
@@ -1118,7 +1118,7 @@
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-Cuh6knch.js",
+    "file": "assets/app-DG7uz3gw.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,
@@ -1201,7 +1201,7 @@
       "resources/js/Pages/Welcome.jsx"
     ],
     "css": [
-      "assets/app-_CAV5IaW.css"
+      "assets/app-BZpE_NZy.css"
     ]
   }
 }

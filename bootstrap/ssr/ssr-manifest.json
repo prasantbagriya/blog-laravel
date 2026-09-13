@@ -6,8 +6,8 @@
     "/build/assets/laravel-vite-plugin-D9XPBWcO.js"
   ],
   "resources/css/app.css": [
-    "/build/assets/PostForm-CDMVpTSE.js",
-    "/build/assets/PostForm-_CAV5IaW.css"
+    "/build/assets/PostForm-DrDKBz1O.js",
+    "/build/assets/PostForm-BZpE_NZy.css"
   ],
   "resources/js/Components/AnimatedBorderCard.jsx": [
     "/build/assets/AnimatedBorderCard-kIZ2YD7I.js"
@@ -109,14 +109,14 @@
     "/build/assets/Index-D3Irxw5-.js"
   ],
   "resources/js/Pages/Admin/PostForm.tsx": [
-    "/build/assets/PostForm-CDMVpTSE.js",
-    "/build/assets/PostForm-_CAV5IaW.css"
+    "/build/assets/PostForm-DrDKBz1O.js",
+    "/build/assets/PostForm-BZpE_NZy.css"
   ],
   "resources/js/Pages/Admin/Posts/Edit.jsx": [
-    "/build/assets/Edit-DfrI_laP.js"
+    "/build/assets/Edit-CLKcArvL.js"
   ],
   "resources/js/Pages/Admin/Posts/New.jsx": [
-    "/build/assets/New-DEE0sMcp.js"
+    "/build/assets/New-C6U0BOdg.js"
   ],
   "resources/js/Pages/Admin/SeoAudit/Index.jsx": [
     "/build/assets/Index-CzhOTYPS.js"
@@ -212,7 +212,7 @@
     "/build/assets/UpdateProfileInformationForm-Dy8I--ud.js"
   ],
   "resources/js/Pages/Reviews/Index.tsx": [
-    "/build/assets/Index-CXfjWIXZ.js",
+    "/build/assets/Index-Dh_XCza0.js",
     "/build/assets/Index-x1XGuNl0.css"
   ],
   "resources/js/Pages/Reviews/components/AdminPanel.tsx": [
@@ -225,7 +225,7 @@
     "/build/assets/ApiDocsModal-Cnw480tN.js"
   ],
   "resources/js/Pages/Reviews/components/BusinessCard.tsx": [
-    "/build/assets/BusinessCard-BG1dG1Ew.js"
+    "/build/assets/BusinessCard-Cx1Euq7P.js"
   ],
   "resources/js/Pages/Reviews/components/BusinessDashboard.tsx": [
     "/build/assets/BusinessDashboard-C1JazekU.js"
@@ -249,7 +249,7 @@
     "/build/assets/ModeratorPanel-ChuM8IO4.js"
   ],
   "resources/js/Pages/Reviews/components/Navbar.tsx": [
-    "/build/assets/Navbar-DUwnxxSy.js"
+    "/build/assets/Navbar-BEWFQpzX.js"
   ],
   "resources/js/Pages/Reviews/components/SubmitReviewModal.tsx": [
     "/build/assets/SubmitReviewModal-cV6ol9sx.js"
@@ -258,7 +258,7 @@
     "/build/assets/mockData-WYrlIyrH.js"
   ],
   "resources/js/Pages/Reviews/index.css": [
-    "/build/assets/Index-CXfjWIXZ.js",
+    "/build/assets/Index-Dh_XCza0.js",
     "/build/assets/Index-x1XGuNl0.css"
   ],
   "resources/js/Pages/Search/Index.jsx": [
@@ -289,7 +289,7 @@
     "/build/assets/Show-BzcbCKvT.js"
   ],
   "resources/js/Pages/Welcome.jsx": [
-    "/build/assets/Welcome-D0u7Jq_G.js"
+    "/build/assets/Welcome-VyPSOwBr.js"
   ],
   "resources/js/ssr.jsx": []
 }

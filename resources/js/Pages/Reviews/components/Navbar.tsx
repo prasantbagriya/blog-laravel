@@ -182,7 +182,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 window.location.href = '/login?redirect=/reviews';
               }
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md bg-zinc-900 dark:bg-white hover:bg-black dark:hover:bg-gray-200 text-white hover:text-white dark:text-zinc-900 shadow-sm active:scale-95 transition-all whitespace-nowrap shrink-0"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 active:scale-95 transition-all whitespace-nowrap shrink-0"
             id="nav-write-review-btn"
           >
             <Plus className="w-3.5 h-3.5 stroke-[3]" />

@@ -60,7 +60,7 @@ const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses }) =>
     const handleSearch = (e) => {
         e.preventDefault();
         if (searchQuery.trim()) {
-            window.location.href = `${basePath || ''}/search?q=${encodeURIComponent(searchQuery)}`;
+            router.visit(`${basePath || ''}/search?q=${encodeURIComponent(searchQuery)}`);
         }
     };
 

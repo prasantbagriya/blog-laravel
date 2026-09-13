@@ -72,7 +72,7 @@ var HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses }) => {
 	}, [searchQuery, basePath]);
 	const handleSearch = (e) => {
 		e.preventDefault();
-		if (searchQuery.trim()) window.location.href = `${basePath || ""}/search?q=${encodeURIComponent(searchQuery)}`;
+		if (searchQuery.trim()) router.visit(`${basePath || ""}/search?q=${encodeURIComponent(searchQuery)}`);
 	};
 	return /* @__PURE__ */ jsxs("section", {
 		className: "relative w-full min-h-[500px] md:min-h-[600px] flex items-center overflow-hidden bg-slate-900",

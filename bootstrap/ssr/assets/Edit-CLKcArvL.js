@@ -1,9 +1,9 @@
 import { t as AdminLayout } from "./AdminLayout-CqhGBDWs.js";
-import PostForm from "./PostForm-CDMVpTSE.js";
+import PostForm from "./PostForm-DrDKBz1O.js";
 import { jsx } from "react/jsx-runtime";
 import { Suspense } from "react";
-//#region resources/js/Pages/Admin/Posts/New.jsx
-function NewPostPage() {
+//#region resources/js/Pages/Admin/Posts/Edit.jsx
+function EditPostPage({ post }) {
 	return /* @__PURE__ */ jsx(Suspense, {
 		fallback: /* @__PURE__ */ jsx("div", {
 			style: {
@@ -12,9 +12,9 @@ function NewPostPage() {
 			},
 			children: "Loading Sovereign Editor..."
 		}),
-		children: /* @__PURE__ */ jsx(PostForm, {})
+		children: /* @__PURE__ */ jsx(PostForm, { post })
 	});
 }
-NewPostPage.layout = (page) => /* @__PURE__ */ jsx(AdminLayout, { children: page });
+EditPostPage.layout = (page) => /* @__PURE__ */ jsx(AdminLayout, { children: page });
 //#endregion
-export { NewPostPage as default };
+export { EditPostPage as default };

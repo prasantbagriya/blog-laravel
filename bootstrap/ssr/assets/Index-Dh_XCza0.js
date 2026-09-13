@@ -3,7 +3,7 @@ import { t as BlogFooter } from "./BlogFooter-L7SI1qpL.js";
 import { t as INITIAL_CATEGORIES } from "./mockData-WYrlIyrH.js";
 import { HeroSection } from "./HeroSection-CXoFLCeq.js";
 import { CategoryGrid } from "./CategoryGrid-CMSR5viJ.js";
-import { BusinessCard } from "./BusinessCard-BG1dG1Ew.js";
+import { BusinessCard } from "./BusinessCard-Cx1Euq7P.js";
 import { BusinessProfileView } from "./BusinessProfileView-CTAslfzK.js";
 import { SubmitReviewModal } from "./SubmitReviewModal-cV6ol9sx.js";
 import { CreateBusinessModal } from "./CreateBusinessModal-DcLw8nnK.js";
