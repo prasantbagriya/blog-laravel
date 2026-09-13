@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowBigUp, ArrowBigDown, MessageSquare, Share, Bookmark, MoreHorizontal, TrendingUp, Flame, Sparkles, Link as LinkIcon, Flag, Trash, PenSquare, Shield, Plus } from 'lucide-react';
-import Navbar from '@/Components/Navbar';
+import { ArrowBigUp, ArrowBigDown, MessageSquare, Share, Bookmark, MoreHorizontal, TrendingUp, Flame, Sparkle, Link as LinkIcon, Flag, Trash, PenSquare, Shield, Plus, Users, CircleDot } from 'lucide-react';
+import GlobalNavbar from '@/NextComponents/GlobalNavbar';
 import ReportModal from '@/Components/ReportModal';
 import PostCard from '@/Components/PostCard';
 
@@ -64,58 +64,66 @@ export default function Show({ auth, community, posts, currentSort = 'new' }) {
     }, [loadMorePosts, nextPageUrl, loadingMore]);
 
     return (
-        <div className="min-h-screen bg-[#F2F4F5] text-[#1C1C1C] font-sans pb-20">
+        <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-white font-sans transition-colors selection:bg-blue-500/30">
             <Head title={community.display_name} />
             
-            <Navbar auth={auth} />
+            <GlobalNavbar auth={auth} />
 
             {/* Community Banner */}
-            <div 
-                className="h-32 sm:h-48 w-full bg-cover bg-center"
-                style={{ backgroundImage: `url(${community.banner_image || 'https://www.redditstatic.com/desktop2x/img/id-cards/home-banner@2x.png'})` }}
-            >
-            </div>
-
-            {/* Community Header Content */}
-            <div className="bg-white border-b border-[#EDEFF1]">
-                <div className="w-full mx-auto px-4">
-                    <div className="flex items-start pb-4">
-                        <img 
-                            src={community.icon_image || 'https://www.redditstatic.com/desktop2x/img/id-cards/snoo-home@2x.png'} 
-                            alt={community.name} 
-                            className="w-[72px] h-[72px] rounded-full border-4 border-white bg-white -mt-4 object-cover z-10"
-                        />
-                        <div className="ml-4 mt-3 flex-1 flex flex-wrap items-start justify-between gap-4">
-                            <div>
-                                <h1 className="text-[28px] font-bold text-[#1C1C1C] leading-none mb-1">
-                                    {community.display_name}
-                                </h1>
-                                <p className="text-[14px] font-bold text-[#787C7E]">
-                                    r/{community.name}
-                                </p>
-                            </div>
-                            <div className="flex gap-2 mt-1">
-                                {(community.is_owner || community.is_moderator) && (
-                                    <Link href={`/community/${community.name}/edit`} className="px-4 py-1.5 font-bold rounded-full transition-colors text-[14px] bg-white text-[#1C1C1C] hover:bg-[#F6F7F8] flex items-center gap-1">
-                                        Mod Tools
-                                    </Link>
+            <div className="relative">
+                <div 
+                    className="h-40 sm:h-56 w-full bg-cover bg-center"
+                    style={{ backgroundImage: `url(${community.banner_image || 'https://www.transparenttextures.com/patterns/carbon-fibre.png'})` }}
+                >
+                    {!community.banner_image && <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 opacity-90"></div>}
+                </div>
+                
+                {/* Community Header Content */}
+                <div className="bg-white dark:bg-zinc-900 border-b border-slate-200 dark:border-zinc-800 shadow-sm relative z-10">
+                    <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6">
+                        <div className="flex items-start pb-6">
+                            <div className="relative -mt-8 sm:-mt-12 z-20">
+                                {community.icon_image ? (
+                                    <img 
+                                        src={community.icon_image} 
+                                        alt={community.name} 
+                                        className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border-4 border-white dark:border-zinc-900 bg-white dark:bg-zinc-800 object-cover shadow-md"
+                                    />
+                                ) : (
+                                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border-4 border-white dark:border-zinc-900 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 font-extrabold text-4xl flex items-center justify-center shadow-md">
+                                        {community.name.charAt(0).toUpperCase()}
+                                    </div>
                                 )}
-                                <button 
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        if (!auth?.user) {
-                                            router.visit('/login');
-                                            return;
-                                        }
-                                        router.post(`/community/${community.id}/join`, {}, { preserveScroll: true });
-                                    }}
-                                    className={`px-8 py-1.5 font-bold rounded-full transition-colors text-[14px] border border-[#4F46E5] ${community.is_member ? 'bg-white text-[#4F46E5] hover:bg-[#F6F7F8]' : 'bg-[#4F46E5] hover:bg-[#4338CA] text-white'}`}
-                                >
-                                    {community.is_member ? 'Joined' : 'Join'}
-                                </button>
-                                <button className="text-[#1C1C1C] hover:text-[#0079D3] transition-colors">
-                                    <MoreHorizontal size={20} />
-                                </button>
+                            </div>
+                            <div className="ml-5 sm:ml-6 mt-4 flex-1 flex flex-wrap items-start justify-between gap-6">
+                                <div>
+                                    <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white leading-tight tracking-tight mb-1">
+                                        {community.display_name}
+                                    </h1>
+                                    <p className="text-sm font-bold text-slate-500 dark:text-zinc-400">
+                                        r/{community.name}
+                                    </p>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    {(community.is_owner || community.is_moderator) && (
+                                        <Link href={`/community/${community.name}/edit`} className="px-5 py-2 font-bold rounded-xl transition-all text-sm border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-700 flex items-center gap-2 shadow-sm active:scale-[0.98]">
+                                            <Shield size={16} className="text-amber-500" /> Mod Tools
+                                        </Link>
+                                    )}
+                                    <button 
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            if (!auth?.user) {
+                                                router.visit('/login');
+                                                return;
+                                            }
+                                            router.post(`/community/${community.id}/join`, {}, { preserveScroll: true });
+                                        }}
+                                        className={`px-8 py-2 font-bold rounded-xl transition-all text-sm shadow-sm active:scale-[0.98] ${community.is_member ? 'bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-300 dark:border-zinc-600 hover:bg-slate-50 dark:hover:bg-zinc-700' : 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-black dark:hover:bg-slate-100'}`}
+                                    >
+                                        {community.is_member ? 'Joined' : 'Join Community'}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -123,97 +131,110 @@ export default function Show({ auth, community, posts, currentSort = 'new' }) {
             </div>
 
             {/* Main Content */}
-            <div className="w-full mx-auto pt-6 px-4 flex gap-6">
+            <div className="max-w-[1400px] w-full mx-auto pt-8 px-4 sm:px-6 flex gap-8">
                 
                 {/* Main Feed */}
-                <div className="flex-1 space-y-4">
+                <div className="flex-1 max-w-3xl pb-24">
                     
                     {/* Create Post Input */}
-                    <Link href={`/submit?community_id=${community.id}`} className="bg-white rounded-md p-2 flex gap-2 items-center cursor-text mb-4">
-                        <div className="w-10 h-10 rounded-full bg-[#4F46E5] flex-shrink-0 ml-2 flex items-center justify-center">
-                            <span className="text-white font-bold text-lg">N</span>
+                    <Link href={`/submit?community_id=${community.id}`} className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-4 flex gap-4 items-center cursor-text mb-6 shadow-sm hover:shadow-md transition-shadow group">
+                        <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 border-2 border-white dark:border-zinc-800 flex-shrink-0 flex items-center justify-center shadow-sm">
+                            <span className="text-blue-600 dark:text-blue-400 font-extrabold text-lg">{auth?.user?.name ? auth.user.name.charAt(0).toUpperCase() : 'U'}</span>
                         </div>
                         <div 
-                            className="flex-1 bg-[#F6F7F8] hover:bg-[#E2E7E9] rounded-full py-2.5 px-5 text-[14px] text-[#878A8C] transition-colors flex items-center font-medium"
+                            className="flex-1 bg-slate-50 dark:bg-zinc-800/50 group-hover:bg-slate-100 dark:group-hover:bg-zinc-800 border border-slate-100 dark:border-zinc-700/50 rounded-xl py-3 px-5 text-sm text-slate-500 dark:text-zinc-400 transition-colors flex items-center font-medium"
                         >
-                            Create Post
+                            Create Post...
                         </div>
-                        <button className="text-[#878A8C] hover:text-[#1C1C1C] transition-colors mr-1">
-                            <Plus size={24} />
-                        </button>
+                        <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 flex items-center justify-center group-hover:bg-blue-50 dark:group-hover:bg-blue-500/10 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                            <Plus size={22} strokeWidth={2.5} />
+                        </div>
                     </Link>
 
-                    {/* Sort Bar (Linear/Minimalist Style) */}
-                    <div className="flex gap-2 items-center mb-4">
+                    {/* Sort Bar */}
+                    <div className="flex gap-2 items-center mb-6 pb-4 border-b border-slate-200 dark:border-zinc-800 overflow-x-auto scrollbar-hide">
                         <button 
                             onClick={() => router.get(window.location.pathname, { sort: 'hot' }, { preserveScroll: true, preserveState: true })}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-medium text-[13px] transition-colors border shadow-sm ${currentSort === 'hot' ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300'}`}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${currentSort === 'hot' ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md' : 'bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-zinc-700'}`}
                         >
-                            <Flame size={16} />
+                            <Flame size={18} strokeWidth={currentSort === 'hot' ? 2.5 : 2} className={currentSort === 'hot' ? '' : 'text-rose-500'} />
                             Hot
                         </button>
                         <button 
                             onClick={() => router.get(window.location.pathname, { sort: 'new' }, { preserveScroll: true, preserveState: true })}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-medium text-[13px] transition-colors border shadow-sm ${currentSort === 'new' ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300'}`}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${currentSort === 'new' ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md' : 'bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-zinc-700'}`}
                         >
-                            <Sparkles size={16} />
+                            <Sparkle size={18} strokeWidth={currentSort === 'new' ? 2.5 : 2} className={currentSort === 'new' ? '' : 'text-blue-500'} />
                             New
                         </button>
                         <button 
                             onClick={() => router.get(window.location.pathname, { sort: 'top' }, { preserveScroll: true, preserveState: true })}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-medium text-[13px] transition-colors border shadow-sm ${currentSort === 'top' ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300'}`}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${currentSort === 'top' ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md' : 'bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-zinc-700'}`}
                         >
-                            <TrendingUp size={16} />
+                            <TrendingUp size={18} strokeWidth={currentSort === 'top' ? 2.5 : 2} className={currentSort === 'top' ? '' : 'text-emerald-500'} />
                             Top
                         </button>
                     </div>
 
                     {/* Posts List */}
-                    {allPosts.map((post) => (
-                        <PostCard key={post.id} post={post} auth={auth} openReportModal={openReportModal} />
-                    ))}
+                    <div className="space-y-6">
+                        {allPosts.map((post) => (
+                            <PostCard key={post.id} post={post} auth={auth} openReportModal={openReportModal} />
+                        ))}
+                    </div>
                     
                     {nextPageUrl && (
-                        <div ref={loadMoreRef} className="py-8 flex justify-center items-center">
+                        <div ref={loadMoreRef} className="py-12 flex justify-center items-center">
                             {loadingMore ? (
-                                <div className="w-8 h-8 border-4 border-[#0079D3] border-t-transparent rounded-full animate-spin"></div>
+                                <div className="w-10 h-10 border-4 border-blue-600 dark:border-blue-500 border-t-transparent rounded-full animate-spin shadow-sm"></div>
                             ) : (
-                                <div className="text-[14px] text-[#878A8C] font-medium">Scroll for more posts</div>
+                                <div className="text-sm text-slate-500 dark:text-zinc-400 font-bold bg-white dark:bg-zinc-900 px-6 py-2 rounded-full border border-slate-200 dark:border-zinc-800 shadow-sm">Scroll for more posts</div>
                             )}
                         </div>
                     )}
                 </div>
 
                 {/* Sidebar */}
-                <div className="hidden lg:block w-[312px] flex-shrink-0 space-y-4">
-                    <div className="bg-white border border-[#EDEFF1] rounded-md p-3">
-                        <div className="bg-[#0079D3] rounded-t-md p-3 -m-3 mb-3 text-white font-bold text-[14px]">
-                            About Community
-                        </div>
-                        <p className="text-[14px] text-[#1C1C1C] mb-4 mt-2">{community.description}</p>
-                        
-                        <div className="flex gap-4 border-t border-b border-[#EDEFF1] py-3 mb-4">
-                            <div className="flex-1 text-left">
-                                <div className="font-bold text-[16px] text-[#1C1C1C] leading-none">{community.members_count.toLocaleString()}</div>
-                                <div className="text-[12px] text-[#787C7E] font-medium mt-1">Members</div>
+                <div className="hidden lg:block w-[320px] flex-shrink-0 space-y-6">
+                    
+                    {/* About Card */}
+                    <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-sm">
+                        <div className="px-6 py-4 border-b border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/50 flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-200 dark:border-blue-800">
+                                <Users size={16} strokeWidth={2.5} />
                             </div>
-                            <div className="flex-1 text-left border-l border-[#EDEFF1] pl-4">
-                                <div className="font-bold text-[16px] text-[#1C1C1C] flex items-center gap-1 leading-none">
-                                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                                    {community.online_count.toLocaleString()}
+                            <h3 className="font-extrabold text-slate-900 dark:text-white tracking-wide">About Community</h3>
+                        </div>
+                        <div className="p-6">
+                            <p className="text-sm font-medium text-slate-600 dark:text-zinc-400 leading-relaxed mb-6">
+                                {community.description}
+                            </p>
+                            
+                            <div className="grid grid-cols-2 gap-4 border-t border-b border-slate-100 dark:border-zinc-800 py-4 mb-6">
+                                <div>
+                                    <div className="font-extrabold text-xl text-slate-900 dark:text-white leading-tight">{community.members_count.toLocaleString()}</div>
+                                    <div className="text-xs font-bold text-slate-500 dark:text-zinc-500 mt-1 uppercase tracking-wider">Members</div>
                                 </div>
-                                <div className="text-[12px] text-[#787C7E] font-medium mt-1">Online</div>
+                                <div className="pl-4 border-l border-slate-100 dark:border-zinc-800">
+                                    <div className="font-extrabold text-xl text-emerald-600 dark:text-emerald-400 flex items-center gap-2 leading-tight">
+                                        <CircleDot size={12} className="fill-current animate-pulse" />
+                                        {community.online_count.toLocaleString()}
+                                    </div>
+                                    <div className="text-xs font-bold text-slate-500 dark:text-zinc-500 mt-1 uppercase tracking-wider">Online</div>
+                                </div>
+                            </div>
+                            
+                            <div className="space-y-3">
+                                <Link href={`/submit?community_id=${community.id}`} className="flex justify-center items-center py-2.5 px-4 rounded-xl text-sm font-bold text-white bg-slate-900 hover:bg-black dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 transition-all active:scale-[0.98] shadow-md w-full">
+                                    Create Post
+                                </Link>
+                                {(community.is_owner || community.is_moderator) && (
+                                    <Link href={`/community/${community.name}/modqueue`} className="flex justify-center items-center py-2.5 px-4 rounded-xl text-sm font-bold text-slate-700 dark:text-zinc-300 bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-all active:scale-[0.98] shadow-sm w-full">
+                                        Mod Queue
+                                    </Link>
+                                )}
                             </div>
                         </div>
-                        
-                        {(community.is_owner || community.is_moderator) && (
-                            <Link href={`/community/${community.name}/modqueue`} className="flex items-center justify-center w-full py-1.5 bg-white text-[#0079D3] hover:bg-[#F6F7F8] font-bold rounded-full text-[14px] transition-colors mb-2">
-                                Mod Queue
-                            </Link>
-                        )}
-                        <Link href={`/submit?community_id=${community.id}`} className="flex items-center justify-center w-full py-1.5 bg-[#F6F7F8] hover:bg-[#E2E7E9] text-[#1C1C1C] font-bold rounded-full text-[14px] transition-colors mb-2 border-0 outline-none focus:outline-none focus:ring-0">
-                            Create Post
-                        </Link>
                     </div>
                 </div>
 

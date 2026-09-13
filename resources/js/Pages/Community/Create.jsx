@@ -1,8 +1,9 @@
 import React from 'react';
 import { Head, useForm, Link } from '@inertiajs/react';
 import { Users, Info } from 'lucide-react';
+import GlobalNavbar from '@/NextComponents/GlobalNavbar';
 
-export default function CreateCommunity() {
+export default function CreateCommunity({ auth }) {
     const { data, setData, post, processing, errors } = useForm({
         name: '',
         display_name: '',
@@ -15,81 +16,79 @@ export default function CreateCommunity() {
     };
 
     return (
-        <div className="min-h-screen bg-[#F2F4F5] text-[#1C1C1C] font-sans pb-20">
+        <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-white font-sans transition-colors selection:bg-blue-500/30 pb-20">
             <Head title="Create a Community" />
             
-            <header className="sticky top-0 z-50 bg-white border-b border-[#EDEFF1]">
-                <div className="w-full px-4 sm:px-6 h-14 flex items-center justify-between">
-                    <Link href="/feed" className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-[#4F46E5] flex items-center justify-center">
-                            <span className="text-white font-black text-lg">N</span>
-                        </div>
-                        <span className="font-extrabold text-xl tracking-tight hidden sm:block">
-                            coachinginsikar
-                        </span>
-                    </Link>
-                </div>
-            </header>
+            <GlobalNavbar auth={auth} />
 
-            <div className="w-full mx-auto pt-10 px-4">
-                <div className="flex items-center gap-3 mb-6 border-b border-[#EDEFF1] pb-4">
-                    <Users size={32} className="text-[#0079D3]" />
-                    <h1 className="text-2xl font-bold">Create a Community</h1>
+            <div className="max-w-3xl mx-auto pt-32 px-4 sm:px-6">
+                <div className="flex items-center gap-4 mb-8 border-b border-slate-200 dark:border-zinc-800 pb-6">
+                    <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center border border-blue-200 dark:border-blue-800 shadow-sm">
+                        <Users size={24} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                        <h1 className="text-3xl font-extrabold tracking-tight">Create a Community</h1>
+                        <p className="text-sm font-medium text-slate-500 dark:text-zinc-400 mt-1">Start a new place for discussion and sharing.</p>
+                    </div>
                 </div>
 
-                <div className="bg-white rounded-md border border-[#EDEFF1] p-6 shadow-sm">
-                    <form onSubmit={submit} className="space-y-6">
+                <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200 dark:border-zinc-800 p-8 shadow-sm">
+                    <form onSubmit={submit} className="space-y-8">
                         
                         <div>
-                            <label className="block font-bold text-[16px] text-[#1C1C1C] mb-1">Name</label>
-                            <p className="text-[12px] text-[#787C7E] mb-2">Community names including capitalization cannot be changed.</p>
-                            <div className="relative">
-                                <span className="absolute left-3 top-2.5 text-[#787C7E] font-medium">r/</span>
+                            <label className="block font-extrabold text-lg text-slate-900 dark:text-white mb-1">Name</label>
+                            <p className="text-sm font-medium text-slate-500 dark:text-zinc-400 mb-3">Community names including capitalization cannot be changed once created.</p>
+                            <div className="relative flex items-center">
+                                <span className="absolute left-4 text-slate-400 dark:text-zinc-500 font-extrabold text-lg">r/</span>
                                 <input
                                     type="text"
                                     value={data.name}
                                     onChange={(e) => setData('name', e.target.value)}
                                     maxLength={21}
-                                    className="w-full bg-white border border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md py-2.5 pl-7 pr-3 text-[14px] outline-none transition-colors"
+                                    className="w-full bg-slate-100 dark:bg-zinc-800/80 border-0 shadow-inner hover:bg-slate-200/60 dark:hover:bg-zinc-800 focus:ring-2 focus:ring-blue-500/50 rounded-xl py-3.5 pl-10 pr-4 text-base font-bold text-slate-900 dark:text-white outline-none transition-all placeholder-slate-400"
+                                    placeholder="e.g. jee-preparation"
                                 />
                             </div>
-                            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
-                            <p className="text-[12px] text-[#787C7E] mt-1">{21 - data.name.length} Characters remaining</p>
+                            {errors.name && <p className="text-rose-500 text-sm font-bold mt-2">{errors.name}</p>}
+                            <p className="text-xs font-bold text-slate-400 dark:text-zinc-500 mt-2">{21 - data.name.length} Characters remaining</p>
                         </div>
 
                         <div>
-                            <label className="block font-bold text-[16px] text-[#1C1C1C] mb-1">Display Name (Optional)</label>
+                            <label className="block font-extrabold text-lg text-slate-900 dark:text-white mb-1">Display Name <span className="text-slate-400 font-medium text-sm">(Optional)</span></label>
+                            <p className="text-sm font-medium text-slate-500 dark:text-zinc-400 mb-3">This is the title that shows up on the community banner.</p>
                             <input
                                 type="text"
                                 value={data.display_name}
                                 onChange={(e) => setData('display_name', e.target.value)}
-                                className="w-full bg-white border border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md py-2.5 px-3 text-[14px] outline-none transition-colors"
+                                className="w-full bg-slate-100 dark:bg-zinc-800/80 border-0 shadow-inner hover:bg-slate-200/60 dark:hover:bg-zinc-800 focus:ring-2 focus:ring-blue-500/50 rounded-xl py-3.5 px-4 text-base font-bold text-slate-900 dark:text-white outline-none transition-all placeholder-slate-400"
+                                placeholder="e.g. JEE Main & Advanced Discussion"
                             />
-                            {errors.display_name && <p className="text-red-500 text-xs mt-1">{errors.display_name}</p>}
+                            {errors.display_name && <p className="text-rose-500 text-sm font-bold mt-2">{errors.display_name}</p>}
                         </div>
 
                         <div>
-                            <label className="block font-bold text-[16px] text-[#1C1C1C] mb-1">Description</label>
-                            <p className="text-[12px] text-[#787C7E] mb-2">This is how new members come to understand your community.</p>
+                            <label className="block font-extrabold text-lg text-slate-900 dark:text-white mb-1">Description</label>
+                            <p className="text-sm font-medium text-slate-500 dark:text-zinc-400 mb-3">This is how new members come to understand your community.</p>
                             <textarea
                                 value={data.description}
                                 onChange={(e) => setData('description', e.target.value)}
                                 rows="4"
-                                className="w-full bg-white border border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md py-2.5 px-3 text-[14px] outline-none transition-colors resize-none"
+                                className="w-full bg-slate-100 dark:bg-zinc-800/80 border-0 shadow-inner hover:bg-slate-200/60 dark:hover:bg-zinc-800 focus:ring-2 focus:ring-blue-500/50 rounded-xl py-3.5 px-4 text-base font-medium text-slate-900 dark:text-white outline-none transition-all resize-y placeholder-slate-400"
+                                placeholder="Welcome to our community..."
                             ></textarea>
-                            {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
+                            {errors.description && <p className="text-rose-500 text-sm font-bold mt-2">{errors.description}</p>}
                         </div>
 
-                        <div className="pt-4 border-t border-[#EDEFF1] flex justify-end gap-3">
-                            <Link href="/feed" className="px-5 py-2 font-bold text-[14px] text-[#0079D3] hover:bg-[#F6F7F8] rounded-full transition-colors border-0 outline-none focus:outline-none focus:ring-0">
+                        <div className="pt-6 border-t border-slate-100 dark:border-zinc-800 flex justify-end gap-4">
+                            <Link href="/feed" className="px-6 py-3 font-bold text-sm text-slate-600 dark:text-zinc-300 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 rounded-xl transition-all border border-slate-200 dark:border-zinc-700 shadow-sm active:scale-[0.98]">
                                 Cancel
                             </Link>
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="px-5 py-2 font-bold text-[14px] bg-[#0079D3] hover:bg-[#005EAC] text-white rounded-full transition-colors disabled:opacity-50 border-0 outline-none focus:outline-none focus:ring-0"
+                                className="px-8 py-3 font-bold text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all disabled:opacity-50 active:scale-[0.98] shadow-md shadow-blue-600/20"
                             >
-                                Create Community
+                                {processing ? 'Creating...' : 'Create Community'}
                             </button>
                         </div>
 

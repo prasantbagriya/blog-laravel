@@ -1,0 +1,8 @@
+import{i as e}from"./rolldown-runtime-aKtaBQYM.js";import{o as t}from"./@headlessui-LjYw_IeJ.js";import{D as n}from"./@tiptap-BmSRQcam.js";var r=e(t(),1),i=n();function a({children:e,className:t=``,containerClassName:n=``,...a}){let o=(0,r.useRef)(null),[s,c]=(0,r.useState)(!1);return(0,r.useEffect)(()=>{if(!o.current)return;let e=new IntersectionObserver(e=>{e.forEach(e=>{c(e.isIntersecting)})},{root:null,rootMargin:`-30% 0px -30% 0px`,threshold:0});return e.observe(o.current),()=>e.disconnect()},[]),(0,i.jsxs)(`div`,{ref:o,className:`group relative overflow-hidden rounded-3xl transition-transform duration-300 ${n}`,...a,children:[(0,i.jsx)(`div`,{className:`absolute inset-[-50%] transition-opacity duration-500 ease-in-out pointer-events-none z-0 
+                ${s?`opacity-100 sm:opacity-0`:`opacity-0`} group-hover:opacity-100`,style:{background:`conic-gradient(from 0deg, transparent 0 340deg, #3b82f6 360deg)`,animation:`spin 3s linear infinite`}}),(0,i.jsx)(`div`,{className:`absolute inset-0 border border-slate-200/60 dark:border-zinc-700/50 rounded-3xl pointer-events-none transition-opacity duration-300 z-10 
+                ${s?`opacity-0 sm:opacity-100`:`opacity-100`} group-hover:opacity-0`}),(0,i.jsx)(`div`,{className:`relative z-10 m-[2px] h-[calc(100%-4px)] w-[calc(100%-4px)] rounded-[calc(1.5rem-2px)] overflow-hidden bg-white dark:bg-zinc-900 ${t}`,children:e}),(0,i.jsx)(`style`,{children:`
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+            `})]})}export{a as t};

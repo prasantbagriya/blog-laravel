@@ -175,6 +175,7 @@ Route::get('/api/businesses/{businessId}/reviews', [\App\Http\Controllers\Api\Re
 Route::post('/api/reviews', [\App\Http\Controllers\Api\ReviewController::class, 'store'])->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
 Route::post('/api/reviews/{id}/vote', [\App\Http\Controllers\Api\ReviewController::class, 'vote'])->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
 Route::post('/api/reviews/{id}/reply', [\App\Http\Controllers\Api\ReviewController::class, 'reply'])->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+Route::get('/api/search/suggestions', [\App\Http\Controllers\SearchController::class, 'suggestions']);
 
 require __DIR__.'/auth.php';
 

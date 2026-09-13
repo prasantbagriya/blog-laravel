@@ -1,79 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
-import { Home, Compass, Plus, Flame, Sparkles, TrendingUp, MoreHorizontal, Link as LinkIcon, Flag, Trash } from 'lucide-react';
-import Navbar from '@/Components/Navbar';
+import { Home, Compass, Plus, Flame, Sparkles, TrendingUp, Sparkle, Search } from 'lucide-react';
+import GlobalNavbar from '@/NextComponents/GlobalNavbar';
 import ReportModal from '@/Components/ReportModal';
 import PostCard from '@/Components/PostCard';
 
-const PostDropdown = ({ post, auth, onReport }) => {
-    const [isOpen, setIsOpen] = useState(false);
-
-    return (
-        <div className="relative">
-            <button 
-                onClick={(e) => { e.preventDefault(); setIsOpen(!isOpen); }}
-                className="hover:bg-[#E2E7E9] px-2 py-1.5 rounded-full transition-colors font-bold text-[12px] text-[#878A8C] border-0 outline-none focus:outline-none focus:ring-0"
-            >
-                <MoreHorizontal size={18} strokeWidth={2} />
-            </button>
-            
-            {isOpen && (
-                <>
-                    <div className="fixed inset-0 z-10" onClick={(e) => { e.preventDefault(); setIsOpen(false); }}></div>
-                    <div className="absolute bottom-full right-0 mb-2 w-48 bg-white border border-[#EDEFF1] rounded-md shadow-lg z-20 py-1 overflow-hidden">
-                        <button 
-                            onClick={(e) => {
-                                e.preventDefault();
-                                navigator.clipboard.writeText(`${window.location.origin}/r/${post.community}/comments/${post.id}`);
-                                alert('Link copied to clipboard!');
-                                setIsOpen(false);
-                            }}
-                            className="w-full text-left px-4 py-2 hover:bg-[#F6F7F8] text-[14px] font-medium text-[#1C1C1C] flex items-center gap-2"
-                        >
-                            <LinkIcon size={16} /> Copy Link
-                        </button>
-                        <button 
-                            onClick={(e) => {
-                                e.preventDefault();
-                                onReport(post.id, 'post');
-                                setIsOpen(false);
-                            }}
-                            className="w-full text-left px-4 py-2 hover:bg-[#F6F7F8] text-[14px] font-medium text-[#1C1C1C] flex items-center gap-2"
-                        >
-                            <Flag size={16} /> Report
-                        </button>
-                        
-                        {auth?.user?.username === post.author.username && (
-                            <>
-                                <Link 
-                                    href={`/submit?edit=${post.id}`}
-                                    className="w-full text-left px-4 py-2 hover:bg-[#F6F7F8] text-[14px] font-medium text-[#1C1C1C] flex items-center gap-2 border-t border-[#EDEFF1]"
-                                >
-                                    <span className="w-4 h-4 flex items-center justify-center border border-current rounded-sm">E</span> Edit Post
-                                </Link>
-                                <button 
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        if(confirm('Are you sure you want to delete this post?')) {
-                                            router.delete(`/posts/${post.id}`);
-                                        }
-                                        setIsOpen(false);
-                                    }}
-                                    className="w-full text-left px-4 py-2 hover:bg-red-50 text-[14px] font-medium text-red-600 flex items-center gap-2"
-                                >
-                                    <Trash size={16} /> Delete Post
-                                </button>
-                            </>
-                        )}
-                    </div>
-                </>
-            )}
-        </div>
-    );
-};
-
 export default function Feed({ auth, posts, currentSort = 'new', currentFilter = 'home' }) {
     const [reportModalData, setReportModalData] = useState({ isOpen: false, id: null, type: null });
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
     const openReportModal = (id, type) => {
         if (!auth?.user) {
@@ -150,7 +85,7 @@ export default function Feed({ auth, posts, currentSort = 'new', currentFilter =
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-white font-sans pb-20 transition-colors">
+        <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-white font-sans transition-colors selection:bg-blue-500/30">
             <Head title="coachingsinsikar - The Front Page of the Internet">
                 <meta name="description" content="Welcome to coachingsinsikar. Join communities, share posts, and discuss your favorite topics on the front page of the internet." />
                 <meta property="og:title" content="coachingsinsikar - The Front Page of the Internet" />
@@ -166,30 +101,56 @@ export default function Feed({ auth, posts, currentSort = 'new', currentFilter =
                 </script>
             </Head>
             
-            <Navbar auth={auth} />
+            <GlobalNavbar auth={auth} />
 
-            <div className="w-full mx-auto pt-6 px-4 flex gap-6">
+            <div className="max-w-[1400px] w-full mx-auto pt-32 px-4 sm:px-6 flex gap-8">
                 
+                {/* Mobile Sidebar Overlay */}
+                {isMobileSidebarOpen && (
+                    <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setIsMobileSidebarOpen(false)}></div>
+                )}
+
                 {/* Left Sidebar */}
-                <div className="hidden lg:block w-64 flex-shrink-0">
-                    <div className="sticky top-20 space-y-2">
-                        <Link href="/feed?filter=home" className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-colors ${currentFilter === 'home' ? 'bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-sm font-bold' : 'text-slate-600 dark:text-zinc-300 hover:bg-white dark:hover:bg-zinc-900 hover:shadow-sm'}`}>
-                            <Home size={22} strokeWidth={currentFilter === 'home' ? 2.5 : 2} className={currentFilter === 'home' ? 'text-blue-600' : 'text-slate-400 dark:text-zinc-500'} /> Home
+                <div className={`fixed inset-y-0 left-0 transform ${isMobileSidebarOpen ? 'translate-x-0 z-[60] shadow-2xl opacity-100 visible' : '-translate-x-full z-0 shadow-none opacity-0 invisible lg:opacity-100 lg:visible'} lg:relative lg:translate-x-0 lg:z-10 lg:block flex-shrink-0 transition-all duration-300 ${isSidebarCollapsed ? 'w-64 lg:w-20' : 'w-64'} bg-white dark:bg-zinc-950 lg:bg-transparent lg:shadow-none pt-0 h-[100dvh] lg:h-auto flex flex-col`}>
+                    <div className="flex items-center justify-between p-4 lg:hidden border-b border-slate-100 dark:border-zinc-800">
+                        <span className="font-bold text-slate-800 dark:text-white">Menu</span>
+                        <button onClick={() => setIsMobileSidebarOpen(false)} className="p-2 bg-slate-100 dark:bg-zinc-800 rounded-full text-slate-500">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto lg:overflow-visible p-4 lg:p-0 lg:sticky lg:top-28 space-y-1">
+                        {/* Toggle Button for Desktop */}
+                        <button 
+                            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} 
+                            className="hidden lg:flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-500 hover:text-blue-600 hover:bg-blue-50 mb-4 transition-colors shadow-sm ml-auto"
+                        >
+                            <svg className={`w-4 h-4 transition-transform duration-300 ${isSidebarCollapsed ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                            </svg>
+                        </button>
+
+                        <Link href="/feed?filter=home" className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${currentFilter === 'home' ? 'bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-sm border border-slate-200 dark:border-zinc-800 font-bold' : 'text-slate-600 dark:text-zinc-400 hover:bg-white dark:hover:bg-zinc-900 hover:shadow-sm hover:text-slate-900 dark:hover:text-white border border-transparent hover:border-slate-200 dark:hover:border-zinc-800'}`}>
+                            <Home size={20} strokeWidth={currentFilter === 'home' ? 2.5 : 2} className={currentFilter === 'home' ? 'text-blue-600 flex-shrink-0' : 'text-slate-400 dark:text-zinc-500 flex-shrink-0'} /> 
+                            <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Home</span>
                         </Link>
-                        <Link href="/feed?filter=popular" className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-colors ${currentFilter === 'popular' ? 'bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-sm font-bold' : 'text-slate-600 dark:text-zinc-300 hover:bg-white dark:hover:bg-zinc-900 hover:shadow-sm'}`}>
-                            <Compass size={22} strokeWidth={currentFilter === 'popular' ? 2.5 : 2} className={currentFilter === 'popular' ? 'text-amber-500' : 'text-slate-400 dark:text-zinc-500'} /> Popular
+                        <Link href="/feed?filter=popular" className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${currentFilter === 'popular' ? 'bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-sm border border-slate-200 dark:border-zinc-800 font-bold' : 'text-slate-600 dark:text-zinc-400 hover:bg-white dark:hover:bg-zinc-900 hover:shadow-sm hover:text-slate-900 dark:hover:text-white border border-transparent hover:border-slate-200 dark:hover:border-zinc-800'}`}>
+                            <Compass size={20} strokeWidth={currentFilter === 'popular' ? 2.5 : 2} className={currentFilter === 'popular' ? 'text-amber-500 flex-shrink-0' : 'text-slate-400 dark:text-zinc-500 flex-shrink-0'} /> 
+                            <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Popular</span>
                         </Link>
+                        
                         {auth?.joined_communities && auth.joined_communities.length > 0 && (
-                            <div className="pt-4 mt-4 border-t border-slate-200 dark:border-zinc-800">
-                                <p className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider mb-2 px-4">Your Communities</p>
+                            <div className="pt-6 mt-6 border-t border-slate-200 dark:border-zinc-800">
+                                <p className={`text-[11px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest mb-3 px-4 ${isSidebarCollapsed ? 'lg:hidden' : ''}`}>Your Communities</p>
                                 {auth.joined_communities.map(community => (
-                                    <Link key={community.id} href={`/community/${community.name}`} className="flex items-center gap-3 px-4 py-2 rounded-xl text-slate-600 dark:text-zinc-300 hover:bg-white dark:hover:bg-zinc-900 hover:shadow-sm hover:text-slate-900 dark:hover:text-white font-medium transition-all">
+                                    <Link key={community.id} href={`/community/${community.name}`} className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-600 dark:text-zinc-300 hover:bg-white dark:hover:bg-zinc-900 hover:shadow-sm hover:text-slate-900 dark:hover:text-white font-medium transition-all border border-transparent hover:border-slate-200 dark:hover:border-zinc-800">
                                         {community.icon_image ? (
-                                            <img loading="lazy" decoding="async" fetchPriority="low" src={community.icon_image} className="w-6 h-6 rounded-full object-cover" />
+                                            <img loading="lazy" decoding="async" fetchPriority="low" src={community.icon_image} className="w-7 h-7 rounded-lg object-cover shadow-sm border border-slate-100 dark:border-zinc-700 flex-shrink-0" />
                                         ) : (
-                                            <div className="w-6 h-6 rounded-full bg-[#0079D3]"></div>
+                                            <div className="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-bold flex items-center justify-center text-xs shadow-sm border border-blue-200 dark:border-blue-800/50 flex-shrink-0">
+                                                {community.name.charAt(0).toUpperCase()}
+                                            </div>
                                         )}
-                                        <span className="truncate">r/{community.name}</span>
+                                        <span className={`truncate font-semibold text-sm ${isSidebarCollapsed ? 'lg:hidden' : ''}`}>r/{community.name}</span>
                                     </Link>
                                 ))}
                             </div>
@@ -198,85 +159,143 @@ export default function Feed({ auth, posts, currentSort = 'new', currentFilter =
                 </div>
 
                 {/* Main Feed Content */}
-                <div className="flex-1 space-y-4">
+                <div className="flex-1 max-w-3xl pb-24">
                     
+                    {/* Search Communities & Posts */}
+                    <form onSubmit={(e) => {
+                        e.preventDefault();
+                        const q = e.target.search.value;
+                        if(q.trim()) {
+                            window.location.href = `/search?q=${encodeURIComponent(q)}&tab=posts`;
+                        }
+                    }} className="mb-6 flex items-center gap-3">
+                        {/* Mobile Sidebar Toggle Inline with Search */}
+                        <button 
+                            type="button"
+                            onClick={() => setIsMobileSidebarOpen(true)}
+                            className="lg:hidden flex items-center justify-center w-[52px] h-[52px] shrink-0 bg-white dark:bg-zinc-900 rounded-full border border-slate-200 dark:border-zinc-800 shadow-sm text-slate-700 dark:text-zinc-300 hover:text-blue-600 hover:border-blue-500 transition-colors"
+                        >
+                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" /></svg>
+                        </button>
+
+                        <div className="relative flex-1 flex items-center gap-2 rounded-full bg-white dark:bg-zinc-900 p-2 shadow-sm border border-slate-200 dark:border-zinc-800 z-20 group">
+                            <Search className="w-5 h-5 text-slate-400 dark:text-zinc-500 ml-3 flex-shrink-0 group-focus-within:text-blue-500 transition-colors" />
+                            <input 
+                                type="text" 
+                                name="search" 
+                                className="flex-1 border-0 outline-none focus:ring-0 text-slate-900 dark:text-white text-sm md:text-base py-2.5 bg-transparent placeholder-slate-400 dark:placeholder-zinc-500" 
+                                placeholder="Search communities and posts..." 
+                                autoComplete="off"
+                            />
+                            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full px-6 py-2.5 transition-colors shrink-0 border-none outline-none focus:outline-none ring-0 focus:ring-0 text-sm md:text-base">
+                                Search
+                            </button>
+                        </div>
+                    </form>
+
                     {/* Create Post Input */}
-                    <Link href="/submit" className="bg-white rounded-md p-2 flex gap-2 items-center cursor-text mb-4">
-                        <div className="w-10 h-10 rounded-full bg-blue-600 flex-shrink-0 ml-2 flex items-center justify-center">
-                            <span className="text-white font-bold text-lg">{auth?.user?.name ? auth.user.name.charAt(0).toUpperCase() : 'U'}</span>
+                    <Link href="/submit" className="bg-slate-50 dark:bg-zinc-900 border-0 rounded-3xl p-3 flex gap-4 items-center cursor-text mb-6 shadow-inner hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors group">
+                        <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 border-2 border-white dark:border-zinc-800 flex-shrink-0 flex items-center justify-center shadow-sm">
+                            <span className="text-blue-600 dark:text-blue-400 font-extrabold text-lg">{auth?.user?.name ? auth.user.name.charAt(0).toUpperCase() : 'U'}</span>
                         </div>
                         <div 
-                            className="flex-1 bg-slate-100 hover:bg-slate-200 rounded-md py-2 px-4 text-[14px] text-slate-500 transition-colors flex items-center font-medium"
+                            className="flex-1 bg-white dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700/50 rounded-2xl py-3 px-5 text-sm text-slate-500 dark:text-zinc-400 transition-colors flex items-center font-medium shadow-sm"
                         >
-                            Create Post
+                            Create Post...
                         </div>
-                        <button className="text-slate-500 hover:text-slate-800 transition-colors mr-1">
-                            <Plus size={24} />
-                        </button>
+                        <div className="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 text-slate-400 dark:text-zinc-400 flex items-center justify-center border border-slate-200 shadow-sm group-hover:bg-blue-50 dark:group-hover:bg-blue-500/10 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:border-blue-200 transition-colors">
+                            <Plus size={22} strokeWidth={2.5} />
+                        </div>
                     </Link>
 
-                    {/* Sort Bar (Linear/Minimalist Style) */}
-                    <div className="flex gap-2 items-center mb-4">
+                    {/* Sort Bar */}
+                    <div className="flex gap-2 items-center mb-6 pb-4 border-b border-slate-200 dark:border-zinc-800 overflow-x-auto scrollbar-hide">
                         <button 
                             onClick={() => router.get(window.location.pathname, { sort: 'hot' }, { preserveScroll: true, preserveState: true })}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-medium text-[13px] transition-colors border shadow-sm ${currentSort === 'hot' ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300'}`}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${currentSort === 'hot' ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md' : 'bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-zinc-700'}`}
                         >
-                            <Flame size={16} />
+                            <Flame size={18} strokeWidth={currentSort === 'hot' ? 2.5 : 2} className={currentSort === 'hot' ? '' : 'text-rose-500'} />
                             Hot
                         </button>
                         <button 
                             onClick={() => router.get(window.location.pathname, { sort: 'new' }, { preserveScroll: true, preserveState: true })}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-medium text-[13px] transition-colors border shadow-sm ${currentSort === 'new' ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300'}`}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${currentSort === 'new' ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md' : 'bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-zinc-700'}`}
                         >
-                            <Sparkles size={16} />
+                            <Sparkle size={18} strokeWidth={currentSort === 'new' ? 2.5 : 2} className={currentSort === 'new' ? '' : 'text-blue-500'} />
                             New
                         </button>
                         <button 
                             onClick={() => router.get(window.location.pathname, { sort: 'top' }, { preserveScroll: true, preserveState: true })}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-medium text-[13px] transition-colors border shadow-sm ${currentSort === 'top' ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300'}`}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${currentSort === 'top' ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md' : 'bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-zinc-700'}`}
                         >
-                            <TrendingUp size={16} />
+                            <TrendingUp size={18} strokeWidth={currentSort === 'top' ? 2.5 : 2} className={currentSort === 'top' ? '' : 'text-emerald-500'} />
                             Top
                         </button>
                     </div>
 
                     {/* Posts List */}
-                    {allPosts.map((post, index) => (
-                        <PostCard key={post.id} post={post} auth={auth} openReportModal={openReportModal} priorityLoad={index === 0} />
-                    ))}
+                    <div className="space-y-6">
+                        {allPosts.map((post, index) => (
+                            <PostCard key={post.id} post={post} auth={auth} openReportModal={openReportModal} priorityLoad={index === 0} />
+                        ))}
+                    </div>
                     
                     {nextPageUrl && (
-                        <div ref={loadMoreRef} className="py-8 flex justify-center items-center">
+                        <div ref={loadMoreRef} className="py-12 flex justify-center items-center">
                             {loadingMore ? (
-                                <div className="w-8 h-8 border-4 border-[#0079D3] border-t-transparent rounded-full animate-spin"></div>
+                                <div className="w-10 h-10 border-4 border-blue-600 dark:border-blue-500 border-t-transparent rounded-full animate-spin shadow-sm"></div>
                             ) : (
-                                <div className="text-[14px] text-[#878A8C] font-medium">Scroll for more posts</div>
+                                <div className="text-[14px] text-slate-500 dark:text-zinc-400 font-bold bg-white dark:bg-zinc-900 px-6 py-2 rounded-full border border-slate-200 dark:border-zinc-800 shadow-sm">Scroll for more posts</div>
                             )}
                         </div>
                     )}
                 </div>
 
                 {/* Right Sidebar */}
-                <div className="hidden xl:block w-[312px] flex-shrink-0 space-y-4">
-                    <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-sm">
-                        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 h-12"></div>
-                        <div className="p-5">
-                            <div className="flex items-center gap-3 mb-3">
-                                <div className="w-12 h-12 -mt-10 bg-white dark:bg-zinc-900 rounded-xl p-1.5 shadow-md flex items-center justify-center">
-                                    <Home className="w-full h-full text-blue-600" />
-                                </div>
-                                <h2 className="font-extrabold text-slate-900 dark:text-white text-[16px]">Home</h2>
+                <div className="hidden xl:block w-[320px] flex-shrink-0">
+                    <div className="sticky top-28 space-y-6">
+                        {/* Premium "Home" Card */}
+                        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-sm">
+                            <div className="h-16 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 relative overflow-hidden">
+                                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
                             </div>
-                            <p className="text-[14px] text-slate-600 dark:text-zinc-400 mb-5 leading-relaxed">Your personal feed. Come here to check in with your favorite communities and stay updated on the latest discussions.</p>
-                            <div className="space-y-3 pt-5 border-t border-slate-100 dark:border-zinc-800">
-                                <Link href="/submit" className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center font-medium py-2 rounded-md transition-colors text-sm">
-                                    Create Post
-                                </Link>
-                                <Link href="/communities/create" className="block w-full bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 text-center font-medium py-2 rounded-md transition-colors text-sm">
-                                    Create Community
-                                </Link>
+                            <div className="p-6 relative">
+                                <div className="w-16 h-16 -mt-14 mb-4 bg-white dark:bg-zinc-900 rounded-2xl p-1 shadow-lg flex items-center justify-center relative z-10 mx-auto">
+                                    <div className="w-full h-full bg-blue-50 dark:bg-blue-900/30 rounded-xl flex items-center justify-center border border-blue-100 dark:border-blue-800/50">
+                                        <Sparkles className="w-7 h-7 text-blue-600 dark:text-blue-400" />
+                                    </div>
+                                </div>
+                                <h2 className="font-extrabold text-slate-900 dark:text-white text-xl text-center mb-2">Welcome Home</h2>
+                                <p className="text-sm text-slate-500 dark:text-zinc-400 mb-6 leading-relaxed text-center font-medium">
+                                    Your personalized feed. Explore communities, share knowledge, and stay updated on the latest discussions.
+                                </p>
+                                <div className="space-y-3 pt-2">
+                                    <Link href="/submit" className="flex justify-center items-center py-2.5 px-4 rounded-xl text-sm font-bold text-white bg-slate-900 hover:bg-black dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 transition-all active:scale-[0.98] shadow-md w-full">
+                                        Create Post
+                                    </Link>
+                                    <Link href="/communities/create" className="flex justify-center items-center py-2.5 px-4 rounded-xl text-sm font-bold text-slate-700 dark:text-zinc-300 bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-all active:scale-[0.98] shadow-sm w-full">
+                                        Create Community
+                                    </Link>
+                                </div>
                             </div>
                         </div>
+
+                        {/* Additional Minimal Sidebar Card (Optional) */}
+                        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl p-6 shadow-sm">
+                            <h3 className="font-extrabold text-slate-900 dark:text-white text-sm uppercase tracking-widest mb-4">Trending Now</h3>
+                            <div className="space-y-4">
+                                {[1, 2, 3].map(i => (
+                                    <div key={i} className="flex items-start gap-3 cursor-pointer group">
+                                        <div className="font-bold text-slate-300 dark:text-zinc-700 group-hover:text-blue-500 transition-colors">0{i}</div>
+                                        <div>
+                                            <div className="font-bold text-sm text-slate-700 dark:text-zinc-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors leading-tight">Trending Discussion Topic #{i}</div>
+                                            <div className="text-xs font-medium text-slate-500 dark:text-zinc-500 mt-1">4.5k Posts</div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 

@@ -36,15 +36,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       <div className="absolute inset-0 z-0 bg-cover bg-center" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1600&q=80')` }}></div>
       <div className="absolute inset-0 z-0 bg-slate-900/85"></div>
       
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
-        <div className="text-center max-w-4xl mx-auto">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16 md:pt-40 md:pb-24">
+        <div className="text-center w-full">
           
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold tracking-wide border border-blue-500/30">
             <ShieldCheck className="w-4 h-4 text-blue-400" />
             <span className="uppercase tracking-widest">Editorial Reputation Intelligence Platform</span>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-[4rem] font-extrabold leading-[1.1] text-white tracking-tight">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-extrabold leading-[1.05] text-white tracking-tight mt-4">
             Read Reviews. <br className="hidden sm:block" />
             <span className="text-blue-400">Trust What You Buy.</span>
           </h1>
@@ -70,13 +70,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                />
                
                <button
-                 type="button"
-                 onClick={onOpenAiAssistant}
-                 className="hidden sm:flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold rounded-full bg-slate-100 text-blue-600 hover:bg-blue-50 transition shrink-0 border border-slate-200 hover:border-blue-300 outline-none ring-0"
-               >
-                 <Sparkles className="w-4 h-4 text-blue-600" />
-                 <span>Ask AI</span>
-               </button>
+                  type="button"
+                  onClick={onOpenAiAssistant}
+                  className="hidden sm:flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold rounded-full bg-pink-50 dark:bg-pink-500/10 text-pink-600 dark:text-pink-400 hover:bg-pink-100 dark:hover:bg-pink-500/20 transition shrink-0 border border-pink-400 dark:border-pink-500/60 hover:border-pink-500 outline-none ring-0 shadow-sm shadow-pink-200 dark:shadow-pink-500/10"
+                >
+                  <Sparkles className="w-4 h-4 text-pink-500 dark:text-pink-400" />
+                  <span>Ask AI</span>
+                </button>
 
                <button
                  type="submit"

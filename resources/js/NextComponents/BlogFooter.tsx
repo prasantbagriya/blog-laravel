@@ -49,6 +49,7 @@ export default function BlogFooter() {
       title: "Navigation",
       links: [
         { label: "Home", page: "landing" },
+        { label: "Explore Institutes", page: "reviews" },
         { label: "Blog", page: "blog" },
         { label: "About Us", page: "about" },
         { label: "Contact Us", page: "contact" }
@@ -66,7 +67,7 @@ export default function BlogFooter() {
   ]
 
   return (
-    <footer className="relative bg-slate-900 text-slate-300 pt-16 pb-10 overflow-hidden mt-12 w-full border-t border-slate-800">
+    <footer className="relative bg-slate-900 text-slate-300 pt-10 pb-10 overflow-hidden w-full border-t border-slate-800">
       {/* Decorative gradient element */}
       <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-600 via-amber-500 to-blue-600"></div>
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-blue-500/10 blur-[100px] rounded-full pointer-events-none"></div>

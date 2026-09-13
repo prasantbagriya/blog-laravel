@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from '@inertiajs/react';
 import { Star, ShieldCheck, CheckCircle, MessageSquare, MapPin } from 'lucide-react';
 import { Business } from '../types';
+import AnimatedBorderCard from '@/Components/AnimatedBorderCard';
 
 interface BusinessCardProps {
   business: Business;
@@ -15,7 +16,10 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
   onOpenWriteReview,
 }) => {
   return (
-    <article className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden border border-slate-200 dark:border-zinc-800 shadow-sm hover:-translate-y-1 hover:shadow-xl transition-all duration-300 flex flex-col group">
+    <AnimatedBorderCard 
+        containerClassName="hover:-translate-y-1"
+        className="flex flex-col h-full"
+    >
       
       {/* Top Banner / Logo Area */}
       <div 
@@ -93,22 +97,24 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
         )}
 
         {/* Actions */}
-        <div className="mt-auto pt-4 border-t border-slate-100 dark:border-zinc-800 space-y-2">
+        <div className="mt-auto pt-4 border-t border-slate-100 dark:border-zinc-800 flex gap-2">
+          {/* View Profile — Dark filled button */}
           <button
             onClick={() => onSelectBusiness(business.slug)}
-            className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center font-medium py-2 rounded-md transition-colors text-sm"
+            className="flex-1 flex items-center justify-center gap-1.5 bg-slate-900 dark:bg-white hover:bg-slate-700 dark:hover:bg-slate-100 text-white dark:text-slate-900 border-2 border-slate-900 dark:border-white text-center font-bold py-2.5 rounded-xl transition-all text-sm active:scale-[0.98] shadow-sm"
           >
             View Profile
           </button>
           
+          {/* Write Review — Light outlined button */}
           <button
             onClick={() => onOpenWriteReview(business.id)}
-            className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center font-medium py-2 rounded-md transition-colors text-sm"
+            className="flex-1 flex items-center justify-center gap-1.5 bg-transparent hover:bg-amber-50 dark:hover:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-2 border-amber-500 dark:border-amber-500 hover:border-amber-600 text-center font-bold py-2.5 rounded-xl transition-all text-sm active:scale-[0.98]"
           >
             Write Review
           </button>
         </div>
       </div>
-    </article>
+    </AnimatedBorderCard>
   );
 };

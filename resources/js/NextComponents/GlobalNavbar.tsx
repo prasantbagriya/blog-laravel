@@ -25,6 +25,7 @@ export default function Navbar() {
   }
 
   const navLinks = [
+    { label: 'Explore Institutes', page: 'reviews' },
     { label: 'Blog', page: 'blog' },
     { label: 'Community', page: 'feed' },
     { label: 'Category', page: 'category' },
@@ -100,7 +101,7 @@ export default function Navbar() {
 
               {/* Desktop Actions */}
               <div className="hidden md:flex items-center gap-4">
-                <a href="/login" className="text-sm font-semibold text-gray-300 hover:text-white transition-colors decoration-transparent">Log In</a>
+                <a href="/login" className="text-sm font-semibold text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-colors decoration-transparent border border-white/10">Log In</a>
                 <a href="/register" className="btn-amber px-5 py-2 transition-transform hover:scale-105 text-sm">Register</a>
               </div>
 
@@ -125,7 +126,7 @@ export default function Navbar() {
                 ))}
               </div>
               <div className="mt-2 mb-4 pt-4 border-t border-white/10 flex justify-center">
-                <a href="/login" className="text-center text-gray-300 hover:text-white font-bold text-sm py-2 block decoration-transparent w-full">Log In</a>
+                <a href="/login" className="text-center text-white bg-white/10 hover:bg-white/20 font-bold text-sm py-2.5 rounded-full block decoration-transparent w-full transition-colors border border-white/10">Log In</a>
               </div>
             </div>
           )}

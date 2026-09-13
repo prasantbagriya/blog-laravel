@@ -6,12 +6,13 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Post;
 use App\Models\Story;
+use App\Models\Community;
 
 class HomeController extends Controller
 {
     public function index()
     {
-        $homeData = \Illuminate\Support\Facades\Cache::remember('homepage_data', 3600, function () {
+        $homeData = \Illuminate\Support\Facades\Cache::remember('homepage_data_v3', 3600, function () {
             // Fetch only 14 posts instead of ALL published posts to save memory/time
             $publishedPosts = Post::where('published', true)
                                   ->orderBy('date', 'desc')
@@ -30,6 +31,41 @@ class HomeController extends Controller
             $authors = \App\Models\Author::all()->toArray();
             $featuredBusinesses = \App\Models\Business::orderBy('rating', 'desc')->take(4)->get()->toArray();
 
+            $feedPosts = Post::with(['author', 'community'])
+                ->whereNotNull('community_id')
+                ->where(function ($q) {
+                    $q->whereNull('status')->orWhereNotIn('status', ['removed', 'spam']);
+                })
+                ->orderBy('created_at', 'desc')
+                ->take(3)
+                ->get()
+                ->map(function ($post) {
+                    return [
+                        'id' => $post->id,
+                        'community' => $post->community->name ?? 'General',
+                        'title' => $post->title,
+                        'author' => $post->author->username ?? 'deleted',
+                        'time' => $post->created_at->diffForHumans(),
+                        'score' => $post->score,
+                        'comments' => $post->comments()->count(),
+                        'type' => $post->type,
+                        'content' => \Illuminate\Support\Str::limit(strip_tags($post->content), 150),
+                        'slug' => $post->slug,
+                    ];
+                })->toArray();
+
+            $topCommunities = Community::withCount('members')
+                ->orderBy('members_count', 'desc')
+                ->take(4)
+                ->get()
+                ->map(function ($c) {
+                    return [
+                        'id' => $c->id,
+                        'name' => $c->name,
+                        'members' => $c->members_count,
+                    ];
+                })->toArray();
+
             return [
                 'featuredPost' => $featuredPost,
                 'recentPosts' => $recentPosts,
@@ -39,6 +75,8 @@ class HomeController extends Controller
                 'publishedStories' => $publishedStories,
                 'sliders' => $sliders,
                 'featuredBusinesses' => $featuredBusinesses,
+                'feedPosts' => $feedPosts,
+                'topCommunities' => $topCommunities,
                 'meta' => [
                     'title' => 'coachinginsikar | Education News, Exams & Coaching Updates',
                     'description' => 'CoachingsinsSikar brings you the latest education news, exam results, Olympiads, coaching updates, and school information from Sikar and beyond. Our goal is to provide students and parents with simple, useful, and reliable education updates in one place. Stay informed with clear and relevant content to make better academic decisions.',
@@ -109,6 +147,37 @@ class HomeController extends Controller
         //         $item = preg_replace('/(uploads\/[^"\'\s>]+)\.(png|jpg|jpeg|bmp)/i', '$1.webp', $item);
         //     }
         // });
+
+        if (!isset($homeData['topCommunities'])) {
+            $homeData['topCommunities'] = [];
+        }
+        if (!isset($homeData['feedPosts'])) {
+            $homeData['feedPosts'] = [];
+        }
+
+        // Map joined status for communities outside the cache
+        if (auth()->check()) {
+            $joinedIds = auth()->user()->communities()->pluck('communities.id')->toArray();
+            foreach ($homeData['topCommunities'] as &$community) {
+                $community['is_joined'] = in_array($community['id'], $joinedIds);
+            }
+            
+            $votedPostIds = \Illuminate\Support\Facades\DB::table('votes')
+                ->where('user_id', auth()->id())
+                ->where('votable_type', \App\Models\Post::class)
+                ->where('value', 1)
+                ->pluck('votable_id')->toArray();
+            foreach ($homeData['feedPosts'] as &$post) {
+                $post['has_voted'] = in_array($post['id'], $votedPostIds);
+            }
+        } else {
+            foreach ($homeData['topCommunities'] as &$community) {
+                $community['is_joined'] = false;
+            }
+            foreach ($homeData['feedPosts'] as &$post) {
+                $post['has_voted'] = false;
+            }
+        }
 
         return Inertia::render('Welcome', $homeData);
     }

@@ -17,7 +17,9 @@ class CommunityController extends Controller
         $query = Post::with(['author', 'community'])
             ->withCount('comments')
             ->whereNotNull('community_id')
-            ->published();
+            ->where(function ($q) {
+                $q->whereNull('status')->orWhereNotIn('status', ['removed', 'spam']);
+            });
 
         if (auth()->check() && $filter !== 'popular') {
             $joinedCommunityIds = auth()->user()->communities()->pluck('communities.id');
@@ -89,7 +91,9 @@ class CommunityController extends Controller
         $query = Post::with('author')
             ->withCount('comments')
             ->where('community_id', $community->id)
-            ->published();
+            ->where(function ($q) {
+                $q->whereNull('status')->orWhereNotIn('status', ['removed', 'spam']);
+            });
 
         if ($sort === 'top') {
             $query->orderBy('score', 'desc');

@@ -23,6 +23,10 @@ class ReviewPageController extends Controller
      */
     public function category($categorySlug)
     {
+        if ($categorySlug === 'feed') {
+            return redirect('/feed', 301);
+        }
+
         return Inertia::render('Reviews/Index', [
             'initialView' => 'directory',
             'initialCategorySlug' => $categorySlug,

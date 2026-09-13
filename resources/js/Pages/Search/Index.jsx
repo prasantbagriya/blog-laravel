@@ -1,136 +1,246 @@
 import React, { useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
-import Navbar from '@/Components/Navbar';
-import { ArrowBigUp, ArrowBigDown, MessageSquare, Compass, User as UserIcon } from 'lucide-react';
+import GlobalNavbar from '../../NextComponents/GlobalNavbar';
+import BlogFooter from '../../NextComponents/BlogFooter';
+import { ArrowBigUp, ArrowBigDown, MessageSquare, Compass, User as UserIcon, Search, LayoutGrid, Users } from 'lucide-react';
+import { PageHero } from '../../NextComponents/UI';
 
-export default function SearchIndex({ auth, posts, communities, users, query }) {
-    const [activeTab, setActiveTab] = useState('posts');
+export default function SearchIndex({ auth, posts, blogs, businesses, communities, users, query }) {
+    const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+    const initialTab = urlParams ? urlParams.get('tab') : null;
+    const [activeTab, setActiveTab] = useState(initialTab || 'businesses');
+    const basePath = typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '';
 
     return (
-        <div className="min-h-screen bg-[#F2F4F5] text-[#1C1C1C] font-sans pb-20">
-            <Head title={`Search Results for "${query}" - coachingsinsikar`}>
-            </Head>
+        <div className="bg-slate-50 dark:bg-[#09090b] min-h-screen flex flex-col font-sans">
+            <Head title={`Search Results for "${query}"`} />
             
-            <Navbar auth={auth} searchQuery={query} />
+            <GlobalNavbar auth={auth} searchQuery={query} />
 
-            <div className="max-w-[1000px] mx-auto mt-6 px-4">
-                <div className="mb-6">
-                    <h1 className="text-2xl font-bold">Search results for "{query}"</h1>
-                </div>
+            {/* Header */}
+            <PageHero
+                badge="Search Results"
+                badgeIcon={Search}
+                title={<>Results for "<span className="text-amber-500">{query}</span>"</>}
+                description="Find discussions, communities, institutes, and blogs."
+                className="!pt-32 !pb-8"
+            />
+
+            <main className="flex-grow max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+                <form onSubmit={handleSearch} className="mb-8 max-w-2xl mx-auto">
+                    <div className="relative flex items-center gap-2 rounded-full bg-slate-100 dark:bg-zinc-800/80 p-2 shadow-inner hover:bg-slate-200/60 dark:hover:bg-zinc-800 transition-all focus-within:ring-2 focus-within:ring-blue-500/50">
+                        <Search className="w-5 h-5 text-slate-500 dark:text-zinc-400 ml-3 flex-shrink-0" />
+                        <input 
+                            type="text" 
+                            name="q" 
+                            className="flex-1 border-0 outline-none focus:ring-0 text-slate-900 dark:text-white text-sm py-2.5 bg-transparent placeholder-slate-500 dark:placeholder-zinc-400" 
+                            placeholder="Search for coaching, courses, blog posts or communities..." 
+                            value={searchQuery} 
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                        <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full px-6 py-2.5 transition-colors shrink-0">
+                            Search
+                        </button>
+                    </div>
+                </form>
 
                 {/* Tabs */}
-                <div className="flex gap-4 mb-6 border-b border-[#EDEFF1]">
+                <div className="flex flex-wrap gap-2 mb-8 p-1.5 bg-white dark:bg-zinc-900 rounded-xl border border-slate-200 dark:border-zinc-800 w-fit">
+                    <button 
+                        onClick={() => setActiveTab('businesses')}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'businesses' ? 'bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white' : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-800/50'}`}
+                    >
+                        <Compass size={16} /> Institutes
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab('blogs')}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'blogs' ? 'bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white' : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-800/50'}`}
+                    >
+                        <MessageSquare size={16} /> Blogs
+                    </button>
                     <button 
                         onClick={() => setActiveTab('posts')}
-                        className={`px-4 py-3 font-bold text-[14px] ${activeTab === 'posts' ? 'border-b-2 border-[#1C1C1C] text-[#1C1C1C]' : 'text-[#878A8C] hover:text-[#1C1C1C]'}`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'posts' ? 'bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white' : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-800/50'}`}
                     >
-                        Posts
+                        <MessageSquare size={16} /> Community Posts
                     </button>
                     <button 
                         onClick={() => setActiveTab('communities')}
-                        className={`px-4 py-3 font-bold text-[14px] ${activeTab === 'communities' ? 'border-b-2 border-[#1C1C1C] text-[#1C1C1C]' : 'text-[#878A8C] hover:text-[#1C1C1C]'}`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'communities' ? 'bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white' : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-800/50'}`}
                     >
-                        Communities
+                        <LayoutGrid size={16} /> Communities
                     </button>
                     <button 
                         onClick={() => setActiveTab('users')}
-                        className={`px-4 py-3 font-bold text-[14px] ${activeTab === 'users' ? 'border-b-2 border-[#1C1C1C] text-[#1C1C1C]' : 'text-[#878A8C] hover:text-[#1C1C1C]'}`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'users' ? 'bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white' : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-800/50'}`}
                     >
-                        People
+                        <Users size={16} /> People
                     </button>
                 </div>
 
-                <div className="flex gap-6">
-                    {/* Main Content */}
-                    <div className="flex-1 space-y-4">
-                        {activeTab === 'posts' && (
-                            <div>
-                                {posts.length === 0 ? (
-                                    <div className="bg-white p-8 rounded-lg text-center border border-[#EDEFF1]">
-                                        <p className="text-[16px] font-medium">No posts found</p>
-                                        <p className="text-[14px] text-[#878A8C] mt-2">Try checking your spelling or using less specific keywords.</p>
+                <div className="space-y-4">
+                    {activeTab === 'businesses' && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {(!businesses || businesses.length === 0) ? (
+                                <div className="col-span-full bg-white dark:bg-zinc-900 p-12 rounded-2xl text-center border border-slate-200 dark:border-zinc-800 flex flex-col items-center">
+                                    <div className="w-16 h-16 bg-slate-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-4">
+                                        <Compass className="w-8 h-8 text-slate-400" />
                                     </div>
-                                ) : (
-                                    posts.map(post => (
-                                        <div key={post.id} className="bg-white border border-[#EDEFF1] hover:border-[#878A8C] rounded-md flex cursor-pointer transition-colors mb-3" onClick={() => router.visit(`/r/${post.community.name}/comments/${post.id}`)}>
-                                            <div className="w-10 bg-[#F8F9FA] rounded-l-md flex flex-col items-center py-2 gap-1 flex-shrink-0">
-                                                <ArrowBigUp size={24} className="text-[#878A8C]" />
-                                                <span className="text-[12px] font-bold text-[#1C1C1C]">{post.score}</span>
-                                                <ArrowBigDown size={24} className="text-[#878A8C]" />
+                                    <p className="text-xl font-bold text-slate-900 dark:text-white mb-2">No institutes found</p>
+                                </div>
+                            ) : (
+                                businesses.map(biz => (
+                                    <Link key={biz.id} href={basePath + `/reviews/${biz.category || 'coaching-institutes'}/${biz.slug}`} className="group flex flex-col gap-4 p-5 bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 hover:border-amber-500/50 hover:shadow-md transition-all">
+                                        <div className="w-full h-32 rounded-xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden flex-shrink-0 group-hover:scale-[1.02] transition-transform">
+                                            {biz.logo ? (
+                                                <img loading="lazy" decoding="async" fetchPriority="low" src={biz.logo} className="w-full h-full object-contain p-2" />
+                                            ) : (
+                                                <Compass size={40} className="text-slate-400" />
+                                            )}
+                                        </div>
+                                        <div>
+                                            <h3 className="font-extrabold text-base text-slate-900 dark:text-white group-hover:text-amber-500 transition-colors line-clamp-1">{biz.name}</h3>
+                                            <p className="text-sm text-slate-500 dark:text-zinc-400 mt-1 line-clamp-2 leading-relaxed">{biz.description || biz.category || 'Coaching Institute'}</p>
+                                        </div>
+                                    </Link>
+                                ))
+                            )}
+                        </div>
+                    )}
+
+                    {activeTab === 'blogs' && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {(!blogs || blogs.length === 0) ? (
+                                <div className="col-span-full bg-white dark:bg-zinc-900 p-12 rounded-2xl text-center border border-slate-200 dark:border-zinc-800 flex flex-col items-center">
+                                    <div className="w-16 h-16 bg-slate-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-4">
+                                        <MessageSquare className="w-8 h-8 text-slate-400" />
+                                    </div>
+                                    <p className="text-xl font-bold text-slate-900 dark:text-white mb-2">No blog posts found</p>
+                                </div>
+                            ) : (
+                                blogs.map(blog => (
+                                    <Link key={blog.id} href={basePath + `/blog/${blog.slug}`} className="group flex flex-col sm:flex-row gap-4 p-5 bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 hover:border-amber-500/50 hover:shadow-md transition-all">
+                                        <div className="w-full sm:w-32 h-40 sm:h-auto rounded-xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden flex-shrink-0 group-hover:scale-[1.02] transition-transform">
+                                            {blog.coverImage || blog.cover_image ? (
+                                                <img loading="lazy" decoding="async" fetchPriority="low" src={blog.coverImage || blog.cover_image} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <MessageSquare size={32} className="text-slate-400" />
+                                            )}
+                                        </div>
+                                        <div className="flex flex-col justify-center">
+                                            <h3 className="font-extrabold text-base text-slate-900 dark:text-white group-hover:text-amber-500 transition-colors line-clamp-2">{blog.title}</h3>
+                                            <p className="text-sm text-slate-500 dark:text-zinc-400 mt-2 line-clamp-2 leading-relaxed">
+                                                {blog.category || 'Article'}
+                                            </p>
+                                        </div>
+                                    </Link>
+                                ))
+                            )}
+                        </div>
+                    )}
+
+                    {activeTab === 'posts' && (
+                        <div>
+                            {(!posts || posts.length === 0) ? (
+                                <div className="bg-white dark:bg-zinc-900 p-12 rounded-2xl text-center border border-slate-200 dark:border-zinc-800 flex flex-col items-center">
+                                    <div className="w-16 h-16 bg-slate-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-4">
+                                        <Search className="w-8 h-8 text-slate-400" />
+                                    </div>
+                                    <p className="text-xl font-bold text-slate-900 dark:text-white mb-2">No posts found</p>
+                                    <p className="text-slate-500 dark:text-zinc-400 text-sm">Try checking your spelling or using less specific keywords.</p>
+                                </div>
+                            ) : (
+                                posts.map(post => (
+                                    <div 
+                                        key={post.id} 
+                                        className="group bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-amber-500/50 hover:shadow-md rounded-2xl flex cursor-pointer transition-all duration-200 mb-4 overflow-hidden" 
+                                        onClick={() => router.visit(basePath + `/r/${post.community.name}/comments/${post.id}`)}
+                                    >
+                                        <div className="w-12 bg-slate-50 dark:bg-zinc-950/50 flex flex-col items-center py-4 gap-1 border-r border-slate-100 dark:border-zinc-800/50">
+                                            <ArrowBigUp size={24} className="text-slate-400 dark:text-zinc-500 group-hover:text-amber-500 transition-colors" />
+                                            <span className="text-sm font-bold text-slate-700 dark:text-zinc-300">{post.score}</span>
+                                            <ArrowBigDown size={24} className="text-slate-400 dark:text-zinc-500" />
+                                        </div>
+                                        <div className="p-4 sm:p-5 flex-1">
+                                            <div className="flex flex-wrap items-center gap-2 text-xs mb-3">
+                                                <Link href={basePath + `/r/${post.community?.name}`} className="font-bold text-slate-900 dark:text-white hover:text-amber-500 transition-colors" onClick={e => e.stopPropagation()}>r/{post.community?.name}</Link>
+                                                <span className="text-slate-300 dark:text-zinc-600">•</span>
+                                                <span className="text-slate-500 dark:text-zinc-400">Posted by</span>
+                                                <Link href={basePath + `/u/${post.author?.username}`} className="text-slate-600 dark:text-zinc-300 hover:text-amber-500 transition-colors" onClick={e => e.stopPropagation()}>u/{post.author?.username}</Link>
                                             </div>
-                                            <div className="p-2 flex-1">
-                                                <div className="flex items-center gap-1 text-[12px] mb-2">
-                                                    <Link href={`/r/${post.community.name}`} className="font-bold hover:underline" onClick={e => e.stopPropagation()}>r/{post.community.name}</Link>
-                                                    <span className="text-[#878A8C]">•</span>
-                                                    <span className="text-[#878A8C]">Posted by</span>
-                                                    <Link href={`/u/${post.author.username}`} className="text-[#878A8C] hover:underline" onClick={e => e.stopPropagation()}>u/{post.author.username}</Link>
-                                                </div>
-                                                <h3 className="text-[16px] font-medium text-[#1C1C1C] mb-2">{post.title}</h3>
-                                                <div className="flex items-center gap-1 text-[#878A8C] text-[12px] font-bold">
-                                                    <MessageSquare size={16} />
-                                                    <span>Comments</span>
-                                                </div>
+                                            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 group-hover:text-amber-500 transition-colors leading-snug">{post.title}</h3>
+                                            <div className="flex items-center gap-1.5 text-slate-500 dark:text-zinc-400 text-xs font-bold bg-slate-100 dark:bg-zinc-800/50 w-fit px-3 py-1.5 rounded-full">
+                                                <MessageSquare size={14} />
+                                                <span>{post.comments_count || 'Comments'}</span>
                                             </div>
                                         </div>
-                                    ))
-                                )}
-                            </div>
-                        )}
-
-                        {activeTab === 'communities' && (
-                            <div className="bg-white rounded-lg border border-[#EDEFF1] overflow-hidden">
-                                {communities.length === 0 ? (
-                                    <div className="p-8 text-center">
-                                        <p className="text-[16px] font-medium">No communities found</p>
                                     </div>
-                                ) : (
-                                    communities.map(community => (
-                                        <Link key={community.id} href={`/r/${community.name}`} className="flex items-center gap-4 p-4 border-b border-[#EDEFF1] hover:bg-[#F6F7F8] transition-colors last:border-0">
-                                            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden flex-shrink-0">
-                                                {community.icon_image ? (
-                                                    <img loading="lazy" decoding="async" fetchPriority="low" src={community.icon_image} className="w-full h-full object-cover" />
-                                                ) : (
-                                                    <Compass size={24} className="text-[#0079D3]" />
-                                                )}
-                                            </div>
-                                            <div>
-                                                <h3 className="font-bold text-[16px]">r/{community.name}</h3>
-                                                <p className="text-[12px] text-[#878A8C] mt-1">{community.description}</p>
-                                            </div>
-                                        </Link>
-                                    ))
-                                )}
-                            </div>
-                        )}
+                                ))
+                            )}
+                        </div>
+                    )}
 
-                        {activeTab === 'users' && (
-                            <div className="bg-white rounded-lg border border-[#EDEFF1] overflow-hidden">
-                                {users.length === 0 ? (
-                                    <div className="p-8 text-center">
-                                        <p className="text-[16px] font-medium">No users found</p>
+                    {activeTab === 'communities' && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {(!communities || communities.length === 0) ? (
+                                <div className="col-span-full bg-white dark:bg-zinc-900 p-12 rounded-2xl text-center border border-slate-200 dark:border-zinc-800 flex flex-col items-center">
+                                    <div className="w-16 h-16 bg-slate-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-4">
+                                        <Compass className="w-8 h-8 text-slate-400" />
                                     </div>
-                                ) : (
-                                    users.map(user => (
-                                        <Link key={user.id} href={`/u/${user.username}`} className="flex items-center gap-4 p-4 border-b border-[#EDEFF1] hover:bg-[#F6F7F8] transition-colors last:border-0">
-                                            <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
-                                                {user.profile_picture ? (
-                                                    <img loading="lazy" decoding="async" fetchPriority="low" src={user.profile_picture} className="w-full h-full object-cover" />
-                                                ) : (
-                                                    <UserIcon size={24} className="text-[#878A8C]" />
-                                                )}
-                                            </div>
-                                            <div>
-                                                <h3 className="font-bold text-[16px]">u/{user.username}</h3>
-                                                <p className="text-[12px] text-[#878A8C] mt-1">{user.name}</p>
-                                            </div>
-                                        </Link>
-                                    ))
-                                )}
-                            </div>
-                        )}
-                    </div>
+                                    <p className="text-xl font-bold text-slate-900 dark:text-white mb-2">No communities found</p>
+                                </div>
+                            ) : (
+                                communities.map(community => (
+                                    <Link key={community.id} href={basePath + `/r/${community.name}`} className="group flex items-start gap-4 p-5 bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 hover:border-amber-500/50 hover:shadow-md transition-all">
+                                        <div className="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center overflow-hidden flex-shrink-0 group-hover:scale-105 transition-transform">
+                                            {community.icon_image ? (
+                                                <img loading="lazy" decoding="async" fetchPriority="low" src={community.icon_image} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <Compass size={28} className="text-blue-500 dark:text-blue-400" />
+                                            )}
+                                        </div>
+                                        <div>
+                                            <h3 className="font-extrabold text-base text-slate-900 dark:text-white group-hover:text-amber-500 transition-colors">r/{community.name}</h3>
+                                            <p className="text-sm text-slate-500 dark:text-zinc-400 mt-1 line-clamp-2 leading-relaxed">{community.description || 'A community to discuss things related to ' + community.name}</p>
+                                        </div>
+                                    </Link>
+                                ))
+                            )}
+                        </div>
+                    )}
+
+                    {activeTab === 'users' && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                            {(!users || users.length === 0) ? (
+                                <div className="col-span-full bg-white dark:bg-zinc-900 p-12 rounded-2xl text-center border border-slate-200 dark:border-zinc-800 flex flex-col items-center">
+                                    <div className="w-16 h-16 bg-slate-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-4">
+                                        <UserIcon className="w-8 h-8 text-slate-400" />
+                                    </div>
+                                    <p className="text-xl font-bold text-slate-900 dark:text-white mb-2">No users found</p>
+                                </div>
+                            ) : (
+                                users.map(user => (
+                                    <Link key={user.id} href={basePath + `/u/${user.username}`} className="group flex items-center gap-4 p-4 bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 hover:border-amber-500/50 hover:shadow-md transition-all">
+                                        <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden flex-shrink-0 group-hover:scale-105 transition-transform">
+                                            {user.profile_picture ? (
+                                                <img loading="lazy" decoding="async" fetchPriority="low" src={user.profile_picture} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <UserIcon size={24} className="text-slate-400" />
+                                            )}
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-amber-500 transition-colors">u/{user.username}</h3>
+                                            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">{user.name || 'Reddit User'}</p>
+                                        </div>
+                                    </Link>
+                                ))
+                            )}
+                        </div>
+                    )}
                 </div>
-            </div>
+            </main>
+
+            <BlogFooter />
         </div>
     );
 }

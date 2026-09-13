@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
+import { ChevronDown, MessageSquare, HelpCircle } from 'lucide-react';
 import './index.css';
 import GlobalNavbar from '../../NextComponents/GlobalNavbar';
 import BlogFooter from '../../NextComponents/BlogFooter';
@@ -21,6 +22,109 @@ import { ApiDocsModal } from './components/ApiDocsModal';
 
 import { UserRole, Business, Category, Review, ReviewCampaign } from './types';
 import { INITIAL_CATEGORIES } from './data/mockData';
+
+
+const ReviewsFAQ = () => {
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
+
+  const faqs = [
+    {
+      question: "How are businesses verified on this platform?",
+      answer: "Every business listed goes through our editorial verification process. We cross-check business registration details, customer invoices, and use AI fraud detection to assign a Trust Score from 0–100. Only genuine businesses with real customer interactions make it to our catalog."
+    },
+    {
+      question: "Can I trust the reviews on this platform?",
+      answer: "Yes. Our reviews are submitted by verified users who have actually interacted with the business. We use AI-powered review analysis to detect fake or biased reviews and remove them before they're published."
+    },
+    {
+      question: "How do I write a review for a business?",
+      answer: "Simply search for the business, visit its profile page, and click 'Write a Review'. You'll need to be logged in. Rate the business across multiple dimensions and share your experience in detail — the more specific, the more helpful."
+    },
+    {
+      question: "How can a business owner manage their listing?",
+      answer: "Business owners can claim their listing by creating an account and verifying ownership. Once verified, you can update your business information, respond to reviews, add photos, and access your Business Dashboard for analytics."
+    },
+    {
+      question: "What does the Trust Score mean?",
+      answer: "The Trust Score (0–100) is our proprietary rating that combines verified review scores, AI fraud analysis, editorial assessments, and customer invoice data. A score above 80 indicates a highly trustworthy and well-performing business."
+    },
+  ];
+
+  return (
+    <section className="py-16 bg-slate-50 dark:bg-zinc-950 border-t border-slate-200 dark:border-zinc-800/60 relative overflow-hidden">
+      {/* Background Decorative */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-100 dark:bg-blue-900/20 rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-3xl opacity-40 animate-blob"></div>
+        <div className="absolute top-48 -left-24 w-72 h-72 bg-amber-100 dark:bg-amber-900/20 rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-3xl opacity-40 animate-blob animation-delay-2000"></div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-start">
+
+          {/* Left Column: Sticky Title & CTA */}
+          <div className="lg:col-span-5 lg:sticky lg:top-32 space-y-8">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100/50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-400 text-xs font-bold tracking-wider mb-6">
+                <MessageSquare className="w-4 h-4" /> Got Questions?
+              </div>
+              <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-6 tracking-tight leading-tight">
+                Frequently Asked <span className="text-blue-500">Questions</span>
+              </h2>
+              <p className="text-slate-600 dark:text-zinc-400 text-base md:text-lg leading-relaxed">
+                Everything you need to know about our verified business directory, reviews, and Trust Scores.
+              </p>
+            </div>
+
+            <div className="bg-white dark:bg-zinc-900 rounded-2xl p-6 border border-slate-200 dark:border-zinc-800 shadow-sm flex items-start gap-4">
+              <div className="w-12 h-12 bg-amber-100 dark:bg-amber-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                <HelpCircle className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-900 dark:text-white mb-1">Still have questions?</h3>
+                <p className="text-sm text-slate-500 dark:text-zinc-400 mb-4">Contact our team and we'll help you find the right answers.</p>
+                <Link href="/contact" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-sm transition-all shadow-lg shadow-amber-500/20 active:scale-[0.98]">
+                  Contact Support
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Accordion */}
+          <div className="lg:col-span-7 space-y-4">
+            {faqs.map((faq, index) => {
+              const isOpen = openIndex === index;
+              return (
+                <div
+                  key={index}
+                  className={`group border rounded-2xl overflow-hidden transition-all duration-500 ${isOpen ? 'bg-white dark:bg-zinc-900 shadow-xl shadow-blue-900/5 border-blue-200 dark:border-blue-500/30 ring-1 ring-blue-100 dark:ring-blue-500/20' : 'bg-white/60 dark:bg-zinc-900/60 border-slate-200 dark:border-zinc-800 hover:border-blue-300 dark:hover:border-blue-500/40 hover:bg-white dark:hover:bg-zinc-900 backdrop-blur-sm'}`}
+                >
+                  <button
+                    className="w-full px-6 py-6 flex items-center justify-between text-left focus:outline-none focus:ring-0 ring-0 border-none bg-transparent cursor-pointer"
+                    onClick={() => setOpenIndex(isOpen ? null : index)}
+                    aria-expanded={isOpen}
+                  >
+                    <span className={`font-bold text-base sm:text-lg pr-4 transition-colors duration-300 ${isOpen ? 'text-blue-600 dark:text-blue-400' : 'text-slate-800 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400'}`}>
+                      {faq.question}
+                    </span>
+                    <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 ${isOpen ? 'bg-blue-600 text-white rotate-180 shadow-md shadow-blue-600/20' : 'bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 group-hover:bg-blue-50 dark:group-hover:bg-blue-500/10 group-hover:text-blue-500'}`}>
+                      <ChevronDown className="w-5 h-5" />
+                    </div>
+                  </button>
+                  <div className={`px-6 overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-96 pb-6 opacity-100' : 'max-h-0 pb-0 opacity-0'}`}>
+                    <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-zinc-700 to-transparent mb-5"></div>
+                    <p className="text-slate-600 dark:text-zinc-400 leading-relaxed text-base m-0">
+                      {faq.answer}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
 
 export default function App({ auth, initialView = 'home', initialCategorySlug = 'all', businessData = null }: { auth?: any, initialView?: string, initialCategorySlug?: string, businessData?: Business | null }) {
   const authUser = auth?.user;
@@ -304,7 +408,7 @@ export default function App({ auth, initialView = 'home', initialCategorySlug = 
           <div>
             <HeroSection
               onSearchSubmit={(q) => {
-                setShowSearchModal(true);
+                window.location.href = `/search?q=${encodeURIComponent(q)}&tab=businesses`;
               }}
               onOpenAiAssistant={() => setShowSearchModal(true)}
               categories={categories}
@@ -316,7 +420,7 @@ export default function App({ auth, initialView = 'home', initialCategorySlug = 
             <CategoryGrid categories={categories} onSelectCategory={handleSelectCategory} />
 
             {/* Featured Verified Companies Showcase */}
-            <section className="py-16 bg-slate-50 border-y border-slate-200 dark:bg-zinc-900 dark:border-zinc-800">
+            <section className="pt-16 pb-0 bg-slate-50 border-y border-slate-200 dark:bg-zinc-900 dark:border-zinc-800">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-end justify-between mb-10">
                   <div>
@@ -331,7 +435,7 @@ export default function App({ auth, initialView = 'home', initialCategorySlug = 
 
                     <Link
                       href="/reviews"
-                      className="block w-full bg-blue-600 hover:bg-blue-700 text-white hover:text-white text-center font-medium py-2.5 rounded-md transition-colors text-sm shadow-md"
+                      className="inline-flex items-center gap-1 text-sm font-semibold text-slate-600 dark:text-zinc-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
                     >
                       View All Directory ({businesses.length}) →
                     </Link>
@@ -348,13 +452,13 @@ export default function App({ auth, initialView = 'home', initialCategorySlug = 
                   ))}
                 </div>
                 
-                <div className="mt-8 text-center md:hidden">
+                <div className="mt-8 pb-8 text-center md:hidden">
                   <Link
                       href="/reviews"
-                      className="block w-full bg-blue-600 hover:bg-blue-700 text-white hover:text-white text-center font-medium py-2.5 rounded-md transition-colors text-sm shadow-md"
+                      className="inline-flex items-center gap-1 text-sm font-semibold text-slate-600 dark:text-zinc-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
                     >
                       View All Directory ({businesses.length}) →
-                  </Link>
+                    </Link>
                 </div>
               </div>
             </section>
@@ -508,6 +612,7 @@ export default function App({ auth, initialView = 'home', initialCategorySlug = 
         <ApiDocsModal onClose={() => setShowApiDocsModal(false)} />
       )}
 
+          <ReviewsFAQ />
           <BlogFooter />
         </div>
       </div>
