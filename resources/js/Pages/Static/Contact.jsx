@@ -147,7 +147,7 @@ export default function Contact() {
                                                 type="text"
                                                 value={form.name}
                                                 onChange={e => setForm({ ...form, name: e.target.value })}
-                                                className="w-full px-4 py-3 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:border-amber-400 dark:hover:border-amber-500 outline-none rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 transition-all"
+                                                className="w-full px-4 py-3 bg-white dark:bg-zinc-800 border border-transparent hover:border-amber-400 dark:hover:border-amber-500 outline-none rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 transition-all"
                                                 placeholder="Rahul Sharma"
                                                 required
                                             />
@@ -158,7 +158,7 @@ export default function Contact() {
                                                 type="email"
                                                 value={form.email}
                                                 onChange={e => setForm({ ...form, email: e.target.value })}
-                                                className="w-full px-4 py-3 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:border-amber-400 dark:hover:border-amber-500 outline-none rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 transition-all"
+                                                className="w-full px-4 py-3 bg-white dark:bg-zinc-800 border border-transparent hover:border-amber-400 dark:hover:border-amber-500 outline-none rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 transition-all"
                                                 placeholder="rahul@example.com"
                                                 required
                                             />
@@ -171,7 +171,7 @@ export default function Contact() {
                                             type="text"
                                             value={form.subject}
                                             onChange={e => setForm({ ...form, subject: e.target.value })}
-                                            className="w-full px-4 py-3 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:border-amber-400 dark:hover:border-amber-500 outline-none rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 transition-all"
+                                            className="w-full px-4 py-3 bg-white dark:bg-zinc-800 border border-transparent hover:border-amber-400 dark:hover:border-amber-500 outline-none rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 transition-all"
                                             placeholder="What's this about?"
                                             required
                                         />
@@ -182,7 +182,7 @@ export default function Contact() {
                                         <textarea
                                             value={form.message}
                                             onChange={e => setForm({ ...form, message: e.target.value })}
-                                            className="w-full px-4 py-3 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:border-amber-400 dark:hover:border-amber-500 outline-none rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 transition-all h-32 resize-none"
+                                            className="w-full px-4 py-3 bg-white dark:bg-zinc-800 border border-transparent hover:border-amber-400 dark:hover:border-amber-500 outline-none rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 transition-all h-32 resize-none"
                                             placeholder="Tell us how we can help you..."
                                             required
                                         ></textarea>
