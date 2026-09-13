@@ -166,7 +166,7 @@ export default function Feed({ auth, posts, currentSort = 'new', currentFilter =
                         e.preventDefault();
                         const q = e.target.search.value;
                         if(q.trim()) {
-                            window.location.href = `/search?q=${encodeURIComponent(q)}&tab=posts`;
+                            router.visit(`/search?q=${encodeURIComponent(q)}&tab=posts`);
                         }
                     }} className="mb-6 flex items-center gap-3">
                         {/* Mobile Sidebar Toggle Inline with Search */}
@@ -178,7 +178,7 @@ export default function Feed({ auth, posts, currentSort = 'new', currentFilter =
                             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" /></svg>
                         </button>
 
-                        <div className="relative flex-1 flex items-center gap-2 rounded-full bg-white dark:bg-zinc-900 p-2 shadow-sm border border-slate-200 dark:border-zinc-800 z-20 group">
+                        <div className="relative flex-1 flex items-center gap-2 rounded-full bg-white dark:bg-zinc-900 p-2 shadow-sm border border-slate-200 dark:border-zinc-800 z-20 group transition-all duration-200 focus-within:border-blue-500 dark:focus-within:border-blue-500 focus-within:shadow-md hover:border-slate-300 dark:hover:border-zinc-600">
                             <Search className="w-5 h-5 text-slate-400 dark:text-zinc-500 ml-3 flex-shrink-0 group-focus-within:text-blue-500 transition-colors" />
                             <input 
                                 type="text" 

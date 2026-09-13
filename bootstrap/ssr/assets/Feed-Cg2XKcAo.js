@@ -235,7 +235,7 @@ function Feed({ auth, posts, currentSort = "new", currentFilter = "home" }) {
 								onSubmit: (e) => {
 									e.preventDefault();
 									const q = e.target.search.value;
-									if (q.trim()) window.location.href = `/search?q=${encodeURIComponent(q)}&tab=posts`;
+									if (q.trim()) router.visit(`/search?q=${encodeURIComponent(q)}&tab=posts`);
 								},
 								className: "mb-6 flex items-center gap-3",
 								children: [/* @__PURE__ */ jsx("button", {
@@ -255,7 +255,7 @@ function Feed({ auth, posts, currentSort = "new", currentFilter = "home" }) {
 										})
 									})
 								}), /* @__PURE__ */ jsxs("div", {
-									className: "relative flex-1 flex items-center gap-2 rounded-full bg-white dark:bg-zinc-900 p-2 shadow-sm border border-slate-200 dark:border-zinc-800 z-20 group",
+									className: "relative flex-1 flex items-center gap-2 rounded-full bg-white dark:bg-zinc-900 p-2 shadow-sm border border-slate-200 dark:border-zinc-800 z-20 group transition-all duration-200 focus-within:border-blue-500 dark:focus-within:border-blue-500 focus-within:shadow-md hover:border-slate-300 dark:hover:border-zinc-600",
 									children: [
 										/* @__PURE__ */ jsx(Search, { className: "w-5 h-5 text-slate-400 dark:text-zinc-500 ml-3 flex-shrink-0 group-focus-within:text-blue-500 transition-colors" }),
 										/* @__PURE__ */ jsx("input", {

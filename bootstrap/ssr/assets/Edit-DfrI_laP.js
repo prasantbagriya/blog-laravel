@@ -1,5 +1,5 @@
 import { t as AdminLayout } from "./AdminLayout-CqhGBDWs.js";
-import PostForm from "./PostForm-C4Dc_oCt.js";
+import PostForm from "./PostForm-CDMVpTSE.js";
 import { jsx } from "react/jsx-runtime";
 import { Suspense } from "react";
 //#region resources/js/Pages/Admin/Posts/Edit.jsx
