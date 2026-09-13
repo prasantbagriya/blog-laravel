@@ -3,7 +3,7 @@ import GlobalNavbar from '../NextComponents/GlobalNavbar';
 import BlogFooter from '../NextComponents/BlogFooter';
 import React, { useState, useEffect } from 'react';
 import SeoMeta from '../NextComponents/SeoMeta';
-import { Search, ChevronRight, GraduationCap, Award, Star, ArrowRight, ShieldCheck, PlayCircle, Library, MapPin, CheckCircle2, MessageSquare, ThumbsUp, TrendingUp, ChevronDown } from 'lucide-react';
+import { Search, ChevronRight, GraduationCap, Award, Star, ArrowRight, ShieldCheck, PlayCircle, Library, MapPin, CheckCircle2, MessageSquare, ThumbsUp, TrendingUp, ChevronDown, BookOpen, TestTube, Target, Scale, Beaker, Backpack } from 'lucide-react';
 
 // Simple polyfill for Next.js Image
 const Image = ({ src, alt, fill, style, sizes, priority, fetchPriority, className, ...props }) => {
@@ -56,15 +56,15 @@ const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses }) =>
             
             <div className="absolute inset-0 z-0 bg-slate-900/80"></div>
             
-            <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
+            <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-10 md:pt-40 md:pb-14">
                 <div className="grid lg:grid-cols-12 gap-8 lg:gap-10 items-center">
                     <div className="lg:col-span-7 text-white">
                         <p className="text-amber-400 text-xs font-bold uppercase tracking-[0.12em] mb-4">Coaching and School Discovery Platform</p>
                         <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-[4rem] font-extrabold leading-[1.1] mb-6 tracking-tight">
-                            Find the Right Coaching.<br className="hidden sm:block" />Build the Right Future.
+                            Find the Best Coaching in Sikar
                         </h1>
                         <p className="text-base md:text-lg text-white/80 max-w-xl mb-8">
-                            Explore coaching institutes, courses, fees, rankings, and admission opportunities — all in one place.
+                            Compare coaching institutes, courses, fees, results and student reviews — all in one place.
                         </p>
 
                         <div className="relative max-w-xl mb-6">
@@ -75,7 +75,7 @@ const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses }) =>
                                         type="text" 
                                         name="q" 
                                         className="flex-1 border-0 outline-none focus:ring-0 text-slate-900 text-sm md:text-base py-2.5 bg-transparent placeholder-slate-400" 
-                                        placeholder="Search coaching, schools, courses, exams..." 
+                                        placeholder="Search coaching, courses, exams or institutes..." 
                                         value={searchQuery} 
                                         onChange={(e) => {
                                             setSearchQuery(e.target.value);
@@ -148,19 +148,22 @@ const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses }) =>
                         </div>
 
                         <div className="flex flex-wrap items-center gap-2 mb-8 text-sm">
-                            <span className="text-white/60 mr-1">Popular:</span>
-                            <Link href={`${basePath}/search?q=NEET`} className="px-4 py-1.5 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors font-semibold">NEET</Link>
+                            <span className="text-white/60 mr-1">Popular Exams:</span>
                             <Link href={`${basePath}/search?q=JEE`} className="px-4 py-1.5 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors font-semibold">JEE</Link>
+                            <Link href={`${basePath}/search?q=NEET`} className="px-4 py-1.5 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors font-semibold">NEET</Link>
+                            <Link href={`${basePath}/search?q=NDA`} className="px-4 py-1.5 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors font-semibold">NDA</Link>
+                            <Link href={`${basePath}/search?q=CLAT`} className="px-4 py-1.5 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors font-semibold">CLAT</Link>
+                            <Link href={`${basePath}/search?q=CUET`} className="px-4 py-1.5 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors font-semibold">CUET</Link>
                             <Link href={`${basePath}/search?q=Foundation`} className="px-4 py-1.5 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors font-semibold">Foundation</Link>
                         </div>
 
                         <div className="flex flex-wrap gap-3">
-                            <Link href={`${basePath}/reviews`} className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-6 py-3 rounded-md transition-colors text-center inline-flex items-center justify-center">
+                            <Link href={`${basePath}/reviews`} className="btn-amber px-6 py-3 transition-colors text-center inline-flex items-center justify-center">
                                 Explore Institutes
                             </Link>
-                            <Link href={`${basePath}/blog`} className="bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-3 rounded-md transition-colors text-center inline-flex items-center justify-center">
-                                Browse Articles
-                            </Link>
+                            <a href="#top-institutes" className="bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-3 rounded-md transition-colors text-center inline-flex items-center justify-center">
+                                Compare Coaching
+                            </a>
                         </div>
                     </div>
 
@@ -197,6 +200,7 @@ const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses }) =>
     );
 };
 
+
 const TrustMarquee = ({ categories }) => {
     // Generate some placeholder trust logos based on categories or a static list
     const items = categories && categories.length > 0 ? categories : [
@@ -227,13 +231,12 @@ const InstitutesSection = ({ featuredBusinesses, basePath }) => {
     if(businesses.length === 0) return null;
     
     return (
-        <section className="py-10 md:py-14 bg-slate-50 border-b border-slate-200">
+        <section id="top-institutes" className="py-10 md:py-14 bg-white border-b border-slate-200">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-end mb-8 md:mb-10">
                     <div>
-                        <p className="text-amber-500 text-sm font-bold uppercase tracking-wider mb-1">Popular Reviews</p>
-                        <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Explore India's Popular Institutes</h2>
-                        <p className="text-slate-500 mt-2 text-base md:text-lg">Discover institutions students are searching for right now.</p>
+                        <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Top Coaching Institutes in Sikar</h2>
+                        <p className="text-slate-500 mt-2 text-base md:text-lg">Explore institutes based on courses, reviews, results and available information.</p>
                     </div>
                     <Link href={`${basePath}/reviews`} className="hidden md:block bg-blue-600 hover:bg-blue-700 text-white text-center font-medium py-2 px-4 rounded-md transition-colors text-sm">
                         View All
@@ -267,7 +270,8 @@ const InstitutesSection = ({ featuredBusinesses, basePath }) => {
                                 
                                 <div className="flex flex-wrap gap-1.5 mb-4">
                                     <span className="bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded border border-blue-100">{biz.categoryName || biz.category}</span>
-                                    {biz.isVerified && <span className="bg-green-50 text-green-700 text-xs font-semibold px-2 py-0.5 rounded border border-green-200">Verified</span>}
+                                    {biz.isVerified && <span className="bg-green-50 text-green-700 text-xs font-semibold px-2 py-0.5 rounded border border-green-200 flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> Verified</span>}
+                                    {biz.location && <span className="bg-slate-50 text-slate-700 text-xs font-semibold px-2 py-0.5 rounded border border-slate-200 flex items-center gap-1"><MapPin size={12}/>{biz.location}</span>}
                                 </div>
                                 
                                 <div className="mt-auto pt-4 border-t border-slate-100 space-y-1 text-sm text-slate-600">
@@ -339,7 +343,7 @@ const CommunityFeedSection = ({ basePath }) => {
                     <div className="lg:col-span-2 space-y-4">
                         {feedPosts.map((post) => (
                             <div key={post.id} className="bg-white border border-slate-200 hover:border-blue-300 rounded-xl p-4 md:p-5 flex gap-4 transition-all hover:shadow-md cursor-pointer">
-                                <div className="hidden sm:flex flex-col items-center gap-1 min-w-[40px]">
+                                <div className="hidden sm:flex flex-col items-center gap-1 min-w-[37px]">
                                     <button className="p-1 rounded text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors border-none outline-none focus:outline-none ring-0 focus:ring-0"><TrendingUp size={20} /></button>
                                     <span className="font-bold text-sm text-slate-700">{post.score}</span>
                                 </div>
@@ -556,7 +560,7 @@ const SeoContent = () => (
 );
 
 const FAQSection = () => {
-    const [openIndex, setOpenIndex] = useState(null);
+    const [openIndex, setOpenIndex] = useState(0);
 
     const faqs = [
         {
@@ -582,44 +586,77 @@ const FAQSection = () => {
     ];
 
     return (
-        <section className="py-14 md:py-20 bg-white border-t border-slate-200">
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-10 md:mb-14">
-                    <p className="text-blue-600 font-bold tracking-widest uppercase text-xs mb-3">Got Questions?</p>
-                    <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">Frequently Asked Questions</h2>
-                    <p className="text-slate-500 text-base md:text-lg">Everything you need to know about coaching institutes and education in Sikar.</p>
-                </div>
-                
-                <div className="space-y-4">
-                    {faqs.map((faq, index) => {
-                        const isOpen = openIndex === index;
-                        return (
-                            <div 
-                                key={index} 
-                                className={`border border-slate-200 rounded-2xl overflow-hidden transition-all duration-300 ${isOpen ? 'bg-blue-50/50 shadow-md border-blue-200' : 'bg-white hover:border-blue-300'}`}
-                            >
-                                <button 
-                                    className="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none focus:ring-0 ring-0 border-none bg-transparent cursor-pointer"
-                                    onClick={() => setOpenIndex(isOpen ? null : index)}
-                                    aria-expanded={isOpen}
-                                >
-                                    <span className={`font-bold text-base md:text-lg pr-4 ${isOpen ? 'text-blue-700' : 'text-slate-800'}`}>
-                                        {faq.question}
-                                    </span>
-                                    <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-transform duration-300 ${isOpen ? 'bg-blue-100 text-blue-600 rotate-180' : 'bg-slate-100 text-slate-500'}`}>
-                                        <ChevronDown className="w-5 h-5" />
-                                    </div>
-                                </button>
-                                <div 
-                                    className={`px-6 overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-96 pb-6 opacity-100' : 'max-h-0 pb-0 opacity-0'}`}
-                                >
-                                    <p className="text-slate-600 leading-relaxed text-sm md:text-base m-0">
-                                        {faq.answer}
-                                    </p>
-                                </div>
+        <section className="py-16 md:py-24 bg-slate-50 border-t border-slate-200 relative overflow-hidden">
+            {/* Background Decorative Elements */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+                <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
+                <div className="absolute top-48 -left-24 w-72 h-72 bg-amber-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
+            </div>
+
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-start">
+                    
+                    {/* Left Column: Sticky Title & CTA */}
+                    <div className="lg:col-span-5 lg:sticky lg:top-32 space-y-8">
+                        <div>
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100/50 border border-blue-200 text-blue-700 text-xs font-bold uppercase tracking-wider mb-6">
+                                <MessageSquare className="w-4 h-4" /> Got Questions?
                             </div>
-                        )
-                    })}
+                            <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight leading-tight">
+                                Frequently Asked <span className="text-blue-600">Questions</span>
+                            </h2>
+                            <p className="text-slate-600 text-base md:text-lg leading-relaxed">
+                                Everything you need to know about coaching institutes, education, and living in Sikar. Can't find the answer you're looking for?
+                            </p>
+                        </div>
+                        
+                        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex items-start gap-4">
+                            <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <Search className="w-6 h-6 text-amber-600" />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-slate-900 mb-1">Still have questions?</h3>
+                                <p className="text-sm text-slate-500 mb-4">Chat with our educational counselors for personalized guidance.</p>
+                                <Link href="/contact" className="btn-amber px-5 py-2 text-sm transition-transform hover:scale-105 inline-block">
+                                    Contact Support
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right Column: Accordion */}
+                    <div className="lg:col-span-7 space-y-4">
+                        {faqs.map((faq, index) => {
+                            const isOpen = openIndex === index;
+                            return (
+                                <div 
+                                    key={index} 
+                                    className={`group border rounded-2xl overflow-hidden transition-all duration-500 ${isOpen ? 'bg-white shadow-xl shadow-blue-900/5 border-blue-200 ring-1 ring-blue-100' : 'bg-white/60 border-slate-200 hover:border-blue-300 hover:bg-white backdrop-blur-sm'}`}
+                                >
+                                    <button 
+                                        className="w-full px-6 py-6 flex items-center justify-between text-left focus:outline-none focus:ring-0 ring-0 border-none bg-transparent cursor-pointer"
+                                        onClick={() => setOpenIndex(isOpen ? null : index)}
+                                        aria-expanded={isOpen}
+                                    >
+                                        <span className={`font-bold text-lg pr-6 transition-colors duration-300 ${isOpen ? 'text-blue-700' : 'text-slate-800 group-hover:text-blue-600'}`}>
+                                            {faq.question}
+                                        </span>
+                                        <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 ${isOpen ? 'bg-blue-600 text-white rotate-180 shadow-md shadow-blue-600/20' : 'bg-slate-100 text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-500'}`}>
+                                            <ChevronDown className="w-5 h-5" />
+                                        </div>
+                                    </button>
+                                    <div 
+                                        className={`px-6 overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-96 pb-6 opacity-100' : 'max-h-0 pb-0 opacity-0'}`}
+                                    >
+                                        <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent mb-5"></div>
+                                        <p className="text-slate-600 leading-relaxed text-base m-0">
+                                            {faq.answer}
+                                        </p>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </div>
                 </div>
             </div>
         </section>

@@ -50,6 +50,17 @@ export default function Navbar() {
       .animate-fade-in-down { animation: fadeInDown 0.5s ease-out forwards; }
       .animate-pulse-glow { animation: pulseGlow 4s infinite ease-in-out; }
       .animate-slide-down { animation: slideDown 0.3s ease-out forwards; overflow: hidden; }
+      .btn-amber, a.btn-amber, button.btn-amber {
+        background: var(--amber, #f59e0b) !important;
+        color: #000000ff !important;
+        border-color: var(--amber, #f59e0b) !important;
+        border-radius: 999px !important;
+        font-weight: 700 !important;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
     `}</style>
     <header className="fixed top-6 left-0 right-0 z-50 w-full px-4 pointer-events-none">
       <div className="w-full max-w-7xl mx-auto pointer-events-auto">
@@ -87,8 +98,15 @@ export default function Navbar() {
 
               </div>
 
+              {/* Desktop Actions */}
+              <div className="hidden md:flex items-center gap-4">
+                <a href="/login" className="text-sm font-semibold text-gray-300 hover:text-white transition-colors decoration-transparent">Log In</a>
+                <a href="/register" className="btn-amber px-5 py-2 transition-transform hover:scale-105 text-sm">Register</a>
+              </div>
+
               {/* Mobile Controls */}
-              <div className="md:hidden flex items-center gap-2">
+              <div className="md:hidden flex items-center gap-3">
+                <a href="/register" className="btn-amber px-4 py-1.5 text-sm transition-transform hover:scale-105">Register</a>
                 <button aria-label="Toggle menu" onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-400 p-2 bg-transparent border-none cursor-pointer">
                   {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
                 </button>
@@ -105,6 +123,9 @@ export default function Navbar() {
                 {navLinks.map(link => (
                   <a key={link.page} href={getHref(link.page)} onClick={(e) => handleNavClick(e, link.page)} className="text-left text-gray-400 hover:text-white font-bold text-sm py-2 block decoration-transparent">{link.label}</a>
                 ))}
+              </div>
+              <div className="mt-2 mb-4 pt-4 border-t border-white/10 flex justify-center">
+                <a href="/login" className="text-center text-gray-300 hover:text-white font-bold text-sm py-2 block decoration-transparent w-full">Log In</a>
               </div>
             </div>
           )}
