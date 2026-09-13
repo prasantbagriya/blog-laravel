@@ -3,7 +3,7 @@ import GlobalNavbar from '../NextComponents/GlobalNavbar';
 import BlogFooter from '../NextComponents/BlogFooter';
 import React, { useState, useEffect } from 'react';
 import SeoMeta from '../NextComponents/SeoMeta';
-import { Search, ChevronRight, GraduationCap, Award, Star, ArrowRight, ShieldCheck, PlayCircle, Library, MapPin, CheckCircle2, MessageSquare, ThumbsUp, TrendingUp, ChevronDown, BookOpen, TestTube, Target, Scale, Beaker, Backpack } from 'lucide-react';
+import { Search, ChevronRight, GraduationCap, Award, Star, ArrowRight, ShieldCheck, PlayCircle, Library, MapPin, CheckCircle2, MessageSquare, ThumbsUp, TrendingUp, ChevronDown, BookOpen, TestTube, Target, Scale, Beaker, Backpack, Share2, Bookmark } from 'lucide-react';
 
 // Simple polyfill for Next.js Image
 const Image = ({ src, alt, fill, style, sizes, priority, fetchPriority, className, ...props }) => {
@@ -411,18 +411,38 @@ const CommunityFeedSection = ({ basePath, feedPosts, topCommunities }) => {
                                     </h3>
                                     
                                     {post.type === 'TEXT' && post.content && (
-                                        <p className="text-slate-600 dark:text-zinc-400 text-sm line-clamp-2 mb-4 leading-relaxed">
+                                        <p className="text-slate-600 dark:text-zinc-400 text-sm line-clamp-2 mb-3 leading-relaxed">
                                             {post.content.replace(/<[^>]*>?/gm, '')}
                                         </p>
                                     )}
                                     
-                                    <div className="flex items-center gap-4 text-slate-500 dark:text-zinc-500 text-sm font-bold">
-                                        <div className="flex sm:hidden items-center gap-1.5 bg-slate-100 dark:bg-zinc-800 px-3 py-1.5 rounded-full">
-                                            <TrendingUp size={16} className={post.has_voted ? 'text-amber-500' : ''} /> <span className={post.has_voted ? 'text-amber-500' : ''}>{post.score}</span>
-                                        </div>
-                                        <div className="flex items-center gap-1.5 hover:text-blue-600 dark:hover:text-blue-400 transition-colors bg-slate-100 dark:bg-zinc-800 sm:bg-transparent px-3 py-1.5 sm:p-0 rounded-full sm:rounded-none">
-                                            <MessageSquare size={16} /> {post.comments_count || post.comments} Comments
-                                        </div>
+                                    {/* Action Buttons — same style as PostCard */}
+                                    <div className="flex gap-2 -ml-1.5 mt-2 flex-nowrap whitespace-nowrap overflow-x-auto pb-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                                        {/* Mobile upvote pill */}
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); router.post(route('vote'), { votable_type: 'post', votable_id: post.id, value: 1 }, { preserveScroll: true }); }}
+                                            className={`shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl transition-colors font-bold text-[13px] border-0 outline-none focus:outline-none focus:ring-0 sm:hidden ${post.has_voted ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' : 'bg-slate-100 dark:bg-zinc-800 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-slate-600 dark:text-zinc-300 hover:text-amber-600 dark:hover:text-amber-400'}`}
+                                        >
+                                            <TrendingUp size={16} className={post.has_voted ? 'text-amber-500' : ''} />
+                                            <span className={post.has_voted ? 'text-amber-500' : ''}>{post.score}</span>
+                                        </button>
+                                        {/* Comments */}
+                                        <Link
+                                            href={`/r/${post.community}/comments/${post.id}`}
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="shrink-0 whitespace-nowrap flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 px-3 py-2 rounded-xl transition-colors font-bold text-[13px]"
+                                        >
+                                            <MessageSquare size={16} className="text-blue-500" />
+                                            {post.comments_count || post.comments} Comments
+                                        </Link>
+                                        {/* Share */}
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); navigator.clipboard?.writeText(`${window.location.origin}/r/${post.community}/comments/${post.id}`); }}
+                                            className="shrink-0 whitespace-nowrap flex items-center gap-2 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 px-3 py-2 rounded-xl transition-colors font-bold text-[13px] text-slate-600 dark:text-zinc-300 border-0 outline-none focus:outline-none focus:ring-0"
+                                        >
+                                            <Share2 size={16} strokeWidth={2} className="text-slate-500 dark:text-zinc-400" />
+                                            Share
+                                        </button>
                                     </div>
                                 </div>
                             </div>
