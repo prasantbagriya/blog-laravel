@@ -221,7 +221,7 @@ export const BusinessProfileView: React.FC<BusinessProfileViewProps> = ({
                 <div className="w-full space-y-3 mt-4">
                   <button
                       onClick={() => onOpenWriteReview(business.id)}
-                      className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center font-bold py-3.5 rounded-full transition-all shadow-sm active:scale-95 border border-slate-900 dark:border-white"
+                      className="block w-full bg-transparent hover:bg-amber-50 dark:hover:bg-amber-500/10 text-amber-600 dark:text-amber-400 text-center font-bold py-3.5 rounded-full transition-all active:scale-95 border-2 border-amber-500 dark:border-amber-500 hover:border-amber-600"
                   >
                       Write a Review
                   </button>

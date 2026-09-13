@@ -6,8 +6,8 @@
     "/build/assets/laravel-vite-plugin-D9XPBWcO.js"
   ],
   "resources/css/app.css": [
-    "/build/assets/PostForm-BYiyISbT.js",
-    "/build/assets/PostForm-CSamhJv7.css"
+    "/build/assets/PostForm-CJ504TFG.js",
+    "/build/assets/PostForm-DyXdRd6Q.css"
   ],
   "resources/js/Components/AnimatedBorderCard.jsx": [
     "/build/assets/AnimatedBorderCard-kIZ2YD7I.js"
@@ -109,14 +109,14 @@
     "/build/assets/Index-D3Irxw5-.js"
   ],
   "resources/js/Pages/Admin/PostForm.tsx": [
-    "/build/assets/PostForm-BYiyISbT.js",
-    "/build/assets/PostForm-CSamhJv7.css"
+    "/build/assets/PostForm-CJ504TFG.js",
+    "/build/assets/PostForm-DyXdRd6Q.css"
   ],
   "resources/js/Pages/Admin/Posts/Edit.jsx": [
-    "/build/assets/Edit-DCt2xLHs.js"
+    "/build/assets/Edit-B0H9xw_V.js"
   ],
   "resources/js/Pages/Admin/Posts/New.jsx": [
-    "/build/assets/New-DcN6eLXh.js"
+    "/build/assets/New-DzyNP053.js"
   ],
   "resources/js/Pages/Admin/SeoAudit/Index.jsx": [
     "/build/assets/Index-CzhOTYPS.js"
@@ -212,7 +212,7 @@
     "/build/assets/UpdateProfileInformationForm-Dy8I--ud.js"
   ],
   "resources/js/Pages/Reviews/Index.tsx": [
-    "/build/assets/Index-DYPt3O0d.js",
+    "/build/assets/Index-CXfjWIXZ.js",
     "/build/assets/Index-x1XGuNl0.css"
   ],
   "resources/js/Pages/Reviews/components/AdminPanel.tsx": [
@@ -231,7 +231,7 @@
     "/build/assets/BusinessDashboard-C1JazekU.js"
   ],
   "resources/js/Pages/Reviews/components/BusinessProfileView.tsx": [
-    "/build/assets/BusinessProfileView-pY4wfa0n.js"
+    "/build/assets/BusinessProfileView-CTAslfzK.js"
   ],
   "resources/js/Pages/Reviews/components/CategoryGrid.tsx": [
     "/build/assets/CategoryGrid-CMSR5viJ.js"
@@ -258,7 +258,7 @@
     "/build/assets/mockData-WYrlIyrH.js"
   ],
   "resources/js/Pages/Reviews/index.css": [
-    "/build/assets/Index-DYPt3O0d.js",
+    "/build/assets/Index-CXfjWIXZ.js",
     "/build/assets/Index-x1XGuNl0.css"
   ],
   "resources/js/Pages/Search/Index.jsx": [
@@ -289,7 +289,7 @@
     "/build/assets/Show-BzcbCKvT.js"
   ],
   "resources/js/Pages/Welcome.jsx": [
-    "/build/assets/Welcome-C0wHtFnj.js"
+    "/build/assets/Welcome-BDqwzLjG.js"
   ],
   "resources/js/ssr.jsx": []
 }

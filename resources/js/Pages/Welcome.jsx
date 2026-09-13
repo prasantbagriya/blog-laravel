@@ -273,14 +273,14 @@ const TrustMarquee = ({ categories }) => {
     ];
 
     return (
-        <section className="py-6 bg-white border-b border-slate-100 overflow-hidden">
+        <section className="py-6 bg-white dark:bg-zinc-900 border-b border-slate-100 dark:border-zinc-800 overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-4">
-                <p className="text-xs font-bold text-slate-400 tracking-wider">Trusted Categories & Streams</p>
+                <p className="text-xs font-bold text-slate-400 dark:text-zinc-500 tracking-wider">Trusted Categories &amp; Streams</p>
             </div>
             <div className="relative flex w-full flex-nowrap overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
                 <div className="flex animate-marquee items-center justify-center space-x-8 md:space-x-16 whitespace-nowrap">
                     {[...items, ...items, ...items].map((item, idx) => (
-                        <div key={`${item.id}-${idx}`} className="text-slate-400 font-bold text-xl md:text-2xl opacity-60 hover:opacity-100 transition-opacity flex items-center gap-2">
+                        <div key={`${item.id}-${idx}`} className="text-slate-400 dark:text-zinc-500 font-bold text-xl md:text-2xl opacity-60 hover:opacity-100 transition-opacity flex items-center gap-2">
                             <GraduationCap className="w-6 h-6" /> {item.name.toLowerCase() === 'eduction' ? 'Education' : item.name}
                         </div>
                     ))}
@@ -295,12 +295,12 @@ const InstitutesSection = ({ featuredBusinesses, basePath }) => {
     if(businesses.length === 0) return null;
     
     return (
-        <section id="top-institutes" className="pt-10 pb-0 md:pt-14 md:pb-0 bg-white border-b border-slate-200">
+        <section id="top-institutes" className="pt-10 pb-0 md:pt-14 md:pb-0 bg-white dark:bg-zinc-950 border-b border-slate-200 dark:border-zinc-800">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-end mb-8 md:mb-10">
                     <div>
-                        <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Top Coaching Institutes in Sikar</h2>
-                        <p className="text-slate-500 mt-2 text-base md:text-lg">Explore institutes based on courses, reviews, results and available information.</p>
+                        <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Top Coaching Institutes in Sikar</h2>
+                        <p className="text-slate-500 dark:text-zinc-400 mt-2 text-base md:text-lg">Explore institutes based on courses, reviews, results and available information.</p>
                     </div>
                     <Link href={`${basePath}/reviews`} className="hidden md:block bg-blue-600 hover:bg-blue-700 text-white text-center font-medium py-2 px-4 rounded-md transition-colors text-sm">
                         View All
@@ -313,17 +313,17 @@ const InstitutesSection = ({ featuredBusinesses, basePath }) => {
                         const reviewUrl = `${basePath}/reviews/${categorySlug}/${biz.slug}`;
                         
                         return (
-                        <article key={biz.id} className="bg-white rounded-xl overflow-hidden border border-slate-200 hover:-translate-y-1 transition-all duration-300 flex flex-col group">
-                            <Link href={reviewUrl} className="relative aspect-[16/9] w-full block overflow-hidden bg-slate-100 flex items-center justify-center p-4">
+                        <article key={biz.id} className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden border border-slate-200 dark:border-zinc-800 hover:-translate-y-1 transition-all duration-300 flex flex-col group">
+                            <Link href={reviewUrl} className="relative aspect-[16/9] w-full block overflow-hidden bg-slate-100 dark:bg-zinc-800 flex items-center justify-center p-4">
                                 <Image src={biz.logo || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80'} alt={biz.name} fill style={{objectFit: 'contain'}} className="group-hover:scale-105 transition-transform duration-500" />
                             </Link>
                             
-                            <div className="p-4 md:p-5 flex-grow flex flex-col border-t border-slate-100">
-                                <h3 className="text-base md:text-lg font-bold text-slate-900 leading-snug mb-2 group-hover:text-blue-600 transition-colors">
+                            <div className="p-4 md:p-5 flex-grow flex flex-col border-t border-slate-100 dark:border-zinc-800">
+                                <h3 className="text-base md:text-lg font-bold text-slate-900 dark:text-white leading-snug mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                                     <Link href={reviewUrl} className="focus:outline-none">{biz.name}</Link>
                                 </h3>
                                 
-                                <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500 mb-3">
+                                <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500 dark:text-zinc-400 mb-3">
                                     <span className="inline-flex items-center gap-1 text-amber-500 font-semibold">
                                         <Star className="w-3.5 h-3.5 fill-amber-500" /> {biz.rating || 4.5}
                                     </span>
@@ -333,12 +333,12 @@ const InstitutesSection = ({ featuredBusinesses, basePath }) => {
                                 </div>
                                 
                                 <div className="flex flex-wrap gap-1.5 mb-4">
-                                    <span className="bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded border border-blue-100">{biz.categoryName || biz.category}</span>
-                                    {biz.isVerified && <span className="bg-green-50 text-green-700 text-xs font-semibold px-2 py-0.5 rounded border border-green-200 flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> Verified</span>}
-                                    {biz.location && <span className="bg-slate-50 text-slate-700 text-xs font-semibold px-2 py-0.5 rounded border border-slate-200 flex items-center gap-1"><MapPin size={12}/>{biz.location}</span>}
+                                    <span className="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-semibold px-2 py-0.5 rounded border border-blue-100 dark:border-blue-800/30">{biz.categoryName || biz.category}</span>
+                                    {biz.isVerified && <span className="bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-semibold px-2 py-0.5 rounded border border-green-200 dark:border-green-800/30 flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> Verified</span>}
+                                    {biz.location && <span className="bg-slate-50 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-semibold px-2 py-0.5 rounded border border-slate-200 dark:border-zinc-700 flex items-center gap-1"><MapPin size={12}/>{biz.location}</span>}
                                 </div>
                                 
-                                <div className="mt-auto pt-4 border-t border-slate-100 space-y-1 text-sm text-slate-600">
+                                <div className="mt-auto pt-4 border-t border-slate-100 dark:border-zinc-800 space-y-1 text-sm text-slate-600 dark:text-zinc-400">
                                     <Link href={reviewUrl} className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center font-medium py-2 rounded-md transition-colors text-sm">
                                         Read Reviews ({biz.reviewCount || 0})
                                     </Link>
@@ -499,13 +499,13 @@ const BlogSection = ({ morePosts, basePath, formatDate }) => {
     if(posts.length === 0) return null;
     
     return (
-        <section className="py-10 md:py-14 bg-slate-50">
+        <section className="py-10 md:py-14 bg-slate-50 dark:bg-zinc-900">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-end mb-8 md:mb-10">
                     <div>
                         <p className="text-blue-500 text-sm font-bold tracking-wider mb-1">Editor's Picks</p>
-                        <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Explore the Blog</h2>
-                        <p className="text-slate-500 mt-2 text-base md:text-lg">Read the latest articles, guides, and updates.</p>
+                        <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Explore the Blog</h2>
+                        <p className="text-slate-500 dark:text-zinc-400 mt-2 text-base md:text-lg">Read the latest articles, guides, and updates.</p>
                     </div>
                     <Link href={`${basePath}/blog`} className="hidden md:block bg-blue-600 hover:bg-blue-700 text-white text-center font-medium py-2 px-4 rounded-md transition-colors text-sm">
                         View All Blog
@@ -514,25 +514,25 @@ const BlogSection = ({ morePosts, basePath, formatDate }) => {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {posts.map((post) => (
-                        <article key={post.id} className="bg-white rounded-xl overflow-hidden border border-slate-200 hover:-translate-y-1 transition-all duration-300 flex flex-col group">
+                        <article key={post.id} className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden border border-slate-200 dark:border-zinc-800 hover:-translate-y-1 transition-all duration-300 flex flex-col group">
                             <Link href={`${basePath}/blog/${post.slug}`} className="relative aspect-[16/9] w-full block overflow-hidden">
                                 <Image src={post.coverImage || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80'} alt={post.title} fill style={{objectFit: 'cover'}} className="group-hover:scale-105 transition-transform duration-500" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             </Link>
                             
                             <div className="p-4 md:p-5 flex-grow flex flex-col">
-                                <h3 className="text-base md:text-lg font-bold text-slate-900 leading-snug mb-2 group-hover:text-blue-600 transition-colors">
+                                <h3 className="text-base md:text-lg font-bold text-slate-900 dark:text-white leading-snug mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                                     <Link href={`${basePath}/blog/${post.slug}`} className="focus:outline-none">{post.title}</Link>
                                 </h3>
                                 
                                 <div className="flex flex-wrap gap-1.5 mb-4">
-                                    <span className="bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded border border-blue-100">{post.category || 'Article'}</span>
+                                    <span className="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-semibold px-2 py-0.5 rounded border border-blue-100 dark:border-blue-800/30">{post.category || 'Article'}</span>
                                 </div>
                                 
-                                <div className="mt-auto pt-4 border-t border-slate-100 space-y-1 text-sm text-slate-600">
+                                <div className="mt-auto pt-4 border-t border-slate-100 dark:border-zinc-800 space-y-1 text-sm text-slate-600 dark:text-zinc-400">
                                     <div className="flex justify-between items-center mb-3">
-                                        <span className="text-slate-500">Posted:</span>
-                                        <span className="font-semibold text-slate-800">{formatDate(post.date)}</span>
+                                        <span className="text-slate-500 dark:text-zinc-400">Posted:</span>
+                                        <span className="font-semibold text-slate-800 dark:text-zinc-200">{formatDate(post.date)}</span>
                                     </div>
                                     <Link href={`${basePath}/blog/${post.slug}`} className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center font-medium py-2 rounded-md transition-colors text-sm">
                                         Read Article
@@ -562,11 +562,11 @@ const CategorySection = ({ categories, basePath }) => {
                     <div className="flex animate-marquee-fast items-center justify-center space-x-4 md:space-x-6 whitespace-nowrap pt-2 pb-6">
                         {[...categories, ...categories, ...categories, ...categories].map((cat, i) => (
                             <Link key={`${cat.id}-${i}`} href={`${basePath}/category/${cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-')}`} 
-                                className="bg-slate-50 w-40 h-40 rounded-xl border border-slate-100 hover:border-blue-500 hover:bg-blue-50 transition-all duration-300 group flex flex-col items-center justify-center text-center shrink-0">
-                                <div className="w-12 h-12 bg-white group-hover:bg-blue-600 rounded-full flex items-center justify-center text-blue-600 group-hover:text-white mb-3 transition-colors">
+                                className="bg-slate-50 dark:bg-zinc-800 w-40 h-40 rounded-xl border border-slate-100 dark:border-zinc-700 hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 group flex flex-col items-center justify-center text-center shrink-0">
+                                <div className="w-12 h-12 bg-white dark:bg-zinc-700 group-hover:bg-blue-600 rounded-full flex items-center justify-center text-blue-600 group-hover:text-white mb-3 transition-colors">
                                     <GraduationCap className="w-6 h-6" />
                                 </div>
-                                <h3 className="font-bold text-slate-800 text-sm group-hover:text-blue-700 transition-colors whitespace-normal break-words w-full px-2 leading-tight">{cat.name.toLowerCase() === 'eduction' ? 'Education' : cat.name}</h3>
+                                <h3 className="font-bold text-slate-800 dark:text-zinc-200 text-sm group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors whitespace-normal break-words w-full px-2 leading-tight">{cat.name.toLowerCase() === 'eduction' ? 'Education' : cat.name}</h3>
                             </Link>
                         ))}
                     </div>
@@ -607,33 +607,33 @@ const StoriesSection = ({ stories, basePath }) => {
 };
 
 const SeoContent = () => (
-    <section className="py-10 md:py-14 bg-slate-50 border-t border-slate-200">
+    <section className="py-10 md:py-14 bg-slate-50 dark:bg-zinc-900 border-t border-slate-200 dark:border-zinc-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
                 <div>
                     <span className="text-blue-600 font-bold tracking-widest text-xs mb-3 block">About Us</span>
-                    <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-6 leading-tight">Coaching in Sikar: Your Complete Education Guide</h2>
-                    <div className="text-slate-600 text-base md:text-lg leading-relaxed space-y-4">
+                    <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-6 leading-tight">Coaching in Sikar: Your Complete Education Guide</h2>
+                    <div className="text-slate-600 dark:text-zinc-400 text-base md:text-lg leading-relaxed space-y-4">
                         <p>Our mission is simple — to make educational information easier to find, understand, and compare. We research and publish useful guides covering coaching institutes, academic programs, exam preparation, results, facilities, courses, and student experiences.</p>
                         <p>Sikar has rapidly emerged as a major educational hub in Rajasthan, attracting thousands of students every year who dream of securing top ranks in national-level competitive exams like NEET and IIT-JEE.</p>
                     </div>
                     <div className="mt-8 flex flex-wrap items-center gap-6">
                         <div className="flex items-center gap-3">
-                            <div className="bg-green-100 p-3 rounded-full text-green-600">
+                            <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-full text-green-600 dark:text-green-400">
                                 <ShieldCheck className="w-6 h-6" />
                             </div>
                             <div>
-                                <div className="font-bold text-slate-800">Verified Data</div>
-                                <div className="text-sm text-slate-500">Trusted reviews</div>
+                                <div className="font-bold text-slate-800 dark:text-white">Verified Data</div>
+                                <div className="text-sm text-slate-500 dark:text-zinc-400">Trusted reviews</div>
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
-                            <div className="bg-amber-100 p-3 rounded-full text-amber-600">
+                            <div className="bg-amber-100 dark:bg-amber-900/30 p-3 rounded-full text-amber-600 dark:text-amber-400">
                                 <Award className="w-6 h-6" />
                             </div>
                             <div>
-                                <div className="font-bold text-slate-800">Top Institutes</div>
-                                <div className="text-sm text-slate-500">Ranked accurately</div>
+                                <div className="font-bold text-slate-800 dark:text-white">Top Institutes</div>
+                                <div className="text-sm text-slate-500 dark:text-zinc-400">Ranked accurately</div>
                             </div>
                         </div>
                     </div>
@@ -643,7 +643,7 @@ const SeoContent = () => (
                     <img 
                         src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80" 
                         alt="Students studying" 
-                        className="relative z-10 rounded-[2rem] shadow-xl w-full object-cover aspect-[4/3] border-4 border-white"
+                        className="relative z-10 rounded-[2rem] shadow-xl w-full object-cover aspect-[4/3] border-4 border-white dark:border-zinc-700"
                     />
                 </div>
             </div>
@@ -691,24 +691,24 @@ const FAQSection = () => {
                     {/* Left Column: Sticky Title & CTA */}
                     <div className="lg:col-span-5 lg:sticky lg:top-32 space-y-8">
                         <div>
-                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100/50 border border-blue-200 text-blue-700 text-xs font-bold tracking-wider mb-6">
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100/50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800/30 text-blue-700 dark:text-blue-400 text-xs font-bold tracking-wider mb-6">
                                 <MessageSquare className="w-4 h-4" /> Got Questions?
                             </div>
-                            <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight leading-tight">
+                            <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-6 tracking-tight leading-tight">
                                 Frequently Asked <span className="text-blue-600">Questions</span>
                             </h2>
-                            <p className="text-slate-600 text-base md:text-lg leading-relaxed">
+                            <p className="text-slate-600 dark:text-zinc-400 text-base md:text-lg leading-relaxed">
                                 Everything you need to know about coaching institutes, education, and living in Sikar. Can't find the answer you're looking for?
                             </p>
                         </div>
                         
-                        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex items-start gap-4">
-                            <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                                <Search className="w-6 h-6 text-amber-600" />
+                        <div className="bg-white dark:bg-zinc-800 rounded-2xl p-6 border border-slate-200 dark:border-zinc-700 shadow-sm flex items-start gap-4">
+                            <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <Search className="w-6 h-6 text-amber-600 dark:text-amber-400" />
                             </div>
                             <div>
-                                <h3 className="font-bold text-slate-900 mb-1">Still have questions?</h3>
-                                <p className="text-sm text-slate-500 mb-4">Chat with our educational counselors for personalized guidance.</p>
+                                <h3 className="font-bold text-slate-900 dark:text-white mb-1">Still have questions?</h3>
+                                <p className="text-sm text-slate-500 dark:text-zinc-400 mb-4">Chat with our educational counselors for personalized guidance.</p>
                                 <Link href="/contact" className="btn-amber px-5 py-2 text-sm transition-transform hover:scale-105 inline-block">
                                     Contact Support
                                 </Link>
@@ -723,25 +723,25 @@ const FAQSection = () => {
                             return (
                                 <div 
                                     key={index} 
-                                    className={`group border rounded-2xl overflow-hidden transition-all duration-500 ${isOpen ? 'bg-white shadow-xl shadow-blue-900/5 border-blue-200 ring-1 ring-blue-100' : 'bg-white/60 border-slate-200 hover:border-blue-300 hover:bg-white backdrop-blur-sm'}`}
+                                    className={`group border rounded-2xl overflow-hidden transition-all duration-500 ${isOpen ? 'bg-white dark:bg-zinc-800 shadow-xl shadow-blue-900/5 dark:shadow-none border-blue-200 dark:border-blue-700 ring-1 ring-blue-100 dark:ring-blue-700/30' : 'bg-white/60 dark:bg-zinc-800/60 border-slate-200 dark:border-zinc-700 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-white dark:hover:bg-zinc-800 backdrop-blur-sm'}`}
                                 >
                                     <button 
                                         className="w-full px-6 py-6 flex items-center justify-between text-left focus:outline-none focus:ring-0 ring-0 border-none bg-transparent cursor-pointer"
                                         onClick={() => setOpenIndex(isOpen ? null : index)}
                                         aria-expanded={isOpen}
                                     >
-                                        <span className={`font-bold text-lg pr-6 transition-colors duration-300 ${isOpen ? 'text-blue-700' : 'text-slate-800 group-hover:text-blue-600'}`}>
+                                        <span className={`font-bold text-lg pr-6 transition-colors duration-300 ${isOpen ? 'text-blue-700 dark:text-blue-400' : 'text-slate-800 dark:text-zinc-200 group-hover:text-blue-600 dark:group-hover:text-blue-400'}`}>
                                             {faq.question}
                                         </span>
-                                        <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 ${isOpen ? 'bg-blue-600 text-white rotate-180 shadow-md shadow-blue-600/20' : 'bg-slate-100 text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-500'}`}>
+                                        <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 ${isOpen ? 'bg-blue-600 text-white rotate-180 shadow-md shadow-blue-600/20' : 'bg-slate-100 dark:bg-zinc-700 text-slate-500 dark:text-zinc-400 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 group-hover:text-blue-500'}`}>
                                             <ChevronDown className="w-5 h-5" />
                                         </div>
                                     </button>
                                     <div 
                                         className={`px-6 overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-96 pb-6 opacity-100' : 'max-h-0 pb-0 opacity-0'}`}
                                     >
-                                        <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent mb-5"></div>
-                                        <p className="text-slate-600 leading-relaxed text-base m-0">
+                                        <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-zinc-600 to-transparent mb-5"></div>
+                                        <p className="text-slate-600 dark:text-zinc-400 leading-relaxed text-base m-0">
                                             {faq.answer}
                                         </p>
                                     </div>
@@ -766,7 +766,7 @@ export default function Welcome(props) {
     };
 
     return (
-        <div className="bg-white min-h-screen font-sans">
+        <div className="bg-white dark:bg-zinc-950 min-h-screen font-sans">
             <SeoMeta meta={meta} />
             <GlobalNavbar />
             

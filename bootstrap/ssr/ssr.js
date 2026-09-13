@@ -19,9 +19,9 @@ createServer((page) => createInertiaApp({
 		"./Pages/Admin/DeleteButton.jsx": () => import("./assets/DeleteButton-4pbNZztV.js"),
 		"./Pages/Admin/Index.jsx": () => import("./assets/Index-DRhuPFSY.js"),
 		"./Pages/Admin/Media/Index.jsx": () => import("./assets/Index-D3Irxw5-.js"),
-		"./Pages/Admin/PostForm.tsx": () => import("./assets/PostForm-BYiyISbT.js"),
-		"./Pages/Admin/Posts/Edit.jsx": () => import("./assets/Edit-DCt2xLHs.js"),
-		"./Pages/Admin/Posts/New.jsx": () => import("./assets/New-DcN6eLXh.js"),
+		"./Pages/Admin/PostForm.tsx": () => import("./assets/PostForm-CJ504TFG.js"),
+		"./Pages/Admin/Posts/Edit.jsx": () => import("./assets/Edit-B0H9xw_V.js"),
+		"./Pages/Admin/Posts/New.jsx": () => import("./assets/New-DzyNP053.js"),
 		"./Pages/Admin/SeoAudit/Index.jsx": () => import("./assets/Index-CzhOTYPS.js"),
 		"./Pages/Admin/Settings/Slider.jsx": () => import("./assets/Slider-CsMGqqLx.js"),
 		"./Pages/Admin/Stories/Edit.jsx": () => import("./assets/Edit-Doc-TgKi.js"),
@@ -53,13 +53,13 @@ createServer((page) => createInertiaApp({
 		"./Pages/Profile/Partials/DeleteUserForm.jsx": () => import("./assets/DeleteUserForm-bgs-02f5.js"),
 		"./Pages/Profile/Partials/UpdatePasswordForm.jsx": () => import("./assets/UpdatePasswordForm-ClTBBcO-.js"),
 		"./Pages/Profile/Partials/UpdateProfileInformationForm.jsx": () => import("./assets/UpdateProfileInformationForm-Dy8I--ud.js"),
-		"./Pages/Reviews/Index.tsx": () => import("./assets/Index-DYPt3O0d.js"),
+		"./Pages/Reviews/Index.tsx": () => import("./assets/Index-CXfjWIXZ.js"),
 		"./Pages/Reviews/components/AdminPanel.tsx": () => import("./assets/AdminPanel-CFYriZy2.js"),
 		"./Pages/Reviews/components/AiSearchModal.tsx": () => import("./assets/AiSearchModal-CfFlaLO8.js"),
 		"./Pages/Reviews/components/ApiDocsModal.tsx": () => import("./assets/ApiDocsModal-Cnw480tN.js"),
 		"./Pages/Reviews/components/BusinessCard.tsx": () => import("./assets/BusinessCard-BG1dG1Ew.js"),
 		"./Pages/Reviews/components/BusinessDashboard.tsx": () => import("./assets/BusinessDashboard-C1JazekU.js"),
-		"./Pages/Reviews/components/BusinessProfileView.tsx": () => import("./assets/BusinessProfileView-pY4wfa0n.js"),
+		"./Pages/Reviews/components/BusinessProfileView.tsx": () => import("./assets/BusinessProfileView-CTAslfzK.js"),
 		"./Pages/Reviews/components/CategoryGrid.tsx": () => import("./assets/CategoryGrid-CMSR5viJ.js"),
 		"./Pages/Reviews/components/CreateBusinessModal.tsx": () => import("./assets/CreateBusinessModal-DcLw8nnK.js"),
 		"./Pages/Reviews/components/Footer.tsx": () => import("./assets/Footer-D7_QkJak.js"),
@@ -76,7 +76,7 @@ createServer((page) => createInertiaApp({
 		"./Pages/Static/Terms.jsx": () => import("./assets/Terms-yzeJyU0k.js"),
 		"./Pages/Story/Index.jsx": () => import("./assets/Index-CiegvLBT.js"),
 		"./Pages/User/Show.jsx": () => import("./assets/Show-BzcbCKvT.js"),
-		"./Pages/Welcome.jsx": () => import("./assets/Welcome-C0wHtFnj.js")
+		"./Pages/Welcome.jsx": () => import("./assets/Welcome-BDqwzLjG.js")
 	})),
 	setup({ App, props }) {
 		return /* @__PURE__ */ jsx(App, { ...props });

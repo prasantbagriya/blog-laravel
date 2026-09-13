@@ -4,7 +4,7 @@ import { t as INITIAL_CATEGORIES } from "./mockData-WYrlIyrH.js";
 import { HeroSection } from "./HeroSection-CXoFLCeq.js";
 import { CategoryGrid } from "./CategoryGrid-CMSR5viJ.js";
 import { BusinessCard } from "./BusinessCard-BG1dG1Ew.js";
-import { BusinessProfileView } from "./BusinessProfileView-pY4wfa0n.js";
+import { BusinessProfileView } from "./BusinessProfileView-CTAslfzK.js";
 import { SubmitReviewModal } from "./SubmitReviewModal-cV6ol9sx.js";
 import { CreateBusinessModal } from "./CreateBusinessModal-DcLw8nnK.js";
 import { BusinessDashboard } from "./BusinessDashboard-C1JazekU.js";

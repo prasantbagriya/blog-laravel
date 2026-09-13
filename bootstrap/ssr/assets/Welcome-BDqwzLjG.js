@@ -363,11 +363,11 @@ var TrustMarquee = ({ categories }) => {
 		}
 	];
 	return /* @__PURE__ */ jsxs("section", {
-		className: "py-6 bg-white border-b border-slate-100 overflow-hidden",
+		className: "py-6 bg-white dark:bg-zinc-900 border-b border-slate-100 dark:border-zinc-800 overflow-hidden",
 		children: [/* @__PURE__ */ jsx("div", {
 			className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-4",
 			children: /* @__PURE__ */ jsx("p", {
-				className: "text-xs font-bold text-slate-400 tracking-wider",
+				className: "text-xs font-bold text-slate-400 dark:text-zinc-500 tracking-wider",
 				children: "Trusted Categories & Streams"
 			})
 		}), /* @__PURE__ */ jsx("div", {
@@ -379,7 +379,7 @@ var TrustMarquee = ({ categories }) => {
 					...items,
 					...items
 				].map((item, idx) => /* @__PURE__ */ jsxs("div", {
-					className: "text-slate-400 font-bold text-xl md:text-2xl opacity-60 hover:opacity-100 transition-opacity flex items-center gap-2",
+					className: "text-slate-400 dark:text-zinc-500 font-bold text-xl md:text-2xl opacity-60 hover:opacity-100 transition-opacity flex items-center gap-2",
 					children: [
 						/* @__PURE__ */ jsx(GraduationCap, { className: "w-6 h-6" }),
 						" ",
@@ -395,16 +395,16 @@ var InstitutesSection = ({ featuredBusinesses, basePath }) => {
 	if (businesses.length === 0) return null;
 	return /* @__PURE__ */ jsx("section", {
 		id: "top-institutes",
-		className: "pt-10 pb-0 md:pt-14 md:pb-0 bg-white border-b border-slate-200",
+		className: "pt-10 pb-0 md:pt-14 md:pb-0 bg-white dark:bg-zinc-950 border-b border-slate-200 dark:border-zinc-800",
 		children: /* @__PURE__ */ jsxs("div", {
 			className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
 			children: [/* @__PURE__ */ jsxs("div", {
 				className: "flex justify-between items-end mb-8 md:mb-10",
 				children: [/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("h2", {
-					className: "text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight",
+					className: "text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight",
 					children: "Top Coaching Institutes in Sikar"
 				}), /* @__PURE__ */ jsx("p", {
-					className: "text-slate-500 mt-2 text-base md:text-lg",
+					className: "text-slate-500 dark:text-zinc-400 mt-2 text-base md:text-lg",
 					children: "Explore institutes based on courses, reviews, results and available information."
 				})] }), /* @__PURE__ */ jsx(Link, {
 					href: `${basePath}/reviews`,
@@ -416,10 +416,10 @@ var InstitutesSection = ({ featuredBusinesses, basePath }) => {
 				children: businesses.map((biz) => {
 					const reviewUrl = `${basePath}/reviews/${biz.category || "coaching-institutes"}/${biz.slug}`;
 					return /* @__PURE__ */ jsxs("article", {
-						className: "bg-white rounded-xl overflow-hidden border border-slate-200 hover:-translate-y-1 transition-all duration-300 flex flex-col group",
+						className: "bg-white dark:bg-zinc-900 rounded-xl overflow-hidden border border-slate-200 dark:border-zinc-800 hover:-translate-y-1 transition-all duration-300 flex flex-col group",
 						children: [/* @__PURE__ */ jsx(Link, {
 							href: reviewUrl,
-							className: "relative aspect-[16/9] w-full block overflow-hidden bg-slate-100 flex items-center justify-center p-4",
+							className: "relative aspect-[16/9] w-full block overflow-hidden bg-slate-100 dark:bg-zinc-800 flex items-center justify-center p-4",
 							children: /* @__PURE__ */ jsx(Image$1, {
 								src: biz.logo || "https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80",
 								alt: biz.name,
@@ -428,10 +428,10 @@ var InstitutesSection = ({ featuredBusinesses, basePath }) => {
 								className: "group-hover:scale-105 transition-transform duration-500"
 							})
 						}), /* @__PURE__ */ jsxs("div", {
-							className: "p-4 md:p-5 flex-grow flex flex-col border-t border-slate-100",
+							className: "p-4 md:p-5 flex-grow flex flex-col border-t border-slate-100 dark:border-zinc-800",
 							children: [
 								/* @__PURE__ */ jsx("h3", {
-									className: "text-base md:text-lg font-bold text-slate-900 leading-snug mb-2 group-hover:text-blue-600 transition-colors",
+									className: "text-base md:text-lg font-bold text-slate-900 dark:text-white leading-snug mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors",
 									children: /* @__PURE__ */ jsx(Link, {
 										href: reviewUrl,
 										className: "focus:outline-none",
@@ -439,7 +439,7 @@ var InstitutesSection = ({ featuredBusinesses, basePath }) => {
 									})
 								}),
 								/* @__PURE__ */ jsxs("div", {
-									className: "flex flex-wrap items-center gap-3 text-sm text-slate-500 mb-3",
+									className: "flex flex-wrap items-center gap-3 text-sm text-slate-500 dark:text-zinc-400 mb-3",
 									children: [/* @__PURE__ */ jsxs("span", {
 										className: "inline-flex items-center gap-1 text-amber-500 font-semibold",
 										children: [
@@ -461,21 +461,21 @@ var InstitutesSection = ({ featuredBusinesses, basePath }) => {
 									className: "flex flex-wrap gap-1.5 mb-4",
 									children: [
 										/* @__PURE__ */ jsx("span", {
-											className: "bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded border border-blue-100",
+											className: "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-semibold px-2 py-0.5 rounded border border-blue-100 dark:border-blue-800/30",
 											children: biz.categoryName || biz.category
 										}),
 										biz.isVerified && /* @__PURE__ */ jsxs("span", {
-											className: "bg-green-50 text-green-700 text-xs font-semibold px-2 py-0.5 rounded border border-green-200 flex items-center gap-1",
+											className: "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-semibold px-2 py-0.5 rounded border border-green-200 dark:border-green-800/30 flex items-center gap-1",
 											children: [/* @__PURE__ */ jsx(ShieldCheck, { className: "w-3 h-3" }), " Verified"]
 										}),
 										biz.location && /* @__PURE__ */ jsxs("span", {
-											className: "bg-slate-50 text-slate-700 text-xs font-semibold px-2 py-0.5 rounded border border-slate-200 flex items-center gap-1",
+											className: "bg-slate-50 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-semibold px-2 py-0.5 rounded border border-slate-200 dark:border-zinc-700 flex items-center gap-1",
 											children: [/* @__PURE__ */ jsx(MapPin, { size: 12 }), biz.location]
 										})
 									]
 								}),
 								/* @__PURE__ */ jsx("div", {
-									className: "mt-auto pt-4 border-t border-slate-100 space-y-1 text-sm text-slate-600",
+									className: "mt-auto pt-4 border-t border-slate-100 dark:border-zinc-800 space-y-1 text-sm text-slate-600 dark:text-zinc-400",
 									children: /* @__PURE__ */ jsxs(Link, {
 										href: reviewUrl,
 										className: "block w-full bg-blue-600 hover:bg-blue-700 text-white text-center font-medium py-2 rounded-md transition-colors text-sm",
@@ -723,7 +723,7 @@ var BlogSection = ({ morePosts, basePath, formatDate }) => {
 	const posts = (morePosts || []).slice(0, 4);
 	if (posts.length === 0) return null;
 	return /* @__PURE__ */ jsx("section", {
-		className: "py-10 md:py-14 bg-slate-50",
+		className: "py-10 md:py-14 bg-slate-50 dark:bg-zinc-900",
 		children: /* @__PURE__ */ jsxs("div", {
 			className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
 			children: [/* @__PURE__ */ jsxs("div", {
@@ -734,11 +734,11 @@ var BlogSection = ({ morePosts, basePath, formatDate }) => {
 						children: "Editor's Picks"
 					}),
 					/* @__PURE__ */ jsx("h2", {
-						className: "text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight",
+						className: "text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight",
 						children: "Explore the Blog"
 					}),
 					/* @__PURE__ */ jsx("p", {
-						className: "text-slate-500 mt-2 text-base md:text-lg",
+						className: "text-slate-500 dark:text-zinc-400 mt-2 text-base md:text-lg",
 						children: "Read the latest articles, guides, and updates."
 					})
 				] }), /* @__PURE__ */ jsx(Link, {
@@ -749,7 +749,7 @@ var BlogSection = ({ morePosts, basePath, formatDate }) => {
 			}), /* @__PURE__ */ jsx("div", {
 				className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6",
 				children: posts.map((post) => /* @__PURE__ */ jsxs("article", {
-					className: "bg-white rounded-xl overflow-hidden border border-slate-200 hover:-translate-y-1 transition-all duration-300 flex flex-col group",
+					className: "bg-white dark:bg-zinc-900 rounded-xl overflow-hidden border border-slate-200 dark:border-zinc-800 hover:-translate-y-1 transition-all duration-300 flex flex-col group",
 					children: [/* @__PURE__ */ jsxs(Link, {
 						href: `${basePath}/blog/${post.slug}`,
 						className: "relative aspect-[16/9] w-full block overflow-hidden",
@@ -764,7 +764,7 @@ var BlogSection = ({ morePosts, basePath, formatDate }) => {
 						className: "p-4 md:p-5 flex-grow flex flex-col",
 						children: [
 							/* @__PURE__ */ jsx("h3", {
-								className: "text-base md:text-lg font-bold text-slate-900 leading-snug mb-2 group-hover:text-blue-600 transition-colors",
+								className: "text-base md:text-lg font-bold text-slate-900 dark:text-white leading-snug mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors",
 								children: /* @__PURE__ */ jsx(Link, {
 									href: `${basePath}/blog/${post.slug}`,
 									className: "focus:outline-none",
@@ -774,19 +774,19 @@ var BlogSection = ({ morePosts, basePath, formatDate }) => {
 							/* @__PURE__ */ jsx("div", {
 								className: "flex flex-wrap gap-1.5 mb-4",
 								children: /* @__PURE__ */ jsx("span", {
-									className: "bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded border border-blue-100",
+									className: "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-semibold px-2 py-0.5 rounded border border-blue-100 dark:border-blue-800/30",
 									children: post.category || "Article"
 								})
 							}),
 							/* @__PURE__ */ jsxs("div", {
-								className: "mt-auto pt-4 border-t border-slate-100 space-y-1 text-sm text-slate-600",
+								className: "mt-auto pt-4 border-t border-slate-100 dark:border-zinc-800 space-y-1 text-sm text-slate-600 dark:text-zinc-400",
 								children: [/* @__PURE__ */ jsxs("div", {
 									className: "flex justify-between items-center mb-3",
 									children: [/* @__PURE__ */ jsx("span", {
-										className: "text-slate-500",
+										className: "text-slate-500 dark:text-zinc-400",
 										children: "Posted:"
 									}), /* @__PURE__ */ jsx("span", {
-										className: "font-semibold text-slate-800",
+										className: "font-semibold text-slate-800 dark:text-zinc-200",
 										children: formatDate(post.date)
 									})]
 								}), /* @__PURE__ */ jsx(Link, {
@@ -828,12 +828,12 @@ var CategorySection = ({ categories, basePath }) => {
 						...categories
 					].map((cat, i) => /* @__PURE__ */ jsxs(Link, {
 						href: `${basePath}/category/${cat.slug || cat.name.toLowerCase().replace(/\s+/g, "-")}`,
-						className: "bg-slate-50 w-40 h-40 rounded-xl border border-slate-100 hover:border-blue-500 hover:bg-blue-50 transition-all duration-300 group flex flex-col items-center justify-center text-center shrink-0",
+						className: "bg-slate-50 dark:bg-zinc-800 w-40 h-40 rounded-xl border border-slate-100 dark:border-zinc-700 hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 group flex flex-col items-center justify-center text-center shrink-0",
 						children: [/* @__PURE__ */ jsx("div", {
-							className: "w-12 h-12 bg-white group-hover:bg-blue-600 rounded-full flex items-center justify-center text-blue-600 group-hover:text-white mb-3 transition-colors",
+							className: "w-12 h-12 bg-white dark:bg-zinc-700 group-hover:bg-blue-600 rounded-full flex items-center justify-center text-blue-600 group-hover:text-white mb-3 transition-colors",
 							children: /* @__PURE__ */ jsx(GraduationCap, { className: "w-6 h-6" })
 						}), /* @__PURE__ */ jsx("h3", {
-							className: "font-bold text-slate-800 text-sm group-hover:text-blue-700 transition-colors whitespace-normal break-words w-full px-2 leading-tight",
+							className: "font-bold text-slate-800 dark:text-zinc-200 text-sm group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors whitespace-normal break-words w-full px-2 leading-tight",
 							children: cat.name.toLowerCase() === "eduction" ? "Education" : cat.name
 						})]
 					}, `${cat.id}-${i}`))
@@ -889,7 +889,7 @@ var StoriesSection = ({ stories, basePath }) => {
 	});
 };
 var SeoContent = () => /* @__PURE__ */ jsx("section", {
-	className: "py-10 md:py-14 bg-slate-50 border-t border-slate-200",
+	className: "py-10 md:py-14 bg-slate-50 dark:bg-zinc-900 border-t border-slate-200 dark:border-zinc-800",
 	children: /* @__PURE__ */ jsx("div", {
 		className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
 		children: /* @__PURE__ */ jsxs("div", {
@@ -900,11 +900,11 @@ var SeoContent = () => /* @__PURE__ */ jsx("section", {
 					children: "About Us"
 				}),
 				/* @__PURE__ */ jsx("h2", {
-					className: "text-3xl md:text-4xl font-extrabold text-slate-900 mb-6 leading-tight",
+					className: "text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-6 leading-tight",
 					children: "Coaching in Sikar: Your Complete Education Guide"
 				}),
 				/* @__PURE__ */ jsxs("div", {
-					className: "text-slate-600 text-base md:text-lg leading-relaxed space-y-4",
+					className: "text-slate-600 dark:text-zinc-400 text-base md:text-lg leading-relaxed space-y-4",
 					children: [/* @__PURE__ */ jsx("p", { children: "Our mission is simple — to make educational information easier to find, understand, and compare. We research and publish useful guides covering coaching institutes, academic programs, exam preparation, results, facilities, courses, and student experiences." }), /* @__PURE__ */ jsx("p", { children: "Sikar has rapidly emerged as a major educational hub in Rajasthan, attracting thousands of students every year who dream of securing top ranks in national-level competitive exams like NEET and IIT-JEE." })]
 				}),
 				/* @__PURE__ */ jsxs("div", {
@@ -912,25 +912,25 @@ var SeoContent = () => /* @__PURE__ */ jsx("section", {
 					children: [/* @__PURE__ */ jsxs("div", {
 						className: "flex items-center gap-3",
 						children: [/* @__PURE__ */ jsx("div", {
-							className: "bg-green-100 p-3 rounded-full text-green-600",
+							className: "bg-green-100 dark:bg-green-900/30 p-3 rounded-full text-green-600 dark:text-green-400",
 							children: /* @__PURE__ */ jsx(ShieldCheck, { className: "w-6 h-6" })
 						}), /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("div", {
-							className: "font-bold text-slate-800",
+							className: "font-bold text-slate-800 dark:text-white",
 							children: "Verified Data"
 						}), /* @__PURE__ */ jsx("div", {
-							className: "text-sm text-slate-500",
+							className: "text-sm text-slate-500 dark:text-zinc-400",
 							children: "Trusted reviews"
 						})] })]
 					}), /* @__PURE__ */ jsxs("div", {
 						className: "flex items-center gap-3",
 						children: [/* @__PURE__ */ jsx("div", {
-							className: "bg-amber-100 p-3 rounded-full text-amber-600",
+							className: "bg-amber-100 dark:bg-amber-900/30 p-3 rounded-full text-amber-600 dark:text-amber-400",
 							children: /* @__PURE__ */ jsx(Award, { className: "w-6 h-6" })
 						}), /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("div", {
-							className: "font-bold text-slate-800",
+							className: "font-bold text-slate-800 dark:text-white",
 							children: "Top Institutes"
 						}), /* @__PURE__ */ jsx("div", {
-							className: "text-sm text-slate-500",
+							className: "text-sm text-slate-500 dark:text-zinc-400",
 							children: "Ranked accurately"
 						})] })]
 					})]
@@ -940,7 +940,7 @@ var SeoContent = () => /* @__PURE__ */ jsx("section", {
 				children: [/* @__PURE__ */ jsx("div", { className: "absolute inset-0 bg-blue-600/10 rounded-[2rem] transform translate-x-4 translate-y-4 md:translate-x-6 md:translate-y-6" }), /* @__PURE__ */ jsx("img", {
 					src: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80",
 					alt: "Students studying",
-					className: "relative z-10 rounded-[2rem] shadow-xl w-full object-cover aspect-[4/3] border-4 border-white"
+					className: "relative z-10 rounded-[2rem] shadow-xl w-full object-cover aspect-[4/3] border-4 border-white dark:border-zinc-700"
 				})]
 			})]
 		})
@@ -961,32 +961,32 @@ var FAQSection = () => {
 					className: "lg:col-span-5 lg:sticky lg:top-32 space-y-8",
 					children: [/* @__PURE__ */ jsxs("div", { children: [
 						/* @__PURE__ */ jsxs("div", {
-							className: "inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100/50 border border-blue-200 text-blue-700 text-xs font-bold tracking-wider mb-6",
+							className: "inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100/50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800/30 text-blue-700 dark:text-blue-400 text-xs font-bold tracking-wider mb-6",
 							children: [/* @__PURE__ */ jsx(MessageSquare, { className: "w-4 h-4" }), " Got Questions?"]
 						}),
 						/* @__PURE__ */ jsxs("h2", {
-							className: "text-3xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight leading-tight",
+							className: "text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-6 tracking-tight leading-tight",
 							children: ["Frequently Asked ", /* @__PURE__ */ jsx("span", {
 								className: "text-blue-600",
 								children: "Questions"
 							})]
 						}),
 						/* @__PURE__ */ jsx("p", {
-							className: "text-slate-600 text-base md:text-lg leading-relaxed",
+							className: "text-slate-600 dark:text-zinc-400 text-base md:text-lg leading-relaxed",
 							children: "Everything you need to know about coaching institutes, education, and living in Sikar. Can't find the answer you're looking for?"
 						})
 					] }), /* @__PURE__ */ jsxs("div", {
-						className: "bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex items-start gap-4",
+						className: "bg-white dark:bg-zinc-800 rounded-2xl p-6 border border-slate-200 dark:border-zinc-700 shadow-sm flex items-start gap-4",
 						children: [/* @__PURE__ */ jsx("div", {
-							className: "w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0",
-							children: /* @__PURE__ */ jsx(Search, { className: "w-6 h-6 text-amber-600" })
+							className: "w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center flex-shrink-0",
+							children: /* @__PURE__ */ jsx(Search, { className: "w-6 h-6 text-amber-600 dark:text-amber-400" })
 						}), /* @__PURE__ */ jsxs("div", { children: [
 							/* @__PURE__ */ jsx("h3", {
-								className: "font-bold text-slate-900 mb-1",
+								className: "font-bold text-slate-900 dark:text-white mb-1",
 								children: "Still have questions?"
 							}),
 							/* @__PURE__ */ jsx("p", {
-								className: "text-sm text-slate-500 mb-4",
+								className: "text-sm text-slate-500 dark:text-zinc-400 mb-4",
 								children: "Chat with our educational counselors for personalized guidance."
 							}),
 							/* @__PURE__ */ jsx(Link, {
@@ -1022,22 +1022,22 @@ var FAQSection = () => {
 					].map((faq, index) => {
 						const isOpen = openIndex === index;
 						return /* @__PURE__ */ jsxs("div", {
-							className: `group border rounded-2xl overflow-hidden transition-all duration-500 ${isOpen ? "bg-white shadow-xl shadow-blue-900/5 border-blue-200 ring-1 ring-blue-100" : "bg-white/60 border-slate-200 hover:border-blue-300 hover:bg-white backdrop-blur-sm"}`,
+							className: `group border rounded-2xl overflow-hidden transition-all duration-500 ${isOpen ? "bg-white dark:bg-zinc-800 shadow-xl shadow-blue-900/5 dark:shadow-none border-blue-200 dark:border-blue-700 ring-1 ring-blue-100 dark:ring-blue-700/30" : "bg-white/60 dark:bg-zinc-800/60 border-slate-200 dark:border-zinc-700 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-white dark:hover:bg-zinc-800 backdrop-blur-sm"}`,
 							children: [/* @__PURE__ */ jsxs("button", {
 								className: "w-full px-6 py-6 flex items-center justify-between text-left focus:outline-none focus:ring-0 ring-0 border-none bg-transparent cursor-pointer",
 								onClick: () => setOpenIndex(isOpen ? null : index),
 								"aria-expanded": isOpen,
 								children: [/* @__PURE__ */ jsx("span", {
-									className: `font-bold text-lg pr-6 transition-colors duration-300 ${isOpen ? "text-blue-700" : "text-slate-800 group-hover:text-blue-600"}`,
+									className: `font-bold text-lg pr-6 transition-colors duration-300 ${isOpen ? "text-blue-700 dark:text-blue-400" : "text-slate-800 dark:text-zinc-200 group-hover:text-blue-600 dark:group-hover:text-blue-400"}`,
 									children: faq.question
 								}), /* @__PURE__ */ jsx("div", {
-									className: `flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 ${isOpen ? "bg-blue-600 text-white rotate-180 shadow-md shadow-blue-600/20" : "bg-slate-100 text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-500"}`,
+									className: `flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 ${isOpen ? "bg-blue-600 text-white rotate-180 shadow-md shadow-blue-600/20" : "bg-slate-100 dark:bg-zinc-700 text-slate-500 dark:text-zinc-400 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 group-hover:text-blue-500"}`,
 									children: /* @__PURE__ */ jsx(ChevronDown, { className: "w-5 h-5" })
 								})]
 							}), /* @__PURE__ */ jsxs("div", {
 								className: `px-6 overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? "max-h-96 pb-6 opacity-100" : "max-h-0 pb-0 opacity-0"}`,
-								children: [/* @__PURE__ */ jsx("div", { className: "w-full h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent mb-5" }), /* @__PURE__ */ jsx("p", {
-									className: "text-slate-600 leading-relaxed text-base m-0",
+								children: [/* @__PURE__ */ jsx("div", { className: "w-full h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-zinc-600 to-transparent mb-5" }), /* @__PURE__ */ jsx("p", {
+									className: "text-slate-600 dark:text-zinc-400 leading-relaxed text-base m-0",
 									children: faq.answer
 								})]
 							})]
@@ -1061,7 +1061,7 @@ function Welcome(props) {
 		});
 	};
 	return /* @__PURE__ */ jsxs("div", {
-		className: "bg-white min-h-screen font-sans",
+		className: "bg-white dark:bg-zinc-950 min-h-screen font-sans",
 		children: [
 			/* @__PURE__ */ jsx(SeoMeta, { meta }),
 			/* @__PURE__ */ jsx(Navbar, {}),
