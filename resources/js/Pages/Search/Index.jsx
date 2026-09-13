@@ -9,7 +9,15 @@ export default function SearchIndex({ auth, posts, blogs, businesses, communitie
     const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
     const initialTab = urlParams ? urlParams.get('tab') : null;
     const [activeTab, setActiveTab] = useState(initialTab || 'businesses');
+    const [searchQuery, setSearchQuery] = useState(query || '');
     const basePath = typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '';
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (searchQuery.trim()) {
+            router.visit(`${basePath}/search?q=${encodeURIComponent(searchQuery)}`);
+        }
+    };
 
     return (
         <div className="bg-slate-50 dark:bg-[#09090b] min-h-screen flex flex-col font-sans">

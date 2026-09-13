@@ -9,7 +9,12 @@ import { ArrowBigDown, ArrowBigUp, Compass, LayoutGrid, MessageSquare, Search, U
 function SearchIndex({ auth, posts, blogs, businesses, communities, users, query }) {
 	const urlParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
 	const [activeTab, setActiveTab] = useState((urlParams ? urlParams.get("tab") : null) || "businesses");
+	const [searchQuery, setSearchQuery] = useState(query || "");
 	const basePath = typeof window !== "undefined" && window.BASE_PATH ? window.BASE_PATH : "";
+	const handleSearch = (e) => {
+		e.preventDefault();
+		if (searchQuery.trim()) router.visit(`${basePath}/search?q=${encodeURIComponent(searchQuery)}`);
+	};
 	return /* @__PURE__ */ jsxs("div", {
 		className: "bg-slate-50 dark:bg-[#09090b] min-h-screen flex flex-col font-sans",
 		children: [
