@@ -178,7 +178,7 @@ export default function Feed({ auth, posts, currentSort = 'new', currentFilter =
                             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" /></svg>
                         </button>
 
-                        <div className="relative flex-1 flex items-center gap-2 rounded-full bg-white dark:bg-zinc-900 p-2 shadow-sm border border-slate-200 dark:border-zinc-800 z-20 group transition-all duration-200 focus-within:border-blue-500 dark:focus-within:border-blue-500 focus-within:shadow-md hover:border-slate-300 dark:hover:border-zinc-600">
+                        <div className="relative flex-1 flex items-center gap-2 rounded-full bg-white dark:bg-zinc-900 p-2 border border-slate-200 dark:border-zinc-800 z-20 group transition-all duration-200 focus-within:border-blue-500 dark:focus-within:border-blue-500 focus-within:shadow-[0_0_0_3px_rgba(59,130,246,0.15)] hover:border-blue-400 dark:hover:border-blue-600">
                             <Search className="w-5 h-5 text-slate-400 dark:text-zinc-500 ml-3 flex-shrink-0 group-focus-within:text-blue-500 transition-colors" />
                             <input 
                                 type="text" 
