@@ -676,8 +676,8 @@ var CommunityFeedSection = ({ basePath, feedPosts, topCommunities }) => {
 								children: "Top Communities"
 							}), /* @__PURE__ */ jsx("div", {
 								className: "divide-y divide-slate-100 dark:divide-zinc-800",
-								children: displayCommunities.length > 0 ? displayCommunities.map((community, index) => /* @__PURE__ */ jsxs("div", {
-									onClick: () => router.visit(`/r/${community.name}`),
+								children: displayCommunities.length > 0 ? displayCommunities.map((community, index) => /* @__PURE__ */ jsxs(Link, {
+									href: `/r/${community.name}`,
 									className: "p-5 flex items-center gap-4 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors cursor-pointer group",
 									children: [
 										/* @__PURE__ */ jsx("div", {
@@ -702,6 +702,7 @@ var CommunityFeedSection = ({ basePath, feedPosts, topCommunities }) => {
 										}),
 										/* @__PURE__ */ jsx("button", {
 											onClick: (e) => {
+												e.preventDefault();
 												e.stopPropagation();
 												router.post(route("community.join", community.id), {}, { preserveScroll: true });
 											},

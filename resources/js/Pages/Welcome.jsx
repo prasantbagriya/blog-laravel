@@ -471,7 +471,7 @@ const CommunityFeedSection = ({ basePath, feedPosts, topCommunities }) => {
                                 <h3 className="font-bold text-xl text-slate-900 dark:text-white mb-5">Top Communities</h3>
                                 <div className="divide-y divide-slate-100 dark:divide-zinc-800">
                                     {displayCommunities.length > 0 ? displayCommunities.map((community, index) => (
-                                        <div key={community.id} onClick={() => router.visit(`/r/${community.name}`)} className="p-5 flex items-center gap-4 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors cursor-pointer group">
+                                        <Link key={community.id} href={`/r/${community.name}`} className="p-5 flex items-center gap-4 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors cursor-pointer group">
                                             <div className="font-bold text-slate-300 dark:text-zinc-700 group-hover:text-blue-500 transition-colors w-4">{index + 1}</div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center justify-between mb-1">
@@ -483,12 +483,12 @@ const CommunityFeedSection = ({ basePath, feedPosts, topCommunities }) => {
                                                 </div>
                                             </div>
                                             <button 
-                                                onClick={(e) => { e.stopPropagation(); router.post(route('community.join', community.id), {}, { preserveScroll: true }); }}
+                                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.post(route('community.join', community.id), {}, { preserveScroll: true }); }}
                                                 className={`px-4 py-1.5 text-xs font-bold rounded-full transition-all border ${community.is_joined ? 'border-transparent bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700' : 'border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-600 hover:border-blue-600 hover:text-white dark:hover:bg-blue-600 dark:hover:border-blue-600 dark:hover:text-white shadow-sm'}`}
                                             >
                                                 {community.is_joined ? 'Joined' : 'Join'}
                                             </button>
-                                        </div>
+                                        </Link>
                                     )) : (
                                         <div className="p-8 text-center">
                                             <p className="text-sm font-bold text-slate-500 dark:text-zinc-500 mb-4">No top communities yet</p>
