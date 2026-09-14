@@ -91,15 +91,21 @@ export default function CategoryIndex({ categories, meta }) {
                         <div className="flex flex-wrap gap-4">
                             <button 
                                 onClick={() => setActiveTab('blog')}
-                                className={`flex items-center gap-2.5 px-8 py-3.5 rounded-full font-bold text-sm transition-all shadow-sm ${activeTab === 'blog' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-white dark:bg-zinc-900 text-slate-600 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800'}`}
+                                className={`flex items-center gap-2.5 px-8 py-3.5 rounded-full font-bold text-sm transition-all relative overflow-hidden group ${activeTab === 'blog' ? 'bg-amber-400 text-black shadow-lg shadow-amber-500/20 hover:scale-105 active:scale-95 border-none outline-none focus:outline-none ring-0 focus:ring-0' : 'bg-white dark:bg-zinc-900 text-slate-600 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 shadow-sm'}`}
                             >
-                                <BookOpen size={18} /> Blog Categories
+                                <span className="relative z-10 flex items-center gap-2.5">
+                                    <BookOpen size={18} /> Blog Categories
+                                </span>
+                                {activeTab === 'blog' && <div className="absolute inset-0 -translate-x-full animate-[shimmer-nav_2s_infinite] bg-gradient-to-r from-transparent via-white/40 to-transparent z-0 pointer-events-none"></div>}
                             </button>
                             <button 
                                 onClick={() => setActiveTab('reviews')}
-                                className={`flex items-center gap-2.5 px-8 py-3.5 rounded-full font-bold text-sm transition-all shadow-sm ${activeTab === 'reviews' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-white dark:bg-zinc-900 text-slate-600 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800'}`}
+                                className={`flex items-center gap-2.5 px-8 py-3.5 rounded-full font-bold text-sm transition-all relative overflow-hidden group ${activeTab === 'reviews' ? 'bg-amber-400 text-black shadow-lg shadow-amber-500/20 hover:scale-105 active:scale-95 border-none outline-none focus:outline-none ring-0 focus:ring-0' : 'bg-white dark:bg-zinc-900 text-slate-600 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 shadow-sm'}`}
                             >
-                                <Building size={18} /> Institute Categories
+                                <span className="relative z-10 flex items-center gap-2.5">
+                                    <Building size={18} /> Institute Categories
+                                </span>
+                                {activeTab === 'reviews' && <div className="absolute inset-0 -translate-x-full animate-[shimmer-nav_2s_infinite] bg-gradient-to-r from-transparent via-white/40 to-transparent z-0 pointer-events-none"></div>}
                             </button>
                         </div>
                     </div>

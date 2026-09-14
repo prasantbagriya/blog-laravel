@@ -18,7 +18,12 @@ class AdminApiController extends Controller
     // --- Posts ---
     public function getPosts()
     {
-        return response()->json(Post::orderBy('created_at', 'desc')->get());
+        return response()->json(Post::whereNull('community_id')->orderBy('created_at', 'desc')->get());
+    }
+
+    public function getCommunityPosts()
+    {
+        return response()->json(Post::whereNotNull('community_id')->with(['community', 'author'])->withCount('reports')->orderBy('created_at', 'desc')->get());
     }
 
     public function deletePost(Request $request)

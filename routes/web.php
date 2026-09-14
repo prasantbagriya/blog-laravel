@@ -89,6 +89,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/posts/edit/{id}', [\App\Http\Controllers\Admin\PostController::class, 'edit'])->name('admin.posts.edit');
     Route::post('/api/admin/posts', [\App\Http\Controllers\Admin\PostController::class, 'store'])->name('admin.posts.store')->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
     Route::get('/api/admin/posts', [\App\Http\Controllers\Api\AdminApiController::class, 'getPosts']);
+    Route::get('/api/admin/community-posts', [\App\Http\Controllers\Api\AdminApiController::class, 'getCommunityPosts']);
     Route::post('/api/admin/upload', [\App\Http\Controllers\Api\AdminApiController::class, 'uploadMedia'])->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
     Route::delete('/api/admin/posts', [\App\Http\Controllers\Api\AdminApiController::class, 'deletePost'])->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
     
@@ -116,6 +117,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/api/admin/businesses', [\App\Http\Controllers\Api\AdminApiController::class, 'deleteBusiness'])->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
     
     Route::get('/admin/businesses', function () { return \Inertia\Inertia::render('Admin/Businesses/Index'); })->name('admin.businesses');
+    Route::get('/admin/community-posts', function () { return \Inertia\Inertia::render('Admin/CommunityPosts/Index'); })->name('admin.community-posts');
 
     Route::get('/admin/authors', function () { return \Inertia\Inertia::render('Admin/Authors/Index'); })->name('admin.authors');
     Route::get('/admin/authors/new', function () { return \Inertia\Inertia::render('Admin/Authors/New'); })->name('admin.authors.new');
@@ -192,6 +194,18 @@ Route::get('/fix-admin-temp', function () {
     }
     $user->save();
     return 'Admin email and password fixed. You can now login with admin@example.com and password "password".';
+});
+
+Route::get('/fix-eduction-temp', function () {
+    $countCats = \Illuminate\Support\Facades\DB::table('categories')
+        ->where('name', 'Eduction')
+        ->update(['name' => 'Education', 'slug' => 'education']);
+        
+    $countPosts = \Illuminate\Support\Facades\DB::table('posts')
+        ->where('category', 'Eduction')
+        ->update(['category' => 'Education']);
+        
+    return "Fixed $countCats categories and $countPosts posts.";
 });
 
 Route::fallback(function () {

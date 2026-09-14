@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Link, Head } from '@inertiajs/react';
 import DeleteButton from '../DeleteButton';
-import AdminLayout from '../../../Layouts/AdminLayout';
+
+const AdminLayout = React.lazy(() => import('../../../Layouts/AdminLayout'));
 
 export default function StoriesDashboard() {
   const BASE = typeof window !== 'undefined' && window.location.pathname.startsWith('/list/public') ? '/list/public' : '';
@@ -39,7 +40,7 @@ export default function StoriesDashboard() {
         {stories.map((story) => (
           <div key={story.id} style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
             <div style={{ position: 'relative', width: '100%', aspectRatio: '3/4' }}>
-              <img loading="lazy" decoding="async" fetchPriority="low" src={story.posterImage || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80'} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img loading="lazy" decoding="async" fetchPriority="low" src={story.posterImage || '/uploads/read.webp'} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '20px', background: 'linear-gradient(transparent, rgba(0,0,0,0.8))', color: '#fff' }}>
                 <h3 style={{ fontSize: '14px', fontWeight: 700, margin: 0 }}>{story.title}</h3>
                 <div style={{ fontSize: '11px', opacity: 0.8 }}>{story.slides?.length || 0} Slides</div>
@@ -64,4 +65,8 @@ export default function StoriesDashboard() {
   );
 }
 
-StoriesDashboard.layout = page => <AdminLayout>{page}</AdminLayout>;
+StoriesDashboard.layout = page => (
+  <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading Admin Workspace...</div>}>
+    <AdminLayout>{page}</AdminLayout>
+  </Suspense>
+);

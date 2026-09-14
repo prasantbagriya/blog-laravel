@@ -280,7 +280,7 @@ const PollBlock = Node.create({
 
 
 
-import { format } from 'date-fns';
+
 import "../../../css/app.css";
 
 // --- Sovereign Styles & Helper Components ---
@@ -1082,7 +1082,7 @@ export default function PostForm({ post }: PostFormProps) {
             twitterCard, twitterTitle, twitterDescription,
             category, tags, faqs, howToSteps, localBusiness,
             published,
-            date: post?.date || format(new Date(), 'yyyy-MM-dd'),
+            date: post?.date || new Date().toISOString().split('T')[0],
             author: author || 'Admin',
             factCheckedBy, factCheckerRole,
             authorJobTitle: authorExpertise,

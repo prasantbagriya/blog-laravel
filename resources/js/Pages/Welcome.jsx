@@ -1,9 +1,10 @@
 import { Head, Link, router } from '@inertiajs/react';
 import GlobalNavbar from '../NextComponents/GlobalNavbar';
 import BlogFooter from '../NextComponents/BlogFooter';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import SeoMeta from '../NextComponents/SeoMeta';
 import AnimatedBorderCard from '../Components/AnimatedBorderCard';
+const ShareModal = React.lazy(() => import('../Components/ShareModal'));
 import { Search, ChevronRight, GraduationCap, Award, Star, ArrowRight, ShieldCheck, PlayCircle, Library, MapPin, CheckCircle2, MessageSquare, ThumbsUp, TrendingUp, ChevronDown, BookOpen, TestTube, Target, Scale, Beaker, Backpack, Share2, Bookmark } from 'lucide-react';
 
 // Simple polyfill for Next.js Image
@@ -24,7 +25,7 @@ const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses }) =>
     
     // Default fallback if no slides
     const validSlides = (activeSlides && activeSlides.length > 0) ? activeSlides : [
-        { image_url: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1600&q=80' }
+        { image_url: '/uploads/background.webp' }
     ];
 
     useEffect(() => {
@@ -160,7 +161,7 @@ const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses }) =>
                                                                         className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors"
                                                                     >
                                                                         <div className="w-10 h-10 bg-slate-100 rounded-lg overflow-hidden flex-shrink-0 relative border border-slate-200">
-                                                                            <img src={biz.logo || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80'} alt={biz.name} className="w-full h-full object-cover" />
+                                                                            <img src={biz.logo || '/uploads/read.webp'} alt={biz.name} width="40" height="40" className="w-full h-full object-cover" />
                                                                         </div>
                                                                         <div className="flex flex-col">
                                                                             <span className="font-medium text-slate-800">{biz.name}</span>
@@ -193,7 +194,7 @@ const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses }) =>
                                                                 {suggestions.communities.map(community => (
                                                                     <Link 
                                                                         key={`comm-${community.id}`} 
-                                                                        href={`${basePath || ''}/r/${community.name}`}
+                                                                        href={`${basePath || ''}/community/${community.name}`}
                                                                         className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors"
                                                                     >
                                                                         <div className="bg-emerald-50 p-2 rounded-lg text-emerald-600"><MessageSquare size={16} /></div>
@@ -284,7 +285,7 @@ const TrustMarquee = ({ categories }) => {
                 <div className="flex animate-marquee items-center justify-center space-x-8 md:space-x-16 whitespace-nowrap">
                     {[...items, ...items, ...items].map((item, idx) => (
                         <div key={`${item.id}-${idx}`} className="text-slate-400 dark:text-zinc-500 font-bold text-xl md:text-2xl opacity-60 hover:opacity-100 transition-opacity flex items-center gap-2">
-                            <GraduationCap className="w-6 h-6" /> {item.name.toLowerCase() === 'eduction' ? 'Education' : item.name}
+                            <GraduationCap className="w-6 h-6" /> {item.name}
                         </div>
                     ))}
                 </div>
@@ -318,7 +319,7 @@ const InstitutesSection = ({ featuredBusinesses, basePath }) => {
                         return (
                         <article key={biz.id} className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden border border-slate-200 dark:border-zinc-800 hover:-translate-y-1 transition-all duration-300 flex flex-col group">
                             <Link href={reviewUrl} className="relative aspect-[16/9] w-full block overflow-hidden bg-slate-100 dark:bg-zinc-800 flex items-center justify-center p-4">
-                                <Image src={biz.logo || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80'} alt={biz.name} fill style={{objectFit: 'contain'}} className="group-hover:scale-105 transition-transform duration-500" />
+                                <Image src={biz.logo || '/uploads/read.webp'} alt={biz.name} fill style={{objectFit: 'contain'}} className="group-hover:scale-105 transition-transform duration-500" />
                             </Link>
                             
                             <div className="p-4 md:p-5 flex-grow flex flex-col border-t border-slate-100 dark:border-zinc-800">
@@ -342,7 +343,7 @@ const InstitutesSection = ({ featuredBusinesses, basePath }) => {
                                 </div>
                                 
                                 <div className="mt-auto pt-4 border-t border-slate-100 dark:border-zinc-800 space-y-1 text-sm text-slate-600 dark:text-zinc-400">
-                                    <Link href={reviewUrl} className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center font-medium py-2 rounded-md transition-colors text-sm">
+                                    <Link href={reviewUrl} className="block w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-black dark:hover:bg-slate-100 text-center font-bold py-2.5 rounded-xl transition-all shadow-sm active:scale-[0.98] text-sm">
                                         Read Reviews ({biz.reviewCount || 0})
                                     </Link>
                                 </div>
@@ -358,9 +359,21 @@ const InstitutesSection = ({ featuredBusinesses, basePath }) => {
 const CommunityFeedSection = ({ basePath, feedPosts, topCommunities }) => {
     const displayPosts = feedPosts || [];
     const displayCommunities = topCommunities || [];
+    const [shareModalOpen, setShareModalOpen] = useState(false);
+    const [shareData, setShareData] = useState({ url: '', title: '' });
 
     return (
         <section className="pt-6 pb-10 md:pt-10 md:pb-14 bg-slate-50 dark:bg-zinc-950 relative border-b border-slate-200 dark:border-zinc-800">
+            <Suspense fallback={null}>
+                {shareModalOpen && (
+                    <ShareModal 
+                        isOpen={shareModalOpen} 
+                        onClose={() => setShareModalOpen(false)} 
+                        url={shareData.url} 
+                        title={shareData.title} 
+                    />
+                )}
+            </Suspense>
             {/* Subtle background pattern */}
             <div className="absolute inset-0 opacity-[0.03] dark:opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
             
@@ -373,7 +386,7 @@ const CommunityFeedSection = ({ basePath, feedPosts, topCommunities }) => {
                         <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">Recent Discussions</h2>
                         <p className="text-slate-600 dark:text-zinc-400 mt-3 text-base md:text-lg max-w-2xl">Join the conversation with thousands of students. Share study materials, ask doubts, and get exam strategies.</p>
                     </div>
-                    <Link href={`${basePath}/community`} className="text-blue-600 font-bold hover:text-blue-700 transition-colors flex items-center gap-1 group shrink-0 whitespace-nowrap hidden md:inline-flex">
+                    <Link href="/feed" className="text-blue-600 font-bold hover:text-blue-700 transition-colors flex items-center gap-1 group shrink-0 whitespace-nowrap hidden md:inline-flex">
                         View All Feed <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
                     </Link>
                 </div>
@@ -440,7 +453,14 @@ const CommunityFeedSection = ({ basePath, feedPosts, topCommunities }) => {
                                         </Link>
                                         {/* Share */}
                                         <button
-                                            onClick={(e) => { e.stopPropagation(); navigator.clipboard?.writeText(`${window.location.origin}/r/${post.community}/comments/${post.id}`); }}
+                                            onClick={(e) => { 
+                                                e.stopPropagation(); 
+                                                setShareData({
+                                                    url: `${window.location.origin}/r/${post.community}/comments/${post.id}`,
+                                                    title: post.title
+                                                });
+                                                setShareModalOpen(true);
+                                            }}
                                             className="shrink-0 whitespace-nowrap flex items-center gap-2 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 px-3 py-2 rounded-xl transition-colors font-bold text-[13px] text-slate-600 dark:text-zinc-300 border-0 outline-none focus:outline-none focus:ring-0"
                                         >
                                             <Share2 size={16} strokeWidth={2} className="text-slate-500 dark:text-zinc-400" />
@@ -459,7 +479,7 @@ const CommunityFeedSection = ({ basePath, feedPosts, topCommunities }) => {
                                 </Link>
                             </div>
                         )}
-                        <Link href={`${basePath}/community`} className="md:hidden flex w-full justify-center items-center gap-1 text-blue-600 font-bold hover:text-blue-700 transition-colors group mt-2">
+                        <Link href="/feed" className="md:hidden flex w-full justify-center items-center gap-1 text-blue-600 font-bold hover:text-blue-700 transition-colors group mt-2">
                             View All Feed <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
                         </Link>
                     </div>
@@ -474,12 +494,15 @@ const CommunityFeedSection = ({ basePath, feedPosts, topCommunities }) => {
                                 <h3 className="font-bold text-xl text-slate-900 dark:text-white mb-5">Top Communities</h3>
                                 <div className="divide-y divide-slate-100 dark:divide-zinc-800">
                                     {displayCommunities.length > 0 ? displayCommunities.map((community, index) => (
-                                        <Link key={community.id} href={`/r/${community.name}`} className="p-5 flex items-center gap-4 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors cursor-pointer group">
+                                        <Link key={community.id} href={`/community/${community.name}`} className="p-5 flex items-center gap-4 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors cursor-pointer group">
                                             <div className="font-bold text-slate-300 dark:text-zinc-700 group-hover:text-blue-500 transition-colors w-4">{index + 1}</div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center justify-between mb-1">
                                                     <h4 className="font-bold text-slate-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">r/{community.name}</h4>
                                                 </div>
+                                                {community.description && (
+                                                    <p className="text-xs text-slate-500 dark:text-zinc-400 line-clamp-1 mb-1">{community.description}</p>
+                                                )}
                                                 <div className="text-xs font-bold text-slate-500 dark:text-zinc-500 flex items-center gap-2 mt-0.5">
                                                     <span className="flex items-center gap-1.5 bg-slate-100 dark:bg-zinc-800/80 px-2 py-0.5 rounded-md">
                                                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -516,11 +539,8 @@ const CommunityFeedSection = ({ basePath, feedPosts, topCommunities }) => {
                             <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
                             <h3 className="font-bold text-xl mb-2 relative z-10 text-white">Have a Question?</h3>
                             <p className="text-slate-200 text-sm mb-5 relative z-10">Get answers from toppers and expert faculty in Sikar.</p>
-                            <Link href={`${basePath}/community/new`} className="btn-amber px-6 py-2.5 w-full block relative z-10 shadow-lg shadow-amber-500/20 hover:scale-105 transition-transform text-slate-900 font-bold rounded-full">
+                            <Link href={`${basePath}/contact`} className="btn-amber px-6 py-2.5 w-full block relative z-10 shadow-lg shadow-amber-500/20 hover:scale-105 transition-transform text-slate-900 font-bold rounded-full">
                                 Ask Now
-                            </Link>
-                            <Link href={`${basePath}/contact`} className="mt-3 block relative z-10 text-sm font-bold text-slate-300 hover:text-white transition-colors underline underline-offset-2">
-                                Contact Us →
                             </Link>
                         </div>
                     </div>
@@ -549,15 +569,17 @@ const BlogSection = ({ morePosts, basePath, formatDate }) => {
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {posts.map((post) => (
+                    {posts.map((post, index) => {
+                        const borderColors = ['#3b82f6', '#e11d48', '#10b981', '#f59e0b'];
+                        return (
                         <AnimatedBorderCard 
                             key={post.id}
                             containerClassName="hover:-translate-y-1 transition-all duration-300 h-full flex flex-col"
                             className="flex-grow flex flex-col"
-                            alwaysShowBorder={true}
+                            gradientColor={borderColors[index % borderColors.length]}
                         >
                             <Link href={`${basePath}/blog/${post.slug}`} className="relative aspect-[16/9] w-full block overflow-hidden shrink-0">
-                                <Image src={post.coverImage || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80'} alt={post.title} fill style={{objectFit: 'cover'}} className="group-hover:scale-105 transition-transform duration-500" />
+                                <Image src={post.coverImage || '/uploads/read.webp'} alt={post.title} fill style={{objectFit: 'cover'}} className="group-hover:scale-105 transition-transform duration-500" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             </Link>
                             
@@ -575,13 +597,14 @@ const BlogSection = ({ morePosts, basePath, formatDate }) => {
                                         <span className="text-slate-500 dark:text-zinc-400">Posted:</span>
                                         <span className="font-semibold text-slate-800 dark:text-zinc-200">{formatDate(post.date)}</span>
                                     </div>
-                                    <Link href={`${basePath}/blog/${post.slug}`} className="block w-full bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-blue-600 dark:text-blue-400 text-center font-bold py-2 rounded-xl transition-colors text-sm">
+                                    <Link href={`${basePath}/blog/${post.slug}`} className="bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-bold py-2.5 rounded-full transition-all text-sm w-full text-center flex justify-center items-center active:scale-[0.98]">
                                         Read Article
                                     </Link>
                                 </div>
                             </div>
                         </AnimatedBorderCard>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
         </section>
@@ -594,21 +617,21 @@ const CategorySection = ({ categories, basePath }) => {
     const getCategoryStyle = (name) => {
         const lowerName = name.toLowerCase();
         if (lowerName.includes('science') || lowerName.includes('neet') || lowerName.includes('medical') || lowerName.includes('doctor')) {
-            return { icon: Beaker, colorClass: 'text-emerald-500', bgClass: 'bg-emerald-50 dark:bg-emerald-500/10', hoverBgClass: 'group-hover:bg-emerald-500', shadowClass: 'hover:shadow-emerald-500/20', borderClass: 'hover:border-emerald-400' };
+            return { icon: Beaker, colorClass: 'text-emerald-500', bgClass: 'bg-emerald-50 dark:bg-emerald-500/10', hoverBgClass: 'group-hover:bg-emerald-500', shadowClass: 'hover:shadow-emerald-500/20', borderClass: 'hover:border-emerald-400', cardHoverBg: 'hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10' };
         }
         if (lowerName.includes('commerce') || lowerName.includes('ca') || lowerName.includes('bank')) {
-            return { icon: Target, colorClass: 'text-amber-500', bgClass: 'bg-amber-50 dark:bg-amber-500/10', hoverBgClass: 'group-hover:bg-amber-500', shadowClass: 'hover:shadow-amber-500/20', borderClass: 'hover:border-amber-400' };
+            return { icon: Target, colorClass: 'text-amber-500', bgClass: 'bg-amber-50 dark:bg-amber-500/10', hoverBgClass: 'group-hover:bg-amber-500', shadowClass: 'hover:shadow-amber-500/20', borderClass: 'hover:border-amber-400', cardHoverBg: 'hover:bg-amber-50/50 dark:hover:bg-amber-900/10' };
         }
         if (lowerName.includes('arts') || lowerName.includes('law') || lowerName.includes('clat') || lowerName.includes('upsc') || lowerName.includes('ras') || lowerName.includes('ias')) {
-            return { icon: Scale, colorClass: 'text-purple-500', bgClass: 'bg-purple-50 dark:bg-purple-500/10', hoverBgClass: 'group-hover:bg-purple-500', shadowClass: 'hover:shadow-purple-500/20', borderClass: 'hover:border-purple-400' };
+            return { icon: Scale, colorClass: 'text-purple-500', bgClass: 'bg-purple-50 dark:bg-purple-500/10', hoverBgClass: 'group-hover:bg-purple-500', shadowClass: 'hover:shadow-purple-500/20', borderClass: 'hover:border-purple-400', cardHoverBg: 'hover:bg-purple-50/50 dark:hover:bg-purple-900/10' };
         }
         if (lowerName.includes('school') || lowerName.includes('board') || lowerName.includes('cbse') || lowerName.includes('rbse')) {
-            return { icon: Backpack, colorClass: 'text-pink-500', bgClass: 'bg-pink-50 dark:bg-pink-500/10', hoverBgClass: 'group-hover:bg-pink-500', shadowClass: 'hover:shadow-pink-500/20', borderClass: 'hover:border-pink-400' };
+            return { icon: Backpack, colorClass: 'text-pink-500', bgClass: 'bg-pink-50 dark:bg-pink-500/10', hoverBgClass: 'group-hover:bg-pink-500', shadowClass: 'hover:shadow-pink-500/20', borderClass: 'hover:border-pink-400', cardHoverBg: 'hover:bg-pink-50/50 dark:hover:bg-pink-900/10' };
         }
         if (lowerName.includes('engineering') || lowerName.includes('jee') || lowerName.includes('tech')) {
-            return { icon: BookOpen, colorClass: 'text-blue-500', bgClass: 'bg-blue-50 dark:bg-blue-500/10', hoverBgClass: 'group-hover:bg-blue-500', shadowClass: 'hover:shadow-blue-500/20', borderClass: 'hover:border-blue-400' };
+            return { icon: BookOpen, colorClass: 'text-blue-500', bgClass: 'bg-blue-50 dark:bg-blue-500/10', hoverBgClass: 'group-hover:bg-blue-500', shadowClass: 'hover:shadow-blue-500/20', borderClass: 'hover:border-blue-400', cardHoverBg: 'hover:bg-blue-50/50 dark:hover:bg-blue-900/10' };
         }
-        return { icon: GraduationCap, colorClass: 'text-indigo-500', bgClass: 'bg-indigo-50 dark:bg-indigo-500/10', hoverBgClass: 'group-hover:bg-indigo-500', shadowClass: 'hover:shadow-indigo-500/20', borderClass: 'hover:border-indigo-400' };
+        return { icon: GraduationCap, colorClass: 'text-indigo-500', bgClass: 'bg-indigo-50 dark:bg-indigo-500/10', hoverBgClass: 'group-hover:bg-indigo-500', shadowClass: 'hover:shadow-indigo-500/20', borderClass: 'hover:border-indigo-400', cardHoverBg: 'hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10' };
     };
 
     return (
@@ -629,11 +652,16 @@ const CategorySection = ({ categories, basePath }) => {
                             const Icon = style.icon;
                             return (
                                 <Link key={`${cat.id}-${i}`} href={`${basePath}/category/${cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-')}`} 
-                                    className={`bg-white dark:bg-zinc-900 w-44 h-44 rounded-[1.5rem] border border-slate-200 dark:border-zinc-800 transition-all duration-300 group flex flex-col items-center justify-center text-center shrink-0 hover:-translate-y-2 hover:shadow-xl ${style.shadowClass} ${style.borderClass}`}>
+                                    className={`bg-white dark:bg-zinc-900 w-64 h-56 rounded-[1.5rem] border border-slate-200 dark:border-zinc-800 transition-all duration-300 group flex flex-col items-center justify-center text-center shrink-0 hover:-translate-y-2 ${style.borderClass} ${style.cardHoverBg} p-6`}>
                                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-colors duration-300 ${style.bgClass} ${style.hoverBgClass}`}>
                                         <Icon className={`w-7 h-7 transition-colors duration-300 group-hover:text-white ${style.colorClass}`} />
                                     </div>
-                                    <h3 className="font-extrabold text-slate-800 dark:text-zinc-100 text-sm md:text-[15px] group-hover:text-slate-900 dark:group-hover:text-white transition-colors whitespace-normal break-words w-full px-4 leading-snug">{cat.name.toLowerCase() === 'eduction' ? 'Education' : cat.name}</h3>
+                                    <h3 className="font-extrabold text-slate-800 dark:text-zinc-100 text-sm md:text-[15px] group-hover:text-slate-900 dark:group-hover:text-white transition-colors whitespace-normal break-words w-full leading-snug mb-2">{cat.name}</h3>
+                                    {cat.description && (
+                                        <p className="text-xs text-slate-500 dark:text-zinc-400 line-clamp-3 leading-relaxed whitespace-normal transition-colors group-hover:text-slate-700 dark:group-hover:text-zinc-300">
+                                            {cat.description}
+                                        </p>
+                                    )}
                                 </Link>
                             );
                         })}
@@ -658,7 +686,7 @@ const StoriesSection = ({ stories, basePath }) => {
                 <div className="flex overflow-x-auto pb-6 -mx-4 px-4 sm:mx-0 sm:px-0 gap-4 snap-x hide-scrollbar">
                     {stories.map(story => (
                         <Link key={story.id} href={`${basePath}/stories/${story.slug}`} className="relative flex-none w-[220px] md:w-[260px] aspect-[9/16] rounded-xl overflow-hidden snap-start group transition-all duration-300">
-                            <Image src={story.posterImage || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80'} alt={story.title} fill style={{objectFit: 'cover'}} className="group-hover:scale-105 transition-transform duration-700"/>
+                            <Image src={story.posterImage || '/uploads/read.webp'} alt={story.title} fill style={{objectFit: 'cover'}} className="group-hover:scale-105 transition-transform duration-700"/>
                             <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent opacity-90 group-hover:opacity-100 transition-opacity"></div>
                             <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm rounded-full p-2 text-white">
                                 <PlayCircle className="w-5 h-5" />
@@ -704,15 +732,21 @@ const SeoContent = ({ basePath }) => (
                                 <div className="text-sm text-slate-500 dark:text-zinc-400">Ranked accurately</div>
                             </div>
                         </div>
+                        <Link href={`${basePath}/about`} className="text-blue-600 dark:text-blue-400 font-bold hover:underline transition-all ml-auto sm:ml-0">
+                            More About Us
+                        </Link>
                     </div>
                 </div>
                 <div className="relative mt-8 lg:mt-0">
                     <div className="absolute inset-0 bg-blue-600/10 rounded-[2rem] transform translate-x-4 translate-y-4 md:translate-x-6 md:translate-y-6"></div>
-                    <img 
-                        src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80" 
-                        alt="Students studying" 
-                        className="relative z-10 rounded-[2rem] shadow-xl w-full object-cover aspect-[4/3] border-4 border-white dark:border-zinc-700"
-                    />
+                    <div className="relative z-10 rounded-[2rem] shadow-xl w-full aspect-[4/3] border-4 border-white dark:border-zinc-700 overflow-hidden">
+                        <img 
+                            src="/uploads/aboutus.webp" 
+                            alt="Students studying" 
+                            className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-amber-400/50 to-transparent pointer-events-none mix-blend-overlay"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -897,15 +931,17 @@ const FAQSection = () => {
                                         </div>
                                     </button>
                                     <div 
-                                        className={`px-6 overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-96 pb-6 opacity-100' : 'max-h-0 pb-0 opacity-0'}`}
+                                        className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
                                     >
-                                        <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-zinc-600 to-transparent mb-5"></div>
-                                        <p className="text-slate-600 dark:text-zinc-400 leading-relaxed text-base m-0">
-                                            {faq.answer}
-                                        </p>
+                                        <div className="px-6 pb-6">
+                                            <div className="w-full h-px bg-slate-200 dark:bg-zinc-700 mb-5"></div>
+                                            <p className="text-slate-600 dark:text-zinc-400 leading-relaxed text-base m-0">
+                                                {faq.answer}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
-                            )
+                            );
                         })}
                     </div>
                 </div>
@@ -927,6 +963,14 @@ export default function Welcome(props) {
     return (
         <div className="bg-white dark:bg-zinc-950 min-h-screen font-sans">
             <SeoMeta meta={meta} />
+            <Head>
+                {(!sliders || sliders.length === 0) && (
+                    <link rel="preload" as="image" href="/uploads/background.webp" />
+                )}
+                {sliders && sliders.length > 0 && (
+                    <link rel="preload" as="image" href={typeof sliders[0] === 'string' ? sliders[0] : (sliders[0].image_url || sliders[0].image || sliders[0].coverImage)} />
+                )}
+            </Head>
             <GlobalNavbar />
             
             <main>

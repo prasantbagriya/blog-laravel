@@ -3,22 +3,24 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
-import { ChevronDown, MessageSquare, HelpCircle } from 'lucide-react';
+import { ChevronDown, MessageSquare, HelpCircle, Grid3X3 } from 'lucide-react';
 import './index.css';
 import GlobalNavbar from '../../NextComponents/GlobalNavbar';
 import BlogFooter from '../../NextComponents/BlogFooter';
+import { PageHero } from '../../NextComponents/UI';
 import { HeroSection } from './components/HeroSection';
 import { CategoryGrid } from './components/CategoryGrid';
 import { BusinessCard } from './components/BusinessCard';
 import { BusinessProfileView } from './components/BusinessProfileView';
-import { SubmitReviewModal } from './components/SubmitReviewModal';
-import { CreateBusinessModal } from './components/CreateBusinessModal';
 import { BusinessDashboard } from './components/BusinessDashboard';
 import { ModeratorPanel } from './components/ModeratorPanel';
-import { AiSearchModal } from './components/AiSearchModal';
-import { ApiDocsModal } from './components/ApiDocsModal';
+
+const SubmitReviewModal = React.lazy(() => import('./components/SubmitReviewModal').then(module => ({ default: module.SubmitReviewModal })));
+const CreateBusinessModal = React.lazy(() => import('./components/CreateBusinessModal').then(module => ({ default: module.CreateBusinessModal })));
+const AiSearchModal = React.lazy(() => import('./components/AiSearchModal').then(module => ({ default: module.AiSearchModal })));
+const ApiDocsModal = React.lazy(() => import('./components/ApiDocsModal').then(module => ({ default: module.ApiDocsModal })));
 
 import { UserRole, Business, Category, Review, ReviewCampaign } from './types';
 import { INITIAL_CATEGORIES } from './data/mockData';
@@ -110,14 +112,16 @@ const ReviewsFAQ = () => {
                       <ChevronDown className="w-5 h-5" />
                     </div>
                   </button>
-                  <div className={`px-6 overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-96 pb-6 opacity-100' : 'max-h-0 pb-0 opacity-0'}`}>
-                    <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-zinc-700 to-transparent mb-5"></div>
-                    <p className="text-slate-600 dark:text-zinc-400 leading-relaxed text-base m-0">
+                  <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+                    <div className="px-6 pb-6">
+                        <div className="w-full h-px bg-slate-200 dark:bg-zinc-700 mb-5"></div>
+                        <p className="text-slate-600 dark:text-zinc-400 leading-relaxed text-base m-0">
                       {faq.answer}
                     </p>
                   </div>
                 </div>
-              );
+              </div>
+            );
             })}
           </div>
         </div>
@@ -467,49 +471,67 @@ export default function App({ auth, initialView = 'home', initialCategorySlug = 
 
         {/* VIEW 2: BUSINESS DIRECTORY */}
         {activeView === 'directory' && (
-          <div className="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-zinc-200 dark:border-zinc-800">
-              <div>
-                <h1 className="text-2xl font-extrabold text-zinc-900 dark:text-white">
-                  {selectedCategorySlug === 'all'
-                    ? 'All Verified Businesses Directory'
-                    : categories.find((c) => c.slug === selectedCategorySlug)?.name || 'Category Directory'}
-                </h1>
-                <p className="text-xs text-zinc-500 mt-1">
-                  Showing {directoryBusinesses.length} verified companies evaluated by real customer feedback.
-                </p>
+          <div className="w-full flex flex-col min-h-screen">
+            {/* Custom Themed Directory Header */}
+            <section className="relative w-full pt-32 pb-16 bg-slate-900 overflow-hidden">
+              <div 
+                  className="absolute inset-0 z-0 opacity-40 bg-cover bg-center" 
+                  style={{ backgroundImage: `url('/uploads/background.webp')`, filter: 'blur(8px)' }}
+              ></div>
+              <div className="absolute inset-0 z-0 bg-gradient-to-b from-slate-900/80 via-slate-900/95 to-slate-950"></div>
+              
+              <div className="relative z-10 w-full mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex flex-col items-center text-center">
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold tracking-widest uppercase border border-blue-500/30 mb-6 shadow-[0_0_15px_rgba(59,130,246,0.15)]">
+                    <Grid3X3 className="w-4 h-4" />
+                    Verified Directory
+                  </div>
+                  
+                  <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight mb-4 leading-tight">
+                    {selectedCategorySlug === 'all'
+                      ? 'Global Business Directory'
+                      : categories.find((c) => c.slug === selectedCategorySlug)?.name || 'Category Directory'}
+                  </h1>
+                  
+                  <p className="text-lg text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed">
+                    Explore <span className="font-bold text-white">{directoryBusinesses.length}</span> highly-rated companies, meticulously evaluated by real customers and AI fraud detection.
+                  </p>
+
+                  {/* Enhanced Category Filter Chips */}
+                  <div className="w-full flex flex-wrap justify-center gap-3">
+                    <button
+                      onClick={() => setSelectedCategorySlug('all')}
+                      className={`px-5 py-2.5 rounded-full font-bold transition-all duration-300 text-sm shadow-sm ${
+                        selectedCategorySlug === 'all'
+                          ? 'bg-blue-600 text-white shadow-blue-600/30 scale-105 border-none outline-none focus:outline-none ring-0 focus:ring-0'
+                          : 'bg-slate-800/60 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700/50 backdrop-blur-sm'
+                      }`}
+                    >
+                      All Categories
+                    </button>
+
+                    {categories.map((c) => (
+                      <button
+                        key={c.id}
+                        onClick={() => setSelectedCategorySlug(c.slug)}
+                        className={`px-5 py-2.5 rounded-full font-bold transition-all duration-300 text-sm shadow-sm ${
+                          selectedCategorySlug === c.slug
+                            ? 'bg-blue-600 text-white shadow-blue-600/30 scale-105 border-none outline-none focus:outline-none ring-0 focus:ring-0'
+                            : 'bg-slate-800/60 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700/50 backdrop-blur-sm'
+                        }`}
+                      >
+                        {c.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
+            </section>
 
-              {/* Category Filter Chips */}
-              <div className="flex items-center gap-2 overflow-x-auto max-w-full pb-1 text-xs">
-                <button
-                  onClick={() => setSelectedCategorySlug('all')}
-                  className={`px-3 py-1.5 rounded-xl font-bold transition shrink-0 ${
-                    selectedCategorySlug === 'all'
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300'
-                  }`}
-                >
-                  All ({businesses.length})
-                </button>
-
-                {categories.map((c) => (
-                  <button
-                    key={c.id}
-                    onClick={() => setSelectedCategorySlug(c.slug)}
-                    className={`px-3 py-1.5 rounded-xl font-bold transition shrink-0 ${
-                      selectedCategorySlug === c.slug
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300'
-                    }`}
-                  >
-                    {c.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Grid Container */}
+            <div className="flex-grow py-16 bg-slate-50 dark:bg-zinc-950">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {directoryBusinesses.map((biz) => (
                 <BusinessCard
                   key={biz.id}
@@ -518,6 +540,8 @@ export default function App({ auth, initialView = 'home', initialCategorySlug = 
                   onOpenWriteReview={handleOpenWriteReview}
                 />
               ))}
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -559,58 +583,60 @@ export default function App({ auth, initialView = 'home', initialCategorySlug = 
       </main>
 
       {/* Modals */}
-      {showSearchModal && (
-        <AiSearchModal
-          onClose={() => setShowSearchModal(false)}
-          onSelectBusiness={handleSelectBusiness}
-        />
-      )}
+      <Suspense fallback={null}>
+        {showSearchModal && (
+          <AiSearchModal
+            onClose={() => setShowSearchModal(false)}
+            onSelectBusiness={handleSelectBusiness}
+          />
+        )}
 
-      {showWriteReviewModal && (
-        <SubmitReviewModal
-          businesses={businesses}
-          preselectedBusinessId={preselectedBusinessId}
-          onClose={() => setShowWriteReviewModal(false)}
-          onSubmit={handleSubmitReview}
-        />
-      )}
+        {showWriteReviewModal && (
+          <SubmitReviewModal
+            businesses={businesses}
+            preselectedBusinessId={preselectedBusinessId}
+            onClose={() => setShowWriteReviewModal(false)}
+            onSubmit={handleSubmitReview}
+          />
+        )}
 
-      {showCreateBusinessModal && (
-        <CreateBusinessModal
-          categories={categories}
-          onClose={() => setShowCreateBusinessModal(false)}
-          onSubmitSuccess={(newBusiness) => {
-            setBusinesses([newBusiness, ...businesses]);
-            setShowCreateBusinessModal(false);
-            router.visit(`/reviews/${newBusiness.category}/${newBusiness.slug}`);
-          }}
-        />
-      )}
+        {showCreateBusinessModal && (
+          <CreateBusinessModal
+            categories={categories}
+            onClose={() => setShowCreateBusinessModal(false)}
+            onSubmitSuccess={(newBusiness) => {
+              setBusinesses([newBusiness, ...businesses]);
+              setShowCreateBusinessModal(false);
+              router.visit(`/reviews/${newBusiness.category}/${newBusiness.slug}`);
+            }}
+          />
+        )}
 
-      {showEditBusinessModal && selectedBusinessObject && (
-        <CreateBusinessModal
-          categories={categories}
-          onClose={() => setShowEditBusinessModal(false)}
-          onSubmitSuccess={(updatedBusiness) => {
-            setShowEditBusinessModal(false);
-            const index = businesses.findIndex(b => b.id === updatedBusiness.id);
-            if (index !== -1) {
-              const newBusinesses = [...businesses];
-              newBusinesses[index] = updatedBusiness;
-              setBusinesses(newBusinesses);
-              if (viewedBusiness?.id === updatedBusiness.id) {
-                setViewedBusiness(updatedBusiness);
+        {showEditBusinessModal && selectedBusinessObject && (
+          <CreateBusinessModal
+            categories={categories}
+            onClose={() => setShowEditBusinessModal(false)}
+            onSubmitSuccess={(updatedBusiness) => {
+              setShowEditBusinessModal(false);
+              const index = businesses.findIndex(b => b.id === updatedBusiness.id);
+              if (index !== -1) {
+                const newBusinesses = [...businesses];
+                newBusinesses[index] = updatedBusiness;
+                setBusinesses(newBusinesses);
+                if (viewedBusiness?.id === updatedBusiness.id) {
+                  setViewedBusiness(updatedBusiness);
+                }
               }
-            }
-          }}
-          initialData={selectedBusinessObject}
-          isEdit={true}
-        />
-      )}
+            }}
+            initialData={selectedBusinessObject}
+            isEdit={true}
+          />
+        )}
 
-      {showApiDocsModal && (
-        <ApiDocsModal onClose={() => setShowApiDocsModal(false)} />
-      )}
+        {showApiDocsModal && (
+          <ApiDocsModal onClose={() => setShowApiDocsModal(false)} />
+        )}
+      </Suspense>
 
           <ReviewsFAQ />
           <BlogFooter />

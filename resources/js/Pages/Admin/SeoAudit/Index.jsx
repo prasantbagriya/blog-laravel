@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Link, Head } from '@inertiajs/react';
-import { format } from 'date-fns';
-import AdminLayout from '../../../Layouts/AdminLayout';
+import dayjs from 'dayjs';
+
+const AdminLayout = React.lazy(() => import('../../../Layouts/AdminLayout'));
 
 export default function SeoAuditDashboard() {
   const [posts, setPosts] = useState([]);
@@ -58,7 +59,7 @@ export default function SeoAuditDashboard() {
                   <tr key={post.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
                      <td style={{ padding: '16px 24px' }}>
                         <div style={{ fontWeight: 600, color: '#0f172a', marginBottom: '4px', fontSize: '15px' }}>{post.title}</div>
-                        <div style={{ fontSize: '13px', color: '#64748b' }}>Updated: {format(new Date(post.date || new Date()), 'MMM d, yyyy')}</div>
+                        <div style={{ fontSize: '13px', color: '#64748b' }}>Updated: {dayjs(post.date || new Date()).format('MMM D, YYYY')}</div>
                      </td>
                      <td style={{ padding: '16px 24px' }}>
                         <span style={{ 
@@ -128,4 +129,8 @@ export default function SeoAuditDashboard() {
   );
 }
 
-SeoAuditDashboard.layout = page => <AdminLayout>{page}</AdminLayout>;
+SeoAuditDashboard.layout = page => (
+  <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading Admin Workspace...</div>}>
+    <AdminLayout>{page}</AdminLayout>
+  </Suspense>
+);

@@ -20,29 +20,29 @@ export default function Index({ posts, meta }) {
     };
 
     return (
-        <div className="bg-white min-h-screen">
+        <div className="bg-white dark:bg-zinc-950 min-h-screen text-slate-900 dark:text-white transition-colors duration-300">
             <SeoMeta meta={meta} />
             
             <GlobalNavbar />
             
             <main className="w-full px-[25px] pb-8" style={{ paddingTop: '100px' }}>
-                <h1 className="text-4xl font-bold mb-12">All Articles & Insights</h1>
+                <h1 className="text-4xl font-bold mb-12 text-slate-900 dark:text-white">All Articles & Insights</h1>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {posts.map((post) => (
-                        <article key={post.id} className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl transition-shadow flex flex-col">
+                        <article key={post.id} className="border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-xl overflow-hidden hover:shadow-xl dark:hover:shadow-black/40 transition-shadow flex flex-col">
                             <Link href={window.BASE_PATH + `/blog/${post.slug}`} className="relative h-48 block">
-                                <Image src={post.coverImage || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80'} alt={post.title} fill style={{ objectFit: 'cover' }} />
+                                <Image src={post.coverImage || '/uploads/read.webp'} alt={post.title} fill style={{ objectFit: 'cover' }} />
                             </Link>
                             <div className="p-6 flex flex-col flex-grow">
-                                <span className="text-sm text-blue-600 font-bold uppercase tracking-wider mb-2">{post.category}</span>
-                                <h2 className="text-xl font-bold mb-3">
+                                <span className="text-sm text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider mb-2">{post.category}</span>
+                                <h2 className="text-xl font-bold mb-3 text-slate-900 dark:text-white">
                                     <Link href={window.BASE_PATH + `/blog/${post.slug}`}>{post.title}</Link>
                                 </h2>
-                                <p className="text-gray-600 mb-4 flex-grow">{post.excerpt}</p>
-                                <div className="flex justify-between items-center text-sm text-gray-500 pt-4 border-t border-gray-100">
+                                <p className="text-slate-600 dark:text-zinc-400 mb-4 flex-grow">{post.excerpt}</p>
+                                <div className="flex justify-between items-center text-sm text-slate-500 dark:text-zinc-500 pt-4 border-t border-slate-100 dark:border-zinc-800">
                                     <span>{formatDate(post.date)}</span>
-                                    <Link href={window.BASE_PATH + '/author/' + (post.author ? post.author.toLowerCase().replace(/[^a-z0-9]+/g, '-') : '')} className="font-semibold hover:text-blue-600 hover:underline">
+                                    <Link href={window.BASE_PATH + '/author/' + (post.author ? post.author.toLowerCase().replace(/[^a-z0-9]+/g, '-') : '')} className="font-semibold hover:text-blue-600 dark:hover:text-blue-400 hover:underline">
                                         {post.author}
                                     </Link>
                                 </div>

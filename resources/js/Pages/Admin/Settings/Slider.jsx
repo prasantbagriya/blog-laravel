@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Head } from '@inertiajs/react';
-import AdminLayout from '../../../Layouts/AdminLayout';
-import MediaPicker from '../components/MediaPicker';
+
+const AdminLayout = React.lazy(() => import('../../../Layouts/AdminLayout'));
+const MediaPicker = React.lazy(() => import('../components/MediaPicker'));
 
 export default function SliderManager() {
   const [slides, setSlides] = useState([]);
@@ -209,13 +210,19 @@ export default function SliderManager() {
       </div>
 
       {isMediaPickerOpen && (
-        <MediaPicker
-          onSelect={handleMediaSelected}
-          onClose={() => setIsMediaPickerOpen(false)}
-        />
+        <Suspense fallback={<div>Loading Media Picker...</div>}>
+          <MediaPicker
+            onSelect={handleMediaSelected}
+            onClose={() => setIsMediaPickerOpen(false)}
+          />
+        </Suspense>
       )}
     </div>
   );
 }
 
-SliderManager.layout = page => <AdminLayout>{page}</AdminLayout>;
+SliderManager.layout = page => (
+  <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading Admin Workspace...</div>}>
+    <AdminLayout>{page}</AdminLayout>
+  </Suspense>
+);

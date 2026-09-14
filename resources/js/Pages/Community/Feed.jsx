@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, Suspense } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { Home, Compass, Plus, Flame, Sparkles, TrendingUp, Sparkle, Search } from 'lucide-react';
 import GlobalNavbar from '@/NextComponents/GlobalNavbar';
-import ReportModal from '@/Components/ReportModal';
+const ReportModal = React.lazy(() => import('@/Components/ReportModal'));
 import PostCard from '@/Components/PostCard';
 
 export default function Feed({ auth, posts, currentSort = 'new', currentFilter = 'home' }) {
@@ -144,7 +144,7 @@ export default function Feed({ auth, posts, currentSort = 'new', currentFilter =
                                 {auth.joined_communities.map(community => (
                                     <Link key={community.id} href={`/community/${community.name}`} className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-600 dark:text-zinc-300 hover:bg-white dark:hover:bg-zinc-900 hover:shadow-sm hover:text-slate-900 dark:hover:text-white font-medium transition-all border border-transparent hover:border-slate-200 dark:hover:border-zinc-800">
                                         {community.icon_image ? (
-                                            <img loading="lazy" decoding="async" fetchPriority="low" src={community.icon_image} className="w-7 h-7 rounded-lg object-cover shadow-sm border border-slate-100 dark:border-zinc-700 flex-shrink-0" />
+                                            <img loading="lazy" decoding="async" fetchPriority="low" src={community.icon_image} width="28" height="28" className="w-7 h-7 rounded-lg object-cover shadow-sm border border-slate-100 dark:border-zinc-700 flex-shrink-0" />
                                         ) : (
                                             <div className="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-bold flex items-center justify-center text-xs shadow-sm border border-blue-200 dark:border-blue-800/50 flex-shrink-0">
                                                 {community.name.charAt(0).toUpperCase()}
@@ -301,12 +301,16 @@ export default function Feed({ auth, posts, currentSort = 'new', currentFilter =
 
             </div>
 
-            <ReportModal 
-                isOpen={reportModalData.isOpen} 
-                onClose={() => setReportModalData({ isOpen: false, id: null, type: null })}
-                reportableId={reportModalData.id}
-                reportableType={reportModalData.type}
-            />
+            <Suspense fallback={null}>
+                {reportModalData.isOpen && (
+                    <ReportModal 
+                        isOpen={reportModalData.isOpen} 
+                        onClose={() => setReportModalData({ isOpen: false, id: null, type: null })}
+                        reportableId={reportModalData.id}
+                        reportableType={reportModalData.type}
+                    />
+                )}
+            </Suspense>
         </div>
     );
 }

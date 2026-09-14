@@ -2,7 +2,7 @@
 import { useState, useEffect, useTransition, useRef } from 'react';
 import { router } from '@inertiajs/react';
 
-import { format } from 'date-fns';
+import dayjs from 'dayjs';
 import MediaPicker from "../components/MediaPicker";
 
 export default function StoryForm({ story }: { story?: any }) {
@@ -123,8 +123,8 @@ export default function StoryForm({ story }: { story?: any }) {
         // ✅ Google Discover: Square and Landscape fallbacks
         squarePoster: squarePoster || posterImage || undefined,
         landscapePoster: landscapePoster || posterImage || undefined,
-        date: story?.date || format(new Date(), 'yyyy-MM-dd'),
-        lastModified: format(new Date(), 'yyyy-MM-dd'),
+        date: story?.date || dayjs().format('YYYY-MM-DD'),
+        lastModified: dayjs().format('YYYY-MM-DD'),
         author,
         authorBio: authorBio || undefined,
         authorImage: authorImage || undefined,

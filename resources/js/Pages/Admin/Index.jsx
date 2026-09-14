@@ -3,8 +3,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, Head } from '@inertiajs/react';
 import DeleteButton from './DeleteButton';
-import AdminLayout from '../../Layouts/AdminLayout';
+import React, { Suspense } from 'react';
 
+const AdminLayout = React.lazy(() => import('../../Layouts/AdminLayout'));
 
 export default function AdminPage() {
   const [posts, setPosts] = useState([]);
@@ -709,7 +710,11 @@ export default function AdminPage() {
   );
 }
 
-AdminPage.layout = page => <AdminLayout>{page}</AdminLayout>;
+AdminPage.layout = page => (
+  <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading Admin Workspace...</div>}>
+    <AdminLayout>{page}</AdminLayout>
+  </Suspense>
+);
 
 const thStyle = { 
   padding: '16px 24px', 

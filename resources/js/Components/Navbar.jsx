@@ -1,7 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, router } from '@inertiajs/react';
 import { Search, Bell, Check } from 'lucide-react';
-import moment from 'moment';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+
+dayjs.extend(relativeTime);
 
 export default function Navbar({ auth, searchQuery = '' }) {
     const [query, setQuery] = useState(searchQuery);
@@ -115,7 +118,7 @@ export default function Navbar({ auth, searchQuery = '' }) {
                                                                 {notif.data.message}
                                                             </p>
                                                             <p className="text-[12px] text-[#878A8C] mt-1">
-                                                                {moment(notif.created_at).fromNow()}
+                                                                {dayjs(notif.created_at).fromNow()}
                                                             </p>
                                                         </div>
                                                         {!notif.read_at && (

@@ -21,7 +21,7 @@ export default function StoryIndex({ stories }) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {stories.map((story) => (
                         <Link key={story.id} href={window.BASE_PATH + `/stories/${story.slug}`} className="block relative aspect-[3/4] rounded-xl overflow-hidden shadow-lg group">
-                            <Image src={story.posterImage || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80'} alt={story.title} fill style={{ objectFit: 'cover' }} className="transition-transform duration-300 group-hover:scale-105" />
+                            <Image src={story.posterImage || '/uploads/read.webp'} alt={story.title} fill style={{ objectFit: 'cover' }} className="transition-transform duration-300 group-hover:scale-105" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
                                 <h3 className="text-white font-bold text-lg leading-tight">{story.title}</h3>
                             </div>

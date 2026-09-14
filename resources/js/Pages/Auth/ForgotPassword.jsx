@@ -20,7 +20,7 @@ export default function ForgotPassword({ status }) {
                 {/* Logo */}
                 <Link href="/" className="inline-flex items-center gap-3 mb-8 group decoration-transparent">
                     <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform overflow-hidden border border-slate-100 dark:border-zinc-800">
-                        <img src="/uploads/logo.webp" alt="Coaching Sikar Logo" className="w-full h-full object-cover" />
+                        <img src="/uploads/logo.webp" alt="Coaching Sikar Logo" width="40" height="40" className="w-full h-full object-cover" />
                     </div>
                     <span className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tighter">
                         Coaching Sikar

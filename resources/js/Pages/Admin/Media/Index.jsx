@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Link, Head } from '@inertiajs/react';
-import AdminLayout from '../../../Layouts/AdminLayout';
 import axios from 'axios';
+
+const AdminLayout = React.lazy(() => import('../../../Layouts/AdminLayout'));
 
 export default function MediaLibraryPage() {
   const BASE = typeof window !== 'undefined' && window.location.pathname.startsWith('/list/public') ? '/list/public' : '';
@@ -300,4 +301,8 @@ export default function MediaLibraryPage() {
   );
 }
 
-MediaLibraryPage.layout = page => <AdminLayout>{page}</AdminLayout>;
+MediaLibraryPage.layout = page => (
+  <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading Admin Workspace...</div>}>
+    <AdminLayout>{page}</AdminLayout>
+  </Suspense>
+);

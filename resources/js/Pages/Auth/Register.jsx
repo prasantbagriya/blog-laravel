@@ -28,7 +28,7 @@ export default function Register() {
                     <div className="mb-5 animate-fade-in-down">
                         <Link href="/" className="inline-flex items-center gap-3 mb-4 group decoration-transparent">
                             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform overflow-hidden">
-                                <img src="/uploads/logo.webp" alt="Coaching Sikar Logo" className="w-full h-full object-cover" />
+                                <img src="/uploads/logo.webp" alt="Coaching Sikar Logo" width="40" height="40" className="w-full h-full object-cover" />
                             </div>
                             <span className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tighter">
                                 Coaching Sikar
@@ -56,7 +56,7 @@ export default function Register() {
                                     type="text"
                                     value={data.name}
                                     onChange={(e) => setData('name', e.target.value)}
-                                    className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800"
+                                    className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
                                     placeholder="John Doe"
                                     required
                                     autoFocus
@@ -77,7 +77,7 @@ export default function Register() {
                                     type="email"
                                     value={data.email}
                                     onChange={(e) => setData('email', e.target.value)}
-                                    className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800"
+                                    className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
                                     placeholder="you@example.com"
                                     required
                                 />
@@ -98,7 +98,7 @@ export default function Register() {
                                         type="password"
                                         value={data.password}
                                         onChange={(e) => setData('password', e.target.value)}
-                                        className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800"
+                                        className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
                                         placeholder="••••••••"
                                         required
                                     />
@@ -118,7 +118,7 @@ export default function Register() {
                                         type="password"
                                         value={data.password_confirmation}
                                         onChange={(e) => setData('password_confirmation', e.target.value)}
-                                        className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800"
+                                        className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
                                         placeholder="••••••••"
                                         required
                                     />
@@ -157,7 +157,9 @@ export default function Register() {
                 {/* Background Image */}
                 <div 
                     className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-60 mix-blend-luminosity"
-                    style={{ backgroundImage: `url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1742')` }}
+                    style={{ backgroundImage: `url('/uploads/aboutus.webp')` }}
+                    role="img"
+                    aria-label="About Us Background"
                 ></div>
                 
                 {/* Gradient Overlay */}
@@ -179,9 +181,9 @@ export default function Register() {
                                 "Our verified reviews and AI-driven insights ensure you make the right choice for your career."
                             </p>
                             <div className="flex items-center gap-[-10px]">
-                                <img src="https://i.pravatar.cc/100?img=1" className="w-10 h-10 rounded-full border-2 border-white/40 -ml-0 relative z-30" alt="avatar" />
-                                <img src="https://i.pravatar.cc/100?img=2" className="w-10 h-10 rounded-full border-2 border-white/40 -ml-3 relative z-20" alt="avatar" />
-                                <img src="https://i.pravatar.cc/100?img=3" className="w-10 h-10 rounded-full border-2 border-white/40 -ml-3 relative z-10" alt="avatar" />
+                                <img src="https://i.pravatar.cc/100?img=1" width="40" height="40" className="w-10 h-10 rounded-full border-2 border-white/40 -ml-0 relative z-30" alt="avatar" />
+                                <img src="https://i.pravatar.cc/100?img=2" width="40" height="40" className="w-10 h-10 rounded-full border-2 border-white/40 -ml-3 relative z-20" alt="avatar" />
+                                <img src="https://i.pravatar.cc/100?img=3" width="40" height="40" className="w-10 h-10 rounded-full border-2 border-white/40 -ml-3 relative z-10" alt="avatar" />
                                 <div className="w-10 h-10 rounded-full border-2 border-white/40 -ml-3 relative z-0 bg-white/20 backdrop-blur-sm flex items-center justify-center text-xs font-bold text-white">
                                     +5k
                                 </div>

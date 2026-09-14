@@ -129,7 +129,7 @@ export default function SearchIndex({ auth, posts, blogs, businesses, communitie
                                     <Link key={biz.id} href={basePath + `/reviews/${biz.category || 'coaching-institutes'}/${biz.slug}`} className="group flex flex-col gap-4 p-5 bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 hover:border-amber-500/50 hover:shadow-md transition-all">
                                         <div className="w-full h-32 rounded-xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden flex-shrink-0 group-hover:scale-[1.02] transition-transform">
                                             {biz.logo ? (
-                                                <img loading="lazy" decoding="async" fetchPriority="low" src={biz.logo} className="w-full h-full object-contain p-2" />
+                                                <img loading="lazy" decoding="async" fetchPriority="low" src={biz.logo} width="300" height="128" className="w-full h-full object-contain p-2" />
                                             ) : (
                                                 <Compass size={40} className="text-slate-400" />
                                             )}
@@ -158,7 +158,7 @@ export default function SearchIndex({ auth, posts, blogs, businesses, communitie
                                     <Link key={blog.id} href={basePath + `/blog/${blog.slug}`} className="group flex flex-col sm:flex-row gap-4 p-5 bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 hover:border-amber-500/50 hover:shadow-md transition-all">
                                         <div className="w-full sm:w-32 h-40 sm:h-auto rounded-xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden flex-shrink-0 group-hover:scale-[1.02] transition-transform">
                                             {blog.coverImage || blog.cover_image ? (
-                                                <img loading="lazy" decoding="async" fetchPriority="low" src={blog.coverImage || blog.cover_image} className="w-full h-full object-cover" />
+                                                <img loading="lazy" decoding="async" fetchPriority="low" src={blog.coverImage || blog.cover_image} width="128" height="128" className="w-full h-full object-cover" />
                                             ) : (
                                                 <MessageSquare size={32} className="text-slate-400" />
                                             )}
@@ -230,7 +230,7 @@ export default function SearchIndex({ auth, posts, blogs, businesses, communitie
                                     <Link key={community.id} href={basePath + `/r/${community.name}`} className="group flex items-start gap-4 p-5 bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 hover:border-amber-500/50 hover:shadow-md transition-all">
                                         <div className="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center overflow-hidden flex-shrink-0 group-hover:scale-105 transition-transform">
                                             {community.icon_image ? (
-                                                <img loading="lazy" decoding="async" fetchPriority="low" src={community.icon_image} className="w-full h-full object-cover" />
+                                                <img loading="lazy" decoding="async" fetchPriority="low" src={community.icon_image} width="56" height="56" className="w-full h-full object-cover" />
                                             ) : (
                                                 <Compass size={28} className="text-blue-500 dark:text-blue-400" />
                                             )}
@@ -259,7 +259,7 @@ export default function SearchIndex({ auth, posts, blogs, businesses, communitie
                                     <Link key={user.id} href={basePath + `/u/${user.username}`} className="group flex items-center gap-4 p-4 bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 hover:border-amber-500/50 hover:shadow-md transition-all">
                                         <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden flex-shrink-0 group-hover:scale-105 transition-transform">
                                             {user.profile_picture ? (
-                                                <img loading="lazy" decoding="async" fetchPriority="low" src={user.profile_picture} className="w-full h-full object-cover" />
+                                                <img loading="lazy" decoding="async" fetchPriority="low" src={user.profile_picture} width="48" height="48" className="w-full h-full object-cover" />
                                             ) : (
                                                 <UserIcon size={24} className="text-slate-400" />
                                             )}

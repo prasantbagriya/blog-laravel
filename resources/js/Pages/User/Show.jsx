@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, Suspense } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { Flame, Sparkles, TrendingUp } from 'lucide-react';
 import Navbar from '@/Components/Navbar';
-import ReportModal from '@/Components/ReportModal';
+const ReportModal = React.lazy(() => import('@/Components/ReportModal'));
 import PostCard from '@/Components/PostCard';
 import AnimatedBorderCard from '@/Components/AnimatedBorderCard';
 
@@ -88,11 +88,15 @@ export default function Show({ auth, profileUser, posts, currentSort = 'new' }) 
             
             <Navbar auth={auth} />
 
-            <ReportModal 
-                isOpen={!!reportPostId} 
-                onClose={() => setReportPostId(null)} 
-                postId={reportPostId} 
-            />
+            <Suspense fallback={null}>
+                {!!reportPostId && (
+                    <ReportModal 
+                        isOpen={!!reportPostId} 
+                        onClose={() => setReportPostId(null)} 
+                        postId={reportPostId} 
+                    />
+                )}
+            </Suspense>
 
             <div className="w-full mx-auto pt-6 px-4 flex flex-col lg:flex-row gap-6 max-w-[1200px]">
                 

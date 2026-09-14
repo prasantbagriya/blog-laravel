@@ -1,10 +1,31 @@
 // @ts-nocheck
 "use client"
-import React, { useState } from "react"
-import { Menu, X } from "lucide-react"
+import React, { useState, useEffect } from "react"
+import { Menu, X, Sun, Moon } from "lucide-react"
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isDark, setIsDark] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isDarkMode = document.documentElement.classList.contains('dark')
+      setIsDark(isDarkMode)
+    }
+  }, [])
+
+  const toggleDarkMode = () => {
+    const newIsDark = !isDark
+    setIsDark(newIsDark)
+    
+    if (newIsDark) {
+      document.documentElement.classList.add('dark')
+      localStorage.theme = 'dark'
+    } else {
+      document.documentElement.classList.remove('dark')
+      localStorage.theme = 'light'
+    }
+  }
 
   const getHref = (page) => {
     const basePath = typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '';
@@ -25,9 +46,9 @@ export default function Navbar() {
   }
 
   const navLinks = [
-    { label: 'Explore Institutes', page: 'reviews' },
     { label: 'Blog', page: 'blog' },
     { label: 'Community', page: 'feed' },
+    { label: 'Explore Institutes', page: 'reviews' },
     { label: 'Category', page: 'category' },
     { label: 'About Us', page: 'about' },
     { label: 'Contact Us', page: 'contact' },
@@ -62,6 +83,9 @@ export default function Navbar() {
         align-items: center;
         justify-content: center;
       }
+      @keyframes shimmer-nav {
+        100% { transform: translateX(100%); }
+      }
     `}</style>
     <header className="fixed top-6 left-0 right-0 z-50 w-full px-4 pointer-events-none">
       <div className="w-full max-w-7xl mx-auto pointer-events-auto">
@@ -78,7 +102,7 @@ export default function Navbar() {
               {/* Logo */}
               <a href={getHref('landing')} onClick={(e) => handleNavClick(e, 'landing')} className="flex items-center space-x-2 group shrink-0 decoration-transparent">
                 <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform overflow-hidden">
-                  <img loading="lazy" decoding="async" fetchPriority="low" src={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + "/uploads/logo.webp"} alt="Coaching Sikar Logo" className="w-full h-full object-cover" />
+                  <img fetchPriority="high" src={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + "/uploads/logo.webp"} alt="Coaching Sikar Logo" className="w-full h-full object-cover" width="32" height="32" />
                 </div>
                 <span className="text-xl font-bold text-white tracking-tighter">Coaching Sikar</span>
               </a>
@@ -90,7 +114,7 @@ export default function Navbar() {
                     key={link.page}
                     href={getHref(link.page)}
                     onClick={(e) => handleNavClick(e, link.page)}
-                    className="text-sm font-medium text-gray-400 hover:text-white transition-colors cursor-pointer decoration-transparent"
+                    className="text-sm font-medium text-gray-200 hover:text-white transition-colors cursor-pointer decoration-transparent"
                   >
                     {link.label}
                   </a>
@@ -101,13 +125,33 @@ export default function Navbar() {
 
               {/* Desktop Actions */}
               <div className="hidden md:flex items-center gap-4">
+                <button 
+                  onClick={toggleDarkMode}
+                  className="bg-slate-800/60 hover:bg-slate-700/80 border border-slate-700/50 transition-colors p-2 rounded-full shadow-inner flex items-center justify-center"
+                  aria-label="Toggle dark mode"
+                >
+                  {isDark ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-blue-400" />}
+                </button>
                 <a href="/login" className="text-sm font-semibold text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-colors decoration-transparent border border-white/10">Log In</a>
-                <a href="/register" className="btn-amber px-5 py-2 transition-transform hover:scale-105 text-sm">Register</a>
+                <a href="/register" className="btn-amber relative group overflow-hidden px-6 py-2 transition-transform hover:scale-105 text-sm border-none outline-none focus:outline-none ring-0 focus:ring-0 flex items-center justify-center shadow-lg shadow-amber-500/20">
+                  <span className="relative z-10">Register</span>
+                  <div className="absolute inset-0 -translate-x-full animate-[shimmer-nav_2s_infinite] bg-gradient-to-r from-transparent via-white/40 to-transparent z-0 pointer-events-none"></div>
+                </a>
               </div>
 
               {/* Mobile Controls */}
               <div className="md:hidden flex items-center gap-3">
-                <a href="/register" className="btn-amber px-4 py-1.5 text-sm transition-transform hover:scale-105">Register</a>
+                <button 
+                  onClick={toggleDarkMode}
+                  className="bg-slate-800/60 hover:bg-slate-700/80 border border-slate-700/50 transition-colors p-1.5 rounded-full shadow-inner flex items-center justify-center"
+                  aria-label="Toggle dark mode"
+                >
+                  {isDark ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-blue-400" />}
+                </button>
+                <a href="/register" className="btn-amber relative group overflow-hidden px-4 py-1.5 transition-transform hover:scale-105 text-sm border-none outline-none focus:outline-none ring-0 focus:ring-0 flex items-center justify-center shadow-md shadow-amber-500/20">
+                  <span className="relative z-10">Register</span>
+                  <div className="absolute inset-0 -translate-x-full animate-[shimmer-nav_2s_infinite] bg-gradient-to-r from-transparent via-white/40 to-transparent z-0 pointer-events-none"></div>
+                </a>
                 <button aria-label="Toggle menu" onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-400 p-2 bg-transparent border-none cursor-pointer">
                   {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
                 </button>
@@ -122,7 +166,7 @@ export default function Navbar() {
             >
               <div className="grid grid-cols-2 gap-4">
                 {navLinks.map(link => (
-                  <a key={link.page} href={getHref(link.page)} onClick={(e) => handleNavClick(e, link.page)} className="text-left text-gray-400 hover:text-white font-bold text-sm py-2 block decoration-transparent">{link.label}</a>
+                  <a key={link.page} href={getHref(link.page)} onClick={(e) => handleNavClick(e, link.page)} className="text-left text-gray-200 hover:text-white font-bold text-sm py-2 block decoration-transparent">{link.label}</a>
                 ))}
               </div>
               <div className="mt-2 mb-4 pt-4 border-t border-white/10 flex justify-center">

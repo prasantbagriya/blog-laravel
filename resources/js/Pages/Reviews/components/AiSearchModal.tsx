@@ -98,7 +98,7 @@ export const AiSearchModal: React.FC<AiSearchModalProps> = ({ onClose, onSelectB
                   className="p-4 rounded-sm bg-zinc-100 dark:bg-zinc-800 hover:bg-blue-100/50 dark:hover:bg-blue-600/10 border border-zinc-200 dark:border-zinc-800 cursor-pointer transition flex items-center justify-between gap-3"
                 >
                   <div className="flex items-center gap-3">
-                    <img src={biz.logo} alt={biz.name} className="w-10 h-10 rounded-xs object-cover border border-zinc-200 dark:border-zinc-800" />
+                    <img src={biz.logo} alt={biz.name} width="40" height="40" className="w-10 h-10 rounded-xs object-cover border border-zinc-200 dark:border-zinc-800" />
                     <div>
                       <h4 className="text-xs font-bold text-zinc-900 dark:text-white">{biz.name}</h4>
                       <p className="text-[11px] text-zinc-500 dark:text-zinc-400">{biz.categoryName} • {biz.city}</p>

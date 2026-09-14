@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, Suspense } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { ArrowBigUp, ArrowBigDown, MessageSquare, Share, Bookmark, MoreHorizontal, TrendingUp, Flame, Sparkle, Link as LinkIcon, Flag, Trash, PenSquare, Shield, Plus, Users, CircleDot } from 'lucide-react';
 import GlobalNavbar from '@/NextComponents/GlobalNavbar';
-import ReportModal from '@/Components/ReportModal';
+const ReportModal = React.lazy(() => import('@/Components/ReportModal'));
 import PostCard from '@/Components/PostCard';
 
 export default function Show({ auth, community, posts, currentSort = 'new' }) {
@@ -137,16 +137,16 @@ export default function Show({ auth, community, posts, currentSort = 'new' }) {
                 <div className="flex-1 max-w-3xl pb-24">
                     
                     {/* Create Post Input */}
-                    <Link href={`/submit?community_id=${community.id}`} className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-4 flex gap-4 items-center cursor-text mb-6 shadow-sm hover:shadow-md transition-shadow group">
+                    <Link href={`/submit?community_id=${community.id}`} className="bg-slate-50 dark:bg-zinc-900 border-0 rounded-3xl p-3 flex gap-4 items-center cursor-text mb-6 shadow-inner hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors group">
                         <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 border-2 border-white dark:border-zinc-800 flex-shrink-0 flex items-center justify-center shadow-sm">
                             <span className="text-blue-600 dark:text-blue-400 font-extrabold text-lg">{auth?.user?.name ? auth.user.name.charAt(0).toUpperCase() : 'U'}</span>
                         </div>
                         <div 
-                            className="flex-1 bg-slate-50 dark:bg-zinc-800/50 group-hover:bg-slate-100 dark:group-hover:bg-zinc-800 border border-slate-100 dark:border-zinc-700/50 rounded-xl py-3 px-5 text-sm text-slate-500 dark:text-zinc-400 transition-colors flex items-center font-medium"
+                            className="flex-1 bg-white dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700/50 rounded-2xl py-3 px-5 text-sm text-slate-500 dark:text-zinc-400 transition-colors flex items-center font-medium shadow-sm"
                         >
                             Create Post...
                         </div>
-                        <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 flex items-center justify-center group-hover:bg-blue-50 dark:group-hover:bg-blue-500/10 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                        <div className="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 text-slate-400 dark:text-zinc-400 flex items-center justify-center border border-slate-200 shadow-sm group-hover:bg-blue-50 dark:group-hover:bg-blue-500/10 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:border-blue-200 transition-colors">
                             <Plus size={22} strokeWidth={2.5} />
                         </div>
                     </Link>
@@ -240,12 +240,16 @@ export default function Show({ auth, community, posts, currentSort = 'new' }) {
 
             </div>
 
-            <ReportModal 
-                isOpen={reportModalData.isOpen} 
-                onClose={() => setReportModalData({ isOpen: false, id: null, type: null })}
-                reportableId={reportModalData.id}
-                reportableType={reportModalData.type}
-            />
+            <Suspense fallback={null}>
+                {reportModalData.isOpen && (
+                    <ReportModal 
+                        isOpen={reportModalData.isOpen} 
+                        onClose={() => setReportModalData({ isOpen: false, id: null, type: null })}
+                        reportableId={reportModalData.id}
+                        reportableType={reportModalData.type}
+                    />
+                )}
+            </Suspense>
         </div>
     );
 }

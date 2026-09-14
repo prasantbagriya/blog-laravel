@@ -65,7 +65,7 @@ export default function CategoryShow({ categoryName, posts, meta }) {
                                     {/* Cover Image */}
                                     <Link href={basePath + `/blog/${post.slug}`} className="relative h-48 block overflow-hidden">
                                         <Image
-                                            src={post.coverImage || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80'}
+                                            src={post.coverImage || '/uploads/read.webp'}
                                             alt={post.title}
                                             fill
                                             style={{ objectFit: 'cover' }}

@@ -26,31 +26,41 @@ export default function CommunityChat({ community, auth, onClose }) {
                 setIsLoading(false);
             });
 
-        if (auth?.user && window.Echo) {
-            // Join Presence Channel
-            const channel = window.Echo.join(`community.${community.id}`);
+        if (auth?.user) {
+            let activeEcho = null;
 
-            channel.here((users) => {
-                setOnlineUsers(users);
-            })
-            .joining((user) => {
-                setOnlineUsers(prev => {
-                    if (!prev.find(u => u.id === user.id)) {
-                        return [...prev, user];
-                    }
-                    return prev;
+            window.initEcho().then((Echo) => {
+                activeEcho = Echo;
+                
+                // Join Presence Channel
+                const channel = Echo.join(`community.${community.id}`);
+
+                channel.here((users) => {
+                    setOnlineUsers(users);
+                })
+                .joining((user) => {
+                    setOnlineUsers(prev => {
+                        if (!prev.find(u => u.id === user.id)) {
+                            return [...prev, user];
+                        }
+                        return prev;
+                    });
+                })
+                .leaving((user) => {
+                    setOnlineUsers(prev => prev.filter(u => u.id !== user.id));
+                })
+                .listen('MessageSent', (e) => {
+                    setMessages(prev => [...prev, e.message]);
+                    setTimeout(scrollToBottom, 100);
                 });
-            })
-            .leaving((user) => {
-                setOnlineUsers(prev => prev.filter(u => u.id !== user.id));
-            })
-            .listen('MessageSent', (e) => {
-                setMessages(prev => [...prev, e.message]);
-                setTimeout(scrollToBottom, 100);
             });
 
             return () => {
-                window.Echo.leave(`community.${community.id}`);
+                if (activeEcho) {
+                    activeEcho.leave(`community.${community.id}`);
+                } else if (window.Echo) {
+                    window.Echo.leave(`community.${community.id}`);
+                }
             };
         }
     }, [community.id, auth]);

@@ -79,12 +79,12 @@ const ShareModal = ({ isOpen, onClose, url, title }: { isOpen: boolean, onClose:
             ))}
           </div>
           
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Link2 className="w-4 h-4 text-slate-400" />
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <Link2 className="h-5 w-5 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
             </div>
-            <input type="text" readOnly value={url} className="w-full pl-9 pr-24 py-3 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-600 dark:text-zinc-300 text-sm rounded-xl focus:outline-none" />
-            <button onClick={handleCopy} className={`absolute inset-y-1.5 right-1.5 px-4 rounded-lg font-bold text-xs transition-colors ${copied ? 'bg-emerald-500 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}>
+            <input type="text" readOnly value={url} className="block w-full pl-12 pr-24 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500" />
+            <button onClick={handleCopy} className={`absolute inset-y-1.5 right-1.5 px-5 rounded-full font-extrabold text-xs transition-all active:scale-[0.98] ${copied ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20' : 'bg-amber-500 hover:bg-amber-400 text-black shadow-md shadow-amber-500/20'}`}>
               {copied ? 'Copied!' : 'Copy'}
             </button>
           </div>

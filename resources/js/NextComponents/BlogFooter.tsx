@@ -49,19 +49,19 @@ export default function BlogFooter() {
       title: "Navigation",
       links: [
         { label: "Home", page: "landing" },
-        { label: "Explore Institutes", page: "reviews" },
         { label: "Blog", page: "blog" },
         { label: "About Us", page: "about" },
-        { label: "Contact Us", page: "contact" }
+        { label: "Contact Us", page: "contact" },
+        { label: "Explore Institutes", page: "reviews" }
       ]
     },
     {
       title: "Legal & Policies",
       links: [
         { label: "Privacy Policy", page: "privacy" },
-        { label: "Terms & Conditions", page: "terms" },
         { label: "Editorial Policy", page: "editorial-policy" },
-        { label: "Fact-Checking", page: "fact-checking-policy" }
+        { label: "Fact-Checking", page: "fact-checking-policy" },
+        { label: "Terms & Conditions", page: "terms" }
       ]
     }
   ]
@@ -78,7 +78,7 @@ export default function BlogFooter() {
           <div className="col-span-2 md:col-span-2 lg:col-span-2 space-y-8">
             <div className="flex items-center space-x-3 group cursor-pointer" onClick={() => handleNavClick('landing')}>
               <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform overflow-hidden p-1">
-                <img loading="lazy" decoding="async" fetchPriority="low" src={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + "/uploads/logo.webp"} alt="Coaching Sikar Logo" className="w-full h-full object-contain" />
+                <img loading="lazy" decoding="async" fetchPriority="low" src={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + "/uploads/logo.webp"} alt="Coaching Sikar Logo" width="32" height="32" className="w-full h-full object-contain" />
               </div>
               <span className="text-3xl font-extrabold text-white tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">Coaching Sikar</span>
             </div>

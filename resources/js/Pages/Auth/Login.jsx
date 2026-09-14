@@ -27,7 +27,7 @@ export default function Login({ status, canResetPassword }) {
                     <div className="mb-6 animate-fade-in-down">
                         <Link href="/" className="inline-flex items-center gap-3 mb-4 group decoration-transparent">
                             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform overflow-hidden">
-                                <img src="/uploads/logo.webp" alt="Coaching Sikar Logo" className="w-full h-full object-cover" />
+                                <img src="/uploads/logo.webp" alt="Coaching Sikar Logo" width="40" height="40" className="w-full h-full object-cover" />
                             </div>
                             <span className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tighter">
                                 Coaching Sikar
@@ -62,7 +62,7 @@ export default function Login({ status, canResetPassword }) {
                                     type="email"
                                     value={data.email}
                                     onChange={(e) => setData('email', e.target.value)}
-                                    className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border-0 outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-0 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800"
+                                    className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
                                     placeholder="you@example.com"
                                     required
                                     autoFocus
@@ -90,7 +90,7 @@ export default function Login({ status, canResetPassword }) {
                                     type="password"
                                     value={data.password}
                                     onChange={(e) => setData('password', e.target.value)}
-                                    className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border-0 outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-0 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800"
+                                    className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
                                     placeholder="••••••••"
                                     required
                                 />
@@ -175,7 +175,7 @@ export default function Login({ status, canResetPassword }) {
                                 "CoachingInSikar completely transformed my preparation journey. The verified reviews helped me find the perfect institute!"
                             </blockquote>
                             <div className="flex items-center gap-4">
-                                <img src="https://i.pravatar.cc/100?img=32" alt="User" className="w-12 h-12 rounded-full border-2 border-white/30" />
+                                <img src="https://i.pravatar.cc/100?img=32" alt="User" width="48" height="48" className="w-12 h-12 rounded-full border-2 border-white/30" />
                                 <div>
                                     <div className="font-bold text-white">Priya Sharma</div>
                                     <div className="text-blue-200 text-sm font-medium">NEET Aspirant</div>

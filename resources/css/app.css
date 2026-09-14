@@ -6,13 +6,13 @@
 @import "tailwindcss/utilities";
 
 :root {
-  --primary: #2563eb; 
+  --primary: #2563eb;
   --primary-hover: #1d4ed8;
   --primary-rgb: 37, 99, 235;
   --background: #ffffff;
   --foreground: #0f172a;
   --muted: #f8fafc;
-  --muted-foreground: #475569; 
+  --muted-foreground: #475569;
   --accent: #f1f5ff;
   --border: #e2e8f0;
   --radius: 1rem;
@@ -29,7 +29,9 @@
 }
 
 /* ✅ CWV: Universal box-sizing — single declaration, no duplicates */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
@@ -39,6 +41,7 @@
 *:focus {
   outline: none !important;
 }
+
 button {
   outline: none !important;
   border: none;
@@ -46,7 +49,7 @@ button {
 
 html {
   scroll-behavior: smooth;
-  overflow-x: hidden;
+  overflow-x: clip;
   font-size: 16px;
   /* ✅ CLS: font-size-adjust prevents layout shift on webfont load */
   font-size-adjust: from-font;
@@ -56,7 +59,7 @@ html {
 
 body {
   max-width: 100vw;
-  overflow-x: hidden;
+  overflow-x: clip;
   font-family: var(--font-sans);
   background-color: var(--background);
   color: var(--foreground);
@@ -72,13 +75,22 @@ a {
 }
 
 /* ✅ CLS: Intrinsic sizing for all media elements prevents layout shift */
-img, video, iframe, canvas, svg {
+img,
+video,
+iframe,
+canvas,
+svg {
   max-width: 100%;
   height: auto;
   display: block;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: 700;
   line-height: 1.2;
   margin-bottom: 1rem;
@@ -132,8 +144,8 @@ h1, h2, h3, h4, h5, h6 {
 /* ✅ GPU compositing — will-change only active during hover */
 .card-hover {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              border-color 0.3s ease;
+    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s ease;
 }
 
 .card-hover:hover {
@@ -163,15 +175,33 @@ section:not(:first-of-type):not(.lcp-section):not(.hero-skeleton) {
 }
 
 /* ✅ Custom Scrollbar — minimal, fast */
-::-webkit-scrollbar { width: 10px; }
-::-webkit-scrollbar-track { background: var(--background); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; border: 3px solid var(--background); }
-::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 10px;
+  border: 3px solid var(--background);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
+}
 
 /* ✅ Fade-in: Opacity only to avoid layout recalculations during LCP */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .animate-fade-in {
@@ -214,7 +244,9 @@ section:not(:first-of-type):not(.lcp-section):not(.hero-skeleton) {
   scroll-margin-top: calc(var(--header-height) + 1rem);
 }
 
-.tiptap-content p { margin-bottom: 1.5rem; }
+.tiptap-content p {
+  margin-bottom: 1.5rem;
+}
 
 .tiptap-content ul,
 .tiptap-content ol {
@@ -225,7 +257,9 @@ section:not(:first-of-type):not(.lcp-section):not(.hero-skeleton) {
   gap: 0.5rem;
 }
 
-.tiptap-content li { line-height: 1.7; }
+.tiptap-content li {
+  line-height: 1.7;
+}
 
 .tiptap-content blockquote {
   border-left: 4px solid var(--primary);
@@ -241,7 +275,9 @@ section:not(:first-of-type):not(.lcp-section):not(.hero-skeleton) {
   text-underline-offset: 3px;
 }
 
-.tiptap-content a:hover { color: var(--primary-hover); }
+.tiptap-content a:hover {
+  color: var(--primary-hover);
+}
 
 .tiptap-content code {
   background: var(--muted);
@@ -311,7 +347,9 @@ section:not(:first-of-type):not(.lcp-section):not(.hero-skeleton) {
   width: 4px;
 }
 
-.tiptap-content tr:hover td { background: var(--accent); }
+.tiptap-content tr:hover td {
+  background: var(--accent);
+}
 
 .tiptap-content img {
   border-radius: var(--radius);
@@ -320,23 +358,64 @@ section:not(:first-of-type):not(.lcp-section):not(.hero-skeleton) {
 }
 
 /* Admin UI */
-.admin-table-row { transition: background 0.2s; }
-.admin-table-row:hover { background: #f8fafc !important; }
-.floating-menu-btn { transition: all 0.2s ease; }
-.floating-menu-btn:hover { background: #f1f5f9 !important; color: #2563eb !important; }
+.admin-table-row {
+  transition: background 0.2s;
+}
+
+.admin-table-row:hover {
+  background: #f8fafc !important;
+}
+
+.floating-menu-btn {
+  transition: all 0.2s ease;
+}
+
+.floating-menu-btn:hover {
+  background: #f1f5f9 !important;
+  color: #2563eb !important;
+}
 
 /* ✅ Print: Google treats clean printable content as authoritative */
 @media print {
-  .glass-panel { box-shadow: none; border: 1px solid #ccc; }
-  nav, header, footer, aside, .card-hover, #reading-progress { display: none !important; }
-  .tiptap-content { max-width: 100%; font-size: 12pt; line-height: 1.6; }
-  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 0.8em; color: #666; }
-  h1, h2, h3 { page-break-after: avoid; }
+  .glass-panel {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+
+  nav,
+  header,
+  footer,
+  aside,
+  .card-hover,
+  #reading-progress {
+    display: none !important;
+  }
+
+  .tiptap-content {
+    max-width: 100%;
+    font-size: 12pt;
+    line-height: 1.6;
+  }
+
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+  }
+
+  h1,
+  h2,
+  h3 {
+    page-break-after: avoid;
+  }
 }
 
 /* ✅ Reduced motion: WCAG 2.2 (affects Page Experience score) */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -346,23 +425,47 @@ section:not(:first-of-type):not(.lcp-section):not(.hero-skeleton) {
 
 /* ✅ High contrast mode (Windows accessibility support) */
 @media (forced-colors: active) {
-  .glass-panel { border: 2px solid ButtonText; }
-  .btn-primary { forced-color-adjust: none; }
+  .glass-panel {
+    border: 2px solid ButtonText;
+  }
+
+  .btn-primary {
+    forced-color-adjust: none;
+  }
 }
 
 /* ✅ Mobile-first (Google Mobile-First Indexing — critical) */
 @media (max-width: 768px) {
-  html { font-size: 15px; }
-  .container { padding: 0 1rem; }
+  html {
+    font-size: 15px;
+  }
+
+  .container {
+    padding: 0 1rem;
+  }
+
   /* ✅ FIX: !important removed — was overriding inline styles on featured post */
-  h1 { font-size: clamp(1.75rem, 5vw, 2.25rem); }
-  h2 { font-size: clamp(1.25rem, 4vw, 1.5rem); }
-  .hero-h1 { font-size: 2.25rem !important; }
+  h1 {
+    font-size: clamp(1.75rem, 5vw, 2.25rem);
+  }
+
+  h2 {
+    font-size: clamp(1.25rem, 4vw, 1.5rem);
+  }
+
+  .hero-h1 {
+    font-size: 2.25rem !important;
+  }
 }
 
 @media (max-width: 480px) {
-  html { font-size: 14px; }
-  .container { padding: 0 0.875rem; }
+  html {
+    font-size: 14px;
+  }
+
+  .container {
+    padding: 0 0.875rem;
+  }
 }
 
 /* ✅ Admin Full-Screen Overrides */
@@ -521,7 +624,7 @@ body:has(.sovereign-editor-v5-fixed) main {
     padding: 1.75rem 1.25rem;
     gap: 1.5rem;
   }
-  
+
   .author-bio-links {
     justify-content: center;
     gap: 1rem 1.5rem;
@@ -584,6 +687,7 @@ body:has(.auth-fullscreen-container) main {
 div[data-image-slider="true"]::-webkit-scrollbar {
   display: none !important;
 }
+
 div[data-image-slider="true"] {
   -ms-overflow-style: none !important;
   scrollbar-width: none !important;
@@ -596,17 +700,29 @@ div[data-image-slider="true"] {
   overflow-x: auto !important;
   -webkit-overflow-scrolling: touch !important;
   border-collapse: collapse !important;
-  border: 1px solid #94a3b8 !important;
+  border: 1px solid #f1ecec !important;
   width: 100% !important;
 }
-.prose th, .prose td {
+
+.prose th,
+.prose td {
   min-width: 1em !important;
   position: relative !important;
   box-sizing: border-box !important;
-  border: 1px solid #94a3b8 !important;
+  border: 1px solid #f1ecec !important;
   padding: 0.75rem 1rem !important;
 }
+
 .prose thead th {
-  background-color: #f8fafc !important;
+  background-color: #f1ecec !important;
   color: #0f172a !important;
+}
+
+/* ✅ Fix: Force all inline text colors to inherit in dark mode to prevent invisible black text */
+.dark .prose * {
+  color: inherit !important;
+}
+
+.dark .prose a {
+  color: #f1ecec !important;
 }

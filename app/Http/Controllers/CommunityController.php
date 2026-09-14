@@ -119,7 +119,7 @@ class CommunityController extends Controller
                 ->toArray();
         }
 
-        $posts = $paginated->through(function ($post) use ($savedPostIds, $userVotes) {
+        $posts = $paginated->through(function ($post) use ($savedPostIds, $userVotes, $community) {
                 return [
                     'id' => $post->id,
                     'title' => $post->title,
@@ -127,6 +127,7 @@ class CommunityController extends Controller
                     'type' => $post->type,
                     'link_url' => $post->link_url,
                     'media_urls' => is_string($post->media_urls) ? json_decode($post->media_urls) : $post->media_urls,
+                    'community' => $community->name,
                     'author' => [
                         'username' => $post->getRelation('author') ? $post->getRelation('author')->username : 'deleted',
                         'flair' => $post->getRelation('author') ? $post->getRelation('author')->flair : null

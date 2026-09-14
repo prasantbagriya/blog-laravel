@@ -29,6 +29,7 @@ export default function AdminLayout({ children }) {
     { label: 'Categories', href: BASE + '/admin/categories', icon: '📁' },
     { label: 'Add New', href: BASE + '/admin/posts/new', icon: '➕' },
     { label: 'Web Stories', href: BASE + '/admin/stories', icon: '⚡' },
+    { label: 'Community Posts', href: BASE + '/admin/community-posts', icon: '💬' },
     { label: 'Businesses', href: BASE + '/admin/businesses', icon: '🏢' },
     { label: 'Media Library', href: BASE + '/admin/media', icon: '🖼️' },
     { label: 'SEO Audit', href: BASE + '/admin/seo-audit', icon: '📈' },

@@ -11,7 +11,7 @@ class BlogController extends Controller
     public function index()
     {
         $allPosts = \Illuminate\Support\Facades\Cache::remember('blog_all_posts', 3600, function () {
-            return Post::where('published', true)->orderBy('date', 'desc')->get()->toArray();
+            return Post::where('published', true)->whereNull('community_id')->orderBy('date', 'desc')->get()->toArray();
         });
 
         // Dynamically replace .png/.jpg to .webp for any images from /uploads/ in the posts list
@@ -100,9 +100,7 @@ class BlogController extends Controller
         
         $position = 3;
         $categoryName = $post->category;
-        if (strtolower($categoryName) === 'eduction') {
-            $categoryName = 'Education';
-        }
+
         if (!empty($categoryName)) {
             $catSlug = strtolower(str_replace(' ', '-', $categoryName));
             $breadcrumbItems[] = ["@type" => "ListItem", "position" => $position, "name" => $categoryName, "item" => url("/category/{$catSlug}")];
@@ -405,6 +403,7 @@ class BlogController extends Controller
         $cleanKeywords = !empty($keywordArray) ? implode(', ', $keywordArray) : null;
 
         $recentPostsArray = Post::where('published', true)
+            ->whereNull('community_id')
             ->where('id', '!=', $post->id)
             ->orderBy('date', 'desc')
             ->limit(5)

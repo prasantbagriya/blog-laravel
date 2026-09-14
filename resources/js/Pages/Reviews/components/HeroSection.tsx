@@ -33,10 +33,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   return (
     <section className="relative w-full min-h-[500px] md:min-h-[600px] flex items-center overflow-hidden bg-slate-900">
       {/* Background Image & Tint */}
-      <div className="absolute inset-0 z-0 bg-cover bg-center" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1600&q=80')` }}></div>
+      <div 
+          className="absolute inset-0 z-0 bg-cover bg-center" 
+          style={{ backgroundImage: `url('/uploads/background.webp')` }}
+          role="img"
+          aria-label="Hero Background"
+      ></div>
       <div className="absolute inset-0 z-0 bg-slate-900/85"></div>
       
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16 md:pt-40 md:pb-24">
+      <div className="relative z-10 w-full mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16 md:pt-40 md:pb-24">
         <div className="text-center w-full">
           
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold tracking-wide border border-blue-500/30">
@@ -127,7 +132,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                                                 className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors"
                                             >
                                                 <div className="w-10 h-10 bg-slate-100 rounded-lg overflow-hidden flex-shrink-0 relative border border-slate-200">
-                                                    <img src={biz.logo || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80'} alt={biz.name} className="w-full h-full object-contain" />
+                                                    <img src={biz.logo || '/uploads/read.webp'} alt={biz.name} width="44" height="44" className="w-full h-full object-contain" />
                                                 </div>
                                                 <div className="flex flex-col">
                                                     <span className="font-medium text-slate-800">{biz.name}</span>

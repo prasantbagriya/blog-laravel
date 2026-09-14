@@ -34,7 +34,7 @@ export default function AuthorShow({ author, posts, meta }) {
                     {posts.map((post) => (
                         <article key={post.id} className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl transition-shadow flex flex-col">
                             <Link href={window.BASE_PATH + `/blog/${post.slug}`} className="relative h-48 block">
-                                <Image src={post.coverImage || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80'} alt={post.title} fill style={{ objectFit: 'cover' }} />
+                                <Image src={post.coverImage || '/uploads/read.webp'} alt={post.title} fill style={{ objectFit: 'cover' }} />
                             </Link>
                             <div className="p-6 flex flex-col flex-grow">
                                 <span className="text-sm text-blue-600 font-bold uppercase tracking-wider mb-2">{post.category}</span>

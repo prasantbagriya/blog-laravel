@@ -21,8 +21,8 @@ const ToolbarButton = ({ onClick, disabled, isActive, title, children }) => (
         disabled={disabled}
         className={`p-1.5 rounded transition-colors flex items-center justify-center border-0 outline-none focus:outline-none focus:ring-0 ${
             isActive 
-            ? 'bg-[#F6F7F8] text-[#1C1C1C]' 
-            : 'text-[#878A8C] hover:bg-[#F6F7F8] hover:text-[#1C1C1C]'
+            ? 'bg-[#E2E2E2] dark:bg-zinc-700 text-[#1C1C1C] dark:text-zinc-100' 
+            : 'text-[#878A8C] dark:text-zinc-400 hover:bg-[#E2E2E2] dark:hover:bg-zinc-700 hover:text-[#1C1C1C] dark:hover:text-zinc-100'
         } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
         title={title}
     >
@@ -67,10 +67,10 @@ const MenuBar = ({ editor }) => {
         editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
     }, [editor]);
 
-    const Divider = () => <div className="w-[1px] h-6 bg-gray-200 mx-1.5 hidden sm:block"></div>;
+    const Divider = () => <div className="w-[1px] h-6 bg-gray-200 dark:bg-zinc-700 mx-1.5 hidden sm:block"></div>;
 
     return (
-        <div className="flex flex-wrap items-center gap-0.5 p-1.5 bg-[#F6F7F8] border-b border-[#EDEFF1]">
+        <div className="flex flex-wrap items-center gap-0.5 p-1.5 bg-[#F6F7F8] dark:bg-zinc-800 border-b border-[#EDEFF1] dark:border-zinc-700">
             <ToolbarButton
                 onClick={() => editor.chain().focus().toggleBold().run()}
                 disabled={!editor.can().chain().focus().toggleBold().run()}
@@ -235,7 +235,7 @@ export default function TipTapEditor({ value, onChange }) {
         content: value,
         editorProps: {
             attributes: {
-                class: 'prose max-w-none prose-sm sm:prose-base focus:outline-none min-h-[150px] p-4 text-[#1C1C1C] editor-content',
+                class: 'prose max-w-none prose-sm sm:prose-base focus:outline-none min-h-[150px] p-4 text-[#1C1C1C] dark:text-zinc-200 dark:prose-invert editor-content',
             },
         },
         onUpdate: ({ editor }) => {
@@ -250,7 +250,7 @@ export default function TipTapEditor({ value, onChange }) {
     });
 
     return (
-        <div className="border border-[#EDEFF1] focus-within:border-[#1C1C1C] rounded-md overflow-hidden bg-white transition-colors">
+        <div className="border border-[#EDEFF1] dark:border-zinc-700 focus-within:border-[#1C1C1C] dark:focus-within:border-zinc-500 rounded-md overflow-hidden bg-white dark:bg-zinc-900 transition-colors">
             <MenuBar editor={editor} />
             <EditorContent editor={editor} />
             

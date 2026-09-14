@@ -1,0 +1,1 @@
+import"./rolldown-runtime-QTnfLwEv.js";import{c as e,t}from"./app-CPTruS17.js";import n from"./AdminLayout-CKR4xfB1.js";import r from"./AuthorForm-B-zaaGIV.js";e();var i=t();function a({author:e}){return(0,i.jsx)(r,{author:e})}a.layout=e=>(0,i.jsx)(n,{children:e});export{a as default};

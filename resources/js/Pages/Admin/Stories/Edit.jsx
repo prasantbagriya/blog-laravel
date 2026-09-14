@@ -1,9 +1,18 @@
-import React from 'react';
-import StoryForm from './StoryForm';
-import AdminLayout from '../../../Layouts/AdminLayout';
+import React, { Suspense } from 'react';
+
+const StoryForm = React.lazy(() => import('./StoryForm'));
+const AdminLayout = React.lazy(() => import('../../../Layouts/AdminLayout'));
 
 export default function EditStoryPage({ story }) {
-  return <StoryForm story={story} />;
+  return (
+    <Suspense fallback={<div style={{ padding: '40px', textAlign: 'center' }}>Loading Editor...</div>}>
+      <StoryForm story={story} />
+    </Suspense>
+  );
 }
 
-EditStoryPage.layout = page => <AdminLayout>{page}</AdminLayout>;
+EditStoryPage.layout = page => (
+  <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading Admin Workspace...</div>}>
+    <AdminLayout>{page}</AdminLayout>
+  </Suspense>
+);

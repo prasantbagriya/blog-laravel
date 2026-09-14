@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { Head, useForm, Link } from '@inertiajs/react';
 import { PencilLine, Image as ImageIcon, Link as LinkIcon, ListOrdered, CheckCircle2, ChevronDown, Sparkles } from 'lucide-react';
 
-import TipTapEditor from '@/Components/TipTapEditor';
+const TipTapEditor = React.lazy(() => import('@/Components/TipTapEditor'));
 import GlobalNavbar from '@/NextComponents/GlobalNavbar';
 
 export default function CreatePost({ auth, communities, default_community_id, editPost }) {
@@ -129,10 +129,12 @@ export default function CreatePost({ auth, communities, default_community_id, ed
                                 {data.type === 'TEXT' && (
                                     <div className="mb-6">
                                         <div className="bg-white/50 dark:bg-zinc-950/50 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-inner overflow-hidden">
-                                            <TipTapEditor 
-                                                value={data.content}
-                                                onChange={(html) => setData('content', html)}
-                                            />
+                                            <Suspense fallback={<div className="h-40 animate-pulse bg-gray-100 dark:bg-zinc-800 rounded-md m-4" />}>
+                                                <TipTapEditor 
+                                                    value={data.content}
+                                                    onChange={(html) => setData('content', html)}
+                                                />
+                                            </Suspense>
                                         </div>
                                         {errors.content && <p className="text-rose-500 text-sm font-bold mt-2">{errors.content}</p>}
                                     </div>
@@ -197,7 +199,7 @@ export default function CreatePost({ auth, communities, default_community_id, ed
                                     <button 
                                         type="submit" 
                                         disabled={processing}
-                                        className="px-10 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold rounded-full transition-all shadow-lg shadow-blue-600/30 hover:shadow-blue-600/50 hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-md text-base"
+                                        className="px-10 py-3.5 bg-rose-600 hover:bg-rose-700 text-white font-extrabold rounded-full transition-all shadow-lg shadow-rose-600/30 hover:shadow-rose-600/50 hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-md text-base border-none outline-none focus:outline-none ring-0 focus:ring-0"
                                     >
                                         {processing ? 'Posting...' : (isEdit ? 'Update Post' : 'Publish Post')}
                                     </button>
