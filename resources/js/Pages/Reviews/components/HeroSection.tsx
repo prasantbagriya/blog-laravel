@@ -44,7 +44,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             <span className="uppercase tracking-widest">Editorial Reputation Intelligence Platform</span>
           </div>
 
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-extrabold leading-[1.05] text-white tracking-tight mt-4">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl font-extrabold leading-[1.1] text-white tracking-tight mt-4">
             Read Reviews. <br className="hidden sm:block" />
             <span className="text-blue-400">Trust What You Buy.</span>
           </h1>
@@ -54,7 +54,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </p>
 
           <form onSubmit={handleSearch} className="pt-6 pb-2 max-w-3xl mx-auto relative">
-             <div className="relative flex items-center gap-2 rounded-full bg-white p-2 shadow-lg w-full z-20">
+             <div className="relative flex items-center gap-2 rounded-full bg-white p-2 w-full z-20 border-2 border-transparent transition-all duration-200 hover:border-blue-400 focus-within:border-blue-500 focus-within:shadow-[0_0_0_4px_rgba(59,130,246,0.15)] group">
                <Search className="w-5 h-5 text-slate-400 ml-4 shrink-0" />
                <input
                  type="text"

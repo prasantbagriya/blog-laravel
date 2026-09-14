@@ -81,7 +81,7 @@ export default function PostCard({ post, auth, openReportModal }) {
 
     return (
         <div 
-            className="mb-6 cursor-pointer bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl flex h-full w-full hover:border-blue-300 transition-colors"
+            className="mb-6 cursor-pointer bg-white dark:bg-zinc-900 border border-blue-200 dark:border-blue-900/40 rounded-3xl flex h-full w-full hover:border-blue-400 dark:hover:border-blue-700 transition-colors"
         >
             {/* Vote Column */}
             <div className="w-12 sm:w-16 bg-slate-50/50 dark:bg-zinc-900/50 flex flex-col items-center py-5 gap-2 flex-shrink-0 border-r border-slate-100 dark:border-zinc-800/50 rounded-l-3xl">

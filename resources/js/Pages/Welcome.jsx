@@ -3,6 +3,7 @@ import GlobalNavbar from '../NextComponents/GlobalNavbar';
 import BlogFooter from '../NextComponents/BlogFooter';
 import React, { useState, useEffect } from 'react';
 import SeoMeta from '../NextComponents/SeoMeta';
+import AnimatedBorderCard from '../Components/AnimatedBorderCard';
 import { Search, ChevronRight, GraduationCap, Award, Star, ArrowRight, ShieldCheck, PlayCircle, Library, MapPin, CheckCircle2, MessageSquare, ThumbsUp, TrendingUp, ChevronDown, BookOpen, TestTube, Target, Scale, Beaker, Backpack, Share2, Bookmark } from 'lucide-react';
 
 // Simple polyfill for Next.js Image
@@ -93,26 +94,28 @@ const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses }) =>
 
                         <div className="relative max-w-xl mb-6">
                             <form onSubmit={handleSearch}>
-                                <div className="relative flex items-center gap-2 rounded-full bg-white p-2 shadow-lg z-20">
-                                    <Search className="w-5 h-5 text-slate-400 ml-3 flex-shrink-0" />
-                                    <input 
-                                        type="text" 
-                                        name="q" 
-                                        className="flex-1 border-0 outline-none focus:ring-0 text-slate-900 text-sm md:text-base py-2.5 bg-transparent placeholder-slate-400" 
-                                        placeholder="Search coaching, courses, exams or institutes..." 
-                                        value={searchQuery} 
-                                        onChange={(e) => {
-                                            setSearchQuery(e.target.value);
-                                            setShowSuggestions(true);
-                                        }}
-                                        onFocus={() => setShowSuggestions(true)}
-                                        onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                                        autoComplete="off"
-                                    />
-                                    <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full px-6 py-2.5 transition-colors shrink-0 border-none outline-none focus:outline-none ring-0 focus:ring-0">
-                                        Search
-                                    </button>
-                                </div>
+                                <AnimatedBorderCard containerClassName="rounded-full" className="rounded-full">
+                                    <div className="flex items-center gap-2 bg-white px-2 py-2 group">
+                                        <Search className="w-5 h-5 text-slate-400 ml-3 flex-shrink-0 group-focus-within:text-blue-500 transition-colors" />
+                                        <input 
+                                            type="text" 
+                                            name="q" 
+                                            className="flex-1 border-0 outline-none focus:ring-0 text-slate-900 text-sm md:text-base py-2.5 bg-transparent placeholder-slate-400" 
+                                            placeholder="Search coaching, courses, exams or institutes..." 
+                                            value={searchQuery} 
+                                            onChange={(e) => {
+                                                setSearchQuery(e.target.value);
+                                                setShowSuggestions(true);
+                                            }}
+                                            onFocus={() => setShowSuggestions(true)}
+                                            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                                            autoComplete="off"
+                                        />
+                                        <button type="submit" className="bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-full px-6 py-2.5 transition-colors shrink-0 border-none outline-none focus:outline-none ring-0 focus:ring-0">
+                                            Search
+                                        </button>
+                                    </div>
+                                </AnimatedBorderCard>
                                 
                                 {/* Search Suggestions Dropdown */}
                                 {showSuggestions && searchQuery.trim().length > 0 && (
@@ -477,9 +480,19 @@ const CommunityFeedSection = ({ basePath, feedPosts, topCommunities }) => {
                                                 <div className="flex items-center justify-between mb-1">
                                                     <h4 className="font-bold text-slate-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">r/{community.name}</h4>
                                                 </div>
-                                                <div className="text-xs font-bold text-slate-500 dark:text-zinc-500 flex items-center gap-3">
-                                                    <span>{community.members_count || community.members} Members</span>
-                                                    <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-500"><TrendingUp size={12} /> Hot</span>
+                                                <div className="text-xs font-bold text-slate-500 dark:text-zinc-500 flex items-center gap-2 mt-0.5">
+                                                    <span className="flex items-center gap-1.5 bg-slate-100 dark:bg-zinc-800/80 px-2 py-0.5 rounded-md">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                                        {(() => {
+                                                            const count = community.members_count || community.members;
+                                                            if (!count) return '1k+';
+                                                            const num = Number(count);
+                                                            if (isNaN(num)) return count;
+                                                            if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k+';
+                                                            return num + '+';
+                                                        })()} Members
+                                                    </span>
+                                                    <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-100 dark:border-emerald-500/20"><TrendingUp size={12} /> Hot</span>
                                                 </div>
                                             </div>
                                             <button 
@@ -505,6 +518,9 @@ const CommunityFeedSection = ({ basePath, feedPosts, topCommunities }) => {
                             <p className="text-slate-200 text-sm mb-5 relative z-10">Get answers from toppers and expert faculty in Sikar.</p>
                             <Link href={`${basePath}/community/new`} className="btn-amber px-6 py-2.5 w-full block relative z-10 shadow-lg shadow-amber-500/20 hover:scale-105 transition-transform text-slate-900 font-bold rounded-full">
                                 Ask Now
+                            </Link>
+                            <Link href={`${basePath}/contact`} className="mt-3 block relative z-10 text-sm font-bold text-slate-300 hover:text-white transition-colors underline underline-offset-2">
+                                Contact Us →
                             </Link>
                         </div>
                     </div>
@@ -534,13 +550,18 @@ const BlogSection = ({ morePosts, basePath, formatDate }) => {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {posts.map((post) => (
-                        <article key={post.id} className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden border border-slate-200 dark:border-zinc-800 hover:-translate-y-1 transition-all duration-300 flex flex-col group">
-                            <Link href={`${basePath}/blog/${post.slug}`} className="relative aspect-[16/9] w-full block overflow-hidden">
+                        <AnimatedBorderCard 
+                            key={post.id}
+                            containerClassName="hover:-translate-y-1 transition-all duration-300 h-full flex flex-col"
+                            className="flex-grow flex flex-col"
+                            alwaysShowBorder={true}
+                        >
+                            <Link href={`${basePath}/blog/${post.slug}`} className="relative aspect-[16/9] w-full block overflow-hidden shrink-0">
                                 <Image src={post.coverImage || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80'} alt={post.title} fill style={{objectFit: 'cover'}} className="group-hover:scale-105 transition-transform duration-500" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             </Link>
                             
-                            <div className="p-4 md:p-5 flex-grow flex flex-col">
+                            <div className="p-4 md:p-5 flex-grow flex flex-col bg-white dark:bg-zinc-900">
                                 <h3 className="text-base md:text-lg font-bold text-slate-900 dark:text-white leading-snug mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                                     <Link href={`${basePath}/blog/${post.slug}`} className="focus:outline-none">{post.title}</Link>
                                 </h3>
@@ -554,12 +575,12 @@ const BlogSection = ({ morePosts, basePath, formatDate }) => {
                                         <span className="text-slate-500 dark:text-zinc-400">Posted:</span>
                                         <span className="font-semibold text-slate-800 dark:text-zinc-200">{formatDate(post.date)}</span>
                                     </div>
-                                    <Link href={`${basePath}/blog/${post.slug}`} className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center font-medium py-2 rounded-md transition-colors text-sm">
+                                    <Link href={`${basePath}/blog/${post.slug}`} className="block w-full bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-blue-600 dark:text-blue-400 text-center font-bold py-2 rounded-xl transition-colors text-sm">
                                         Read Article
                                     </Link>
                                 </div>
                             </div>
-                        </article>
+                        </AnimatedBorderCard>
                     ))}
                 </div>
             </div>
@@ -569,9 +590,32 @@ const BlogSection = ({ morePosts, basePath, formatDate }) => {
 
 const CategorySection = ({ categories, basePath }) => {
     if (!categories || categories.length === 0) return null;
+
+    const getCategoryStyle = (name) => {
+        const lowerName = name.toLowerCase();
+        if (lowerName.includes('science') || lowerName.includes('neet') || lowerName.includes('medical') || lowerName.includes('doctor')) {
+            return { icon: Beaker, colorClass: 'text-emerald-500', bgClass: 'bg-emerald-50 dark:bg-emerald-500/10', hoverBgClass: 'group-hover:bg-emerald-500', shadowClass: 'hover:shadow-emerald-500/20', borderClass: 'hover:border-emerald-400' };
+        }
+        if (lowerName.includes('commerce') || lowerName.includes('ca') || lowerName.includes('bank')) {
+            return { icon: Target, colorClass: 'text-amber-500', bgClass: 'bg-amber-50 dark:bg-amber-500/10', hoverBgClass: 'group-hover:bg-amber-500', shadowClass: 'hover:shadow-amber-500/20', borderClass: 'hover:border-amber-400' };
+        }
+        if (lowerName.includes('arts') || lowerName.includes('law') || lowerName.includes('clat') || lowerName.includes('upsc') || lowerName.includes('ras') || lowerName.includes('ias')) {
+            return { icon: Scale, colorClass: 'text-purple-500', bgClass: 'bg-purple-50 dark:bg-purple-500/10', hoverBgClass: 'group-hover:bg-purple-500', shadowClass: 'hover:shadow-purple-500/20', borderClass: 'hover:border-purple-400' };
+        }
+        if (lowerName.includes('school') || lowerName.includes('board') || lowerName.includes('cbse') || lowerName.includes('rbse')) {
+            return { icon: Backpack, colorClass: 'text-pink-500', bgClass: 'bg-pink-50 dark:bg-pink-500/10', hoverBgClass: 'group-hover:bg-pink-500', shadowClass: 'hover:shadow-pink-500/20', borderClass: 'hover:border-pink-400' };
+        }
+        if (lowerName.includes('engineering') || lowerName.includes('jee') || lowerName.includes('tech')) {
+            return { icon: BookOpen, colorClass: 'text-blue-500', bgClass: 'bg-blue-50 dark:bg-blue-500/10', hoverBgClass: 'group-hover:bg-blue-500', shadowClass: 'hover:shadow-blue-500/20', borderClass: 'hover:border-blue-400' };
+        }
+        return { icon: GraduationCap, colorClass: 'text-indigo-500', bgClass: 'bg-indigo-50 dark:bg-indigo-500/10', hoverBgClass: 'group-hover:bg-indigo-500', shadowClass: 'hover:shadow-indigo-500/20', borderClass: 'hover:border-indigo-400' };
+    };
+
     return (
-        <section className="pt-10 pb-2 md:pt-14 md:pb-4 bg-white dark:bg-zinc-950 overflow-hidden">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="pt-10 pb-6 md:pt-14 md:pb-10 bg-white dark:bg-zinc-950 overflow-hidden relative">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-blue-50 dark:bg-blue-900/5 rounded-full blur-3xl opacity-50 pointer-events-none -mr-48 -mt-48"></div>
+            
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div className="text-center mb-10 md:mb-14">
                     <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Explore by Stream</h2>
                     <p className="text-slate-500 dark:text-zinc-400 mt-2 text-base md:text-lg">Find the right path for your career goals.</p>
@@ -579,16 +623,20 @@ const CategorySection = ({ categories, basePath }) => {
                 
                 {/* Infinite Scrolling Marquee for Categories */}
                 <div className="relative flex w-full flex-nowrap overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
-                    <div className="flex animate-marquee-fast items-center justify-center space-x-4 md:space-x-6 whitespace-nowrap pt-2 pb-6">
-                        {[...categories, ...categories, ...categories, ...categories].map((cat, i) => (
-                            <Link key={`${cat.id}-${i}`} href={`${basePath}/category/${cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-')}`} 
-                                className="bg-slate-50 dark:bg-zinc-800 w-40 h-40 rounded-xl border border-slate-100 dark:border-zinc-700 hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 group flex flex-col items-center justify-center text-center shrink-0">
-                                <div className="w-12 h-12 bg-white dark:bg-zinc-700 group-hover:bg-blue-600 rounded-full flex items-center justify-center text-blue-600 group-hover:text-white mb-3 transition-colors">
-                                    <GraduationCap className="w-6 h-6" />
-                                </div>
-                                <h3 className="font-bold text-slate-800 dark:text-zinc-200 text-sm group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors whitespace-normal break-words w-full px-2 leading-tight">{cat.name.toLowerCase() === 'eduction' ? 'Education' : cat.name}</h3>
-                            </Link>
-                        ))}
+                    <div className="flex animate-marquee-fast hover:[animation-play-state:paused] items-center justify-center space-x-4 md:space-x-6 whitespace-nowrap pt-4 pb-8 px-2">
+                        {[...categories, ...categories, ...categories, ...categories].map((cat, i) => {
+                            const style = getCategoryStyle(cat.name);
+                            const Icon = style.icon;
+                            return (
+                                <Link key={`${cat.id}-${i}`} href={`${basePath}/category/${cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-')}`} 
+                                    className={`bg-white dark:bg-zinc-900 w-44 h-44 rounded-[1.5rem] border border-slate-200 dark:border-zinc-800 transition-all duration-300 group flex flex-col items-center justify-center text-center shrink-0 hover:-translate-y-2 hover:shadow-xl ${style.shadowClass} ${style.borderClass}`}>
+                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-colors duration-300 ${style.bgClass} ${style.hoverBgClass}`}>
+                                        <Icon className={`w-7 h-7 transition-colors duration-300 group-hover:text-white ${style.colorClass}`} />
+                                    </div>
+                                    <h3 className="font-extrabold text-slate-800 dark:text-zinc-100 text-sm md:text-[15px] group-hover:text-slate-900 dark:group-hover:text-white transition-colors whitespace-normal break-words w-full px-4 leading-snug">{cat.name.toLowerCase() === 'eduction' ? 'Education' : cat.name}</h3>
+                                </Link>
+                            );
+                        })}
                     </div>
                 </div>
             </div>
@@ -626,7 +674,7 @@ const StoriesSection = ({ stories, basePath }) => {
     );
 };
 
-const SeoContent = () => (
+const SeoContent = ({ basePath }) => (
     <section className="py-10 md:py-14 bg-slate-50 dark:bg-zinc-900 border-t border-slate-200 dark:border-zinc-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -634,8 +682,8 @@ const SeoContent = () => (
                     <span className="text-blue-600 font-bold tracking-widest text-xs mb-3 block">About Us</span>
                     <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-6 leading-tight">Coaching in Sikar: Your Complete Education Guide</h2>
                     <div className="text-slate-600 dark:text-zinc-400 text-base md:text-lg leading-relaxed space-y-4">
-                        <p>Our mission is simple — to make educational information easier to find, understand, and compare. We research and publish useful guides covering coaching institutes, academic programs, exam preparation, results, facilities, courses, and student experiences.</p>
-                        <p>Sikar has rapidly emerged as a major educational hub in Rajasthan, attracting thousands of students every year who dream of securing top ranks in national-level competitive exams like NEET and IIT-JEE.</p>
+                        <p>Coaching in Sikar is an education platform helping students and parents find the best coaching in Sikar through top <Link href={`${basePath}/reviews/coaching-institutes`} className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">coaching institutes</Link>, coaching centre lists, fees, rankings, reviews, results, admissions, and other comparisons. We cover NEET coaching, JEE coaching, IAS / RAS / SSC-CGL Coaching, CLAT &amp; CA Coaching, CUET, Olympiads, schools, colleges, and other competitive exam coaching educational information.</p>
+                        <p>Starting with Sikar, our platform covers more than just top coaching institutes in Sikar, Rajasthan. Yes, we also provide information on the best schools, colleges, education news, results, Olympiads, hospitals, and other useful local information. We aim to make finding top institutions, fees, admissions, results, reviews, and opportunities simple, while expanding our coverage beyond Sikar to more cities, regions, categories, and <Link href={`${basePath}/feed`} className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">communities</Link>.</p>
                     </div>
                     <div className="mt-8 flex flex-wrap items-center gap-6">
                         <div className="flex items-center gap-3">
@@ -676,29 +724,120 @@ const FAQSection = () => {
 
     const faqs = [
         {
-            question: "How do I choose the best coaching institute in Sikar?",
-            answer: "Choosing the right coaching depends on your goals, budget, and learning style. We recommend checking verified reviews, past year results, faculty profiles, and visiting the campus for a demo class before making a decision."
+            question: "What is Coachings in Sikar?",
+            answer: "Coachings in Sikar is a trusted source that helps students to find the best coaching in Sikar, top schools and colleges, Best JEE & NEET coaching, exam results, fees, admissions, and other education updates."
         },
         {
-            question: "Are the reviews on Coaching Sikar verified?",
-            answer: "Yes, we have a strict verification process. We ensure that reviews are submitted by genuine students or parents who have actual experience with the respective coaching institutes."
+            question: "How can I find the best coaching in Sikar?",
+            answer: <>Use some <a href="https://coachingsinsikar.com/blog/top-5-parameters-to-choose-best-jee-coaching-in-sikar" className="text-blue-600 dark:text-blue-400 hover:underline">parameters</a> or compare the top JEE/NEET/CLAT/NDA/CA/Olympiads coaching institutes in Sikar based on results, faculty, fees, reviews, facilities, and student support before choosing.</>
         },
         {
-            question: "Which are the top courses offered by institutes in Sikar?",
-            answer: "Sikar is widely known for JEE (Main & Advanced) and NEET preparation. Additionally, many institutes offer excellent foundation courses for classes 8th to 10th, NDA, and other competitive exams."
+            question: "Which are the best coaching centers in Sikar?",
+            answer: "The Sikar Coaching Center List helps students explore and compare coaching centers for JEE, NEET, and other competitive exams based on courses, fees, results, and facilities."
         },
         {
-            question: "Is hostel facility available for students outside Sikar?",
-            answer: "Absolutely. Sikar is a major education hub and has hundreds of secure, well-equipped hostels for both boys and girls, many of which are directly affiliated with top coaching institutes."
+            question: "How to choose the best JEE coaching in Sikar?",
+            answer: <>To choose the <a href="https://coachingsinsikar.com/blog/which-coaching-is-best-for-jee-in-sikar" className="text-blue-600 dark:text-blue-400 hover:underline">best JEE coaching in Sikar</a>, compare JEE results, experienced faculty, study material, regular tests, doubt support, fees, and the overall learning environment.</>
         },
         {
-            question: "Can I get scholarships for coaching in Sikar?",
-            answer: "Yes, almost all major institutes conduct their own scholarship cum admission tests (like ASAT, TALLENTEX, etc.) offering up to 90% scholarships based on your performance."
+            question: "Which are the best coaching in Sikar with fees?",
+            answer: "You can compare best coaching in Sikar with fees by checking their courses, results, faculty, fee structure, facilities, and student support."
         }
     ];
+    const faqSchema = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What is Coachings in Sikar?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Coachings in Sikar is a trusted source that helps students to find the best coaching in Sikar, top schools and colleges, Best JEE & NEET coaching, exam results, fees, admissions, and other education updates."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How can I find the best coaching in Sikar?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Use some <a href=\"https://coachingsinsikar.com/blog/top-5-parameters-to-choose-best-jee-coaching-in-sikar\">parameters</a> or compare the top JEE/NEET/CLAT/NDA/CA/Olympiads coaching institutes in Sikar based on results, faculty, fees, reviews, facilities, and student support before choosing."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Which are the best coaching centers in Sikar?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "The Sikar Coaching Center List helps students explore and compare coaching centers for JEE, NEET, and other competitive exams based on courses, fees, results, and facilities."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How to choose the best JEE coaching in Sikar?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "To choose the <a href=\"https://coachingsinsikar.com/blog/which-coaching-is-best-for-jee-in-sikar\">best JEE coaching in Sikar</a>, compare JEE results, experienced faculty, study material, regular tests, doubt support, fees, and the overall learning environment."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Which are the best coaching in Sikar with fees?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "You can compare best coaching in Sikar with fees by checking their courses, results, faculty, fee structure, facilities, and student support."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Which are Top 5 NEET Coaching in Sikar?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "The <a href=\"https://coachingsinsikar.com/blog/best-neet-coachings-in-sikar\">top 5 NEET coaching in Sikar</a> include leading options known for NEET preparation, experienced faculty, regular tests, study material, and student support."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Why do students choose CA coaching in Sikar?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Students choose the <a href=\"https://coachingsinsikar.com/blog/best-ca-coaching-in-sikar\">best CA coaching in Sikar</a> for structured preparation, subject-wise classes, regular practice, doubt sessions, and guidance for different CA levels."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Which RBSE schools are considered among the best in Sikar?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "The <a href=\"https://coachingsinsikar.com/blog/best-rbse-school-in-sikar\">5 best RBSE schools in Sikar</a> can be explored through their academic record, facilities, courses, admission process, and student-focused learning environment."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What makes a CBSE school one of the best in Sikar?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "The <a href=\"https://coachingsinsikar.com/blog/best-cbse-schools-in-sikar\">best CBSE school in Sikar</a> combines strong academics with qualified teachers, modern facilities, extracurricular activities, and opportunities for students to develop beyond textbooks."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Where can students prepare for CLAT in Sikar?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Students can find <a href=\"https://coachingsinsikar.com/blog/best-clat-coaching-in-sikar\">best CLAT coaching in Sikar</a> offering preparation for legal aptitude, logical reasoning, English, current affairs, and CLAT mock tests."
+                }
+            }
+        ]
+    };
 
     return (
         <section className="pt-16 pb-16 md:pt-24 md:pb-20 bg-slate-50 dark:bg-zinc-900 border-t border-slate-200 dark:border-zinc-800 relative overflow-hidden">
+            <Head>
+                <script type="application/ld+json">
+                    {JSON.stringify(faqSchema)}
+                </script>
+            </Head>
             {/* Background Decorative Elements */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
                 <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
@@ -795,7 +934,7 @@ export default function Welcome(props) {
                 <TrustMarquee categories={categories || []} />
                 <InstitutesSection featuredBusinesses={featuredBusinesses || []} basePath={basePath} formatDate={formatDate} />
                 <CommunityFeedSection basePath={basePath} feedPosts={feedPosts} topCommunities={topCommunities} />
-                <SeoContent />
+                <SeoContent basePath={basePath} />
                 <BlogSection morePosts={morePosts || []} basePath={basePath} formatDate={formatDate} />
                 <CategorySection categories={categories || []} basePath={basePath} />
                 <StoriesSection stories={publishedStories || []} basePath={basePath} />

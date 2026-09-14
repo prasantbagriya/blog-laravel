@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 
-export default function AnimatedBorderCard({ children, className = '', containerClassName = '', ...props }) {
+export default function AnimatedBorderCard({ children, className = '', containerClassName = '', gradientColor = '#3b82f6', alwaysShowBorder = false, ...props }) {
     const cardRef = useRef(null);
     const [isInCenter, setIsInCenter] = useState(false);
 
@@ -34,9 +34,9 @@ export default function AnimatedBorderCard({ children, className = '', container
             {/* The rotating gradient background layer */}
             <div 
                 className={`absolute inset-[-50%] transition-opacity duration-500 ease-in-out pointer-events-none z-0 
-                ${isInCenter ? 'opacity-100 sm:opacity-0' : 'opacity-0'} group-hover:opacity-100`}
+                ${alwaysShowBorder ? 'opacity-100' : (isInCenter ? 'opacity-100 sm:opacity-0' : 'opacity-0')} group-hover:opacity-100`}
                 style={{
-                    background: 'conic-gradient(from 0deg, transparent 0 340deg, #3b82f6 360deg)',
+                    background: `conic-gradient(from 0deg, transparent 0 340deg, ${gradientColor} 360deg)`,
                     animation: 'spin 3s linear infinite'
                 }}
             ></div>

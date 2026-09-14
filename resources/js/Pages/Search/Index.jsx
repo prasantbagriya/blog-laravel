@@ -4,6 +4,7 @@ import GlobalNavbar from '../../NextComponents/GlobalNavbar';
 import BlogFooter from '../../NextComponents/BlogFooter';
 import { ArrowBigUp, ArrowBigDown, MessageSquare, Compass, User as UserIcon, Search, LayoutGrid, Users } from 'lucide-react';
 import { PageHero } from '../../NextComponents/UI';
+import AnimatedBorderCard from '../../Components/AnimatedBorderCard';
 
 export default function SearchIndex({ auth, posts, blogs, businesses, communities, users, query }) {
     const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
@@ -36,53 +37,80 @@ export default function SearchIndex({ auth, posts, blogs, businesses, communitie
 
             <main className="flex-grow max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
                 <form onSubmit={handleSearch} className="mb-8 max-w-2xl mx-auto">
-                    <div className="relative flex items-center gap-2 rounded-full bg-slate-100 dark:bg-zinc-800/80 p-2 shadow-inner hover:bg-slate-200/60 dark:hover:bg-zinc-800 transition-all focus-within:ring-2 focus-within:ring-blue-500/50">
-                        <Search className="w-5 h-5 text-slate-500 dark:text-zinc-400 ml-3 flex-shrink-0" />
-                        <input 
-                            type="text" 
-                            name="q" 
-                            className="flex-1 border-0 outline-none focus:ring-0 text-slate-900 dark:text-white text-sm py-2.5 bg-transparent placeholder-slate-500 dark:placeholder-zinc-400" 
-                            placeholder="Search for coaching, courses, blog posts or communities..." 
-                            value={searchQuery} 
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                        <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full px-6 py-2.5 transition-colors shrink-0">
-                            Search
-                        </button>
-                    </div>
+                    <AnimatedBorderCard containerClassName="rounded-full" className="rounded-full">
+                        <div className="flex items-center gap-2 bg-white dark:bg-zinc-900 px-2 py-2 group">
+                            <Search className="w-5 h-5 text-slate-500 dark:text-zinc-400 ml-3 flex-shrink-0 group-focus-within:text-blue-500 transition-colors" />
+                            <input 
+                                type="text" 
+                                name="q" 
+                                className="flex-1 border-0 outline-none focus:ring-0 text-slate-900 dark:text-white text-sm py-2.5 bg-transparent placeholder-slate-500 dark:placeholder-zinc-400" 
+                                placeholder="Search for coaching, courses, blog posts or communities..." 
+                                value={searchQuery} 
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full px-6 py-2.5 transition-colors shrink-0 border-none outline-none focus:outline-none">
+                                Search
+                            </button>
+                        </div>
+                    </AnimatedBorderCard>
                 </form>
 
                 {/* Tabs */}
-                <div className="flex flex-wrap gap-2 mb-8 p-1.5 bg-white dark:bg-zinc-900 rounded-xl border border-slate-200 dark:border-zinc-800 w-fit">
+                <div className="flex flex-wrap gap-2 mb-8">
+                    {/* Institutes - Amber */}
                     <button 
                         onClick={() => setActiveTab('businesses')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'businesses' ? 'bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white' : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-800/50'}`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all active:scale-95 ${
+                            activeTab === 'businesses' 
+                            ? 'bg-amber-500 text-white shadow-md shadow-amber-500/25' 
+                            : 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-500/20'
+                        }`}
                     >
-                        <Compass size={16} /> Institutes
+                        <Compass size={15} /> Institutes
                     </button>
+                    {/* Blogs - Purple */}
                     <button 
                         onClick={() => setActiveTab('blogs')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'blogs' ? 'bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white' : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-800/50'}`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all active:scale-95 ${
+                            activeTab === 'blogs' 
+                            ? 'bg-violet-500 text-white shadow-md shadow-violet-500/25' 
+                            : 'bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400 hover:bg-violet-100 dark:hover:bg-violet-500/20'
+                        }`}
                     >
-                        <MessageSquare size={16} /> Blogs
+                        <MessageSquare size={15} /> Blogs
                     </button>
+                    {/* Community Posts - Blue */}
                     <button 
                         onClick={() => setActiveTab('posts')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'posts' ? 'bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white' : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-800/50'}`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all active:scale-95 ${
+                            activeTab === 'posts' 
+                            ? 'bg-blue-500 text-white shadow-md shadow-blue-500/25' 
+                            : 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20'
+                        }`}
                     >
-                        <MessageSquare size={16} /> Community Posts
+                        <MessageSquare size={15} /> Community Posts
                     </button>
+                    {/* Communities - Emerald */}
                     <button 
                         onClick={() => setActiveTab('communities')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'communities' ? 'bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white' : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-800/50'}`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all active:scale-95 ${
+                            activeTab === 'communities' 
+                            ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/25' 
+                            : 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20'
+                        }`}
                     >
-                        <LayoutGrid size={16} /> Communities
+                        <LayoutGrid size={15} /> Communities
                     </button>
+                    {/* People - Pink */}
                     <button 
                         onClick={() => setActiveTab('users')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'users' ? 'bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white' : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-800/50'}`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all active:scale-95 ${
+                            activeTab === 'users' 
+                            ? 'bg-pink-500 text-white shadow-md shadow-pink-500/25' 
+                            : 'bg-pink-50 dark:bg-pink-500/10 text-pink-600 dark:text-pink-400 hover:bg-pink-100 dark:hover:bg-pink-500/20'
+                        }`}
                     >
-                        <Users size={16} /> People
+                        <Users size={15} /> People
                     </button>
                 </div>
 
