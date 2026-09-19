@@ -6,7 +6,15 @@ import BlogFooter from '../../NextComponents/BlogFooter';
 export default function FactCheckingPolicy() {
     return (
         <div className="bg-white min-h-screen flex flex-col">
-            <Head title="Fact-Checking Policy | Blog" />
+            <Head>
+                <title>CoachingsinSikar Fact-Checking Standards | Verification & Accuracy</title>
+                <meta name="description" content="Understand the fact-checking standards used by CoachingsinSikar to review claims, verify sources, improve accuracy, and correct published information." />
+                <meta name="keywords" content="CoachingsinSikar fact checking policy, how we verify coachingsinsikar.com, correction policy education blog Sikar, accuracy standards coaching guides, fact verification process coachingsinsikar.com, reliable education information Sikar, Fact checking policy CoachingsinSikar, how we verify facts Sikar" />
+                <meta property="og:title" content="CoachingsinSikar Fact-Checking Standards | Verification & Accuracy" />
+                <meta property="og:description" content="This page explains how CoachingsinSikar checks facts, handles corrections, and maintains accuracy in all articles about coaching, schools, and education in Sikar." />
+                <meta name="twitter:title" content="Fact-Checking Standards of CoachingsinSikar" />
+                <meta name="twitter:description" content="See how CoachingsinSikar verifies information. Our fact‑checking policy covers verification steps, corrections, and our commitment to accurate, trustworthy education content" />
+            </Head>
             <GlobalNavbar />
             <main className="w-full px-[25px] pb-8 flex-grow" style={{ paddingTop: '100px' }}>
                 <h1 className="text-4xl font-bold mb-8">Fact-Checking Policy</h1>

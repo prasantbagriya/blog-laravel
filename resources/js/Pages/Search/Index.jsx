@@ -35,7 +35,8 @@ export default function SearchIndex({ auth, posts, blogs, businesses, communitie
                 className="!pt-32 !pb-8"
             />
 
-            <main className="flex-grow max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+            <main className="flex-grow w-full py-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <form onSubmit={handleSearch} className="mb-8 max-w-2xl mx-auto">
                     <AnimatedBorderCard containerClassName="rounded-full" className="rounded-full">
                         <div className="flex items-center gap-2 bg-white dark:bg-zinc-900 px-2 py-2 group">
@@ -165,9 +166,9 @@ export default function SearchIndex({ auth, posts, blogs, businesses, communitie
                                         </div>
                                         <div className="flex flex-col justify-center">
                                             <h3 className="font-extrabold text-base text-slate-900 dark:text-white group-hover:text-amber-500 transition-colors line-clamp-2">{blog.title}</h3>
-                                            <p className="text-sm text-slate-500 dark:text-zinc-400 mt-2 line-clamp-2 leading-relaxed">
-                                                {blog.category || 'Article'}
-                                            </p>
+                                              <p className="text-sm text-slate-500 dark:text-zinc-400 mt-2 line-clamp-2 leading-relaxed">
+                                                  {blog.excerpt || (blog.content ? blog.content.replace(/<[^>]+>/g, '').substring(0, 150) + '...' : (blog.category || 'Article'))}
+                                              </p>
                                         </div>
                                     </Link>
                                 ))
@@ -273,6 +274,7 @@ export default function SearchIndex({ auth, posts, blogs, businesses, communitie
                             )}
                         </div>
                     )}
+                </div>
                 </div>
             </main>
 

@@ -218,7 +218,7 @@ export default function ShowPost({ auth, community, post, comments, userCommentV
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-white font-sans transition-colors selection:bg-blue-500/30">
+        <div className="min-h-screen overflow-x-hidden bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-white font-sans transition-colors selection:bg-blue-500/30">
             <Head title={pageTitle}>
                 <meta name="description" content={plainTextContent} />
                 <link rel="canonical" href={currentUrl} />
@@ -334,7 +334,7 @@ export default function ShowPost({ auth, community, post, comments, userCommentV
                                 </button>
                             </div>
                             
-                            <div className="flex-1 pt-1 pb-4">
+                            <div className="flex-1 pt-1 pb-4 min-w-0">
                                 <div className="flex items-center flex-wrap gap-2 text-[12px] sm:text-[13px] mb-3">
                                     {community.icon_image ? (
                                         <img src={community.icon_image} width="24" height="24" className="w-5 h-5 sm:w-6 sm:h-6 rounded-full shadow-sm" />
@@ -355,7 +355,7 @@ export default function ShowPost({ auth, community, post, comments, userCommentV
                                 
                                 {post.type === 'TEXT' && post.content && (
                                     <div 
-                                        className="text-[14px] sm:text-[15px] text-slate-800 dark:text-zinc-300 mb-6 leading-relaxed whitespace-pre-wrap prose prose-slate dark:prose-invert max-w-none prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl prose-img:shadow-sm prose-img:my-6"
+                                        className="text-[14px] sm:text-[15px] text-slate-800 dark:text-zinc-300 mb-6 leading-relaxed whitespace-pre-wrap prose prose-slate dark:prose-invert max-w-none break-words overflow-x-auto prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl prose-img:shadow-sm prose-img:my-6"
                                         dangerouslySetInnerHTML={{ __html: post.content }}
                                     />
                                 )}

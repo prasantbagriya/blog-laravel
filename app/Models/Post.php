@@ -36,6 +36,7 @@ class Post extends Model
         'isAiAssisted' => 'boolean',
         'nextReviewDate' => 'datetime',
         'lsiKeywords' => 'array',
+        'seoRating' => 'array',
     ];
 
     public function community()

@@ -85,15 +85,22 @@ export default function Feed({ auth, posts, currentSort = 'new', currentFilter =
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-white font-sans transition-colors selection:bg-blue-500/30">
-            <Head title="coachingsinsikar - The Front Page of the Internet">
-                <meta name="description" content="Welcome to coachingsinsikar. Join communities, share posts, and discuss your favorite topics on the front page of the internet." />
-                <meta property="og:title" content="coachingsinsikar - The Front Page of the Internet" />
-                <meta property="og:description" content="Welcome to coachingsinsikar. Join communities, share posts, and discuss your favorite topics on the front page of the internet." />
+        <div className="min-h-screen overflow-x-hidden bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-white font-sans transition-colors selection:bg-blue-500/30">
+            <Head>
+                <title>Community Feed of CoachingsinSikar</title>
+                <meta name="description" content="Stay updated with new guides, comparisons, and updates on coaching and schools in Sikar through the CoachingsinSikar community feed." />
+                <meta name="keywords" content="CoachingsinSikar community, Sikar education community, coaching community Sikar feed, students community Sikar, education discussions Sikar, coaching discussions Sikar, Sikar student community" />
+                
+                {/* Open Graph / Facebook */}
                 <meta property="og:type" content="website" />
+                <meta property="og:title" content="Community Feed of CoachingsinSikar" />
+                <meta property="og:description" content="Follow the CoachingsinSikar feed to get every new article on JEE, NEET, CA, CLAT, and schools in Sikar as soon as it’s published." />
+                
+                {/* Twitter */}
                 <meta name="twitter:card" content="summary_large_image" />
-                <meta name="twitter:title" content="coachingsinsikar - The Front Page of the Internet" />
-                <meta name="twitter:description" content="Welcome to coachingsinsikar. Join communities, share posts, and discuss your favorite topics on the front page of the internet." />
+                <meta name="twitter:title" content="CoachingsinSikar Community Feed" />
+                <meta name="twitter:description" content="Use this feed to follow all new coaching and school guides from CoachingsinSikar, delivered straight to your reader or app." />
+                
                 <link rel="canonical" href={currentUrl} />
                 {nextPageUrl && <link rel="next" href={nextPageUrl} />}
                 <script type="application/ld+json">
@@ -159,7 +166,7 @@ export default function Feed({ auth, posts, currentSort = 'new', currentFilter =
                 </div>
 
                 {/* Main Feed Content */}
-                <div className="flex-1 max-w-3xl pb-24">
+                <div className="flex-1 max-w-3xl pb-24 min-w-0">
                     
                     {/* Search Communities & Posts */}
                     <form onSubmit={(e) => {

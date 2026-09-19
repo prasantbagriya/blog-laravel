@@ -12,7 +12,14 @@ class PostController extends Controller
     public function create(Request $request)
     {
         $communityId = $request->query('community_id');
-        $communities = Community::orderBy('name')->get(['id', 'name', 'display_name']);
+        $user = auth()->user();
+        
+        $communities = Community::where('owner_id', $user->id)
+            ->orWhereHas('members', function($q) use ($user) {
+                $q->where('user_id', $user->id);
+            })
+            ->orderBy('name')
+            ->get(['id', 'name', 'display_name']);
         
         $editPostId = $request->query('edit');
         $editPost = null;
@@ -59,8 +66,8 @@ class PostController extends Controller
             
             if (str_starts_with($file->getMimeType(), 'video/')) {
                 $postType = 'VIDEO';
-                $path = $file->store('uploads', 'public');
-                $mediaUrls = json_encode(['/storage/' . $path]);
+                $path = $file->store('videos', 'uploads');
+                $mediaUrls = json_encode(['/uploads/' . $path]);
             } else {
                 $postType = 'IMAGE';
                 
@@ -86,6 +93,12 @@ class PostController extends Controller
                 \Illuminate\Support\Facades\Storage::disk('public')->put('uploads/' . $filename, (string) $encoded);
                 $mediaUrls = json_encode(['/storage/uploads/' . $filename]);
             }
+        }
+        
+        $community = Community::find($validated['community_id']);
+        $user = auth()->user();
+        if ($community->owner_id !== $user->id && !$community->members()->where('user_id', $user->id)->exists()) {
+            return back()->withErrors(['community_id' => 'You must join this community to post.']);
         }
 
         $post = Post::create([
@@ -230,5 +243,53 @@ class PostController extends Controller
 
         $post->delete();
         return redirect()->route('feed');
+    }
+
+    public function uploadImage(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:jpeg,png,jpg,gif,webp|max:5120',
+        ]);
+
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            
+            try {
+                $filename = \Illuminate\Support\Str::uuid() . '_' . time() . '.webp';
+                
+                $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+                $image = $manager->decodePath($file->getRealPath());
+                
+                // Scale down if width exceeds 1200
+                if ($image->width() > 1200) {
+                    $image->scaleDown(width: 1200);
+                }
+                
+                $quality = 80;
+                $encoded = $image->encodeUsingFileExtension('webp', $quality);
+                
+                // Iteratively reduce quality if file is > 100KB
+                while (strlen((string) $encoded) > 102400 && $quality > 10) {
+                    $quality -= 10;
+                    $encoded = $image->encodeUsingFileExtension('webp', $quality);
+                }
+                
+                $uploadDir = public_path('uploads');
+                if (!\Illuminate\Support\Facades\File::exists($uploadDir)) {
+                    \Illuminate\Support\Facades\File::makeDirectory($uploadDir, 0755, true);
+                }
+                
+                file_put_contents($uploadDir . '/' . $filename, (string) $encoded);
+                
+                return response()->json([
+                    'success' => true,
+                    'url' => '/uploads/' . $filename
+                ]);
+            } catch (\Exception $e) {
+                return response()->json(['success' => false, 'error' => 'Image processing failed.'], 500);
+            }
+        }
+
+        return response()->json(['success' => false, 'error' => 'No file uploaded'], 400);
     }
 }

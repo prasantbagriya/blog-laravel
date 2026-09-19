@@ -2,12 +2,11 @@
 "use client"
 
 import React, { useState } from "react"
-import { usePage } from "@inertiajs/react"
 import { Zap } from "lucide-react"
 import { Instagram, Twitter, Linkedin, Youtube, Facebook, Pinterest, Tumblr } from "./BrandIcons"
 
 export default function BlogFooter() {
-  const { url: pathname } = usePage();
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
   const [email, setEmail] = useState("");
 
   // Don't render the public footer in the admin panel
@@ -78,12 +77,12 @@ export default function BlogFooter() {
           <div className="col-span-2 md:col-span-2 lg:col-span-2 space-y-8">
             <div className="flex items-center space-x-3 group cursor-pointer" onClick={() => handleNavClick('landing')}>
               <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform overflow-hidden p-1">
-                <img loading="lazy" decoding="async" fetchPriority="low" src={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + "/uploads/logo.webp"} alt="Coaching Sikar Logo" width="32" height="32" className="w-full h-full object-contain" />
+                <img loading="lazy" decoding="async" fetchPriority="low" src={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + "/images/64/logo.webp"} alt="Coaching Sikar Logo" width="32" height="32" className="w-full h-full object-contain" />
               </div>
               <span className="text-3xl font-extrabold text-white tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">Coaching Sikar</span>
             </div>
 
-            <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
+            <p className="text-slate-300 text-sm leading-relaxed max-w-sm">
               Your ultimate guide to finding the best coaching institutes. Explore, compare, and make the right choice for your future.
             </p>
 
@@ -95,7 +94,7 @@ export default function BlogFooter() {
                 { Icon: Youtube, url: 'https://www.youtube.com/@coachinginsikar' },
                 { Icon: Linkedin, url: 'https://www.linkedin.com/company/coachinginsikar' }
               ].map(({ Icon, url }, i) => (
-                <a key={i} href={url} target="_blank" rel="noopener noreferrer" aria-label={`Visit our ${url.split('.')[1] || 'social'} page`} className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 hover:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-blue-500/20 hover:-translate-y-1">
+                <a key={i} href={url} target="_blank" rel="noopener noreferrer" aria-label={`Visit our ${url.split('.')[1] || 'social'} page`} className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white hover:bg-blue-600 hover:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-blue-500/20 hover:-translate-y-1">
                   <Icon className="w-4 h-4" />
                 </a>
               ))}
@@ -115,7 +114,7 @@ export default function BlogFooter() {
                       <li key={link.label} className="m-0 p-0 flex">
                         <button
                           onClick={() => handleNavClick(link.page)}
-                          className="text-sm text-slate-400 hover:text-white hover:translate-x-2 transition-all duration-300 text-left bg-transparent border-none p-0 cursor-pointer flex items-center group outline-none focus:outline-none ring-0"
+                          className="text-sm text-slate-200 hover:text-white hover:translate-x-2 transition-all duration-300 text-left bg-transparent border-none p-0 cursor-pointer flex items-center group outline-none focus:outline-none ring-0"
                         >
                           <span className="opacity-0 group-hover:opacity-100 text-blue-500 mr-2 transition-opacity">›</span>
                           {link.label}
@@ -134,7 +133,7 @@ export default function BlogFooter() {
                Stay Updated
             </h3>
             <div className="space-y-4">
-              <p className="text-sm text-slate-400 leading-relaxed m-0">
+              <p className="text-sm text-slate-300 leading-relaxed m-0">
                 Get the latest educational updates and coaching news delivered to your inbox.
               </p>
               <form
@@ -179,11 +178,11 @@ export default function BlogFooter() {
         </div>
 
         <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-sm text-slate-500 font-medium m-0">
+          <p className="text-sm text-slate-300 font-medium m-0">
             © {new Date().getFullYear()} Coaching Sikar. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2 text-sm text-slate-500 bg-slate-800/50 px-3 py-1.5 rounded-full border border-slate-700">
+            <div className="flex items-center gap-2 text-sm text-slate-300 bg-slate-800/50 px-3 py-1.5 rounded-full border border-slate-700">
               <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" />
               All Systems Normal
             </div>

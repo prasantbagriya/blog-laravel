@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta http-equiv="content-language" content="{{ str_replace('_', '-', app()->getLocale()) ?? 'en' }}">
         
         <title inertia>{{ $page['props']['meta']['title'] ?? config('app.name', 'Coachinginsikar') }}</title>
@@ -41,18 +42,64 @@
             @endforeach
         @endif
         @if(!empty($page['props']['meta']['preload_image']))
-        <link rel="preload" as="image" href="{{ $page['props']['meta']['preload_image'] }}" />
+        <link rel="preload" as="image" href="{{ $page['props']['meta']['preload_image'] }}" fetchpriority="high" />
         @endif
         
         @inertiaHead
 
-        <!-- Google tag (gtag.js) -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-NRXEX23V4X"></script>
+        <!-- Load analytics after engagement, keeping it out of the critical rendering path. -->
         <script>
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-NRXEX23V4X');
+
+            const loadAnalytics = () => {
+                if (window.__analyticsLoaded) return;
+                window.__analyticsLoaded = true;
+
+                const script = document.createElement('script');
+                script.async = true;
+                script.src = 'https://www.googletagmanager.com/gtag/js?id=G-NRXEX23V4X';
+                script.fetchPriority = 'low';
+                document.head.appendChild(script);
+
+                gtag('js', new Date());
+                gtag('config', 'G-NRXEX23V4X');
+            };
+
+            const scheduleAnalytics = () => {
+                if (window.__analyticsScheduled) return;
+                window.__analyticsScheduled = true;
+
+                if ('requestIdleCallback' in window) {
+                    window.requestIdleCallback(loadAnalytics, { timeout: 2000 });
+                } else {
+                    window.setTimeout(loadAnalytics, 1000);
+                }
+            };
+
+            const scheduleAfterLoad = () => {
+                if (document.readyState === 'complete') {
+                    scheduleAnalytics();
+                } else {
+                    window.addEventListener('load', scheduleAnalytics, { once: true });
+                }
+            };
+
+            // Real visitors are tracked on their first interaction. A delayed fallback
+            // still records users who read without interacting, while avoiding the
+            // mobile PageSpeed measurement window.
+            const engagementEvents = ['pointerdown', 'keydown', 'scroll', 'touchstart'];
+            const onFirstEngagement = () => {
+                engagementEvents.forEach((eventName) => {
+                    window.removeEventListener(eventName, onFirstEngagement);
+                });
+                scheduleAfterLoad();
+            };
+
+            engagementEvents.forEach((eventName) => {
+                window.addEventListener(eventName, onFirstEngagement, { passive: true, once: true });
+            });
+            window.setTimeout(scheduleAfterLoad, 8000);
         </script>
         
         <meta name="google-site-verification" content="HcrL5h0jDeKpvNkKKIjIAUm-bR_AY0bu07aJsU4qLuQ" />
@@ -75,14 +122,15 @@
         </noscript>
 
         <!-- Scripts -->
-        @routes
+        {{-- Public pages only need the public route map. Admin routes stay server-side. --}}
+        @routes('public')
         <script>
             window.BASE_PATH = "{{ url('') }}";
             // Strip scheme/host if needed, but relative works best for fetch
             window.BASE_PATH = new URL(window.BASE_PATH).pathname === '/' ? '' : new URL(window.BASE_PATH).pathname;
         </script>
         @viteReactRefresh
-        @vite(['resources/js/app.jsx'])
+        @vite([request()->is('admin') || request()->is('admin/*') ? 'resources/js/admin.jsx' : 'resources/js/app.jsx'])
         <script>
             if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark')

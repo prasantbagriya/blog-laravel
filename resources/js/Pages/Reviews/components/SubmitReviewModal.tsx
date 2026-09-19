@@ -54,7 +54,7 @@ export const SubmitReviewModal: React.FC<SubmitReviewModalProps> = ({
   const [proofFileUploaded, setProofFileUploaded] = useState(false);
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [reviewerName, setReviewerName] = useState('');
-  const [reviewerLocation, setReviewerLocation] = useState('San Francisco, CA');
+  const [reviewerLocation, setReviewerLocation] = useState('Sikar, Rajasthan');
 
   // AI Inspection state
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -145,24 +145,27 @@ export const SubmitReviewModal: React.FC<SubmitReviewModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-zinc-900/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-      <div className="w-full max-w-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md shadow-2xl p-6 sm:p-8 space-y-6 my-8">
+    <div className="fixed inset-0 z-50 bg-zinc-900/70 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+      <div className="w-full max-w-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6 my-8 relative overflow-hidden">
         
+        {/* Accent Header */}
+        <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-amber-500 rounded-t-2xl absolute top-0 left-0"></div>
+
         {/* Modal Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-zinc-200 dark:border-zinc-800">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-zinc-800 pt-2">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-sm bg-blue-100 text-blue-600 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-zinc-900 dark:text-white">Write Verified Review</h2>
-              <p className="text-xs font-mono text-zinc-500 dark:text-zinc-400">Step {step} of 4: {step === 1 ? 'Rating' : step === 2 ? 'Details' : step === 3 ? 'Proof & Bio' : 'AI Inspection'}</p>
+              <h2 className="text-lg font-bold text-zinc-900 dark:text-white">Write Verified Review</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Step {step} of 4: {step === 1 ? 'Rating' : step === 2 ? 'Details' : step === 3 ? 'Proof & Bio' : 'AI Inspection'}</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition"
+            className="w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-200 dark:hover:bg-zinc-700 transition"
           >
             <X className="w-5 h-5" />
           </button>
@@ -174,13 +177,13 @@ export const SubmitReviewModal: React.FC<SubmitReviewModalProps> = ({
             
             {/* Select Business */}
             <div>
-              <label className="block text-xs font-mono font-bold uppercase tracking-widest text-zinc-900 dark:text-white mb-2">
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
                 Select Company
               </label>
               <select
                 value={businessId}
                 onChange={(e) => setBusinessId(e.target.value)}
-                className="w-full p-3 text-xs font-medium rounded-sm bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-600"
+                className="w-full p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
               >
                 {businesses.map((b) => (
                   <option key={b.id} value={b.id}>
@@ -191,8 +194,8 @@ export const SubmitReviewModal: React.FC<SubmitReviewModalProps> = ({
             </div>
 
             {/* Overall Rating Stars */}
-            <div className="p-4 rounded-sm bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 text-center space-y-2">
-              <span className="text-xs font-mono font-bold uppercase tracking-widest text-zinc-400">Overall Rating</span>
+            <div className="p-8 rounded-2xl bg-gradient-to-b from-slate-50 to-white dark:from-zinc-800/80 dark:to-zinc-900 border border-slate-200 dark:border-zinc-700 text-center space-y-4 shadow-sm">
+              <span className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Overall Rating</span>
               <div className="flex items-center justify-center gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -202,7 +205,7 @@ export const SubmitReviewModal: React.FC<SubmitReviewModalProps> = ({
                     className="p-1 hover:scale-110 transition-transform"
                   >
                     <Star
-                      className={`w-8 h-8 ${
+                      className={`w-10 h-10 ${
                         star <= overallRating ? 'fill-amber-500 text-amber-500' : 'text-zinc-200 dark:text-zinc-700'
                       }`}
                     />
@@ -216,12 +219,12 @@ export const SubmitReviewModal: React.FC<SubmitReviewModalProps> = ({
 
             {/* Category Ratings Grid */}
             <div>
-              <label className="block text-xs font-mono font-bold uppercase tracking-widest text-zinc-900 dark:text-white mb-2">
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
                 Specific Category Ratings
               </label>
-              <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 {(['support', 'quality', 'delivery', 'pricing'] as (keyof CategoryRatings)[]).map((catKey) => (
-                  <div key={catKey} className="p-3 rounded-sm bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                  <div key={catKey} className="p-4 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 flex items-center justify-between hover:border-blue-300 dark:hover:border-blue-700 transition-colors shadow-sm">
                     <span className="capitalize font-semibold text-zinc-900 dark:text-zinc-100">{catKey}</span>
                     <div className="flex items-center gap-1 text-amber-500">
                       {[1, 2, 3, 4, 5].map((s) => (
@@ -230,7 +233,7 @@ export const SubmitReviewModal: React.FC<SubmitReviewModalProps> = ({
                           type="button"
                           onClick={() => setCategoryRatings({ ...categoryRatings, [catKey]: s })}
                         >
-                          <Star className={`w-3.5 h-3.5 ${s <= categoryRatings[catKey] ? 'fill-amber-500 text-amber-500' : 'text-zinc-200 dark:text-zinc-700'}`} />
+                          <Star className={`w-4 h-4 ${s <= categoryRatings[catKey] ? 'fill-amber-500 text-amber-500' : 'text-zinc-200 dark:text-zinc-700'}`} />
                         </button>
                       ))}
                     </div>
@@ -242,7 +245,7 @@ export const SubmitReviewModal: React.FC<SubmitReviewModalProps> = ({
             <div className="flex justify-end pt-4">
               <button
                 onClick={() => setStep(2)}
-                className="px-5 py-2.5 text-xs font-bold rounded-sm bg-blue-600 hover:bg-blue-700 text-white transition flex items-center gap-2"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/30 transition-all text-white font-bold text-sm active:scale-[0.98]"
               >
                 <span>Next: Review Text</span>
                 <ArrowRight className="w-4 h-4" />
@@ -257,7 +260,7 @@ export const SubmitReviewModal: React.FC<SubmitReviewModalProps> = ({
           <div className="space-y-4 text-xs">
             
             <div>
-              <label className="block font-mono font-bold uppercase tracking-widest text-zinc-900 dark:text-white mb-1">
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
                 Review Headline / Title *
               </label>
               <input
@@ -265,12 +268,12 @@ export const SubmitReviewModal: React.FC<SubmitReviewModalProps> = ({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g., Exceptional customer service and sub-20ms latency!"
-                className="w-full p-3 rounded-sm bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-600"
+                className="block w-full px-5 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-blue-500"
               />
             </div>
 
             <div>
-              <label className="block font-mono font-bold uppercase tracking-widest text-zinc-900 dark:text-white mb-1">
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
                 Detailed Experience Description *
               </label>
               <textarea
@@ -278,7 +281,7 @@ export const SubmitReviewModal: React.FC<SubmitReviewModalProps> = ({
                 onChange={(e) => setDescription(e.target.value)}
                 rows={4}
                 placeholder="Explain what you bought, how long you used the service, what went well or what could be improved..."
-                className="w-full p-3 rounded-sm bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-600"
+                className="block w-full p-5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-3xl text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-blue-500"
               />
             </div>
 
@@ -292,13 +295,13 @@ export const SubmitReviewModal: React.FC<SubmitReviewModalProps> = ({
                     value={proInput}
                     onChange={(e) => setProInput(e.target.value)}
                     placeholder="e.g. Fast response"
-                    className="flex-1 p-2 rounded-sm bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800"
+                    className="flex-1 px-5 py-3 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-blue-500"
                   />
-                  <button onClick={handleAddPro} className="px-3 bg-blue-600 text-white rounded-sm font-bold">Add</button>
+                  <button onClick={handleAddPro} className="px-5 py-2 bg-blue-600 hover:bg-blue-700 transition-all text-white rounded-full font-bold">Add</button>
                 </div>
                 <div className="flex flex-wrap gap-1 mt-2">
                   {pros.map((p, i) => (
-                    <span key={i} className="px-2 py-0.5 rounded-2xs bg-blue-100 text-blue-600 font-mono font-semibold">{p}</span>
+                    <span key={i} className="px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-semibold">{p}</span>
                   ))}
                 </div>
               </div>
@@ -311,28 +314,32 @@ export const SubmitReviewModal: React.FC<SubmitReviewModalProps> = ({
                     value={conInput}
                     onChange={(e) => setConInput(e.target.value)}
                     placeholder="e.g. Higher overage fee"
-                    className="flex-1 p-2 rounded-sm bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800"
+                    className="flex-1 px-5 py-3 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-blue-500"
                   />
-                  <button onClick={handleAddCon} className="px-3 bg-rose-600 text-white rounded-sm font-bold">Add</button>
+                  <button onClick={handleAddCon} className="px-5 py-2 bg-rose-600 hover:bg-rose-700 transition-all text-white rounded-full font-bold">Add</button>
                 </div>
                 <div className="flex flex-wrap gap-1 mt-2">
                   {cons.map((c, i) => (
-                    <span key={i} className="px-2 py-0.5 rounded-2xs bg-rose-500/10 text-rose-600 font-mono font-semibold">{c}</span>
+                    <span key={i} className="px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 text-xs font-semibold">{c}</span>
                   ))}
                 </div>
               </div>
             </div>
 
-            <div className="flex justify-between pt-4">
-              <button onClick={() => setStep(1)} className="px-4 py-2 text-zinc-500 font-semibold flex items-center gap-1">
+            <div className="flex justify-between items-center pt-4">
+              <button
+                onClick={() => setStep(1)}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 font-bold text-sm hover:bg-slate-100 dark:hover:bg-zinc-700 transition-all active:scale-[0.98]"
+              >
                 <ArrowLeft className="w-4 h-4" /> Back
               </button>
               <button
                 disabled={!title.trim() || !description.trim()}
                 onClick={() => setStep(3)}
-                className="px-5 py-2.5 font-bold rounded-sm bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+                className="inline-flex items-center gap-2 px-6 py-3 font-bold rounded-full bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/30 transition-all disabled:opacity-50 active:scale-[0.98] text-sm"
               >
                 Next: Verification Proof
+                <ArrowRight className="w-4 h-4" />
               </button>
             </div>
 
@@ -342,7 +349,7 @@ export const SubmitReviewModal: React.FC<SubmitReviewModalProps> = ({
         {/* STEP 3: Proof Upload & Verification */}
         {step === 3 && (
           <div className="space-y-4 text-xs">
-            <div className="p-4 rounded-sm bg-blue-100 dark:bg-blue-600/20 border border-blue-600/30 text-blue-600 dark:text-blue-400">
+            <div className="p-5 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30 text-blue-600 dark:text-blue-400">
               <h4 className="font-bold flex items-center gap-1.5 text-sm">
                 <ShieldCheck className="w-4 h-4 text-blue-600" />
                 Verified Purchase Booster
@@ -361,7 +368,7 @@ export const SubmitReviewModal: React.FC<SubmitReviewModalProps> = ({
                 value={orderNumber}
                 onChange={(e) => setOrderNumber(e.target.value)}
                 placeholder="e.g., INV-AETHER-2026-99"
-                className="w-full p-3 rounded-sm bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white"
+                className="w-full p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 text-zinc-900 dark:text-white"
               />
             </div>
 
@@ -371,7 +378,7 @@ export const SubmitReviewModal: React.FC<SubmitReviewModalProps> = ({
               </label>
               <div
                 onClick={() => setProofFileUploaded(!proofFileUploaded)}
-                className={`p-6 border-2 border-dashed rounded-sm text-center cursor-pointer transition ${
+                className={`p-8 border-2 border-dashed rounded-2xl text-center cursor-pointer transition ${
                   proofFileUploaded
                     ? 'border-blue-600 bg-blue-100 text-blue-600'
                     : 'border-zinc-200 dark:border-zinc-800 hover:border-blue-600'
@@ -397,13 +404,16 @@ export const SubmitReviewModal: React.FC<SubmitReviewModalProps> = ({
               </label>
             </div>
 
-            <div className="flex justify-between pt-4">
-              <button onClick={() => setStep(2)} className="px-4 py-2 text-zinc-500 font-semibold flex items-center gap-1">
+            <div className="flex justify-between items-center pt-4">
+              <button
+                onClick={() => setStep(2)}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 font-bold text-sm hover:bg-slate-100 dark:hover:bg-zinc-700 transition-all active:scale-[0.98]"
+              >
                 <ArrowLeft className="w-4 h-4" /> Back
               </button>
               <button
                 onClick={handleProceedToAiCheck}
-                className="px-5 py-2.5 font-bold rounded-sm bg-blue-600 text-white hover:bg-blue-700 flex items-center gap-2"
+                className="inline-flex items-center gap-2 px-6 py-3 font-bold rounded-full bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/30 transition-all active:scale-[0.98] text-sm"
               >
                 <Sparkles className="w-4 h-4" />
                 <span>Run AI Inspection & Submit</span>
@@ -425,7 +435,7 @@ export const SubmitReviewModal: React.FC<SubmitReviewModalProps> = ({
               </div>
             ) : (
               <div className="space-y-5 text-left">
-                <div className="p-4 rounded-sm bg-blue-100 dark:bg-blue-600/20 border border-blue-600/30 space-y-2">
+                <div className="p-5 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30 space-y-2">
                   <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-bold text-sm">
                     <CheckCircle2 className="w-5 h-5" />
                     <span>Passed AI Authenticity & Fraud Inspection</span>
@@ -435,21 +445,25 @@ export const SubmitReviewModal: React.FC<SubmitReviewModalProps> = ({
                   </p>
                 </div>
 
-                <div className="p-4 rounded-sm bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 space-y-2">
+                <div className="p-6 rounded-2xl bg-slate-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-800 space-y-2">
                   <div className="font-bold text-zinc-900 dark:text-white">Review Summary Preview:</div>
                   <div className="text-zinc-900 dark:text-white font-semibold">"{title}"</div>
                   <div className="text-zinc-500 dark:text-zinc-400 line-clamp-2">"{description}"</div>
                 </div>
 
-                <div className="flex justify-between pt-4">
-                  <button onClick={() => setStep(3)} className="px-4 py-2 text-zinc-500 font-semibold">
-                    Edit Review
+                <div className="flex justify-between items-center pt-4">
+                  <button
+                    onClick={() => setStep(3)}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 font-bold text-sm hover:bg-slate-100 dark:hover:bg-zinc-700 transition-all active:scale-[0.98]"
+                  >
+                    <ArrowLeft className="w-4 h-4" /> Edit Review
                   </button>
                   <button
                     onClick={handleFinalSubmit}
                     disabled={isSubmitting}
-                    className="px-6 py-2.5 font-bold rounded-sm bg-blue-600 text-white hover:bg-blue-700 transition"
+                    className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/30 transition-all font-bold text-sm disabled:opacity-70 active:scale-[0.98]"
                   >
+                    <CheckCircle2 className="w-4 h-4" />
                     {isSubmitting ? 'Publishing...' : 'Publish Live Review'}
                   </button>
                 </div>

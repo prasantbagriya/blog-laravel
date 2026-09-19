@@ -184,6 +184,12 @@ export default function CreatePost({ auth, communities, default_community_id, ed
                                                 placeholder="https://..." 
                                                 value={data.link_url}
                                                 onChange={(e) => setData('link_url', e.target.value)}
+                                                onBlur={(e) => {
+                                                    let val = e.target.value.trim();
+                                                    if (val && !/^https?:\/\//i.test(val)) {
+                                                        setData('link_url', 'https://' + val);
+                                                    }
+                                                }}
                                                 rows="3"
                                                 className="w-full bg-white/50 dark:bg-zinc-950/50 border border-slate-200 dark:border-zinc-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-2xl py-4 pl-12 pr-4 text-base font-medium text-slate-900 dark:text-white outline-none transition-all resize-none placeholder-slate-400 shadow-inner"
                                             ></textarea>

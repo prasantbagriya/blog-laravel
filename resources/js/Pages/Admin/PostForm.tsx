@@ -416,6 +416,7 @@ export default function PostForm({ post }: PostFormProps) {
    const [faqs, setFaqs] = useState<{ question: string; answer: string }[]>(post?.faqs || []);
    const [howToSteps, setHowToSteps] = useState<{ name: string; text: string }[]>(post?.howToSteps || []);
    const [localBusiness, setLocalBusiness] = useState<{ name: string; telephone: string; ratingValue: string; reviewCount: string; priceRange: string; streetAddress: string; addressLocality: string; addressRegion: string; postalCode: string; addressCountry: string; }>(post?.localBusiness || { name: '', telephone: '', ratingValue: '', reviewCount: '', priceRange: '', streetAddress: '', addressLocality: '', addressRegion: '', postalCode: '', addressCountry: '' });
+   const [seoRating, setSeoRating] = useState<{ ratingValue: string; reviewCount: string; }>(post?.seoRating || { ratingValue: '', reviewCount: '' });
    const [howToModalOpen, setHowToModalOpen] = useState(false);
    const [faqSchemaEnabled, setFaqSchemaEnabled] = useState(true);
    const [snippetScore, setSnippetScore] = useState(0);
@@ -497,7 +498,7 @@ export default function PostForm({ post }: PostFormProps) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-               title, content: editor?.getHTML(), metaDescription, excerpt, seoTitle, ogTitle, ogDescription, keywords, tags, faqs, howToSteps, localBusiness, keyTakeaways, category
+               title, content: editor?.getHTML(), metaDescription, excerpt, seoTitle, ogTitle, ogDescription, keywords, tags, faqs, howToSteps, localBusiness, seoRating, keyTakeaways, category
             })
          });
          const data = await res.json();
@@ -527,6 +528,7 @@ export default function PostForm({ post }: PostFormProps) {
          case 'faqs': setFaqs(Array.isArray(val) ? val : []); break;
          case 'howToSteps': setHowToSteps(Array.isArray(val) ? val : []); break;
          case 'localBusiness': setLocalBusiness(val || { name: '', telephone: '', ratingValue: '', reviewCount: '', priceRange: '', streetAddress: '', addressLocality: '', addressRegion: '', postalCode: '', addressCountry: '' }); break;
+         case 'seoRating': setSeoRating(val || { ratingValue: '', reviewCount: '' }); break;
          case 'keyTakeaways': setKeyTakeaways(Array.isArray(val) ? val : []); break;
          case 'optimizedContent': editor?.commands.setContent(val); break;
       }
@@ -1080,7 +1082,7 @@ export default function PostForm({ post }: PostFormProps) {
             authorSocials,
             seoTitle, ogTitle, ogDescription, canonicalUrl, keywords,
             twitterCard, twitterTitle, twitterDescription,
-            category, tags, faqs, howToSteps, localBusiness,
+            category, tags, faqs, howToSteps, localBusiness, seoRating,
             published,
             date: post?.date || new Date().toISOString().split('T')[0],
             author: author || 'Admin',
@@ -1705,6 +1707,12 @@ export default function PostForm({ post }: PostFormProps) {
                                   </div>
                                ))}
                                <button onClick={() => setHowToSteps([...howToSteps, { name: '', text: '' }])} style={addNodeBtn}>+ Add HowTo Step</button>
+                            </div>
+
+                            <h3 style={{ ...sidebarHeadingStyle, marginTop: '24px' }}>Product/Review SEO Rating (Article Review Snippet)</h3>
+                            <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+                                <input placeholder="Rating (e.g. 4.8)" value={seoRating.ratingValue} onChange={e => setSeoRating({...seoRating, ratingValue: e.target.value})} style={{...faqInputSmall, flex: 1}} />
+                                <input placeholder="Reviews Count (e.g. 154)" value={seoRating.reviewCount} onChange={e => setSeoRating({...seoRating, reviewCount: e.target.value})} style={{...faqInputSmall, flex: 1}} />
                             </div>
 
                             <h3 style={{ ...sidebarHeadingStyle, marginTop: '24px' }}>LocalBusiness Schema Details</h3>

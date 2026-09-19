@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import { Link } from '@inertiajs/react';
 import { 
   Star, ShieldCheck, CheckCircle2, Globe, Phone, MapPin, Clock, 
-  MessageSquare, ThumbsUp, Flag, Sparkles, FileText, Building2, 
+  MessageSquare, ThumbsUp, Sparkles, FileText, Building2, 
   TrendingUp, AlertCircle, Languages, Plus, ArrowLeft, Edit3, Share2,
   X, Link2, Search
 } from 'lucide-react';
@@ -14,10 +15,7 @@ interface BusinessProfileViewProps {
   allBusinesses: Business[];
   onOpenWriteReview: (businessId: string) => void;
   onVoteHelpful: (reviewId: string, direction: 'up' | 'down') => void;
-  onFlagReview: (reviewId: string) => void;
   onAddReply: (reviewId: string, replyText: string) => void;
-  onOpenEditBusiness?: () => void;
-  authUser?: any;
 }
 
 const ShareModal = ({ isOpen, onClose, url, title }: { isOpen: boolean, onClose: () => void, url: string, title: string }) => {
@@ -96,8 +94,7 @@ const ShareModal = ({ isOpen, onClose, url, title }: { isOpen: boolean, onClose:
 
 export const BusinessProfileView: React.FC<BusinessProfileViewProps> = ({
   business, reviews, allBusinesses,
-  onOpenWriteReview, onVoteHelpful, onFlagReview, onAddReply,
-  onOpenEditBusiness, authUser,
+  onOpenWriteReview, onVoteHelpful, onAddReply,
 }) => {
   const [activeTab, setActiveTab] = useState<'reviews' | 'ai_insights' | 'competitors' | 'about'>('reviews');
   const [reviewFilterRating, setReviewFilterRating] = useState<number | 'all'>('all');
@@ -174,7 +171,7 @@ export const BusinessProfileView: React.FC<BusinessProfileViewProps> = ({
     amber:   'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-500/20',
   };
 
-  const isOwner = authUser && ((business.userId && business.userId == authUser.id) || (business.email && business.email === authUser.email) || authUser.role === 'super_admin');
+  const isOwner = Boolean(business.canEdit);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 pb-20 transition-colors font-sans">
@@ -197,7 +194,6 @@ export const BusinessProfileView: React.FC<BusinessProfileViewProps> = ({
 
             {/* Logo */}
             <div className="relative shrink-0">
-              <div className="absolute inset-0 bg-blue-500 rounded-2xl blur-lg opacity-20" />
               <img src={business.logo} alt={business.name}
                 className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border-4 border-white dark:border-zinc-800 shadow-xl relative z-10 bg-white" />
             </div>
@@ -223,12 +219,12 @@ export const BusinessProfileView: React.FC<BusinessProfileViewProps> = ({
                     <Star className="w-4 h-4" /> Write Review
                   </button>
                   {isOwner && (
-                    <button
-                      onClick={() => onOpenEditBusiness?.()}
+                    <Link
+                      href={`/businesses/${business.slug || business.id}/edit`}
                       className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-bold text-sm bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 transition-all active:scale-95"
                     >
                       <Edit3 className="w-4 h-4" /> Manage
-                    </button>
+                    </Link>
                   )}
                   <button
                     onClick={() => setShowShareModal(true)}
@@ -365,11 +361,11 @@ export const BusinessProfileView: React.FC<BusinessProfileViewProps> = ({
                               </span>
                             )}
                           </div>
-                          <div className="text-xs text-slate-500 dark:text-zinc-400 font-medium flex items-center gap-1.5">
-                            <span>{rev.reviewerLocation}</span>
-                            <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-zinc-700" />
-                            <span>{rev.createdAt}</span>
-                          </div>
+                            <div className="text-xs text-slate-500 dark:text-zinc-400 font-medium flex items-center gap-1.5">
+                              <span>{rev.reviewerLocation || 'Sikar, Rajasthan'}</span>
+                              <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-zinc-700" />
+                              <span>{Number.isNaN(new Date(rev.createdAt).getTime()) ? rev.createdAt : new Date(rev.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                            </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-0.5 bg-amber-50 dark:bg-amber-900/20 px-3 py-1.5 rounded-lg shrink-0">
@@ -428,28 +424,26 @@ export const BusinessProfileView: React.FC<BusinessProfileViewProps> = ({
                     <div className="pt-4 border-t border-slate-100 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-3">
                       <div className="flex items-center gap-2">
                         <button onClick={() => onVoteHelpful(rev.id, 'up')}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors">
+                          className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all active:scale-[0.98]">
                           <ThumbsUp className="w-3.5 h-3.5" /> Helpful ({rev.helpfulCount})
                         </button>
                         <button onClick={() => handleTranslateReview(rev.id)}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors">
+                          className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 transition-all active:scale-[0.98]">
                           <Languages className="w-3.5 h-3.5" /> Translate
                         </button>
                       </div>
                       <div className="flex items-center gap-2">
-                        <button onClick={() => setReplyingReviewId(replyingReviewId === rev.id ? null : rev.id)}
-                          className="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors">
-                          Reply
-                        </button>
-                        <button onClick={() => onFlagReview(rev.id)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 hover:text-rose-500 transition-colors">
-                          <Flag className="w-3.5 h-3.5" />
-                        </button>
+                        {isOwner && (
+                          <button onClick={() => setReplyingReviewId(replyingReviewId === rev.id ? null : rev.id)}
+                            className="px-4 py-2 rounded-full text-xs font-bold bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 transition-all active:scale-[0.98]">
+                            Reply
+                          </button>
+                        )}
                       </div>
                     </div>
 
                     {/* Reply Drawer */}
-                    {replyingReviewId === rev.id && (
+                    {isOwner && replyingReviewId === rev.id && (
                       <div className="mt-4 p-4 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 space-y-3">
                         <textarea value={replyText} onChange={(e) => setReplyText(e.target.value)}
                           placeholder="Write an official response..." rows={3}
@@ -561,7 +555,11 @@ export const BusinessProfileView: React.FC<BusinessProfileViewProps> = ({
             {activeTab === 'about' && (
               <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 p-6 sm:p-8 space-y-6">
                 <h3 className="text-xl font-black text-slate-900 dark:text-white">About {business.name}</h3>
-                <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">{business.description}</p>
+                {(business.detailedDescription || business.detailed_description) ? (
+                  <div className="prose dark:prose-invert max-w-none text-sm text-slate-600 dark:text-zinc-400" dangerouslySetInnerHTML={{ __html: business.detailedDescription || business.detailed_description }} />
+                ) : (
+                  <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">{business.description}</p>
+                )}
                 {business.products && business.products.length > 0 && (
                   <div>
                     <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-4 pb-3 border-b border-slate-100 dark:border-zinc-800">Products & Services</h4>
@@ -578,6 +576,8 @@ export const BusinessProfileView: React.FC<BusinessProfileViewProps> = ({
                     </div>
                   </div>
                 )}
+
+
               </div>
             )}
 
@@ -620,8 +620,8 @@ export const BusinessProfileView: React.FC<BusinessProfileViewProps> = ({
               {[
                 { icon: Phone, label: 'Phone', value: business.phone, color: 'text-green-500' },
                 { icon: MapPin, label: 'Address', value: business.address, color: 'text-rose-500' },
-                { icon: Clock, label: 'Hours', value: business.openingHours, color: 'text-amber-500' },
-              ].map(({ icon: Icon, label, value, color }) => (
+                { icon: Clock, label: 'Hours', value: business.openingHours || business.opening_hours, color: 'text-amber-500' },
+              ].filter(item => item.value).map(({ icon: Icon, label, value, color }) => (
                 <div key={label} className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-zinc-800 border border-slate-100 dark:border-zinc-700 flex items-center justify-center shrink-0">
                     <Icon className={`w-3.5 h-3.5 ${color}`} />

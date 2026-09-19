@@ -42,6 +42,7 @@ class PostController extends Controller
             'faqs' => 'nullable|array',
             'howToSteps' => 'nullable|array',
             'localBusiness' => 'nullable|array',
+            'seoRating' => 'nullable|array',
             'published' => 'nullable|boolean',
             'date' => 'nullable|string',
             'author' => 'nullable|string',

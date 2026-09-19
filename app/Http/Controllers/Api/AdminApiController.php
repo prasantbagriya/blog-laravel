@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 use App\Models\Post;
@@ -23,13 +24,55 @@ class AdminApiController extends Controller
 
     public function getCommunityPosts()
     {
-        return response()->json(Post::whereNotNull('community_id')->with(['community', 'author'])->withCount('reports')->orderBy('created_at', 'desc')->get());
+        return response()->json(Post::whereNotNull('community_id')->with(['community', 'author'])->orderBy('created_at', 'desc')->get());
     }
 
     public function deletePost(Request $request)
     {
         $id = $request->query('id');
         Post::where('id', $id)->delete();
+        return response()->json(['success' => true]);
+    }
+
+    // --- Communities ---
+    public function getCommunities()
+    {
+        return response()->json(\App\Models\Community::withCount('members')->with('owner')->orderBy('created_at', 'desc')->get());
+    }
+
+    public function storeCommunity(Request $request)
+    {
+        $id = $request->input('id');
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:communities,name,' . $id,
+            'display_name' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'is_nsfw' => 'boolean',
+            'is_private' => 'boolean',
+        ]);
+
+        if (isset($request['rules'])) {
+            $validated['rules'] = $request['rules'];
+        }
+
+        if ($id) {
+            $community = \App\Models\Community::findOrFail($id);
+            $community->update($validated);
+        } else {
+            $validated['owner_id'] = auth()->id() ?? 1; // Fallback for super admin
+            $community = \App\Models\Community::create($validated);
+        }
+
+        Cache::forget('home_data_v2');
+
+        return response()->json(['success' => true, 'community' => $community]);
+    }
+
+    public function deleteCommunity(Request $request)
+    {
+        $id = $request->query('id');
+        \App\Models\Community::where('id', $id)->delete();
+        Cache::forget('home_data_v2');
         return response()->json(['success' => true]);
     }
 
@@ -209,7 +252,7 @@ class AdminApiController extends Controller
         $media = [];
         
         foreach ($files as $file) {
-            $url = asset('uploads/' . $file->getFilename());
+            $url = asset('uploads/' . $file->getFilename()) . '?v=' . $file->getMTime();
             $media[] = [
                 'id' => $file->getFilename(),
                 'name' => $file->getFilename(),
@@ -295,7 +338,7 @@ class AdminApiController extends Controller
 
     public function deleteMedia(Request $request)
     {
-        $filename = $request->query('filename');
+        $filename = basename($request->query('filename'));
         if ($filename) {
             $path = public_path('uploads/' . $filename);
             if (File::exists($path)) {
@@ -355,6 +398,28 @@ class AdminApiController extends Controller
     {
         if ($request->has('id')) {
             \App\Models\Business::where('id', $request->input('id'))->delete();
+        }
+        return response()->json(['success' => true]);
+    }
+
+    // --- Contact Messages ---
+    public function getContactMessages()
+    {
+        return response()->json(\App\Models\ContactMessage::orderBy('created_at', 'desc')->get());
+    }
+
+    public function deleteContactMessage($id)
+    {
+        \App\Models\ContactMessage::where('id', $id)->delete();
+        return response()->json(['success' => true]);
+    }
+
+    public function readContactMessage($id)
+    {
+        $message = \App\Models\ContactMessage::find($id);
+        if ($message) {
+            $message->status = 'read';
+            $message->save();
         }
         return response()->json(['success' => true]);
     }

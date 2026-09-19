@@ -64,7 +64,7 @@ export default function Show({ auth, community, posts, currentSort = 'new' }) {
     }, [loadMorePosts, nextPageUrl, loadingMore]);
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-white font-sans transition-colors selection:bg-blue-500/30">
+        <div className="min-h-screen overflow-x-hidden bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-white font-sans transition-colors selection:bg-blue-500/30">
             <Head title={community.display_name} />
             
             <GlobalNavbar auth={auth} />
@@ -133,23 +133,50 @@ export default function Show({ auth, community, posts, currentSort = 'new' }) {
             {/* Main Content */}
             <div className="max-w-[1400px] w-full mx-auto pt-8 px-4 sm:px-6 flex gap-8">
                 
-                {/* Main Feed */}
-                <div className="flex-1 max-w-3xl pb-24">
+                {/* Main Feed Content */}
+                <div className="flex-1 max-w-3xl pb-24 min-w-0">
                     
                     {/* Create Post Input */}
-                    <Link href={`/submit?community_id=${community.id}`} className="bg-slate-50 dark:bg-zinc-900 border-0 rounded-3xl p-3 flex gap-4 items-center cursor-text mb-6 shadow-inner hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors group">
-                        <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 border-2 border-white dark:border-zinc-800 flex-shrink-0 flex items-center justify-center shadow-sm">
-                            <span className="text-blue-600 dark:text-blue-400 font-extrabold text-lg">{auth?.user?.name ? auth.user.name.charAt(0).toUpperCase() : 'U'}</span>
+                    {(community.is_owner || community.is_member) ? (
+                        <Link href={`/submit?community_id=${community.id}`} className="bg-slate-50 dark:bg-zinc-900 border-0 rounded-3xl p-3 flex gap-4 items-center cursor-text mb-6 shadow-inner hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors group">
+                            <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 border-2 border-white dark:border-zinc-800 flex-shrink-0 flex items-center justify-center shadow-sm">
+                                <span className="text-blue-600 dark:text-blue-400 font-extrabold text-lg">{auth?.user?.name ? auth.user.name.charAt(0).toUpperCase() : 'U'}</span>
+                            </div>
+                            <div 
+                                className="flex-1 bg-white dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700/50 rounded-2xl py-3 px-5 text-sm text-slate-500 dark:text-zinc-400 transition-colors flex items-center font-medium shadow-sm"
+                            >
+                                Create Post...
+                            </div>
+                            <div className="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 text-slate-400 dark:text-zinc-400 flex items-center justify-center border border-slate-200 shadow-sm group-hover:bg-blue-50 dark:group-hover:bg-blue-500/10 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:border-blue-200 transition-colors">
+                                <Plus size={22} strokeWidth={2.5} />
+                            </div>
+                        </Link>
+                    ) : (
+                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 rounded-3xl p-6 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-800/50 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                                    <MessageSquare size={20} />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-slate-900 dark:text-white">Join to participate</h3>
+                                    <p className="text-sm text-slate-500 dark:text-zinc-400">You must join this community to post.</p>
+                                </div>
+                            </div>
+                            <button 
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    if (!auth?.user) {
+                                        router.visit('/login');
+                                        return;
+                                    }
+                                    router.post(`/community/${community.id}/join`, {}, { preserveScroll: true });
+                                }}
+                                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-sm transition-all text-sm whitespace-nowrap active:scale-[0.98]"
+                            >
+                                Join Community
+                            </button>
                         </div>
-                        <div 
-                            className="flex-1 bg-white dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700/50 rounded-2xl py-3 px-5 text-sm text-slate-500 dark:text-zinc-400 transition-colors flex items-center font-medium shadow-sm"
-                        >
-                            Create Post...
-                        </div>
-                        <div className="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 text-slate-400 dark:text-zinc-400 flex items-center justify-center border border-slate-200 shadow-sm group-hover:bg-blue-50 dark:group-hover:bg-blue-500/10 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:border-blue-200 transition-colors">
-                            <Plus size={22} strokeWidth={2.5} />
-                        </div>
-                    </Link>
+                    )}
 
                     {/* Sort Bar */}
                     <div className="flex gap-2 items-center mb-6 pb-4 border-b border-slate-200 dark:border-zinc-800 overflow-x-auto scrollbar-hide">
@@ -225,9 +252,22 @@ export default function Show({ auth, community, posts, currentSort = 'new' }) {
                             </div>
                             
                             <div className="space-y-3">
-                                <Link href={`/submit?community_id=${community.id}`} className="flex justify-center items-center py-2.5 px-4 rounded-xl text-sm font-bold text-white bg-slate-900 hover:bg-black dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 transition-all active:scale-[0.98] shadow-md w-full">
-                                    Create Post
-                                </Link>
+                                {(community.is_owner || community.is_member) ? (
+                                    <Link href={`/submit?community_id=${community.id}`} className="flex justify-center items-center py-2.5 px-4 rounded-xl text-sm font-bold text-white bg-slate-900 hover:bg-black dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 transition-all active:scale-[0.98] shadow-md w-full">
+                                        Create Post
+                                    </Link>
+                                ) : (
+                                    <button onClick={(e) => {
+                                        e.preventDefault();
+                                        if (!auth?.user) {
+                                            router.visit('/login');
+                                            return;
+                                        }
+                                        router.post(`/community/${community.id}/join`, {}, { preserveScroll: true });
+                                    }} className="flex justify-center items-center py-2.5 px-4 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 transition-all active:scale-[0.98] shadow-md w-full">
+                                        Join to Post
+                                    </button>
+                                )}
                                 {(community.is_owner || community.is_moderator) && (
                                     <Link href={`/community/${community.name}/modqueue`} className="flex justify-center items-center py-2.5 px-4 rounded-xl text-sm font-bold text-slate-700 dark:text-zinc-300 bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-all active:scale-[0.98] shadow-sm w-full">
                                         Mod Queue

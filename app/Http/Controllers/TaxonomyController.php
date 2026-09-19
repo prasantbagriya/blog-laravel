@@ -13,7 +13,12 @@ class TaxonomyController extends Controller
     {
         $categories = \App\Models\Category::all()->toArray();
         $title = "Categories | Coachinginsikar";
-        $description = "Browse all categories on our blog.";
+        $description = "Browse all Blog Categories and Institute Categories on CoachingsinSikar. Find articles and verified coaching institutes for JEE, NEET, CA, NDA, CLAT, and schools in Sikar by topic.";
+        $keywords = "Coaching Sikar Categories, blog categories Sikar coaching, institute categories Sikar, verified coaching institutes Sikar, expert guidance coaching Sikar, topic-wise coaching guides Sikar";
+        $og_title = "CoachingsinSikar Explore Categories";
+        $og_description = "Discover insightful articles, verified coaching institutes, and expert guidance on JEE, NEET, CA, CLAT, and schools in Sikar, neatly organized into Blog Categories and Institute Categories.";
+        $twitter_title = "Sikar Education Categories | Institutes, Blogs, & Guides";
+        $twitter_description = "Access institute categories, blog topics, coaching guides, reviews, school information, and other education resources for Sikar.";
         
         $schemas = [[
             "@context" => "https://schema.org",
@@ -28,6 +33,11 @@ class TaxonomyController extends Controller
             'meta' => [
                 'title' => $title,
                 'description' => $description,
+                'keywords' => $keywords,
+                'og_title' => $og_title,
+                'og_description' => $og_description,
+                'twitter_title' => $twitter_title,
+                'twitter_description' => $twitter_description,
                 'url' => url('/category'),
                 'type' => 'website',
                 'schemas' => $schemas

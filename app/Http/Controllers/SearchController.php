@@ -92,18 +92,36 @@ class SearchController extends Controller
 
         $businesses = Business::where('name', 'like', "%{$q}%")
             ->orWhere('category', 'like', "%{$q}%")
+            ->orWhere('description', 'like', "%{$q}%")
             ->select('id', 'name', 'slug', 'category', 'logo')
             ->limit(5)->get();
         
         $blogs = Post::whereNull('community_id')->where('published', true)
-            ->where('title', 'like', "%{$q}%")
-            ->select('id', 'title', 'slug', 'coverImage as image')
-            ->limit(3)->get();
+            ->where(function ($query) use ($q) {
+                $query->where('title', 'like', "%{$q}%")
+                      ->orWhere('content', 'like', "%{$q}%");
+            })
+            ->limit(3)->get()->map(function($post) {
+                return [
+                    'id' => $post->id,
+                    'title' => $post->title,
+                    'slug' => $post->slug,
+                    'excerpt' => $post->excerpt ?? \Illuminate\Support\Str::limit(strip_tags($post->content ?? ''), 80)
+                ];
+            });
 
         $communities = Community::where('name', 'like', "%{$q}%")
             ->orWhere('display_name', 'like', "%{$q}%")
-            ->select('id', 'name', 'display_name', 'members')
-            ->limit(3)->get();
+            ->orWhere('description', 'like', "%{$q}%")
+            ->withCount('members')
+            ->limit(3)->get()->map(function($community) {
+                return [
+                    'id' => $community->id,
+                    'name' => $community->name,
+                    'display_name' => $community->display_name,
+                    'members' => $community->members_count
+                ];
+            });
 
         return response()->json([
             'categories' => $categories,

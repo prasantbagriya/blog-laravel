@@ -6,7 +6,15 @@ import BlogFooter from '../../NextComponents/BlogFooter';
 export default function Privacy() {
     return (
         <div className="bg-white min-h-screen flex flex-col">
-            <Head title="Privacy Policy | Blog" />
+            <Head>
+                <title>CoachingsinSikar Privacy Policy | Data & User Information</title>
+                <meta name="description" content="CoachingsinSikar Privacy Policy explains how information is collected, used, protected, and handled when you use our website." />
+                <meta name="keywords" content="CoachingsinSikar privacy policy, privacy policy CoachingsinSikar, cookie policy education blog Sikar, personal information privacy CoachingsinSikar, user data handling coaching site" />
+                <meta property="og:title" content="CoachingsinSikar Privacy Policy | Data & User Information" />
+                <meta property="og:description" content="Understand how CoachingsinSikar handles your personal data, cookies, and site information. This privacy policy explains your rights and how we protect your privacy." />
+                <meta name="twitter:title" content="CoachingsinSikar | Data & Privacy Policy" />
+                <meta name="twitter:description" content="Your privacy matters on CoachingsinSikar. Read our privacy policy to see how we collect, use, and safeguard your personal information on this education guide." />
+            </Head>
             <GlobalNavbar />
             <main className="w-full px-[25px] pb-8 flex-grow" style={{ paddingTop: '100px' }}>
                 <h1 className="text-4xl font-bold mb-8">Privacy Policy</h1>

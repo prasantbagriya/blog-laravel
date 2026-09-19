@@ -214,7 +214,7 @@ export default function PostCard({ post, auth, openReportModal }) {
                 </div>
 
                 {/* Title */}
-                <Link href={`/r/${post.community?.name || post.community}/comments/${post.id}/${post.slug}`} className="block font-extrabold text-[18px] sm:text-[20px] text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 leading-snug mb-3 pr-4 transition-colors">
+                <Link href={`/r/${post.community?.name || post.community}/comments/${post.id}/${post.slug}`} className="block font-extrabold text-[18px] sm:text-[20px] text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 leading-snug mb-3 pr-4 transition-colors break-words">
                     {post.flair && <span className="inline-flex mr-2 px-2.5 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-lg text-[10px] font-extrabold align-text-bottom tracking-wide">{post.flair}</span>}
                     {post.title}
                 </Link>
@@ -222,7 +222,7 @@ export default function PostCard({ post, auth, openReportModal }) {
                 {post.type === 'TEXT' && post.content && (
                     <div className="relative overflow-hidden max-h-40 mb-4 pr-4">
                         <div 
-                            className="text-[14px] text-slate-700 dark:text-zinc-300 leading-relaxed prose prose-sm max-w-none prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:font-bold prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl prose-img:my-2 prose-p:my-1"
+                            className="text-[14px] text-slate-700 dark:text-zinc-300 leading-relaxed prose prose-sm max-w-none break-words overflow-x-auto prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:font-bold prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl prose-img:my-2 prose-p:my-1"
                             dangerouslySetInnerHTML={{ __html: post.content }}
                         />
                         <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white dark:from-zinc-900 to-transparent pointer-events-none"></div>

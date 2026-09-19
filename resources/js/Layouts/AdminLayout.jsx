@@ -1,5 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
+import { LayoutDashboard, Pin, Users, Folder, PlusCircle, Zap, MessageSquare, Globe, Building2, Image as ImageIcon, LineChart, Sliders, Settings, LogOut } from 'lucide-react';
 
 export default function AdminLayout({ children }) {
   const { url: pathname } = usePage();
@@ -23,24 +24,40 @@ export default function AdminLayout({ children }) {
 
   const BASE = typeof window !== 'undefined' && window.location.pathname.startsWith('/list/public') ? '/list/public' : '';
   const menuItems = [
-    { label: 'Dashboard', href: BASE + '/admin', icon: '🏠' },
-    { label: 'All Posts', href: BASE + '/admin', icon: '📌' },
-    { label: 'Authors', href: BASE + '/admin/authors', icon: '👥' },
-    { label: 'Categories', href: BASE + '/admin/categories', icon: '📁' },
-    { label: 'Add New', href: BASE + '/admin/posts/new', icon: '➕' },
-    { label: 'Web Stories', href: BASE + '/admin/stories', icon: '⚡' },
-    { label: 'Community Posts', href: BASE + '/admin/community-posts', icon: '💬' },
-    { label: 'Businesses', href: BASE + '/admin/businesses', icon: '🏢' },
-    { label: 'Media Library', href: BASE + '/admin/media', icon: '🖼️' },
-    { label: 'SEO Audit', href: BASE + '/admin/seo-audit', icon: '📈' },
-    { label: 'Home Slider', href: BASE + '/admin/slider', icon: '🖼️' },
-    { label: 'Settings', href: '#', icon: '⚙️' },
+    { label: 'Dashboard', href: BASE + '/admin', icon: <LayoutDashboard size={18} /> },
+    { label: 'All Posts', href: BASE + '/admin', icon: <Pin size={18} /> },
+    { label: 'Authors', href: BASE + '/admin/authors', icon: <Users size={18} /> },
+    { label: 'Categories', href: BASE + '/admin/categories', icon: <Folder size={18} /> },
+    { label: 'Add New', href: BASE + '/admin/posts/new', icon: <PlusCircle size={18} /> },
+    { label: 'Web Stories', href: BASE + '/admin/stories', icon: <Zap size={18} /> },
+    { label: 'Community Posts', href: BASE + '/admin/community-posts', icon: <MessageSquare size={18} /> },
+    { label: 'Communities', href: BASE + '/admin/communities', icon: <Globe size={18} /> },
+    { label: 'Businesses', href: BASE + '/admin/businesses', icon: <Building2 size={18} /> },
+    { label: 'Media Library', href: BASE + '/admin/media', icon: <ImageIcon size={18} /> },
+    { label: 'SEO Audit', href: BASE + '/admin/seo-audit', icon: <LineChart size={18} /> },
+    { label: 'Home Slider', href: BASE + '/admin/slider', icon: <Sliders size={18} /> },
+    { label: 'Contact Messages', href: BASE + '/admin/contact-messages', icon: <MessageSquare size={18} /> },
+    { label: 'Settings', href: '#', icon: <Settings size={18} /> },
   ];
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      background: '#f8fafc', 
+    <>
+      <style>{`
+        .admin-sidebar-link {
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .admin-sidebar-link:hover {
+          background-color: #f1f5f9;
+          transform: translateX(4px);
+        }
+        .admin-sidebar-link.active:hover {
+          background-color: #eff6ff;
+          transform: translateX(4px);
+        }
+      `}</style>
+      <div style={{ 
+        display: 'flex', 
+        background: '#f8fafc', 
       color: '#0f172a', 
       fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       minHeight: '100vh',
@@ -106,6 +123,7 @@ export default function AdminLayout({ children }) {
               <Link 
                 key={item.label} 
                 href={item.href}
+                className={`admin-sidebar-link ${isActive ? 'active' : ''}`}
                 onClick={() => isMobile && setIsSidebarOpen(false)}
                 style={{
                   display: 'flex',
@@ -115,19 +133,49 @@ export default function AdminLayout({ children }) {
                   padding: '10px 12px',
                   fontSize: '14px',
                   fontWeight: isActive ? 700 : 600,
-                  color: isActive ? '#2563eb' : '#0f172a',
+                  color: isActive ? '#2563eb' : '#475569',
                   textDecoration: 'none',
                   background: isActive ? '#eff6ff' : 'transparent',
-                  borderRadius: '8px',
-                  transition: 'all 0.2s ease'
+                  borderRadius: '8px'
                 }}
               >
-                <span style={{ fontSize: '16px', filter: isActive ? 'none' : 'grayscale(100%)', opacity: 1 }} title={isCollapsed ? item.label : undefined}>{item.icon}</span>
+                <span style={{ display: 'flex', alignItems: 'center', opacity: isActive ? 1 : 0.7 }} title={isCollapsed ? item.label : undefined}>{item.icon}</span>
                 {!(isCollapsed && !isMobile) && <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>}
               </Link>
             )
           })}
         </nav>
+
+        {/* Sign Out Button */}
+        <div style={{ padding: isCollapsed && !isMobile ? '12px 8px' : '12px 16px', borderTop: '1px solid #f1f5f9' }}>
+          <Link
+            href="/logout"
+            method="post"
+            as="button"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: isCollapsed && !isMobile ? 'center' : 'flex-start',
+              gap: '10px',
+              width: '100%',
+              padding: '10px 12px',
+              fontSize: '14px',
+              fontWeight: 700,
+              color: '#dc2626',
+              background: '#fef2f2',
+              border: '1px solid #fecaca',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              textDecoration: 'none',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.borderColor = '#fca5a5'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.borderColor = '#fecaca'; }}
+          >
+            <LogOut size={17} style={{ flexShrink: 0, opacity: 0.85 }} />
+            {!(isCollapsed && !isMobile) && <span style={{ whiteSpace: 'nowrap' }}>Sign Out</span>}
+          </Link>
+        </div>
 
         <div style={{ padding: isCollapsed && !isMobile ? '24px 0' : '24px', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: isCollapsed && !isMobile ? 'center' : 'flex-start', gap: '12px' }}>
           <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, color: '#475569', flexShrink: 0 }}>
@@ -156,8 +204,10 @@ export default function AdminLayout({ children }) {
         <header style={{ 
           height: '72px', 
           minHeight: '72px', 
-          background: '#ffffff', 
-          borderBottom: '1px solid #e2e8f0', 
+          background: 'rgba(255, 255, 255, 0.7)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          borderBottom: '1px solid rgba(226, 232, 240, 0.6)', 
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'space-between', 
@@ -239,6 +289,7 @@ export default function AdminLayout({ children }) {
         </main>
       </div>
     </div>
+    </>
   );
 }
 

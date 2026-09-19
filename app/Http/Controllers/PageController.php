@@ -17,6 +17,28 @@ class PageController extends Controller
         return Inertia::render('Static/Contact');
     }
 
+    public function submitContact(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'nullable|string|max:20',
+            'subject' => 'required|string|max:255',
+            'message' => 'required|string|max:5000',
+        ]);
+
+        \App\Models\ContactMessage::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'] ?? null,
+            'subject' => $validated['subject'],
+            'message' => $validated['message'],
+            'status' => 'unread',
+        ]);
+
+        return back()->with('success', 'Message sent successfully!');
+    }
+
     public function editorialPolicy()
     {
         return Inertia::render('Static/EditorialPolicy');

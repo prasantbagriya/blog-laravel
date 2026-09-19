@@ -9,8 +9,19 @@ export default function About() {
     return (
         <div className="bg-slate-50 dark:bg-zinc-950 min-h-screen text-slate-900 dark:text-white font-sans selection:bg-blue-500/30 flex flex-col transition-colors duration-300">
             <Head>
-                <title>About Us | Coaching Sikar</title>
-                <meta name="description" content="Learn about Coaching Sikar, the premier platform for finding the best coaching institutes and educational resources in Sikar." />
+                <title>About Us | CoachinginSikar</title>
+                <meta name="description" content="CoachingsinSikar helps you explore the best coaching institutes and schools in Sikar with useful guides, comparisons, fees and results." />
+                <meta name="keywords" content="best CoachinginSikar, top coaching institutes Sikar, coaching fees in Sikar, coaching results Sikar, coaching reviews Sikar, Best JEE coaching Sikar, Top NEET coaching Sikar, Best schools in Sikar" />
+                
+                {/* Open Graph / Facebook */}
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content="About Us – CoachingsinSikar | Find the Best Coaching" />
+                <meta property="og:description" content="Get to know all about our educational guide and our goal of helping students and parents research coaching institutes, schools, and educational options in Sikar." />
+                
+                {/* Twitter */}
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="About CoachingsinSikar – Find the Best Coaching" />
+                <meta name="twitter:description" content="Learn how CoachingsinSikar helps students and parents research and compare coaching and school options." />
             </Head>
             
             <GlobalNavbar />
@@ -39,11 +50,11 @@ export default function About() {
                     <div className="space-y-6 text-slate-700 dark:text-zinc-300 text-lg leading-relaxed font-medium">
                         <p>Sikar becomes a familiar name for students preparing for competitive exams. More than 50 coaching institutes and coaching centres are currently serving students across the city, and around 80,000 students prepare for NEET and JEE in Sikar every year. Along with coaching, the district has 3,000+ schools, colleges, and other educational institutions serving students from Sikar and nearby areas.</p>
                         
-                        <p>With so many options available, students and parents often have very specific questions. Which coaching is right for JEE or NEET? What are the fees? Which schools are worth considering? Where can students find information about admissions, results, courses, or facilities? Coachings in Sikar was created around these everyday questions.</p>
+                        <p>With so many options available, students and parents often have very specific questions. Which coaching is right for JEE or NEET? What are the fees? Which schools are worth considering? Where can students find information about admissions, results, courses, or facilities? CoachingsinSikar was created around these everyday questions.</p>
                         
-                        <p>We bring information about top coaching in Sikar, schools, colleges, courses, fees, admissions, results, Olympiads, and education news together in one place. Instead of limiting the website to a list of institutes, we also publish detailed blogs on topics people search for before making an education-related decision.</p>
+                        <p>We bring information about top CoachinginSikar, schools, colleges, courses, fees, admissions, results, Olympiads, and education news together in one place. Instead of limiting the website to a list of institutes, we also publish detailed blogs on topics people search for before making an education-related decision.</p>
                         
-                        <p>Our Coaching section covers different preparation options, including top JEE coaching in Sikar, best coaching in Sikar for NEET, best IAS coachings, top CA coaching, best CLAT coaching, best academy for NDA, defence, and other competitive examinations. The Schools section covers Best CBSE schools, Top RBSE schools, boarding resdetiaonal schools in sikar, school admissions, and other school-related information, while our college and education content helps readers explore higher-education options in Sikar.</p>
+                        <p>Our Coaching section covers different preparation options, including top JEE CoachinginSikar, best CoachinginSikar for NEET, best IAS coachings, top CA coaching, best CLAT coaching, best academy for NDA, defence, and other competitive examinations. The Schools section covers Best CBSE schools, Top RBSE schools, boarding resdetiaonal schools in sikar, school admissions, and other school-related information, while our college and education content helps readers explore higher-education options in Sikar.</p>
                         
                         <p>Another important part of the website is Reviews and Community feedback. A coaching institute or school can look very different on paper from the experience of an actual student or parent. Reviews give readers another perspective and help them understand what others have experienced. We aim to make this information useful while keeping the reader free to form their own opinion.</p>
                         
@@ -55,7 +66,7 @@ export default function About() {
                 <section className="bg-white dark:bg-zinc-900 py-20 border-y border-slate-200 dark:border-zinc-800">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="text-center max-w-3xl mx-auto mb-16">
-                            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-6">What You Can Find on Coachings in Sikar</h2>
+                            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-6">What You Can Find on CoachingsinSikar</h2>
                             <p className="text-lg text-slate-600 dark:text-zinc-400">
                                 There is a lot more to finding the right education option than simply knowing the name of an institute or school. That is why we cover different parts of Sikar's education scene, from coaching and schools to fees, reviews, results , and local updates. Here are some of the main information we avail through this <a href="https://coachingsinsikar.com/" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">https://coachingsinsikar.com/</a> website.
                             </p>
@@ -79,9 +90,9 @@ export default function About() {
                                 <div className="w-14 h-14 rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mb-6">
                                     <Sparkles className="w-7 h-7 text-amber-600 dark:text-amber-400" />
                                 </div>
-                                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">JEE & NEET Coaching in Sikar</h3>
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">JEE & NEET CoachinginSikar</h3>
                                 <p className="text-slate-600 dark:text-zinc-400 leading-relaxed font-medium">
-                                    A large part of Sikar's coaching community is built around JEE and NEET preparation. We cover JEE coaching in Sikar, NEET coaching in Sikar, IIT JEE preparation, NEET preparation, courses, fees, results and related topics, along with the questions students usually have before joining a coaching institute.
+                                    A large part of Sikar's coaching community is built around JEE and NEET preparation. We cover JEE CoachinginSikar, NEET CoachinginSikar, IIT JEE preparation, NEET preparation, courses, fees, results and related topics, along with the questions students usually have before joining a coaching institute.
                                 </p>
                             </AnimatedBorderCard>
 
@@ -125,7 +136,7 @@ export default function About() {
                                 </div>
                                 <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">Education Blogs</h3>
                                 <p className="text-slate-600 dark:text-zinc-400 leading-relaxed font-medium">
-                                    Not every search starts with the name of an institute. Sometimes it starts with a simple question: Which is the best coaching in Sikar? Which school should I choose? How much does coaching cost? Which colleges are available? Our blogs are built around these kinds of questions, covering coaching, schools, colleges, JEE, NEET, admissions, fees, results, and other education topics.
+                                    Not every search starts with the name of an institute. Sometimes it starts with a simple question: Which is the best CoachinginSikar? Which school should I choose? How much does coaching cost? Which colleges are available? Our blogs are built around these kinds of questions, covering coaching, schools, colleges, JEE, NEET, admissions, fees, results, and other education topics.
                                 </p>
                             </AnimatedBorderCard>
 
@@ -195,10 +206,10 @@ export default function About() {
                         <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-amber-500 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
                         
                         <div className="relative z-10">
-                            <h2 className="text-3xl font-extrabold text-white mb-6">Motive of Coachings in Sikar</h2>
+                            <h2 className="text-3xl font-extrabold text-white mb-6">Motive of CoachingsinSikar</h2>
                             <div className="space-y-6 text-white/80 text-lg leading-relaxed font-medium">
-                                <p>A student searching for the best coaching in Sikar may also want to know its fees, courses, results or what other students say. Someone looking for schools in Sikar may have completely different questions. Our aim is to bring these everyday searches, along with college admissions, reviews and education updates, into one useful place.</p>
-                                <p>Sikar's education space keeps changing, and so should the information around it. We will keep adding JEE and NEET coaching, schools, colleges, medical colleges, Olympiads, results, admissions and Sikar education news, while updating older content when things change. In simple words, we try to keep Coachings in Sikar useful as new choices and opportunities emerge.</p>
+                                <p>A student searching for the best CoachinginSikar may also want to know its fees, courses, results or what other students say. Someone looking for schools in Sikar may have completely different questions. Our aim is to bring these everyday searches, along with college admissions, reviews and education updates, into one useful place.</p>
+                                <p>Sikar's education space keeps changing, and so should the information around it. We will keep adding JEE and NEET coaching, schools, colleges, medical colleges, Olympiads, results, admissions and Sikar education news, while updating older content when things change. In simple words, we try to keep CoachingsinSikar useful as new choices and opportunities emerge.</p>
                             </div>
                         </div>
                     </div>

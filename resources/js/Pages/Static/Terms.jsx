@@ -6,7 +6,15 @@ import BlogFooter from '../../NextComponents/BlogFooter';
 export default function Terms() {
     return (
         <div className="bg-white min-h-screen flex flex-col">
-            <Head title="Terms of Service | Blog" />
+            <Head>
+                <title>CoachingsinSikar Terms & Conditions</title>
+                <meta name="description" content="Read the terms and conditions for using CoachingsinSikar. Learn about acceptable use, content rights, disclaimers, and other rules for this education guide." />
+                <meta name="keywords" content="CoachingsinSikar terms, website terms and conditions, terms of use, user responsibilities, website usage rules, content terms, disclaimer, user agreement, CoachingsinSikar terms and conditions, terms of use CoachingsinSikar, website terms Sikar" />
+                <meta property="og:title" content="CoachingsinSikar Terms & Conditions" />
+                <meta property="og:description" content="These terms explain how you can use CoachingsinSikar, what content rights we hold, and important disclaimers for students, parents, and other visitors." />
+                <meta name="twitter:title" content="Website Terms & Conditions | CoachingsinSikar" />
+                <meta name="twitter:description" content="Before using CoachingsinSikar, read our terms and conditions. They cover acceptable use, content ownership, disclaimers, and other key rules for this education guide." />
+            </Head>
             <GlobalNavbar />
             <main className="w-full px-[25px] pb-8 flex-grow" style={{ paddingTop: '100px' }}>
                 <h1 className="text-4xl font-bold mb-8">Terms of Service</h1>

@@ -6,7 +6,15 @@ import BlogFooter from '../../NextComponents/BlogFooter';
 export default function EditorialPolicy() {
     return (
         <div className="bg-white min-h-screen flex flex-col">
-            <Head title="Editorial Policy | Blog" />
+            <Head>
+                <title>CoachingsinSikar | Content Creation & Editorial Policy</title>
+                <meta name="description" content="Learn how CoachingsinSikar creates and maintains content, including editorial standards, research, sourcing, updates, transparency, and corrections." />
+                <meta name="keywords" content="Content creation policy, editorial quality, research and sources, editorial policy CoachingsinSikar, content standards education blog Sikar, coaching guides Sikar content review, fact-checking process coachingsinsikar.com, CoachingsinSikar content policy, Sikar coaching editorial principles, editorial transparency, reliable education content, content publishing policy, research and sourcing policy" />
+                <meta property="og:title" content="CoachingsinSikar | Content Creation & Editorial Policy" />
+                <meta property="og:description" content="Our editorial policy explains how CoachingsinSikar researches, writes, and updates articles on coachings, schools, and education in Sikar, with a focus on accuracy and honesty." />
+                <meta name="twitter:title" content="Content & Editorial Policy of CoachingsinSikar" />
+                <meta name="twitter:description" content="Read how CoachingsinSikar maintains editorial quality. This page covers our standards, fact‑checking, update process, accuracy policy for coaching reviews, transparency in coaching coverage, and commitment to honest, local education information." />
+            </Head>
             <GlobalNavbar />
             <main className="w-full px-[25px] pb-8 flex-grow" style={{ paddingTop: '100px' }}>
                 <h1 className="text-4xl font-bold mb-8">Editorial Policy</h1>

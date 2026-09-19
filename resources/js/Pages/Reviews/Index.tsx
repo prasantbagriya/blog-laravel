@@ -9,27 +9,29 @@ import { ChevronDown, MessageSquare, HelpCircle, Grid3X3 } from 'lucide-react';
 import './index.css';
 import GlobalNavbar from '../../NextComponents/GlobalNavbar';
 import BlogFooter from '../../NextComponents/BlogFooter';
+import SeoMeta from '../../NextComponents/SeoMeta';
 import { PageHero } from '../../NextComponents/UI';
 import { HeroSection } from './components/HeroSection';
 import { CategoryGrid } from './components/CategoryGrid';
 import { BusinessCard } from './components/BusinessCard';
 import { BusinessProfileView } from './components/BusinessProfileView';
-import { BusinessDashboard } from './components/BusinessDashboard';
-import { ModeratorPanel } from './components/ModeratorPanel';
 
 const SubmitReviewModal = React.lazy(() => import('./components/SubmitReviewModal').then(module => ({ default: module.SubmitReviewModal })));
-const CreateBusinessModal = React.lazy(() => import('./components/CreateBusinessModal').then(module => ({ default: module.CreateBusinessModal })));
 const AiSearchModal = React.lazy(() => import('./components/AiSearchModal').then(module => ({ default: module.AiSearchModal })));
-const ApiDocsModal = React.lazy(() => import('./components/ApiDocsModal').then(module => ({ default: module.ApiDocsModal })));
 
-import { UserRole, Business, Category, Review, ReviewCampaign } from './types';
+import { Business, Category, Review } from './types';
 import { INITIAL_CATEGORIES } from './data/mockData';
 
+const csrfHeaders = (): Record<string, string> => {
+  const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+  return token ? { 'X-CSRF-TOKEN': token } : {};
+};
 
-const ReviewsFAQ = () => {
+
+const ReviewsFAQ = ({ business }: { business?: Business | null }) => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
-  const faqs = [
+  const defaultFaqs = [
     {
       question: "How are businesses verified on this platform?",
       answer: "Every business listed goes through our editorial verification process. We cross-check business registration details, customer invoices, and use AI fraud detection to assign a Trust Score from 0–100. Only genuine businesses with real customer interactions make it to our catalog."
@@ -52,6 +54,10 @@ const ReviewsFAQ = () => {
     },
   ];
 
+  const faqs = (business?.faqs && business.faqs.length > 0) ? business.faqs : defaultFaqs;
+
+  if (faqs.length === 0) return null;
+
   return (
     <section className="py-16 bg-slate-50 dark:bg-zinc-950 border-t border-slate-200 dark:border-zinc-800/60 relative overflow-hidden">
       {/* Background Decorative */}
@@ -73,7 +79,9 @@ const ReviewsFAQ = () => {
                 Frequently Asked <span className="text-blue-500">Questions</span>
               </h2>
               <p className="text-slate-600 dark:text-zinc-400 text-base md:text-lg leading-relaxed">
-                Everything you need to know about our verified business directory, reviews, and Trust Scores.
+                {(business?.faqs && business.faqs.length > 0) 
+                  ? `Answers to common questions about ${business.name} and their services.` 
+                  : `Everything you need to know about our verified business directory, reviews, and Trust Scores.`}
               </p>
             </div>
 
@@ -130,11 +138,9 @@ const ReviewsFAQ = () => {
   );
 };
 
-export default function App({ auth, initialView = 'home', initialCategorySlug = 'all', businessData = null }: { auth?: any, initialView?: string, initialCategorySlug?: string, businessData?: Business | null }) {
-  const authUser = auth?.user;
+export default function App({ initialView = 'home', initialCategorySlug = 'all', businessData = null }: { initialView?: string, initialCategorySlug?: string, businessData?: Business | null }) {
   // Application State
-  const [currentRole, setCurrentRole] = useState<UserRole>(authUser?.role || 'visitor');
-  const [activeView, setActiveView] = useState<'home' | 'directory' | 'profile' | 'dashboard' | 'moderation' | 'admin'>(initialView as any);
+  const [activeView, setActiveView] = useState<'home' | 'directory' | 'profile'>(initialView as any);
   const [selectedCategorySlug, setSelectedCategorySlug] = useState<string>(initialCategorySlug);
   const [selectedBusinessSlug, setSelectedBusinessSlug] = useState<string | null>(businessData ? businessData.slug : null);
   const [viewedBusiness, setViewedBusiness] = useState<Business | null>(businessData);
@@ -142,34 +148,12 @@ export default function App({ auth, initialView = 'home', initialCategorySlug = 
   // Modals
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [showWriteReviewModal, setShowWriteReviewModal] = useState(false);
-  const [showCreateBusinessModal, setShowCreateBusinessModal] = useState(false);
-  const [showEditBusinessModal, setShowEditBusinessModal] = useState(false);
-  const [showApiDocsModal, setShowApiDocsModal] = useState(false);
   const [preselectedBusinessId, setPreselectedBusinessId] = useState<string | undefined>(undefined);
 
-  // Theme
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
   // Data State
-  const [categories, setCategories] = useState<Category[]>(INITIAL_CATEGORIES);
+  const categories: Category[] = INITIAL_CATEGORIES;
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [currentReviews, setCurrentReviews] = useState<Review[]>([]);
-  const [moderationQueue, setModerationQueue] = useState<Review[]>([]);
-  const [campaigns, setCampaigns] = useState<ReviewCampaign[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Toggle Dark Mode
-  const handleToggleDarkMode = () => {
-    setIsDarkMode((prev) => {
-      const next = !prev;
-      if (next) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-      return next;
-    });
-  };
 
   // Fetch initial businesses from server API
   const fetchBusinesses = async () => {
@@ -185,8 +169,6 @@ export default function App({ auth, initialView = 'home', initialCategorySlug = 
       }
     } catch (err) {
       console.error('Error fetching businesses:', err);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -205,24 +187,8 @@ export default function App({ auth, initialView = 'home', initialCategorySlug = 
     }
   };
 
-  // Fetch moderation queue
-  const fetchModerationQueue = async () => {
-    try {
-      const res = await fetch('/api/moderation/queue', {
-        headers: { 'Accept': 'application/json' }
-      });
-      const data = await res.json();
-      if (Array.isArray(data)) {
-        setModerationQueue(data);
-      }
-    } catch (err) {
-      console.error('Error fetching moderation queue:', err);
-    }
-  };
-
   useEffect(() => {
     fetchBusinesses();
-    fetchModerationQueue();
   }, []);
 
   // Sync state when Inertia props change (e.g. back/forward navigation)
@@ -267,7 +233,7 @@ export default function App({ auth, initialView = 'home', initialCategorySlug = 
     try {
       const res = await fetch('/api/reviews', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify(reviewData),
       });
       const data = await res.json();
@@ -291,7 +257,7 @@ export default function App({ auth, initialView = 'home', initialCategorySlug = 
     try {
       const res = await fetch(`/api/reviews/${reviewId}/vote`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify({ direction }),
       });
       const updated = await res.json();
@@ -304,27 +270,12 @@ export default function App({ auth, initialView = 'home', initialCategorySlug = 
     }
   };
 
-  // Handle Flagging Review
-  const handleFlagReview = async (reviewId: string) => {
-    try {
-      await fetch(`/api/reviews/${reviewId}/flag`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason: 'Flagged for Community Guidelines Inspection' }),
-      });
-      alert('Review submitted to AI moderation queue!');
-      fetchModerationQueue();
-    } catch (err) {
-      console.error('Error flagging review:', err);
-    }
-  };
-
   // Handle Business Reply
   const handleAddReply = async (reviewId: string, replyText: string) => {
     try {
       const res = await fetch(`/api/reviews/${reviewId}/reply`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify({
           authorName: 'Official Business Representative',
           authorRole: 'Manager',
@@ -338,21 +289,6 @@ export default function App({ auth, initialView = 'home', initialCategorySlug = 
       );
     } catch (err) {
       console.error('Error adding reply:', err);
-    }
-  };
-
-  // Handle Moderator Action
-  const handleModeratorAction = async (reviewId: string, action: 'approve' | 'reject', notes?: string) => {
-    try {
-      await fetch('/api/moderation/action', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reviewId, action, notes }),
-      });
-      fetchModerationQueue();
-      fetchBusinesses();
-    } catch (err) {
-      console.error('Error processing moderation action:', err);
     }
   };
 
@@ -370,37 +306,37 @@ export default function App({ auth, initialView = 'home', initialCategorySlug = 
 
   return (
     <>
-      <Head>
-        {activeView === 'profile' && viewedBusiness ? (
-          <>
-            <title>{`${viewedBusiness.name} Reviews & Trust Score | TrustPulse`}</title>
-            <meta name="description" content={`Read ${viewedBusiness.reviewCount} verified reviews for ${viewedBusiness.name}. Trust score: ${viewedBusiness.trustScore}/100. ${viewedBusiness.description}`} />
-            <script type="application/ld+json">
-              {JSON.stringify({
-                "@context": "https://schema.org",
-                "@type": "LocalBusiness",
-                "name": viewedBusiness.name,
-                "image": viewedBusiness.logo,
-                "description": viewedBusiness.description,
-                "aggregateRating": {
-                  "@type": "AggregateRating",
-                  "ratingValue": viewedBusiness.rating,
-                  "reviewCount": viewedBusiness.reviewCount,
-                  "bestRating": 5,
-                  "worstRating": 1
-                }
-              })}
-            </script>
-          </>
-        ) : (
-          <>
-            <title>TrustPulse | Verified AI Software & SaaS Reviews</title>
-            <meta name="description" content="Discover verified reviews for SaaS, AI tools, and online businesses. Real customer feedback powered by AI fraud detection." />
-          </>
-        )}
-      </Head>
+      {activeView === 'profile' && viewedBusiness ? (
+        <SeoMeta meta={{
+          title: `${viewedBusiness.name} Reviews & Trust Score | TrustPulse`,
+          description: `Read ${viewedBusiness.reviewCount} verified reviews for ${viewedBusiness.name}. Trust score: ${viewedBusiness.trustScore}/100. ${viewedBusiness.description}`,
+          og_image: viewedBusiness.logo,
+          schemas: [{
+            "@context": "https://schema.org",
+            "@type": "LocalBusiness",
+            "name": viewedBusiness.name,
+            "image": viewedBusiness.logo,
+            "description": viewedBusiness.description,
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": viewedBusiness.rating,
+              "reviewCount": viewedBusiness.reviewCount,
+              "bestRating": 5,
+              "worstRating": 1
+            }
+          }]
+        }} />
+      ) : (
+        <SeoMeta meta={{
+          title: "Coaching & Schools in Sikar Reviews & Ratings",
+          description: "Read honest reviews from students and parents about coaching institutes and schools in Sikar. Compare experiences, ratings, and feedback before you choose.",
+          keywords: "Compare coaching institutes Sikar, CoachinginSikar reviews & ratings, Sikar school comparison Sikar, school ratings Sikar, Sikar coaching reviews, coaching results comparison, student coaching feedback Sikar",
+          og_title: "Coaching & Schools in Sikar Reviews & Ratings",
+          twitter_title: "Sikar Coaching Reviews & Ratings"
+        }} />
+      )}
       
-      <div className={`trustpulse-app min-h-screen flex flex-col font-sans transition-colors ${isDarkMode ? 'dark bg-zinc-950 text-white' : 'bg-white text-zinc-900'}`}>
+      <div className="trustpulse-app min-h-screen flex flex-col font-sans transition-colors bg-white text-zinc-900 dark:bg-zinc-950 dark:text-white">
         <div className="flex-1 overflow-auto">
           {/* Main Header / Navigation */}
           <GlobalNavbar />
@@ -553,30 +489,8 @@ export default function App({ auth, initialView = 'home', initialCategorySlug = 
             reviews={currentReviews}
             allBusinesses={businesses}
             onOpenWriteReview={handleOpenWriteReview}
-            onOpenEditBusiness={() => setShowEditBusinessModal(true)}
             onVoteHelpful={handleVoteHelpful}
-            onFlagReview={handleFlagReview}
             onAddReply={handleAddReply}
-            authUser={authUser}
-          />
-        )}
-
-        {/* VIEW 4: BUSINESS OWNER DASHBOARD */}
-        {activeView === 'dashboard' && selectedBusinessObject && (
-          <BusinessDashboard
-            business={selectedBusinessObject}
-            reviews={currentReviews}
-            campaigns={campaigns}
-            allBusinesses={businesses}
-            onAddReply={handleAddReply}
-          />
-        )}
-
-        {/* VIEW 5: MODERATOR QUEUE */}
-        {activeView === 'moderation' && (
-          <ModeratorPanel
-            moderationQueue={moderationQueue}
-            onModeratorAction={handleModeratorAction}
           />
         )}
 
@@ -600,45 +514,9 @@ export default function App({ auth, initialView = 'home', initialCategorySlug = 
           />
         )}
 
-        {showCreateBusinessModal && (
-          <CreateBusinessModal
-            categories={categories}
-            onClose={() => setShowCreateBusinessModal(false)}
-            onSubmitSuccess={(newBusiness) => {
-              setBusinesses([newBusiness, ...businesses]);
-              setShowCreateBusinessModal(false);
-              router.visit(`/reviews/${newBusiness.category}/${newBusiness.slug}`);
-            }}
-          />
-        )}
-
-        {showEditBusinessModal && selectedBusinessObject && (
-          <CreateBusinessModal
-            categories={categories}
-            onClose={() => setShowEditBusinessModal(false)}
-            onSubmitSuccess={(updatedBusiness) => {
-              setShowEditBusinessModal(false);
-              const index = businesses.findIndex(b => b.id === updatedBusiness.id);
-              if (index !== -1) {
-                const newBusinesses = [...businesses];
-                newBusinesses[index] = updatedBusiness;
-                setBusinesses(newBusinesses);
-                if (viewedBusiness?.id === updatedBusiness.id) {
-                  setViewedBusiness(updatedBusiness);
-                }
-              }
-            }}
-            initialData={selectedBusinessObject}
-            isEdit={true}
-          />
-        )}
-
-        {showApiDocsModal && (
-          <ApiDocsModal onClose={() => setShowApiDocsModal(false)} />
-        )}
       </Suspense>
 
-          <ReviewsFAQ />
+          <ReviewsFAQ business={viewedBusiness} />
           <BlogFooter />
         </div>
       </div>

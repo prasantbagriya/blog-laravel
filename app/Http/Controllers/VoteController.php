@@ -56,10 +56,11 @@ class VoteController extends Controller
                 ]);
                 $model->increment('score', $value);
 
-                if ($value === 1 && $model->author_id !== $user->id) {
+                if ($value === 1 && $model->author_id && $model->author_id !== $user->id) {
                     $post = $type === 'post' ? $model : $model->post;
-                    if ($model->author) {
-                        $model->author->notify(new \App\Notifications\PostUpvoted($user, $post));
+                    $authorUser = \App\Models\User::find($model->author_id);
+                    if ($authorUser) {
+                        $authorUser->notify(new \App\Notifications\PostUpvoted($user, $post));
                     }
                 }
             }

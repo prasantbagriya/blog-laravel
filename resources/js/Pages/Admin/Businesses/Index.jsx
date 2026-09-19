@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import DeleteButton from '../DeleteButton';
 import AdminLayout from '../../../Layouts/AdminLayout';
 
@@ -71,19 +71,24 @@ export default function BusinessesPage() {
                   </td>
                   <td style={{ padding: '16px 24px', fontSize: '14px', color: '#475569' }}>
                     <span style={{ display: 'inline-block', padding: '4px 8px', background: '#f1f5f9', borderRadius: '4px', fontSize: '12px', fontWeight: 500 }}>
-                      {business.category_name}
+                      {business.categoryName || business.category_name || business.category}
                     </span>
                   </td>
                   <td style={{ padding: '16px 24px', fontSize: '14px', color: '#475569' }}>
-                    <div><span style={{ fontWeight: 600 }}>{business.trust_score}</span> Trust Score</div>
-                    <div style={{ fontSize: '12px', marginTop: '2px' }}>{business.review_count} Reviews</div>
+                    <div><span style={{ fontWeight: 600 }}>{business.trustScore || business.trust_score || 0}</span> Trust Score</div>
+                    <div style={{ fontSize: '12px', marginTop: '2px' }}>{business.reviewCount || business.review_count || 0} Reviews</div>
                   </td>
                   <td style={{ padding: '16px 24px', fontSize: '14px', color: '#475569' }}>
-                    {new Date(business.created_at).toLocaleDateString()}
+                    {new Date(business.createdAt || business.created_at).toLocaleDateString()}
                   </td>
                   <td style={{ padding: '16px 24px', textAlign: 'right' }}>
                     <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', alignItems: 'center' }}>
-                      {/* Using existing DeleteButton component pattern */}
+                      <Link 
+                        href={`/businesses/${business.slug || business.id}/edit`}
+                        style={{ padding: '6px 12px', background: '#e2e8f0', color: '#475569', borderRadius: '6px', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}
+                      >
+                        Edit
+                      </Link>
                       <DeleteButton 
                         endpoint="/api/admin/businesses"
                         id={business.id}

@@ -20,6 +20,7 @@ return [
             'verification.*', 
             'logout',
             'dashboard', 
+            'businesses.*',
             'profile.*', 
             'vote', 
             'reports.*', 

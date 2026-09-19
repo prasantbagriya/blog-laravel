@@ -5,14 +5,26 @@ import BlogFooter from '../../NextComponents/BlogFooter';
 import { Mail, MapPin, Phone, Send, MessageSquare, ArrowRight, Clock, CheckCircle2 } from 'lucide-react';
 import { PageHero, InfoCard, AmberPillButton } from '../../NextComponents/UI';
 import AnimatedBorderCard from '../../Components/AnimatedBorderCard';
+import { useForm } from '@inertiajs/react';
 
 export default function Contact() {
     const [submitted, setSubmitted] = useState(false);
-    const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
+    const { data, setData, post, processing, errors, reset } = useForm({
+        name: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: ''
+    });
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        setSubmitted(true);
+        post(route('page.contact.submit'), {
+            onSuccess: () => {
+                setSubmitted(true);
+                reset();
+            }
+        });
     };
 
     const contactInfo = [
@@ -48,7 +60,21 @@ export default function Contact() {
 
     return (
         <div className="bg-white dark:bg-[#09090b] min-h-screen flex flex-col font-sans">
-            <Head title="Contact Us | Coaching Sikar" />
+            <Head>
+                <title>Contact Us | CoachinginSikar</title>
+                <meta name="description" content="Have a question about coaching or schools in Sikar? Reach out to the CoachingsinSikar team with suggestions, corrections, or topics you want us to cover next." />
+                <meta name="keywords" content="contact CoachingsinSikar, CoachingsinSikar contact, contact coaching guide Sikar, Sikar education contact, coaching information Sikar, education queries Sikar, coaching feedback Sikar" />
+                
+                {/* Open Graph / Facebook */}
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content="Contact CoachingsinSikar - Helpline Number, Email, Location" />
+                <meta property="og:description" content="Questions, corrections, or ideas for new guides? Use this contact page to reach the CoachingsinSikar team and help us improve our coverage of coaching and schools in Sikar." />
+                
+                {/* Twitter */}
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="Contact CoachingsinSikar" />
+                <meta name="twitter:description" content="Got a question about coaching or schools in Sikar? Send a message to the CoachingsinSikar team with your feedback, corrections, or topic suggestions." />
+            </Head>
             <GlobalNavbar />
 
             {/* Hero Section */}
@@ -130,7 +156,7 @@ export default function Contact() {
                                     Thank you for reaching out. Our team will get back to you within 24 hours.
                                 </p>
                                 <button
-                                    onClick={() => { setSubmitted(false); setForm({ name: '', email: '', subject: '', message: '' }); }}
+                                    onClick={() => setSubmitted(false)}
                                     className="mt-2 text-sm font-bold text-amber-600 dark:text-amber-400 hover:underline"
                                 >
                                     Send another message
@@ -145,52 +171,68 @@ export default function Contact() {
                                             <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1.5">Your Name</label>
                                             <input
                                                 type="text"
-                                                value={form.name}
-                                                onChange={e => setForm({ ...form, name: e.target.value })}
+                                                value={data.name}
+                                                onChange={e => setData('name', e.target.value)}
                                                 className="w-full px-4 py-3 bg-white dark:bg-zinc-800 border border-transparent hover:border-amber-400 dark:hover:border-amber-500 outline-none rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 transition-all"
                                                 placeholder="Rahul Sharma"
                                                 required
                                             />
+                                            {errors.name && <div className="text-red-500 text-xs mt-1">{errors.name}</div>}
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1.5">Email Address</label>
                                             <input
                                                 type="email"
-                                                value={form.email}
-                                                onChange={e => setForm({ ...form, email: e.target.value })}
+                                                value={data.email}
+                                                onChange={e => setData('email', e.target.value)}
                                                 className="w-full px-4 py-3 bg-white dark:bg-zinc-800 border border-transparent hover:border-amber-400 dark:hover:border-amber-500 outline-none rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 transition-all"
                                                 placeholder="rahul@example.com"
                                                 required
                                             />
+                                            {errors.email && <div className="text-red-500 text-xs mt-1">{errors.email}</div>}
                                         </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1.5">Phone Number (Optional)</label>
+                                        <input
+                                            type="tel"
+                                            value={data.phone}
+                                            onChange={e => setData('phone', e.target.value)}
+                                            className="w-full px-4 py-3 bg-white dark:bg-zinc-800 border border-transparent hover:border-amber-400 dark:hover:border-amber-500 outline-none rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 transition-all"
+                                            placeholder="+91 98765 43210"
+                                        />
+                                        {errors.phone && <div className="text-red-500 text-xs mt-1">{errors.phone}</div>}
                                     </div>
 
                                     <div>
                                         <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1.5">Subject</label>
                                         <input
                                             type="text"
-                                            value={form.subject}
-                                            onChange={e => setForm({ ...form, subject: e.target.value })}
+                                            value={data.subject}
+                                            onChange={e => setData('subject', e.target.value)}
                                             className="w-full px-4 py-3 bg-white dark:bg-zinc-800 border border-transparent hover:border-amber-400 dark:hover:border-amber-500 outline-none rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 transition-all"
                                             placeholder="What's this about?"
                                             required
                                         />
+                                        {errors.subject && <div className="text-red-500 text-xs mt-1">{errors.subject}</div>}
                                     </div>
 
                                     <div>
                                         <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1.5">Message</label>
                                         <textarea
-                                            value={form.message}
-                                            onChange={e => setForm({ ...form, message: e.target.value })}
+                                            value={data.message}
+                                            onChange={e => setData('message', e.target.value)}
                                             className="w-full px-4 py-3 bg-white dark:bg-zinc-800 border border-transparent hover:border-amber-400 dark:hover:border-amber-500 outline-none rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 transition-all h-32 resize-none"
                                             placeholder="Tell us how we can help you..."
                                             required
                                         ></textarea>
+                                        {errors.message && <div className="text-red-500 text-xs mt-1">{errors.message}</div>}
                                     </div>
 
-                                    <AmberPillButton type="submit" className="w-full mt-4">
+                                    <AmberPillButton type="submit" className="w-full mt-4" disabled={processing}>
                                         <Send className="w-4 h-4" />
-                                        Send Message
+                                        {processing ? 'Sending...' : 'Send Message'}
                                     </AmberPillButton>
                                 </form>
                             </>

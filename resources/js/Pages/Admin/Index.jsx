@@ -476,13 +476,13 @@ export default function AdminPage() {
           ============================================================ */}
       {activeTab === 'posts' && (
         <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-            <h3 style={{ fontSize: '1.125rem', fontWeight: 800, margin: 0 }}>Content Catalog ({posts.length} items)</h3>
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-              <a href={BASE + "/admin/export-seo"} style={{ background: '#10b981', color: '#fff', padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.875rem', fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 800, margin: 0, whiteSpace: 'nowrap' }}>Content Catalog ({posts.length} items)</h3>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexShrink: 0 }}>
+              <a href={BASE + "/admin/export-seo"} style={{ background: '#10b981', color: '#fff', padding: '0.5rem 0.75rem', borderRadius: '6px', fontSize: '0.8125rem', fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)', whiteSpace: 'nowrap', flexShrink: 0 }}>
                 Export SEO CSV
               </a>
-              <Link href={BASE + "/admin/posts/new"} style={{ background: 'var(--primary)', color: '#fff', padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.875rem', fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)' }}>
+              <Link href={BASE + "/admin/posts/new"} style={{ background: 'var(--primary)', color: '#fff', padding: '0.5rem 0.75rem', borderRadius: '6px', fontSize: '0.8125rem', fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)', whiteSpace: 'nowrap', flexShrink: 0 }}>
                 + Create New Post
               </Link>
             </div>

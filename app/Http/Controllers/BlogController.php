@@ -25,7 +25,12 @@ class BlogController extends Controller
             'posts' => $allPosts,
             'meta' => [
                 'title' => 'Blog | Coachinginsikar',
-                'description' => 'Read the latest education news, exam updates, and coaching strategies from Sikar on the Coachinginsikar blog.',
+                'description' => 'Read the newest blog articles from CoachinginSikar across Coachings, Schools, College, Olympiads, Results, News, and Education. Get updates, guides, and insights for students and parents in Sikar.',
+                'keywords' => 'CoachinginSikar blog, Sikar education blog, education articles Sikar, coaching institutes Sikar, schools in Sikar, colleges in Sikar, Sikar results, Olympiads Sikar, education news Sikar, hospitals in Sikar, school information, college guides, exam results, Olympiad updates, healthcare information, student resources',
+                'og_title' => 'CoachingsinSikar Blogs',
+                'og_description' => 'Stay updated with the newest articles on CoachingsinSikar. Explore fresh posts on Coachings, Schools, colleges, Olympiads, Results, news, and Education for students and parents in Sikar.',
+                'twitter_title' => 'CoachinginSikar Latest Education, Coaching, Schools & Blogs',
+                'twitter_description' => 'Follow the latest posts on CoachinginSikar. New articles on coaching, schools, colleges, olympiads, results, news, and education, updated regularly for students and parents in Sikar.',
                 'url' => url('/blog'),
                 'type' => 'website',
                 'og_image' => url('/uploads/social-cover.webp'),
@@ -34,7 +39,7 @@ class BlogController extends Controller
                         "@context" => "https://schema.org",
                         "@type" => "CollectionPage",
                         "headline" => "All Posts | Coachinginsikar Blog",
-                        "description" => "Read the latest education news, coaching updates, and exam results from Sikar.",
+                        "description" => "Read the newest blog articles from CoachinginSikar across Coachings, Schools, College, Olympiads, Results, News, and Education.",
                         "url" => url('/blog')
                     ],
                     [
@@ -390,6 +395,30 @@ class BlogController extends Controller
                 ];
             }
             $schemas[] = $lbSchema;
+        }
+
+        // 8. Custom Review/Product Schema for SEO Rating
+        $seoRatingData = $post->seoRating ?? $post->seo_rating ?? null;
+        if (is_string($seoRatingData)) {
+            $seoRatingData = json_decode($seoRatingData, true);
+        }
+
+        if (!empty($seoRatingData) && !empty($seoRatingData['ratingValue']) && !empty($seoRatingData['reviewCount'])) {
+            $productSchema = [
+                "@context" => "https://schema.org",
+                "@type" => "Product",
+                "name" => !empty($post->seoTitle) ? $post->seoTitle : $post->title,
+                "description" => $seoDescription,
+                "image" => !empty($post->coverImage) ? (str_starts_with($post->coverImage, 'http') ? $post->coverImage : url($post->coverImage)) : url('/uploads/logo.webp'),
+                "aggregateRating" => [
+                    "@type" => "AggregateRating",
+                    "ratingValue" => $seoRatingData['ratingValue'],
+                    "reviewCount" => $seoRatingData['reviewCount'],
+                    "bestRating" => "5",
+                    "worstRating" => "1"
+                ]
+            ];
+            $schemas[] = $productSchema;
         }
 
         $keywords = is_array($post->keywords) ? implode(',', $post->keywords) : ($post->keywords ?? '');

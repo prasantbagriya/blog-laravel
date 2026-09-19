@@ -38,7 +38,11 @@ class ReviewPageController extends Controller
      */
     public function business($categorySlug, $businessSlug)
     {
-        $business = Business::where('slug', $businessSlug)->first();
+        // Keep account ownership data server-side; it is only used to produce canEdit.
+        $business = Business::select([...Business::publicColumns(), 'user_id'])
+            ->where('slug', $businessSlug)
+            ->orWhere('id', $businessSlug)
+            ->first();
 
         if (!$business) {
             abort(404, 'Business Profile Not Found');
@@ -56,7 +60,7 @@ class ReviewPageController extends Controller
         return Inertia::render('Reviews/Index', [
             'initialView' => 'profile',
             'initialCategorySlug' => $canonicalCategory,
-            'businessData' => $business,
+            'businessData' => $business->publicPayload(request()->user()),
         ]);
     }
 }

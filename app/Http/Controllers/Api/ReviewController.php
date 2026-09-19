@@ -9,9 +9,15 @@ use App\Models\Business;
 
 class ReviewController extends Controller
 {
-    public function index($businessId, Request $request)
+    public function index($businessIdentifier, Request $request)
     {
-        $query = Review::where('business_id', $businessId)->where('status', 'published');
+        $business = Business::where('id', $businessIdentifier)->orWhere('slug', $businessIdentifier)->first();
+
+        if (!$business) {
+            return response()->json([]);
+        }
+
+        $query = Review::where('business_id', $business->id)->where('status', 'published');
 
         if ($request->filled('minRating')) {
             $query->where('rating', '>=', $request->minRating);
@@ -69,11 +75,25 @@ class ReviewController extends Controller
             return response()->json(['error' => 'Review not found'], 404);
         }
 
+        $business = Business::find($review->business_id);
+        $user = $request->user();
+        $canAdminister = $user && (
+            in_array($user->role, ['admin', 'super_admin'], true)
+            || (bool) $user->getAttribute('is_admin')
+        );
+        if (!$user || !$business || (!$canAdminister && $business->user_id !== $user->id)) {
+            return response()->json(['error' => 'Only the listing owner can reply to this review'], 403);
+        }
+
+        $validated = $request->validate([
+            'content' => 'required|string|max:3000',
+        ]);
+
         $review->business_reply = [
             'id' => 'rep-' . time(),
-            'authorName' => $request->input('authorName', 'Official Representative'),
-            'authorRole' => $request->input('authorRole', 'Business Manager'),
-            'content' => $request->input('content'),
+            'authorName' => $business->name,
+            'authorRole' => 'Official representative',
+            'content' => $validated['content'],
             'createdAt' => now()->toDateString(),
             'isAiGenerated' => (bool) $request->input('isAiGenerated')
         ];

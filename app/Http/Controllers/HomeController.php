@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use App\Models\Post;
 use App\Models\Story;
 use App\Models\Community;
@@ -12,24 +11,48 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $homeData = \Illuminate\Support\Facades\Cache::remember('homepage_data_v3', 3600, function () {
-            // Fetch only 14 posts instead of ALL published posts to save memory/time
-            $publishedPosts = Post::where('published', true)
-                                  ->orderBy('date', 'desc')
-                                  ->limit(14)
-                                  ->get()
-                                  ->toArray();
-            
-            $featuredPost = $publishedPosts[0] ?? null;
-            $recentPosts = array_slice($publishedPosts, 1, 3);
-            $morePosts = array_slice($publishedPosts, 4, 10);
+        $homeData = \Illuminate\Support\Facades\Cache::remember('homepage_data_v6', 3600, function () {
+            // Only send fields rendered on the home page.  The previous payload included
+            // full post content, SEO metadata, and JSON fields that are not displayed here.
+            $morePosts = Post::where('published', true)
+                ->select(['id', 'slug', 'title', 'coverImage', 'category', 'date'])
+                ->orderBy('date', 'desc')
+                ->offset(4)
+                ->limit(4)
+                ->get()
+                ->toArray();
 
-            $publishedStories = Story::where('published', true)->take(4)->get()->toArray();
-            $sliders = \App\Models\Slider::where('active', true)->orderBy('order', 'asc')->get()->toArray();
+            $publishedStories = Story::where('published', true)
+                ->select(['id', 'slug', 'title', 'posterImage'])
+                ->take(4)
+                ->get()
+                ->toArray();
+            $sliders = \App\Models\Slider::where('active', true)
+                ->select(['id', 'image_url', 'order'])
+                ->orderBy('order', 'asc')
+                ->get()
+                ->map(function ($slider) {
+                    $slider->image_url = $this->responsiveImageUrl($slider->image_url, 672);
 
-            $categories = \App\Models\Category::all()->toArray();
-            $authors = \App\Models\Author::all()->toArray();
-            $featuredBusinesses = \App\Models\Business::orderBy('rating', 'desc')->take(4)->get()->toArray();
+                    return $slider;
+                })
+                ->toArray();
+
+            $categories = \App\Models\Category::select(['id', 'name', 'slug', 'description'])->get()->toArray();
+            $featuredBusinesses = \App\Models\Business::select([
+                    'id', 'name', 'slug', 'logo', 'category', 'category_name',
+                    'rating', 'review_count', 'trust_score', 'is_verified',
+                ])
+                ->orderBy('rating', 'desc')
+                ->take(4)
+                ->get()
+                ->map(function ($business) {
+                    $business->logo = $this->responsiveImageUrl($business->logo, 384);
+
+                    return $business;
+                })
+                ->toArray();
+            $heroImage = $sliders[0]['image_url'] ?? $this->responsiveImageUrl('/uploads/background.webp', 672);
 
             $feedPosts = Post::with(['author', 'community'])
                 ->whereNotNull('community_id')
@@ -67,23 +90,28 @@ class HomeController extends Controller
                 })->toArray();
 
             return [
-                'featuredPost' => $featuredPost,
-                'recentPosts' => $recentPosts,
                 'morePosts' => $morePosts,
                 'categories' => $categories,
-                'authors' => $authors,
                 'publishedStories' => $publishedStories,
                 'sliders' => $sliders,
                 'featuredBusinesses' => $featuredBusinesses,
                 'feedPosts' => $feedPosts,
                 'topCommunities' => $topCommunities,
                 'meta' => [
-                    'title' => 'coachinginsikar | Education News, Exams & Coaching Updates',
-                    'description' => 'CoachingsinsSikar brings you the latest education news, exam results, Olympiads, coaching updates, and school information from Sikar and beyond. Our goal is to provide students and parents with simple, useful, and reliable education updates in one place. Stay informed with clear and relevant content to make better academic decisions.',
+                    'title' => 'CoachinginSikar: JEE, NEET, CA, CLAT & School Guide',
+                    'description' => 'Find and compare the best coaching institutes and schools in Sikar. Honest guides on JEE, NEET, CA, CLAT, RBSE, and ICSE schools to help students and parents choose wisely.',
+                    'keywords' => 'CoachinginSikar, best CoachinginSikar, JEE coaching Sikar, NEET coaching Sikar, CA coaching Sikar, CLAT coaching Sikar, RBSE school Sikar, ICSE school Sikar, compare coaching institutes, education guide Sikar, top coaching centres Sikar, Sikar education blog',
+                    'og_title' => 'CoachinginSikar - Guide to JEE, NEET, CA, CLAT & Schools',
+                    'og_description' => 'Check out the best coaching institutes and schools in Sikar. Compare JEE, NEET, CA, CLAT, RBSE and ICSE options to find which is best.',
+                    'twitter_title' => 'CoachingsinSikar - JEE, NEET, CA, CLAT, NDA, Schools, & Hospital',
+                    'twitter_description' => 'A simple, local guide to the best coaching institutes and schools in Sikar. Compare options for JEE, NEET, CA, CLAT, RBSE, and ICSE with clear, practical info.',
                     'url' => url('/'),
                     'type' => 'website',
                     'og_image' => url('/uploads/social-cover.webp'),
                     'twitter_card' => 'summary_large_image',
+                    // Blade emits this before the JavaScript application starts, allowing
+                    // the browser to request the LCP image immediately.
+                    'preload_image' => $heroImage,
                     'schemas' => [
                         [
                             "@context" => "https://schema.org",
@@ -179,6 +207,15 @@ class HomeController extends Controller
             }
         }
 
-        return Inertia::render('Welcome', $homeData);
+        return view('home', $homeData);
+    }
+
+    private function responsiveImageUrl(?string $imageUrl, int $width): ?string
+    {
+        if (! $imageUrl || ! str_starts_with($imageUrl, '/uploads/')) {
+            return $imageUrl;
+        }
+
+        return '/images/' . $width . '/' . ltrim(substr($imageUrl, strlen('/uploads/')), '/');
     }
 }
