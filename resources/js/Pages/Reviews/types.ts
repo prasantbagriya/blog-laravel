@@ -89,7 +89,8 @@ export interface ProductOrService {
 
 export interface Business {
   id: string;
-  userId?: number;
+  /** Calculated by the server; the owner account ID is never sent to browsers. */
+  canEdit?: boolean;
   name: string;
   slug: string;
   logo: string;
@@ -137,6 +138,9 @@ export interface Business {
   faqs?: { question: string; answer: string }[];
   tags: string[];
   monthlyVisitorsCount?: number;
+  detailedDescription?: string;
+  detailed_description?: string;
+  opening_hours?: string;
 }
 
 export interface AiReviewAnalysis {

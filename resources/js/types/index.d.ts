@@ -17,6 +17,7 @@ interface Post {
   faqs?: { question: string; answer: string }[];
   howToSteps?: { name: string; text: string }[];
   localBusiness?: { name: string; telephone: string; ratingValue: string; reviewCount: string; priceRange: string; streetAddress: string; addressLocality: string; addressRegion: string; postalCode: string; addressCountry: string; };
+  seoRating?: { ratingValue: string; reviewCount: string; };
   keyTakeaways?: string[];
   targetRegion?: string;
   targetLanguage?: string;
