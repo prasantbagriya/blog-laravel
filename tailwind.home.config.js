@@ -9,6 +9,7 @@ export default {
     content: [
         './resources/views/home.blade.php',
         './resources/js/Pages/Welcome.jsx',
+        './resources/js/Pages/HomeComponents/**/*.jsx',
         './resources/js/NextComponents/GlobalNavbar.tsx',
         './resources/js/NextComponents/BlogFooter.tsx',
         './resources/js/NextComponents/BrandIcons.tsx',

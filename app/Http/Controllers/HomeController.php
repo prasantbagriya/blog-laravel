@@ -176,6 +176,25 @@ class HomeController extends Controller
         //     }
         // });
 
+        $viewData = [
+            'morePosts' => $homeData['morePosts'] ?? [],
+            'publishedStories' => $homeData['publishedStories'] ?? [],
+            'sliders' => $homeData['sliders'] ?? [],
+            'categories' => $homeData['categories'] ?? [],
+            'meta' => $homeData['meta'] ?? [],
+        ];
+
+        return view('home', $viewData);
+    }
+
+    public function getFeedData()
+    {
+        $homeData = \Illuminate\Support\Facades\Cache::get('homepage_data_v6');
+        if (!$homeData) {
+            $this->index();
+            $homeData = \Illuminate\Support\Facades\Cache::get('homepage_data_v6');
+        }
+
         if (!isset($homeData['topCommunities'])) {
             $homeData['topCommunities'] = [];
         }
@@ -207,7 +226,11 @@ class HomeController extends Controller
             }
         }
 
-        return view('home', $homeData);
+        return response()->json([
+            'featuredBusinesses' => $homeData['featuredBusinesses'] ?? [],
+            'feedPosts' => $homeData['feedPosts'],
+            'topCommunities' => $homeData['topCommunities'],
+        ]);
     }
 
     private function responsiveImageUrl(?string $imageUrl, int $width): ?string

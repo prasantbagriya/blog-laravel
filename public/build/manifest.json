@@ -1108,6 +1108,47 @@
       "_x-CRh4ES4g.js"
     ]
   },
+  "resources/js/Pages/HomeComponents/CommunityFeedSection.jsx": {
+    "file": "assets/CommunityFeedSection-CAVhTAuG.js",
+    "name": "CommunityFeedSection",
+    "src": "resources/js/Pages/HomeComponents/CommunityFeedSection.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_jsx-runtime-CdvZGgm7.js",
+      "_client-Bn-oZImt.js",
+      "_chevron-right-BF12pOwx.js",
+      "_message-square-CkMdqLGG.js",
+      "_share-2-3MbM1hIX.js",
+      "_trending-up-fcsKsr1I.js",
+      "resources/js/home.jsx"
+    ],
+    "dynamicImports": [
+      "resources/js/Components/ShareModal.jsx"
+    ]
+  },
+  "resources/js/Pages/HomeComponents/InstitutesSection.jsx": {
+    "file": "assets/InstitutesSection-Bg2tojSz.js",
+    "name": "InstitutesSection",
+    "src": "resources/js/Pages/HomeComponents/InstitutesSection.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_jsx-runtime-CdvZGgm7.js",
+      "_map-pin-Bh7r48OL.js",
+      "_shield-check-BtPR3CH7.js",
+      "_star-BOh-o0Bl.js",
+      "resources/js/home.jsx"
+    ]
+  },
+  "resources/js/Pages/HomeComponents/TrustMarquee.jsx": {
+    "file": "assets/TrustMarquee-DYuaiWo1.js",
+    "name": "TrustMarquee",
+    "src": "resources/js/Pages/HomeComponents/TrustMarquee.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_jsx-runtime-CdvZGgm7.js",
+      "_graduation-cap-BoMs--p9.js"
+    ]
+  },
   "resources/js/Pages/Post/Create.jsx": {
     "file": "assets/Create-B9PXzyhM.js",
     "name": "Create",
@@ -1467,7 +1508,7 @@
     ]
   },
   "resources/js/home.jsx": {
-    "file": "assets/home-Dh6CJ3ag.js",
+    "file": "assets/home-EbGMEgzF.js",
     "name": "home",
     "src": "resources/js/home.jsx",
     "isEntry": true,
@@ -1477,26 +1518,25 @@
       "_createLucideIcon-DhQ-2kO0.js",
       "_book-open-BfPkDqfT.js",
       "_chevron-down-VY4GgAki.js",
-      "_chevron-right-BF12pOwx.js",
       "_circle-check-DbqZnjkA.js",
       "_graduation-cap-BoMs--p9.js",
-      "_map-pin-Bh7r48OL.js",
       "_message-square-CkMdqLGG.js",
       "_GlobalNavbar-By08Dt95.js",
       "_search-CY23itgq.js",
-      "_share-2-3MbM1hIX.js",
       "_shield-check-BtPR3CH7.js",
       "_star-BOh-o0Bl.js",
       "_target-WcGNnWAh.js",
-      "_trending-up-fcsKsr1I.js",
       "_BlogFooter-Ce4U01_N.js",
       "_AnimatedBorderCard-BEjoCKcF.js"
     ],
     "dynamicImports": [
+      "resources/js/Pages/HomeComponents/TrustMarquee.jsx",
+      "resources/js/Pages/HomeComponents/InstitutesSection.jsx",
+      "resources/js/Pages/HomeComponents/CommunityFeedSection.jsx",
       "resources/js/Components/ShareModal.jsx"
     ],
     "css": [
-      "assets/home-BsNiRaX2.css"
+      "assets/home-B4IVSkf2.css"
     ]
   }
 }

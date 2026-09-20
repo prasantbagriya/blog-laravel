@@ -212,6 +212,18 @@
   "resources/js/Pages/Dashboard.jsx": [
     "/build/assets/Dashboard-Dyo_sTOF.js"
   ],
+  "resources/js/Pages/HomeComponents/CommunityFeedSection.jsx": [
+    "/build/assets/CommunityFeedSection-E6zmeeFR.js"
+  ],
+  "resources/js/Pages/HomeComponents/InstitutesSection.jsx": [
+    "/build/assets/InstitutesSection-CbLdzeeU.js"
+  ],
+  "resources/js/Pages/HomeComponents/TrustMarquee.jsx": [
+    "/build/assets/TrustMarquee-CZBLeB9b.js"
+  ],
+  "resources/js/Pages/HomeComponents/utils.jsx": [
+    "/build/assets/utils-BjQF728w.js"
+  ],
   "resources/js/Pages/Post/Create.jsx": [
     "/build/assets/Create-YLDEVjqn.js"
   ],
@@ -287,7 +299,7 @@
     "/build/assets/Show-DE9zTaJ9.js"
   ],
   "resources/js/Pages/Welcome.jsx": [
-    "/build/assets/Welcome-CRyKZuE9.js"
+    "/build/assets/Welcome-kKe2MZXE.js"
   ],
   "resources/js/ssr.jsx": []
 }

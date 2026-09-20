@@ -62,6 +62,10 @@ createServer((page) => createInertiaApp({
 		"./Pages/Community/ModQueue.jsx": () => import("./assets/ModQueue-D2p4rdJn.js"),
 		"./Pages/Community/Show.jsx": () => import("./assets/Show-D06_kRSn.js"),
 		"./Pages/Dashboard.jsx": () => import("./assets/Dashboard-Dyo_sTOF.js"),
+		"./Pages/HomeComponents/CommunityFeedSection.jsx": () => import("./assets/CommunityFeedSection-E6zmeeFR.js"),
+		"./Pages/HomeComponents/InstitutesSection.jsx": () => import("./assets/InstitutesSection-CbLdzeeU.js"),
+		"./Pages/HomeComponents/TrustMarquee.jsx": () => import("./assets/TrustMarquee-CZBLeB9b.js"),
+		"./Pages/HomeComponents/utils.jsx": () => import("./assets/utils-BjQF728w.js"),
 		"./Pages/Post/Create.jsx": () => import("./assets/Create-YLDEVjqn.js"),
 		"./Pages/Post/Show.jsx": () => import("./assets/Show-DceNy5-X.js"),
 		"./Pages/Profile/Edit.jsx": () => import("./assets/Edit-Bc839C9Z.js"),
@@ -84,7 +88,7 @@ createServer((page) => createInertiaApp({
 		"./Pages/Static/Terms.jsx": () => import("./assets/Terms-BJ21SGGz.js"),
 		"./Pages/Story/Index.jsx": () => import("./assets/Index-CSMd_vW0.js"),
 		"./Pages/User/Show.jsx": () => import("./assets/Show-DE9zTaJ9.js"),
-		"./Pages/Welcome.jsx": () => import("./assets/Welcome-CRyKZuE9.js")
+		"./Pages/Welcome.jsx": () => import("./assets/Welcome-kKe2MZXE.js")
 	})),
 	setup({ App, props }) {
 		return /* @__PURE__ */ jsx(App, { ...props });

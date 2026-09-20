@@ -1,6 +1,11 @@
 import GlobalNavbar from '../NextComponents/GlobalNavbar';
 import BlogFooter from '../NextComponents/BlogFooter';
 import React, { useState, useEffect, Suspense } from 'react';
+import { Link, navigate, postHomeAction, Image } from './HomeComponents/utils';
+const TrustMarquee = React.lazy(() => import('./HomeComponents/TrustMarquee'));
+const InstitutesSection = React.lazy(() => import('./HomeComponents/InstitutesSection'));
+const CommunityFeedSection = React.lazy(() => import('./HomeComponents/CommunityFeedSection'));
+
 import AnimatedBorderCard from '../Components/AnimatedBorderCard';
 const ShareModal = React.lazy(() => import('../Components/ShareModal'));
 import { Search, ChevronRight, GraduationCap, Award, Star, ArrowRight, ShieldCheck, PlayCircle, Library, MapPin, CheckCircle2, MessageSquare, ThumbsUp, TrendingUp, ChevronDown, BookOpen, TestTube, Target, Scale, Beaker, Backpack, Share2, Bookmark } from 'lucide-react';
@@ -8,44 +13,9 @@ import { Search, ChevronRight, GraduationCap, Award, Star, ArrowRight, ShieldChe
 // The home page is served as a small standalone React application. These are
 // intentionally regular links and fetch requests so it does not download the
 // much larger Inertia application bundle just to render the public landing page.
-const Link = ({ href, children, ...props }) => <a href={href} {...props}>{children}</a>;
 
-const navigate = (url) => window.location.assign(url);
 
-const postHomeAction = async (url, data = {}) => {
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-    const response = await fetch(url, {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-            ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {}),
-        },
-        body: JSON.stringify(data),
-    });
 
-    // Laravel's auth middleware and successful actions both redirect. Sending
-    // the browser to that target preserves the old Inertia behaviour.
-    if (response.redirected) {
-        navigate(response.url);
-        return;
-    }
-
-    if (response.ok) {
-        window.location.reload();
-    }
-};
-
-// Simple polyfill for Next.js Image
-const Image = ({ src, alt, fill, style, sizes, priority, fetchPriority, className, ...props }) => {
-    const imgStyle = fill ? { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%', ...style } : style;
-    const finalFetchPriority = priority ? 'high' : (fetchPriority || 'auto');
-    const loadingAttr = priority ? 'eager' : 'lazy';
-    
-    return <img src={src} alt={alt} style={imgStyle} sizes={sizes} fetchPriority={finalFetchPriority} loading={loadingAttr} decoding={priority ? 'sync' : 'async'} className={className} {...props} />;
-};
 
 const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses, fallbackImage }) => {
     const [searchQuery, setSearchQuery] = useState("");
@@ -311,290 +281,7 @@ const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses, fall
 };
 
 
-const TrustMarquee = ({ categories }) => {
-    // Generate some placeholder trust logos based on categories or a static list
-    const items = categories && categories.length > 0 ? categories : [
-        {name: "Engineering", id: 1}, {name: "Medical", id: 2}, {name: "Foundation", id: 3}, 
-        {name: "Commerce", id: 4}, {name: "Arts", id: 5}, {name: "Law", id: 6}
-    ];
 
-    return (
-        <section className="py-6 bg-white dark:bg-zinc-900 border-b border-slate-100 dark:border-zinc-800 overflow-hidden">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-4">
-                <p className="text-xs font-bold text-slate-600 dark:text-zinc-400 tracking-wider">Trusted Categories &amp; Streams</p>
-            </div>
-            <div className="relative flex w-full flex-nowrap overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
-                <div className="flex animate-marquee items-center justify-center space-x-8 md:space-x-16 whitespace-nowrap">
-                    {[...items, ...items, ...items].map((item, idx) => (
-                        <div key={`${item.id}-${idx}`} className="text-slate-400 dark:text-zinc-500 font-bold text-xl md:text-2xl opacity-60 hover:opacity-100 transition-opacity flex items-center gap-2">
-                            <GraduationCap className="w-6 h-6" /> {item.name}
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </section>
-    );
-};
-
-const InstitutesSection = ({ featuredBusinesses, basePath }) => {
-    const businesses = featuredBusinesses || [];
-    if(businesses.length === 0) return null;
-    
-    return (
-        <section id="top-institutes" className="pt-10 pb-0 md:pt-14 md:pb-0 bg-white dark:bg-zinc-950 border-b border-slate-200 dark:border-zinc-800">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-end mb-8 md:mb-10">
-                    <div>
-                        <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Top Coaching Institutes in Sikar</h2>
-                        <p className="text-slate-500 dark:text-zinc-400 mt-2 text-base md:text-lg">Explore institutes based on courses, reviews, results and available information.</p>
-                    </div>
-                    <Link href={`${basePath}/reviews`} className="hidden md:block bg-blue-600 hover:bg-blue-700 text-white text-center font-medium py-2 px-4 rounded-md transition-colors text-sm">
-                        View All
-                    </Link>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {businesses.map((biz) => {
-                        const categorySlug = biz.category || 'coaching-institutes';
-                        const reviewUrl = `${basePath}/reviews/${categorySlug}/${biz.slug || biz.id}`;
-                        
-                        return (
-                        <article key={biz.id} className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden border border-slate-200 dark:border-zinc-800 hover:-translate-y-1 transition-all duration-300 flex flex-col group">
-                            <Link href={reviewUrl} className="relative aspect-[16/9] w-full block overflow-hidden bg-slate-100 dark:bg-zinc-800 flex items-center justify-center p-4">
-                                <Image src={biz.logo || '/uploads/read.webp'} alt={biz.name} fill width="672" height="378" style={{objectFit: 'contain'}} className="group-hover:scale-105 transition-transform duration-500" />
-                            </Link>
-                            
-                            <div className="p-4 md:p-5 flex-grow flex flex-col border-t border-slate-100 dark:border-zinc-800">
-                                <h3 className="text-base md:text-lg font-bold text-slate-900 dark:text-white leading-snug mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                    <Link href={reviewUrl} className="focus:outline-none">{biz.name}</Link>
-                                </h3>
-                                
-                                <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500 dark:text-zinc-400 mb-3">
-                                    <span className="inline-flex items-center gap-1 text-amber-700 dark:text-amber-400 font-semibold">
-                                        <Star className="w-3.5 h-3.5 fill-amber-700 dark:fill-amber-400" /> {biz.rating || 4.5}
-                                    </span>
-                                    <span className="inline-flex items-center gap-1">
-                                        <ShieldCheck className="w-3.5 h-3.5 text-blue-500" /> Trust: {biz.trust_score || biz.trustScore || 85}/100
-                                    </span>
-                                </div>
-                                
-                                <div className="flex flex-wrap gap-1.5 mb-4">
-                                    <span className="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-semibold px-2 py-0.5 rounded border border-blue-100 dark:border-blue-800/30">{biz.category_name || biz.categoryName || biz.category}</span>
-                                    {biz.isVerified && <span className="bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-semibold px-2 py-0.5 rounded border border-green-200 dark:border-green-800/30 flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> Verified</span>}
-                                    {biz.location && <span className="bg-slate-50 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-semibold px-2 py-0.5 rounded border border-slate-200 dark:border-zinc-700 flex items-center gap-1"><MapPin size={12}/>{biz.location}</span>}
-                                </div>
-                                
-                                <div className="mt-auto pt-4 border-t border-slate-100 dark:border-zinc-800 space-y-1 text-sm text-slate-600 dark:text-zinc-400">
-                                    <Link href={reviewUrl} className="block w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-black dark:hover:bg-slate-100 text-center font-bold py-2.5 rounded-xl transition-all shadow-sm active:scale-[0.98] text-sm">
-                                        Read Reviews ({biz.review_count || biz.reviewCount || 0})
-                                    </Link>
-                                </div>
-                            </div>
-                        </article>
-                    )})}
-                </div>
-            </div>
-        </section>
-    );
-};
-
-const CommunityFeedSection = ({ basePath, feedPosts, topCommunities }) => {
-    const displayPosts = feedPosts || [];
-    const displayCommunities = topCommunities || [];
-    const [shareModalOpen, setShareModalOpen] = useState(false);
-    const [shareData, setShareData] = useState({ url: '', title: '' });
-
-    return (
-        <section className="pt-6 pb-10 md:pt-10 md:pb-14 bg-slate-50 dark:bg-zinc-950 relative border-b border-slate-200 dark:border-zinc-800">
-            <Suspense fallback={null}>
-                {shareModalOpen && (
-                    <ShareModal 
-                        isOpen={shareModalOpen} 
-                        onClose={() => setShareModalOpen(false)} 
-                        url={shareData.url} 
-                        title={shareData.title} 
-                    />
-                )}
-            </Suspense>
-            {/* Subtle background pattern */}
-            <div className="absolute inset-0 opacity-[0.03] dark:opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
-            
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 md:mb-12 gap-4">
-                    <div>
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-bold tracking-wider mb-4 border border-blue-200 dark:border-blue-800/30">
-                            <MessageSquare size={14} /> Student Community
-                        </div>
-                        <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">Recent Discussions</h2>
-                        <p className="text-slate-600 dark:text-zinc-400 mt-3 text-base md:text-lg max-w-2xl">Join the conversation with thousands of students. Share study materials, ask doubts, and get exam strategies.</p>
-                    </div>
-                    <Link href="/feed" className="text-blue-600 font-bold hover:text-blue-700 transition-colors flex items-center gap-1 group shrink-0 whitespace-nowrap hidden md:inline-flex">
-                        View All Feed <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                </div>
-                
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
-                    {/* Main Feed Column */}
-                    <div className="lg:col-span-8 space-y-5">
-                        {displayPosts.length > 0 ? displayPosts.map((post) => (
-                            <div key={post.id} onClick={() => navigate(`${basePath}/r/${post.community}/comments/${post.id}`)} className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-blue-300 dark:hover:border-blue-700 rounded-2xl p-5 md:p-6 flex gap-4 transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
-                                {/* Upvote Sidebar */}
-                                <div className="hidden sm:flex flex-col items-center gap-2 min-w-[44px]">
-                                    <button 
-                                        onClick={(e) => { 
-                                            e.stopPropagation(); 
-                                            postHomeAction(`${basePath}/vote`, { votable_type: 'post', votable_id: post.id, value: 1 });
-                                        }}
-                                        className={`p-1.5 rounded-full transition-colors border-none outline-none focus:outline-none ring-0 focus:ring-0 ${post.has_voted ? 'text-white bg-amber-500 shadow-md shadow-amber-500/20' : 'text-slate-400 dark:text-zinc-500 hover:text-white hover:bg-amber-500 hover:shadow-md hover:shadow-amber-500/20'}`}
-                                        title={post.has_voted ? 'Upvoted' : 'Upvote'}
-                                    >
-                                        <TrendingUp size={20} />
-                                    </button>
-                                    <span className={`font-bold text-sm ${post.has_voted ? 'text-amber-500' : 'text-slate-800 dark:text-zinc-300'}`}>{post.score}</span>
-                                </div>
-                                
-                                {/* Post Content */}
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-zinc-500 mb-3 flex-wrap">
-                                        <span className="font-extrabold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded text-[11px] uppercase tracking-wider border border-blue-100 dark:border-blue-800/30">
-                                            r/{post.community}
-                                        </span>
-                                        <span>•</span>
-                                        <span>Posted by <span className="font-bold text-slate-700 dark:text-zinc-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">u/{post.author?.username || post.author}</span></span>
-                                        <span>•</span>
-                                        <span>{post.created_at ? new Date(post.created_at).toLocaleDateString() : post.time}</span>
-                                    </div>
-                                    <h3 className="font-bold text-slate-900 dark:text-white text-lg md:text-xl mb-3 leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2 break-words">
-                                        {post.title}
-                                    </h3>
-                                    
-                                    {post.type === 'TEXT' && post.content && (
-                                        <p className="text-slate-600 dark:text-zinc-400 text-sm line-clamp-2 mb-3 leading-relaxed">
-                                            {post.content.replace(/<[^>]*>?/gm, '')}
-                                        </p>
-                                    )}
-                                    
-                                    {/* Action Buttons — same style as PostCard */}
-                                    <div className="flex gap-2 -ml-1.5 mt-2 flex-nowrap whitespace-nowrap overflow-x-auto pb-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                                        {/* Mobile upvote pill */}
-                                        <button
-                                            onClick={(e) => { e.stopPropagation(); postHomeAction(`${basePath}/vote`, { votable_type: 'post', votable_id: post.id, value: 1 }); }}
-                                            className={`shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl transition-colors font-bold text-[13px] border-0 outline-none focus:outline-none focus:ring-0 sm:hidden ${post.has_voted ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' : 'bg-slate-100 dark:bg-zinc-800 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-slate-600 dark:text-zinc-300 hover:text-amber-600 dark:hover:text-amber-400'}`}
-                                        >
-                                            <TrendingUp size={16} className={post.has_voted ? 'text-amber-500' : ''} />
-                                            <span className={post.has_voted ? 'text-amber-500' : ''}>{post.score}</span>
-                                        </button>
-                                        {/* Comments */}
-                                        <Link
-                                            href={`/r/${post.community}/comments/${post.id}`}
-                                            onClick={(e) => e.stopPropagation()}
-                                            className="shrink-0 whitespace-nowrap flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 px-3 py-2 rounded-xl transition-colors font-bold text-[13px]"
-                                        >
-                                            <MessageSquare size={16} className="text-blue-500" />
-                                            {post.comments_count || post.comments} Comments
-                                        </Link>
-                                        {/* Share */}
-                                        <button
-                                            onClick={(e) => { 
-                                                e.stopPropagation(); 
-                                                setShareData({
-                                                    url: `${window.location.origin}/r/${post.community}/comments/${post.id}`,
-                                                    title: post.title
-                                                });
-                                                setShareModalOpen(true);
-                                            }}
-                                            className="shrink-0 whitespace-nowrap flex items-center gap-2 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 px-3 py-2 rounded-xl transition-colors font-bold text-[13px] text-slate-600 dark:text-zinc-300 border-0 outline-none focus:outline-none focus:ring-0"
-                                        >
-                                            <Share2 size={16} strokeWidth={2} className="text-slate-500 dark:text-zinc-400" />
-                                            Share
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        )) : (
-                            <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-10 text-center flex flex-col items-center justify-center">
-                                <MessageSquare size={48} className="text-slate-300 dark:text-zinc-700 mb-4" />
-                                <h3 className="text-xl font-bold text-slate-700 dark:text-zinc-300 mb-2">No discussions yet</h3>
-                                <p className="text-slate-500 dark:text-zinc-500 mb-6">Be the first to start a conversation in our community.</p>
-                                <Link href="/submit" className="px-6 py-2 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-colors shadow-md">
-                                    Create a Post
-                                </Link>
-                            </div>
-                        )}
-                        <Link href="/feed" className="md:hidden flex w-full justify-center items-center gap-1 text-blue-600 font-bold hover:text-blue-700 transition-colors group mt-2">
-                            View All Feed <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                        </Link>
-                    </div>
-                    
-                    {/* Sidebar Column */}
-                    <div className="lg:col-span-4 space-y-6">
-                        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden relative">
-                            {/* Accent Header */}
-                            <div className="h-2 w-full bg-gradient-to-r from-blue-500 to-amber-500"></div>
-                            
-                            <div className="p-6">
-                                <h3 className="font-bold text-xl text-slate-900 dark:text-white mb-5">Top Communities</h3>
-                                <div className="divide-y divide-slate-100 dark:divide-zinc-800">
-                                    {displayCommunities.length > 0 ? displayCommunities.map((community, index) => (
-                                        <Link key={community.id} href={`/community/${community.name}`} className="p-5 flex items-center gap-4 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors cursor-pointer group">
-                                            <div className="font-bold text-slate-300 dark:text-zinc-700 group-hover:text-blue-500 transition-colors w-4">{index + 1}</div>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center justify-between mb-1">
-                                                    <h4 className="font-bold text-slate-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{community.display_name || `r/${community.name}`}</h4>
-                                                </div>
-                                                <p className="text-xs text-slate-500 dark:text-zinc-400 line-clamp-1 mb-1">
-                                                    {community.description || `Welcome to the ${community.display_name || community.name} community. Join the discussion!`}
-                                                </p>
-                                                <div className="text-xs font-bold text-slate-500 dark:text-zinc-500 flex items-center gap-2 mt-0.5">
-                                                    <span className="flex items-center gap-1.5 bg-slate-100 text-slate-600 dark:bg-zinc-800/80 dark:text-zinc-300 px-2 py-0.5 rounded-md">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                                        {(() => {
-                                                            let count = community.members_count || community.members;
-                                                            let numCount = parseInt(count);
-                                                            if (!count || isNaN(numCount) || numCount < 10 || String(count).includes('+')) {
-                                                                const fakeCounts = [450, 1200, 890, 520, 2100, 340, 670, 410, 950, 1500, 800, 300, 250, 750, 1100];
-                                                                count = fakeCounts[(community.id || index) % fakeCounts.length];
-                                                            }
-                                                            const num = Number(count);
-                                                            if (isNaN(num)) return count + ' members';
-                                                            if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k members';
-                                                            return num + ' members';
-                                                        })()}
-                                                    </span>
-                                                    <span className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-100 dark:border-emerald-500/20"><TrendingUp size={12} /> Hot</span>
-                                                </div>
-                                            </div>
-                                            <button 
-                                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); postHomeAction(`${basePath}/community/${community.id}/join`); }}
-                                                className={`px-4 py-1.5 text-xs font-bold rounded-full transition-all border ${community.is_joined ? 'border-transparent bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700' : 'border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-600 hover:border-blue-600 hover:text-white dark:hover:bg-blue-600 dark:hover:border-blue-600 dark:hover:text-white shadow-sm'}`}
-                                            >
-                                                {community.is_joined ? 'Joined' : 'Join'}
-                                            </button>
-                                        </Link>
-                                    )) : (
-                                        <div className="p-8 text-center">
-                                            <p className="text-sm font-bold text-slate-500 dark:text-zinc-500 mb-4">No top communities yet</p>
-                                            <Link href="/communities/create" className="text-xs font-bold text-blue-600 bg-blue-50 px-4 py-2 rounded-full hover:bg-blue-100 transition-colors">Create one</Link>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div className="bg-slate-900 rounded-2xl p-6 text-white text-center shadow-lg relative overflow-hidden border border-slate-700">
-                            <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-                            <h3 className="font-bold text-xl mb-2 relative z-10 text-white">Have a Question?</h3>
-                            <p className="text-slate-200 text-sm mb-5 relative z-10">Get answers from toppers and expert faculty in Sikar.</p>
-                            <Link href={`${basePath}/contact`} className="btn-amber px-6 py-2.5 w-full block relative z-10 shadow-lg shadow-amber-500/20 hover:scale-105 transition-transform text-slate-900 font-bold rounded-full">
-                                Ask Now
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    );
-};
 
 const BlogSection = ({ morePosts, basePath, formatDate }) => {
     const posts = (morePosts || []).slice(0, 4);
@@ -1008,9 +695,15 @@ export default function Welcome(props) {
             
             <main>
                 <HomeHero activeSlides={sliders || []} basePath={basePath} categories={categories || []} featuredBusinesses={featuredBusinesses || []} fallbackImage={meta?.preload_image} />
-                <TrustMarquee categories={categories || []} />
-                <InstitutesSection featuredBusinesses={featuredBusinesses || []} basePath={basePath} formatDate={formatDate} />
-                <CommunityFeedSection basePath={basePath} feedPosts={feedPosts} topCommunities={topCommunities} />
+                <Suspense fallback={<div className="h-20 bg-slate-50 dark:bg-zinc-900 animate-pulse"></div>}>
+                    <TrustMarquee categories={categories || []} />
+                </Suspense>
+                <Suspense fallback={<div className="h-96 bg-white dark:bg-zinc-950 animate-pulse"></div>}>
+                    <InstitutesSection featuredBusinesses={featuredBusinesses || []} basePath={basePath} formatDate={formatDate} />
+                </Suspense>
+                <Suspense fallback={<div className="h-96 bg-slate-50 dark:bg-zinc-950 animate-pulse"></div>}>
+                    <CommunityFeedSection basePath={basePath} feedPosts={feedPosts} topCommunities={topCommunities} />
+                </Suspense>
                 <SeoContent basePath={basePath} />
                 <BlogSection morePosts={morePosts || []} basePath={basePath} formatDate={formatDate} />
                 <CategorySection categories={categories || []} basePath={basePath} />
