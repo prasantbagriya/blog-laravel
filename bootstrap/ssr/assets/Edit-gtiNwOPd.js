@@ -1,9 +1,9 @@
 import { jsx } from "react/jsx-runtime";
 import React, { Suspense } from "react";
-//#region resources/js/Pages/Admin/Posts/New.jsx
-var PostForm = React.lazy(() => import("./PostForm-aqldw1Vt.js"));
+//#region resources/js/Pages/Admin/Posts/Edit.jsx
+var PostForm = React.lazy(() => import("./PostForm-Dy8RgJl9.js"));
 var AdminLayout = React.lazy(() => import("./AdminLayout-xqBz233I.js"));
-function NewPostPage() {
+function EditPostPage({ post }) {
 	return /* @__PURE__ */ jsx(Suspense, {
 		fallback: /* @__PURE__ */ jsx("div", {
 			style: {
@@ -12,10 +12,10 @@ function NewPostPage() {
 			},
 			children: "Loading Sovereign Editor..."
 		}),
-		children: /* @__PURE__ */ jsx(PostForm, {})
+		children: /* @__PURE__ */ jsx(PostForm, { post })
 	});
 }
-NewPostPage.layout = (page) => /* @__PURE__ */ jsx(Suspense, {
+EditPostPage.layout = (page) => /* @__PURE__ */ jsx(Suspense, {
 	fallback: /* @__PURE__ */ jsx("div", {
 		style: {
 			minHeight: "100vh",
@@ -28,4 +28,4 @@ NewPostPage.layout = (page) => /* @__PURE__ */ jsx(Suspense, {
 	children: /* @__PURE__ */ jsx(AdminLayout, { children: page })
 });
 //#endregion
-export { NewPostPage as default };
+export { EditPostPage as default };

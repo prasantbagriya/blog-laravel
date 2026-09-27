@@ -290,9 +290,9 @@ const navIconStyle: React.CSSProperties = { background: '#f8fafc', border: '1px 
 const headerTitleStyle: React.CSSProperties = { fontSize: '19px', fontWeight: 800, letterSpacing: '-0.4px', background: 'linear-gradient(135deg, #0f172a, #334155)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' };
 const scoreHubStyle: React.CSSProperties = { display: 'flex', gap: '16px', marginRight: '16px' };
 const iconBtnStyle: React.CSSProperties = { background: '#fff', border: '1px solid #e2e8f0', padding: '10px 16px', borderRadius: '12px', cursor: 'pointer', color: '#475569', whiteSpace: 'nowrap', fontWeight: 600, fontSize: '13px', transition: 'all 0.2s', boxShadow: '0 2px 8px -2px rgba(0,0,0,0.04)' };
-const publishBtnStyle: React.CSSProperties = { background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: '#fff', border: 'none', padding: '16px 36px', borderRadius: '16px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 12px 24px -6px rgba(37, 99, 235, 0.4)', whiteSpace: 'nowrap', transition: 'all 0.3s', letterSpacing: '0.5px', fontSize: '15px', position: 'fixed', bottom: '40px', right: '40px', zIndex: 100000 };
+const publishBtnStyle: React.CSSProperties = { background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: '#fff', border: 'none', padding: '16px 36px', borderRadius: '16px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 12px 24px -6px rgba(37, 99, 235, 0.4)', whiteSpace: 'nowrap', transition: 'all 0.3s', letterSpacing: '0.5px', fontSize: '15px' };
 const mainCanvasStyle: React.CSSProperties = { flex: 1, overflowY: 'auto', background: '#ffffff', display: 'flex', flexDirection: 'column', position: 'relative', scrollBehavior: 'smooth' };
-const floatingToolbarStyle: React.CSSProperties = { position: 'sticky', top: '0', zIndex: 100, background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(24px)', padding: '12px 40px', borderBottom: '1px solid rgba(226,232,240,0.6)', display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', userSelect: 'none', boxShadow: '0 4px 12px -8px rgba(0,0,0,0.05)' };
+const floatingToolbarStyle: React.CSSProperties = { position: 'sticky', top: '0', zIndex: 100, background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(24px)', padding: '12px 24px', borderBottom: '1px solid rgba(226,232,240,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', userSelect: 'none', boxShadow: '0 4px 12px -8px rgba(0,0,0,0.05)' };
 const toolDivider: React.CSSProperties = { width: '1px', height: '24px', background: '#cbd5e1', margin: '0 6px' };
 const intelSidebarStyle: React.CSSProperties = { width: '340px', background: '#ffffff', borderLeft: '1px solid rgba(226,232,240,0.6)', display: 'flex', flexDirection: 'column', boxShadow: '-8px 0 24px -12px rgba(0,0,0,0.03)' };
 const intelTabsStyle: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', background: '#f8fafc', padding: '6px', borderRadius: '16px', gap: '4px', border: '1px solid #e2e8f0' };
@@ -1323,32 +1323,17 @@ export default function PostForm({ post }: PostFormProps) {
                   </div>
                </div>
             )}
-         
-         <div role="banner" style={headerStyle}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: 1 }}>
-               <button onClick={() => window.history.back()} style={navIconStyle}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '20px', height: '20px' }}><path d="m15 18-6-6 6-6"/></svg>
-               </button>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-               <button onClick={() => setDistractionFree(true)} style={iconBtnStyle} title="Distraction Free Mode">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-               </button>
-               <button onClick={() => setPreviewMode('google')} style={iconBtnStyle} title="Search Preview">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-               </button>
-               {lastSaved && <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>Saved: {lastSaved}</span>}
-               <button onClick={() => handleSave(true, false)} disabled={isPending} style={publishBtnStyle}>{isPending ? 'Syncing...' : 'Deploy'}</button>
-
-            </div>
-         </div>
-
          <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', flex: 1, overflow: isMobile ? 'auto' : 'hidden' }}>
             <main style={{ ...mainCanvasStyle, overflowY: isMobile ? 'visible' : 'auto' }}>
                 <div style={floatingToolbarStyle}>
-                   {/* History Group */}
-                   <div style={{ display: 'flex', gap: '4px', maxWidth: '850px', margin: '0 auto', width: '100%', flexWrap: 'wrap', alignItems: 'center' }}>
+                   <div style={{ display: 'flex', alignItems: 'center', width: '100%', maxWidth: '1200px', justifyContent: 'space-between' }}>
+                      {/* Left: Back Button */}
+                      <button onClick={() => window.history.back()} style={{ ...navIconStyle, border: 'none', background: 'transparent' }}>
+                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '20px', height: '20px' }}><path d="m15 18-6-6 6-6"/></svg>
+                      </button>
+
+                      {/* Center: Formatting Toolbar */}
+                      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center' }}>
                       <div style={{ display: 'flex', gap: '4px' }}>
                          <SovereignToolBtn onClick={() => editor.chain().focus().undo().run()} title="Undo">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
@@ -1489,6 +1474,18 @@ export default function PostForm({ post }: PostFormProps) {
                       <input type="file" ref={videoInputRef} onChange={handleVideoUpload} style={{ display: 'none' }} accept="video/*" />
                       <input type="color" ref={colorInputRef} onChange={handleColorChange} style={{ display: 'none' }} />
                       <input type="file" ref={sliderInputRef} onChange={handleSliderImageUpload} multiple style={{ display: 'none' }} accept="image/*" />
+                      </div>
+                      
+                      {/* Right: Actions */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                         <button onClick={() => setDistractionFree(true)} style={iconBtnStyle} title="Distraction Free Mode">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                         </button>
+                         <button onClick={() => setPreviewMode('google')} style={iconBtnStyle} title="Search Preview">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                         </button>
+                      </div>
+
                    </div>
                 </div>
 
@@ -2294,6 +2291,15 @@ export default function PostForm({ post }: PostFormProps) {
                                  </div>
              </aside>
           </div>
+
+         {/* Floating Deploy Container at Bottom Right */}
+         <div style={{ position: 'fixed', bottom: '40px', right: '40px', zIndex: 100000, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+            {lastSaved && <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, background: 'rgba(255,255,255,0.85)', padding: '6px 12px', borderRadius: '12px', backdropFilter: 'blur(8px)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>Saved: {lastSaved}</span>}
+            <button onClick={() => handleSave(true, false)} disabled={isPending} style={publishBtnStyle}>
+               {isPending ? 'Syncing...' : 'Deploy'}
+            </button>
+         </div>
+
 
          {/* FAQ Modal */}
                      {faqModalOpen && (

@@ -345,20 +345,6 @@ var rootContainerStyle = {
 	zIndex: 999999,
 	fontFamily: "\"Inter\", \"Roboto\", sans-serif"
 };
-var headerStyle = {
-	height: "76px",
-	background: "rgba(255, 255, 255, 0.85)",
-	backdropFilter: "blur(20px)",
-	borderBottom: "1px solid rgba(226, 232, 240, 0.6)",
-	display: "flex",
-	justifyContent: "space-between",
-	alignItems: "center",
-	padding: "0 40px",
-	position: "sticky",
-	top: 0,
-	zIndex: 1e3,
-	boxShadow: "0 4px 24px -12px rgba(0,0,0,0.04)"
-};
 var navIconStyle = {
 	background: "#f8fafc",
 	border: "1px solid #e2e8f0",
@@ -394,11 +380,7 @@ var publishBtnStyle = {
 	whiteSpace: "nowrap",
 	transition: "all 0.3s",
 	letterSpacing: "0.5px",
-	fontSize: "15px",
-	position: "fixed",
-	bottom: "40px",
-	right: "40px",
-	zIndex: 1e5
+	fontSize: "15px"
 };
 var mainCanvasStyle = {
 	flex: 1,
@@ -415,11 +397,10 @@ var floatingToolbarStyle = {
 	zIndex: 100,
 	background: "rgba(255,255,255,0.75)",
 	backdropFilter: "blur(24px)",
-	padding: "12px 40px",
+	padding: "12px 24px",
 	borderBottom: "1px solid rgba(226,232,240,0.6)",
 	display: "flex",
-	flexWrap: "wrap",
-	gap: "8px",
+	justifyContent: "center",
 	alignItems: "center",
 	userSelect: "none",
 	boxShadow: "0 4px 12px -8px rgba(0,0,0,0.05)"
@@ -2635,126 +2616,6 @@ function PostForm({ post }) {
 				})
 			}),
 			/* @__PURE__ */ jsxs("div", {
-				role: "banner",
-				style: headerStyle,
-				children: [/* @__PURE__ */ jsx("div", {
-					style: {
-						display: "flex",
-						alignItems: "center",
-						gap: "20px",
-						flex: 1
-					},
-					children: /* @__PURE__ */ jsx("button", {
-						onClick: () => window.history.back(),
-						style: navIconStyle,
-						children: /* @__PURE__ */ jsx("svg", {
-							xmlns: "http://www.w3.org/2000/svg",
-							width: "24",
-							height: "24",
-							viewBox: "0 0 24 24",
-							fill: "none",
-							stroke: "currentColor",
-							strokeWidth: 2.5,
-							strokeLinecap: "round",
-							strokeLinejoin: "round",
-							className: "lucide",
-							style: {
-								width: "20px",
-								height: "20px"
-							},
-							children: /* @__PURE__ */ jsx("path", { d: "m15 18-6-6 6-6" })
-						})
-					})
-				}), /* @__PURE__ */ jsxs("div", {
-					style: {
-						display: "flex",
-						alignItems: "center",
-						gap: "16px"
-					},
-					children: [
-						/* @__PURE__ */ jsx("button", {
-							onClick: () => setDistractionFree(true),
-							style: iconBtnStyle,
-							title: "Distraction Free Mode",
-							children: /* @__PURE__ */ jsxs("svg", {
-								xmlns: "http://www.w3.org/2000/svg",
-								width: "24",
-								height: "24",
-								viewBox: "0 0 24 24",
-								fill: "none",
-								stroke: "currentColor",
-								strokeWidth: 2,
-								strokeLinecap: "round",
-								strokeLinejoin: "round",
-								className: "lucide",
-								style: {
-									width: "18px",
-									height: "18px",
-									flexShrink: 0
-								},
-								children: [
-									/* @__PURE__ */ jsx("polyline", { points: "15 3 21 3 21 9" }),
-									/* @__PURE__ */ jsx("polyline", { points: "9 21 3 21 3 15" }),
-									/* @__PURE__ */ jsx("line", {
-										x1: "21",
-										y1: "3",
-										x2: "14",
-										y2: "10"
-									}),
-									/* @__PURE__ */ jsx("line", {
-										x1: "3",
-										y1: "21",
-										x2: "10",
-										y2: "14"
-									})
-								]
-							})
-						}),
-						/* @__PURE__ */ jsx("button", {
-							onClick: () => setPreviewMode("google"),
-							style: iconBtnStyle,
-							title: "Search Preview",
-							children: /* @__PURE__ */ jsxs("svg", {
-								xmlns: "http://www.w3.org/2000/svg",
-								width: "24",
-								height: "24",
-								viewBox: "0 0 24 24",
-								fill: "none",
-								stroke: "currentColor",
-								strokeWidth: 2,
-								strokeLinecap: "round",
-								strokeLinejoin: "round",
-								className: "lucide",
-								style: {
-									width: "18px",
-									height: "18px",
-									flexShrink: 0
-								},
-								children: [/* @__PURE__ */ jsx("path", { d: "M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" }), /* @__PURE__ */ jsx("circle", {
-									cx: "12",
-									cy: "12",
-									r: "3"
-								})]
-							})
-						}),
-						lastSaved && /* @__PURE__ */ jsxs("span", {
-							style: {
-								fontSize: "12px",
-								color: "#64748b",
-								fontWeight: 600
-							},
-							children: ["Saved: ", lastSaved]
-						}),
-						/* @__PURE__ */ jsx("button", {
-							onClick: () => handleSave(true, false),
-							disabled: isPending,
-							style: publishBtnStyle,
-							children: isPending ? "Syncing..." : "Deploy"
-						})
-					]
-				})]
-			}),
-			/* @__PURE__ */ jsxs("div", {
 				style: {
 					display: "flex",
 					flexDirection: isMobile ? "column" : "row",
@@ -2771,1022 +2632,1127 @@ function PostForm({ post }) {
 						children: /* @__PURE__ */ jsxs("div", {
 							style: {
 								display: "flex",
-								gap: "4px",
-								maxWidth: "850px",
-								margin: "0 auto",
+								alignItems: "center",
 								width: "100%",
-								flexWrap: "wrap",
-								alignItems: "center"
+								maxWidth: "1200px",
+								justifyContent: "space-between"
 							},
 							children: [
+								/* @__PURE__ */ jsx("button", {
+									onClick: () => window.history.back(),
+									style: {
+										...navIconStyle,
+										border: "none",
+										background: "transparent"
+									},
+									children: /* @__PURE__ */ jsx("svg", {
+										xmlns: "http://www.w3.org/2000/svg",
+										width: "24",
+										height: "24",
+										viewBox: "0 0 24 24",
+										fill: "none",
+										stroke: "currentColor",
+										strokeWidth: 2.5,
+										strokeLinecap: "round",
+										strokeLinejoin: "round",
+										className: "lucide",
+										style: {
+											width: "20px",
+											height: "20px"
+										},
+										children: /* @__PURE__ */ jsx("path", { d: "m15 18-6-6 6-6" })
+									})
+								}),
 								/* @__PURE__ */ jsxs("div", {
 									style: {
 										display: "flex",
-										gap: "4px"
-									},
-									children: [/* @__PURE__ */ jsx(SovereignToolBtn, {
-										onClick: () => editor.chain().focus().undo().run(),
-										title: "Undo",
-										children: /* @__PURE__ */ jsxs("svg", {
-											xmlns: "http://www.w3.org/2000/svg",
-											width: "24",
-											height: "24",
-											viewBox: "0 0 24 24",
-											fill: "none",
-											stroke: "currentColor",
-											strokeWidth: 2,
-											strokeLinecap: "round",
-											strokeLinejoin: "round",
-											className: "lucide",
-											style: {
-												width: "18px",
-												height: "18px",
-												flexShrink: 0
-											},
-											children: [/* @__PURE__ */ jsx("path", { d: "M3 7v6h6" }), /* @__PURE__ */ jsx("path", { d: "M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" })]
-										})
-									}), /* @__PURE__ */ jsx(SovereignToolBtn, {
-										onClick: () => editor.chain().focus().redo().run(),
-										title: "Redo",
-										children: /* @__PURE__ */ jsxs("svg", {
-											xmlns: "http://www.w3.org/2000/svg",
-											width: "24",
-											height: "24",
-											viewBox: "0 0 24 24",
-											fill: "none",
-											stroke: "currentColor",
-											strokeWidth: 2,
-											strokeLinecap: "round",
-											strokeLinejoin: "round",
-											className: "lucide",
-											style: {
-												width: "18px",
-												height: "18px",
-												flexShrink: 0
-											},
-											children: [/* @__PURE__ */ jsx("path", { d: "M21 7v6h-6" }), /* @__PURE__ */ jsx("path", { d: "M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13" })]
-										})
-									})]
-								}),
-								/* @__PURE__ */ jsx("div", { style: toolDivider }),
-								/* @__PURE__ */ jsxs("div", {
-									style: {
-										display: "flex",
-										gap: "4px"
+										gap: "4px",
+										flexWrap: "wrap",
+										alignItems: "center",
+										justifyContent: "center"
 									},
 									children: [
-										/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: () => editor.chain().focus().toggleBold().run(),
-											active: editor.isActive("bold"),
-											title: "Bold",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2.5,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [/* @__PURE__ */ jsx("path", { d: "M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" }), /* @__PURE__ */ jsx("path", { d: "M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" })]
-											})
-										}),
-										/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: () => editor.chain().focus().toggleItalic().run(),
-											active: editor.isActive("italic"),
-											title: "Italic",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [
-													/* @__PURE__ */ jsx("line", {
-														x1: "19",
-														y1: "4",
-														x2: "10",
-														y2: "4"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "14",
-														y1: "20",
-														x2: "5",
-														y2: "20"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "15",
-														y1: "4",
-														x2: "9",
-														y2: "20"
-													})
-												]
-											})
-										}),
-										/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: () => editor.chain().focus().toggleUnderline().run(),
-											active: editor.isActive("underline"),
-											title: "Underline",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [/* @__PURE__ */ jsx("path", { d: "M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3" }), /* @__PURE__ */ jsx("line", {
-													x1: "4",
-													y1: "21",
-													x2: "20",
-													y2: "21"
-												})]
-											})
-										}),
-										/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: () => editor.chain().focus().toggleStrike().run(),
-											active: editor.isActive("strike"),
-											title: "Strikethrough",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [/* @__PURE__ */ jsx("line", {
-													x1: "5",
-													y1: "12",
-													x2: "19",
-													y2: "12"
-												}), /* @__PURE__ */ jsx("path", { d: "M16 4h-7a4 4 0 0 0-4 4 4 4 0 0 0 4 4h7a4 4 0 0 1 4 4 4 4 0 0 1-4 4h-7" })]
-											})
-										}),
-										/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: () => colorInputRef.current?.click(),
-											title: "Text Color",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [
-													/* @__PURE__ */ jsx("path", { d: "M4 20h16" }),
-													/* @__PURE__ */ jsx("path", { d: "m6 16 6-12 6 12" }),
-													/* @__PURE__ */ jsx("path", { d: "M8 12h8" })
-												]
-											})
-										}),
-										/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: () => editor.chain().focus().toggleHighlight().run(),
-											active: editor.isActive("highlight"),
-											title: "Text Highlight",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [/* @__PURE__ */ jsx("path", { d: "m9 11-6 6v3h9l3-3" }), /* @__PURE__ */ jsx("path", { d: "m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4" })]
-											})
-										})
-									]
-								}),
-								/* @__PURE__ */ jsx("div", { style: toolDivider }),
-								/* @__PURE__ */ jsxs("div", {
-									style: headerSelectWrapper,
-									children: [
-										/* @__PURE__ */ jsxs("select", {
-											onChange: (e) => {
-												const val = e.target.value;
-												if (val === "p") editor.chain().focus().setParagraph().run();
-												else editor.chain().focus().toggleHeading({ level: parseInt(val) }).run();
+										/* @__PURE__ */ jsxs("div", {
+											style: {
+												display: "flex",
+												gap: "4px"
 											},
-											value: editor.isActive("heading", { level: 1 }) ? "1" : editor.isActive("heading", { level: 2 }) ? "2" : editor.isActive("heading", { level: 3 }) ? "3" : editor.isActive("heading", { level: 4 }) ? "4" : "p",
-											style: headerSelectStyle,
+											children: [/* @__PURE__ */ jsx(SovereignToolBtn, {
+												onClick: () => editor.chain().focus().undo().run(),
+												title: "Undo",
+												children: /* @__PURE__ */ jsxs("svg", {
+													xmlns: "http://www.w3.org/2000/svg",
+													width: "24",
+													height: "24",
+													viewBox: "0 0 24 24",
+													fill: "none",
+													stroke: "currentColor",
+													strokeWidth: 2,
+													strokeLinecap: "round",
+													strokeLinejoin: "round",
+													className: "lucide",
+													style: {
+														width: "18px",
+														height: "18px",
+														flexShrink: 0
+													},
+													children: [/* @__PURE__ */ jsx("path", { d: "M3 7v6h6" }), /* @__PURE__ */ jsx("path", { d: "M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" })]
+												})
+											}), /* @__PURE__ */ jsx(SovereignToolBtn, {
+												onClick: () => editor.chain().focus().redo().run(),
+												title: "Redo",
+												children: /* @__PURE__ */ jsxs("svg", {
+													xmlns: "http://www.w3.org/2000/svg",
+													width: "24",
+													height: "24",
+													viewBox: "0 0 24 24",
+													fill: "none",
+													stroke: "currentColor",
+													strokeWidth: 2,
+													strokeLinecap: "round",
+													strokeLinejoin: "round",
+													className: "lucide",
+													style: {
+														width: "18px",
+														height: "18px",
+														flexShrink: 0
+													},
+													children: [/* @__PURE__ */ jsx("path", { d: "M21 7v6h-6" }), /* @__PURE__ */ jsx("path", { d: "M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13" })]
+												})
+											})]
+										}),
+										/* @__PURE__ */ jsx("div", { style: toolDivider }),
+										/* @__PURE__ */ jsxs("div", {
+											style: {
+												display: "flex",
+												gap: "4px"
+											},
 											children: [
-												/* @__PURE__ */ jsx("option", {
-													value: "p",
-													children: "Normal"
+												/* @__PURE__ */ jsx(SovereignToolBtn, {
+													onClick: () => editor.chain().focus().toggleBold().run(),
+													active: editor.isActive("bold"),
+													title: "Bold",
+													children: /* @__PURE__ */ jsxs("svg", {
+														xmlns: "http://www.w3.org/2000/svg",
+														width: "24",
+														height: "24",
+														viewBox: "0 0 24 24",
+														fill: "none",
+														stroke: "currentColor",
+														strokeWidth: 2.5,
+														strokeLinecap: "round",
+														strokeLinejoin: "round",
+														className: "lucide",
+														style: {
+															width: "18px",
+															height: "18px",
+															flexShrink: 0
+														},
+														children: [/* @__PURE__ */ jsx("path", { d: "M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" }), /* @__PURE__ */ jsx("path", { d: "M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" })]
+													})
 												}),
-												/* @__PURE__ */ jsx("option", {
-													value: "1",
-													children: "Major Heading"
+												/* @__PURE__ */ jsx(SovereignToolBtn, {
+													onClick: () => editor.chain().focus().toggleItalic().run(),
+													active: editor.isActive("italic"),
+													title: "Italic",
+													children: /* @__PURE__ */ jsxs("svg", {
+														xmlns: "http://www.w3.org/2000/svg",
+														width: "24",
+														height: "24",
+														viewBox: "0 0 24 24",
+														fill: "none",
+														stroke: "currentColor",
+														strokeWidth: 2,
+														strokeLinecap: "round",
+														strokeLinejoin: "round",
+														className: "lucide",
+														style: {
+															width: "18px",
+															height: "18px",
+															flexShrink: 0
+														},
+														children: [
+															/* @__PURE__ */ jsx("line", {
+																x1: "19",
+																y1: "4",
+																x2: "10",
+																y2: "4"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "14",
+																y1: "20",
+																x2: "5",
+																y2: "20"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "15",
+																y1: "4",
+																x2: "9",
+																y2: "20"
+															})
+														]
+													})
 												}),
-												/* @__PURE__ */ jsx("option", {
-													value: "2",
-													children: "Heading"
+												/* @__PURE__ */ jsx(SovereignToolBtn, {
+													onClick: () => editor.chain().focus().toggleUnderline().run(),
+													active: editor.isActive("underline"),
+													title: "Underline",
+													children: /* @__PURE__ */ jsxs("svg", {
+														xmlns: "http://www.w3.org/2000/svg",
+														width: "24",
+														height: "24",
+														viewBox: "0 0 24 24",
+														fill: "none",
+														stroke: "currentColor",
+														strokeWidth: 2,
+														strokeLinecap: "round",
+														strokeLinejoin: "round",
+														className: "lucide",
+														style: {
+															width: "18px",
+															height: "18px",
+															flexShrink: 0
+														},
+														children: [/* @__PURE__ */ jsx("path", { d: "M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3" }), /* @__PURE__ */ jsx("line", {
+															x1: "4",
+															y1: "21",
+															x2: "20",
+															y2: "21"
+														})]
+													})
 												}),
-												/* @__PURE__ */ jsx("option", {
-													value: "3",
-													children: "Sub-heading"
+												/* @__PURE__ */ jsx(SovereignToolBtn, {
+													onClick: () => editor.chain().focus().toggleStrike().run(),
+													active: editor.isActive("strike"),
+													title: "Strikethrough",
+													children: /* @__PURE__ */ jsxs("svg", {
+														xmlns: "http://www.w3.org/2000/svg",
+														width: "24",
+														height: "24",
+														viewBox: "0 0 24 24",
+														fill: "none",
+														stroke: "currentColor",
+														strokeWidth: 2,
+														strokeLinecap: "round",
+														strokeLinejoin: "round",
+														className: "lucide",
+														style: {
+															width: "18px",
+															height: "18px",
+															flexShrink: 0
+														},
+														children: [/* @__PURE__ */ jsx("line", {
+															x1: "5",
+															y1: "12",
+															x2: "19",
+															y2: "12"
+														}), /* @__PURE__ */ jsx("path", { d: "M16 4h-7a4 4 0 0 0-4 4 4 4 0 0 0 4 4h7a4 4 0 0 1 4 4 4 4 0 0 1-4 4h-7" })]
+													})
 												}),
-												/* @__PURE__ */ jsx("option", {
-													value: "4",
-													children: "Minor Heading"
+												/* @__PURE__ */ jsx(SovereignToolBtn, {
+													onClick: () => colorInputRef.current?.click(),
+													title: "Text Color",
+													children: /* @__PURE__ */ jsxs("svg", {
+														xmlns: "http://www.w3.org/2000/svg",
+														width: "24",
+														height: "24",
+														viewBox: "0 0 24 24",
+														fill: "none",
+														stroke: "currentColor",
+														strokeWidth: 2,
+														strokeLinecap: "round",
+														strokeLinejoin: "round",
+														className: "lucide",
+														style: {
+															width: "18px",
+															height: "18px",
+															flexShrink: 0
+														},
+														children: [
+															/* @__PURE__ */ jsx("path", { d: "M4 20h16" }),
+															/* @__PURE__ */ jsx("path", { d: "m6 16 6-12 6 12" }),
+															/* @__PURE__ */ jsx("path", { d: "M8 12h8" })
+														]
+													})
+												}),
+												/* @__PURE__ */ jsx(SovereignToolBtn, {
+													onClick: () => editor.chain().focus().toggleHighlight().run(),
+													active: editor.isActive("highlight"),
+													title: "Text Highlight",
+													children: /* @__PURE__ */ jsxs("svg", {
+														xmlns: "http://www.w3.org/2000/svg",
+														width: "24",
+														height: "24",
+														viewBox: "0 0 24 24",
+														fill: "none",
+														stroke: "currentColor",
+														strokeWidth: 2,
+														strokeLinecap: "round",
+														strokeLinejoin: "round",
+														className: "lucide",
+														style: {
+															width: "18px",
+															height: "18px",
+															flexShrink: 0
+														},
+														children: [/* @__PURE__ */ jsx("path", { d: "m9 11-6 6v3h9l3-3" }), /* @__PURE__ */ jsx("path", { d: "m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4" })]
+													})
 												})
 											]
 										}),
-										/* @__PURE__ */ jsx("div", { style: {
-											width: "1px",
-											height: "16px",
-											background: "#e2e8f0",
-											margin: "0 8px"
-										} }),
-										/* @__PURE__ */ jsxs("select", {
-											onChange: (e) => {
-												const size = e.target.value;
-												editor.chain().focus().setMark("textStyle", { fontSize: size }).run();
-											},
+										/* @__PURE__ */ jsx("div", { style: toolDivider }),
+										/* @__PURE__ */ jsxs("div", {
+											style: headerSelectWrapper,
+											children: [
+												/* @__PURE__ */ jsxs("select", {
+													onChange: (e) => {
+														const val = e.target.value;
+														if (val === "p") editor.chain().focus().setParagraph().run();
+														else editor.chain().focus().toggleHeading({ level: parseInt(val) }).run();
+													},
+													value: editor.isActive("heading", { level: 1 }) ? "1" : editor.isActive("heading", { level: 2 }) ? "2" : editor.isActive("heading", { level: 3 }) ? "3" : editor.isActive("heading", { level: 4 }) ? "4" : "p",
+													style: headerSelectStyle,
+													children: [
+														/* @__PURE__ */ jsx("option", {
+															value: "p",
+															children: "Normal"
+														}),
+														/* @__PURE__ */ jsx("option", {
+															value: "1",
+															children: "Major Heading"
+														}),
+														/* @__PURE__ */ jsx("option", {
+															value: "2",
+															children: "Heading"
+														}),
+														/* @__PURE__ */ jsx("option", {
+															value: "3",
+															children: "Sub-heading"
+														}),
+														/* @__PURE__ */ jsx("option", {
+															value: "4",
+															children: "Minor Heading"
+														})
+													]
+												}),
+												/* @__PURE__ */ jsx("div", { style: {
+													width: "1px",
+													height: "16px",
+													background: "#e2e8f0",
+													margin: "0 8px"
+												} }),
+												/* @__PURE__ */ jsxs("select", {
+													onChange: (e) => {
+														const size = e.target.value;
+														editor.chain().focus().setMark("textStyle", { fontSize: size }).run();
+													},
+													style: {
+														...headerSelectStyle,
+														width: "60px"
+													},
+													children: [/* @__PURE__ */ jsx("option", {
+														value: "16px",
+														children: "Size"
+													}), [
+														"12px",
+														"14px",
+														"16px",
+														"18px",
+														"20px",
+														"24px",
+														"30px",
+														"36px",
+														"48px",
+														"60px",
+														"72px"
+													].map((size) => /* @__PURE__ */ jsx("option", {
+														value: size,
+														children: size
+													}, size))]
+												})
+											]
+										}),
+										/* @__PURE__ */ jsx("div", { style: toolDivider }),
+										/* @__PURE__ */ jsxs("div", {
 											style: {
-												...headerSelectStyle,
-												width: "60px"
+												display: "flex",
+												gap: "4px"
 											},
-											children: [/* @__PURE__ */ jsx("option", {
-												value: "16px",
-												children: "Size"
-											}), [
-												"12px",
-												"14px",
-												"16px",
-												"18px",
-												"20px",
-												"24px",
-												"30px",
-												"36px",
-												"48px",
-												"60px",
-												"72px"
-											].map((size) => /* @__PURE__ */ jsx("option", {
-												value: size,
-												children: size
-											}, size))]
+											children: [
+												/* @__PURE__ */ jsx(SovereignToolBtn, {
+													onClick: () => editor.chain().focus().setTextAlign("left").run(),
+													active: editor.isActive({ textAlign: "left" }),
+													title: "Left Align",
+													children: /* @__PURE__ */ jsxs("svg", {
+														xmlns: "http://www.w3.org/2000/svg",
+														width: "24",
+														height: "24",
+														viewBox: "0 0 24 24",
+														fill: "none",
+														stroke: "currentColor",
+														strokeWidth: 2,
+														strokeLinecap: "round",
+														strokeLinejoin: "round",
+														className: "lucide",
+														style: {
+															width: "18px",
+															height: "18px",
+															flexShrink: 0
+														},
+														children: [
+															/* @__PURE__ */ jsx("line", {
+																x1: "17",
+																y1: "10",
+																x2: "3",
+																y2: "10"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "21",
+																y1: "6",
+																x2: "3",
+																y2: "6"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "21",
+																y1: "14",
+																x2: "3",
+																y2: "14"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "17",
+																y1: "18",
+																x2: "3",
+																y2: "18"
+															})
+														]
+													})
+												}),
+												/* @__PURE__ */ jsx(SovereignToolBtn, {
+													onClick: () => editor.chain().focus().setTextAlign("center").run(),
+													active: editor.isActive({ textAlign: "center" }),
+													title: "Center Align",
+													children: /* @__PURE__ */ jsxs("svg", {
+														xmlns: "http://www.w3.org/2000/svg",
+														width: "24",
+														height: "24",
+														viewBox: "0 0 24 24",
+														fill: "none",
+														stroke: "currentColor",
+														strokeWidth: 2,
+														strokeLinecap: "round",
+														strokeLinejoin: "round",
+														className: "lucide",
+														style: {
+															width: "18px",
+															height: "18px",
+															flexShrink: 0
+														},
+														children: [
+															/* @__PURE__ */ jsx("line", {
+																x1: "18",
+																y1: "10",
+																x2: "6",
+																y2: "10"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "21",
+																y1: "6",
+																x2: "3",
+																y2: "6"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "21",
+																y1: "14",
+																x2: "3",
+																y2: "14"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "18",
+																y1: "18",
+																x2: "6",
+																y2: "18"
+															})
+														]
+													})
+												}),
+												/* @__PURE__ */ jsx(SovereignToolBtn, {
+													onClick: () => editor.chain().focus().setTextAlign("right").run(),
+													active: editor.isActive({ textAlign: "right" }),
+													title: "Right Align",
+													children: /* @__PURE__ */ jsxs("svg", {
+														xmlns: "http://www.w3.org/2000/svg",
+														width: "24",
+														height: "24",
+														viewBox: "0 0 24 24",
+														fill: "none",
+														stroke: "currentColor",
+														strokeWidth: 2,
+														strokeLinecap: "round",
+														strokeLinejoin: "round",
+														className: "lucide",
+														style: {
+															width: "18px",
+															height: "18px",
+															flexShrink: 0
+														},
+														children: [
+															/* @__PURE__ */ jsx("line", {
+																x1: "21",
+																y1: "10",
+																x2: "7",
+																y2: "10"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "21",
+																y1: "6",
+																x2: "3",
+																y2: "6"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "21",
+																y1: "14",
+																x2: "3",
+																y2: "14"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "21",
+																y1: "18",
+																x2: "7",
+																y2: "18"
+															})
+														]
+													})
+												}),
+												/* @__PURE__ */ jsx("div", { style: {
+													width: "1px",
+													height: "16px",
+													background: "#e2e8f0",
+													margin: "0 4px"
+												} }),
+												/* @__PURE__ */ jsx(SovereignToolBtn, {
+													onClick: () => editor.chain().focus().toggleBulletList().run(),
+													active: editor.isActive("bulletList"),
+													title: "Bullet List",
+													children: /* @__PURE__ */ jsxs("svg", {
+														xmlns: "http://www.w3.org/2000/svg",
+														width: "24",
+														height: "24",
+														viewBox: "0 0 24 24",
+														fill: "none",
+														stroke: "currentColor",
+														strokeWidth: 2,
+														strokeLinecap: "round",
+														strokeLinejoin: "round",
+														className: "lucide",
+														style: {
+															width: "18px",
+															height: "18px",
+															flexShrink: 0
+														},
+														children: [
+															/* @__PURE__ */ jsx("line", {
+																x1: "8",
+																y1: "6",
+																x2: "21",
+																y2: "6"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "8",
+																y1: "12",
+																x2: "21",
+																y2: "12"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "8",
+																y1: "18",
+																x2: "21",
+																y2: "18"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "3",
+																y1: "6",
+																x2: "3.01",
+																y2: "6"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "3",
+																y1: "12",
+																x2: "3.01",
+																y2: "12"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "3",
+																y1: "18",
+																x2: "3.01",
+																y2: "18"
+															})
+														]
+													})
+												})
+											]
+										}),
+										/* @__PURE__ */ jsx("div", { style: toolDivider }),
+										/* @__PURE__ */ jsxs("div", {
+											style: {
+												display: "flex",
+												gap: "4px"
+											},
+											children: [
+												/* @__PURE__ */ jsx(SovereignToolBtn, {
+													onClick: handleOpenLinkModal,
+													active: editor.isActive("link"),
+													title: "Insert Link",
+													children: /* @__PURE__ */ jsxs("svg", {
+														xmlns: "http://www.w3.org/2000/svg",
+														width: "24",
+														height: "24",
+														viewBox: "0 0 24 24",
+														fill: "none",
+														stroke: "currentColor",
+														strokeWidth: 2,
+														strokeLinecap: "round",
+														strokeLinejoin: "round",
+														className: "lucide",
+														style: {
+															width: "18px",
+															height: "18px",
+															flexShrink: 0
+														},
+														children: [/* @__PURE__ */ jsx("path", { d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" }), /* @__PURE__ */ jsx("path", { d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" })]
+													})
+												}),
+												/* @__PURE__ */ jsx(SovereignToolBtn, {
+													onClick: () => fileInputRef.current?.click(),
+													title: "Insert Image",
+													children: /* @__PURE__ */ jsxs("svg", {
+														xmlns: "http://www.w3.org/2000/svg",
+														width: "24",
+														height: "24",
+														viewBox: "0 0 24 24",
+														fill: "none",
+														stroke: "currentColor",
+														strokeWidth: 2,
+														strokeLinecap: "round",
+														strokeLinejoin: "round",
+														className: "lucide",
+														style: {
+															width: "18px",
+															height: "18px",
+															flexShrink: 0
+														},
+														children: [
+															/* @__PURE__ */ jsx("rect", {
+																x: "3",
+																y: "3",
+																width: "18",
+																height: "18",
+																rx: "2",
+																ry: "2"
+															}),
+															/* @__PURE__ */ jsx("circle", {
+																cx: "8.5",
+																cy: "8.5",
+																r: "1.5"
+															}),
+															/* @__PURE__ */ jsx("polyline", { points: "21 15 16 10 5 21" })
+														]
+													})
+												}),
+												/* @__PURE__ */ jsx(SovereignToolBtn, {
+													onClick: handleOpenSliderModal,
+													title: "Insert Image Slider",
+													children: /* @__PURE__ */ jsxs("svg", {
+														xmlns: "http://www.w3.org/2000/svg",
+														width: "24",
+														height: "24",
+														viewBox: "0 0 24 24",
+														fill: "none",
+														stroke: "currentColor",
+														strokeWidth: 2,
+														strokeLinecap: "round",
+														strokeLinejoin: "round",
+														className: "lucide",
+														style: {
+															width: "18px",
+															height: "18px",
+															flexShrink: 0
+														},
+														children: [
+															/* @__PURE__ */ jsx("rect", {
+																width: "18",
+																height: "18",
+																x: "3",
+																y: "3",
+																rx: "2",
+																ry: "2"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "9",
+																y1: "3",
+																x2: "9",
+																y2: "21"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "15",
+																y1: "3",
+																x2: "15",
+																y2: "21"
+															})
+														]
+													})
+												}),
+												/* @__PURE__ */ jsx(SovereignToolBtn, {
+													onClick: handleOpenFaqModal,
+													title: "Insert FAQ Schema Block",
+													children: /* @__PURE__ */ jsxs("svg", {
+														xmlns: "http://www.w3.org/2000/svg",
+														width: "24",
+														height: "24",
+														viewBox: "0 0 24 24",
+														fill: "none",
+														stroke: "currentColor",
+														strokeWidth: 2,
+														strokeLinecap: "round",
+														strokeLinejoin: "round",
+														className: "lucide",
+														style: {
+															width: "18px",
+															height: "18px",
+															flexShrink: 0
+														},
+														children: [
+															/* @__PURE__ */ jsx("circle", {
+																cx: "12",
+																cy: "12",
+																r: "10"
+															}),
+															/* @__PURE__ */ jsx("path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" }),
+															/* @__PURE__ */ jsx("path", { d: "M12 17h.01" })
+														]
+													})
+												}),
+												/* @__PURE__ */ jsx(SovereignToolBtn, {
+													onClick: handleOpenQuizModal,
+													title: "Insert Interactive Quiz",
+													children: /* @__PURE__ */ jsx("span", {
+														style: {
+															fontSize: "16px",
+															lineHeight: 1
+														},
+														children: "🧩"
+													})
+												}),
+												/* @__PURE__ */ jsx(SovereignToolBtn, {
+													onClick: handleOpenPollModal,
+													title: "Insert Interactive Poll",
+													children: /* @__PURE__ */ jsx("span", {
+														style: {
+															fontSize: "16px",
+															lineHeight: 1
+														},
+														children: "📊"
+													})
+												}),
+												/* @__PURE__ */ jsx(SovereignToolBtn, {
+													onClick: () => setVideoModalOpen(true),
+													title: "Video Portal",
+													children: /* @__PURE__ */ jsxs("svg", {
+														xmlns: "http://www.w3.org/2000/svg",
+														width: "24",
+														height: "24",
+														viewBox: "0 0 24 24",
+														fill: "none",
+														stroke: "currentColor",
+														strokeWidth: 2,
+														strokeLinecap: "round",
+														strokeLinejoin: "round",
+														className: "lucide",
+														style: {
+															width: "18px",
+															height: "18px",
+															flexShrink: 0
+														},
+														children: [
+															/* @__PURE__ */ jsx("rect", {
+																width: "18",
+																height: "18",
+																x: "3",
+																y: "3",
+																rx: "2"
+															}),
+															/* @__PURE__ */ jsx("path", { d: "m15 8-5 4 5 4V8Z" }),
+															/* @__PURE__ */ jsx("path", { d: "M7 12h1" })
+														]
+													})
+												}),
+												/* @__PURE__ */ jsx(SovereignToolBtn, {
+													onClick: () => editor.chain().focus().toggleBlockquote().run(),
+													active: editor.isActive("blockquote"),
+													title: "Blockquote",
+													children: /* @__PURE__ */ jsxs("svg", {
+														xmlns: "http://www.w3.org/2000/svg",
+														width: "24",
+														height: "24",
+														viewBox: "0 0 24 24",
+														fill: "none",
+														stroke: "currentColor",
+														strokeWidth: 2,
+														strokeLinecap: "round",
+														strokeLinejoin: "round",
+														className: "lucide",
+														style: {
+															width: "18px",
+															height: "18px",
+															flexShrink: 0
+														},
+														children: [/* @__PURE__ */ jsx("path", { d: "M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1 0 2.5 0 5-2 5" }), /* @__PURE__ */ jsx("path", { d: "M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1 0 2.5 0 5-2 5" })]
+													})
+												})
+											]
+										}),
+										/* @__PURE__ */ jsx("div", { style: toolDivider }),
+										/* @__PURE__ */ jsxs("div", {
+											style: {
+												display: "flex",
+												gap: "4px"
+											},
+											children: [
+												/* @__PURE__ */ jsx(SovereignToolBtn, {
+													onClick: () => editor.chain().focus().insertTable({
+														rows: 3,
+														cols: 3,
+														withHeaderRow: true
+													}).run(),
+													title: "Insert Table",
+													children: /* @__PURE__ */ jsxs("svg", {
+														xmlns: "http://www.w3.org/2000/svg",
+														width: "24",
+														height: "24",
+														viewBox: "0 0 24 24",
+														fill: "none",
+														stroke: "currentColor",
+														strokeWidth: 2,
+														strokeLinecap: "round",
+														strokeLinejoin: "round",
+														className: "lucide",
+														style: {
+															width: "18px",
+															height: "18px",
+															flexShrink: 0
+														},
+														children: [
+															/* @__PURE__ */ jsx("rect", {
+																x: "3",
+																y: "3",
+																width: "18",
+																height: "18",
+																rx: "2",
+																ry: "2"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "3",
+																y1: "9",
+																x2: "21",
+																y2: "9"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "3",
+																y1: "15",
+																x2: "21",
+																y2: "15"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "9",
+																y1: "3",
+																x2: "9",
+																y2: "21"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "15",
+																y1: "3",
+																x2: "15",
+																y2: "21"
+															})
+														]
+													})
+												}),
+												/* @__PURE__ */ jsx(SovereignToolBtn, {
+													onClick: () => editor.chain().focus().addRowAfter().run(),
+													title: "Add Row",
+													children: /* @__PURE__ */ jsxs("svg", {
+														xmlns: "http://www.w3.org/2000/svg",
+														width: "24",
+														height: "24",
+														viewBox: "0 0 24 24",
+														fill: "none",
+														stroke: "currentColor",
+														strokeWidth: 2,
+														strokeLinecap: "round",
+														strokeLinejoin: "round",
+														className: "lucide",
+														style: {
+															width: "18px",
+															height: "18px",
+															flexShrink: 0
+														},
+														children: [
+															/* @__PURE__ */ jsx("rect", {
+																width: "18",
+																height: "18",
+																x: "3",
+																y: "3",
+																rx: "2"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "3",
+																y1: "9",
+																x2: "21",
+																y2: "9"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "9",
+																y1: "21",
+																x2: "9",
+																y2: "9"
+															})
+														]
+													})
+												}),
+												/* @__PURE__ */ jsx(SovereignToolBtn, {
+													onClick: () => editor.chain().focus().addColumnAfter().run(),
+													title: "Add Column",
+													children: /* @__PURE__ */ jsxs("svg", {
+														xmlns: "http://www.w3.org/2000/svg",
+														width: "24",
+														height: "24",
+														viewBox: "0 0 24 24",
+														fill: "none",
+														stroke: "currentColor",
+														strokeWidth: 2,
+														strokeLinecap: "round",
+														strokeLinejoin: "round",
+														className: "lucide",
+														style: {
+															width: "18px",
+															height: "18px",
+															flexShrink: 0
+														},
+														children: [
+															/* @__PURE__ */ jsx("rect", {
+																width: "18",
+																height: "18",
+																x: "3",
+																y: "3",
+																rx: "2"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "3",
+																y1: "9",
+																x2: "21",
+																y2: "9"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "12",
+																y1: "3",
+																x2: "12",
+																y2: "21"
+															})
+														]
+													})
+												}),
+												/* @__PURE__ */ jsx(SovereignToolBtn, {
+													onClick: () => editor.chain().focus().deleteTable().run(),
+													title: "Delete Table",
+													color: "#ef4444",
+													children: /* @__PURE__ */ jsxs("svg", {
+														xmlns: "http://www.w3.org/2000/svg",
+														width: "24",
+														height: "24",
+														viewBox: "0 0 24 24",
+														fill: "none",
+														stroke: "currentColor",
+														strokeWidth: 2,
+														strokeLinecap: "round",
+														strokeLinejoin: "round",
+														className: "lucide",
+														style: {
+															width: "18px",
+															height: "18px",
+															flexShrink: 0
+														},
+														children: [
+															/* @__PURE__ */ jsx("path", { d: "M3 6h18" }),
+															/* @__PURE__ */ jsx("path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" }),
+															/* @__PURE__ */ jsx("path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" }),
+															/* @__PURE__ */ jsx("line", {
+																x1: "10",
+																y1: "11",
+																x2: "10",
+																y2: "17"
+															}),
+															/* @__PURE__ */ jsx("line", {
+																x1: "14",
+																y1: "11",
+																x2: "14",
+																y2: "17"
+															})
+														]
+													})
+												})
+											]
+										}),
+										/* @__PURE__ */ jsx("div", { style: toolDivider }),
+										/* @__PURE__ */ jsx(SovereignToolBtn, {
+											onClick: () => editor.chain().focus().unsetAllMarks().clearNodes().run(),
+											title: "Clear Formatting",
+											children: /* @__PURE__ */ jsxs("svg", {
+												xmlns: "http://www.w3.org/2000/svg",
+												width: "24",
+												height: "24",
+												viewBox: "0 0 24 24",
+												fill: "none",
+												stroke: "currentColor",
+												strokeWidth: 2,
+												strokeLinecap: "round",
+												strokeLinejoin: "round",
+												className: "lucide",
+												style: {
+													width: "18px",
+													height: "18px",
+													flexShrink: 0
+												},
+												children: [
+													/* @__PURE__ */ jsx("path", { d: "M21 7L7 21" }),
+													/* @__PURE__ */ jsx("path", { d: "M7 7l14 14" }),
+													/* @__PURE__ */ jsx("path", { d: "M3 11l5 5" }),
+													/* @__PURE__ */ jsx("path", { d: "m13 16 5 5" }),
+													/* @__PURE__ */ jsx("path", { d: "m8 3 5 5" })
+												]
+											})
+										}),
+										/* @__PURE__ */ jsx(SovereignToolBtn, {
+											onClick: () => setActiveTab("guardian"),
+											title: "AI Shield",
+											color: "#8b5cf6",
+											children: /* @__PURE__ */ jsxs("svg", {
+												xmlns: "http://www.w3.org/2000/svg",
+												width: "24",
+												height: "24",
+												viewBox: "0 0 24 24",
+												fill: "none",
+												stroke: "currentColor",
+												strokeWidth: 2,
+												strokeLinecap: "round",
+												strokeLinejoin: "round",
+												className: "lucide",
+												style: {
+													width: "18px",
+													height: "18px",
+													flexShrink: 0
+												},
+												children: [/* @__PURE__ */ jsx("path", { d: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" }), /* @__PURE__ */ jsx("path", { d: "m9 12 2 2 4-4" })]
+											})
+										}),
+										/* @__PURE__ */ jsx("input", {
+											type: "file",
+											ref: fileInputRef,
+											onChange: handleImageUpload,
+											style: { display: "none" },
+											accept: "image/*"
+										}),
+										/* @__PURE__ */ jsx("input", {
+											type: "file",
+											ref: videoInputRef,
+											onChange: handleVideoUpload,
+											style: { display: "none" },
+											accept: "video/*"
+										}),
+										/* @__PURE__ */ jsx("input", {
+											type: "color",
+											ref: colorInputRef,
+											onChange: handleColorChange,
+											style: { display: "none" }
+										}),
+										/* @__PURE__ */ jsx("input", {
+											type: "file",
+											ref: sliderInputRef,
+											onChange: handleSliderImageUpload,
+											multiple: true,
+											style: { display: "none" },
+											accept: "image/*"
 										})
 									]
 								}),
-								/* @__PURE__ */ jsx("div", { style: toolDivider }),
 								/* @__PURE__ */ jsxs("div", {
 									style: {
 										display: "flex",
-										gap: "4px"
+										alignItems: "center",
+										gap: "12px"
 									},
-									children: [
-										/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: () => editor.chain().focus().setTextAlign("left").run(),
-											active: editor.isActive({ textAlign: "left" }),
-											title: "Left Align",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [
-													/* @__PURE__ */ jsx("line", {
-														x1: "17",
-														y1: "10",
-														x2: "3",
-														y2: "10"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "21",
-														y1: "6",
-														x2: "3",
-														y2: "6"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "21",
-														y1: "14",
-														x2: "3",
-														y2: "14"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "17",
-														y1: "18",
-														x2: "3",
-														y2: "18"
-													})
-												]
-											})
-										}),
-										/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: () => editor.chain().focus().setTextAlign("center").run(),
-											active: editor.isActive({ textAlign: "center" }),
-											title: "Center Align",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [
-													/* @__PURE__ */ jsx("line", {
-														x1: "18",
-														y1: "10",
-														x2: "6",
-														y2: "10"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "21",
-														y1: "6",
-														x2: "3",
-														y2: "6"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "21",
-														y1: "14",
-														x2: "3",
-														y2: "14"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "18",
-														y1: "18",
-														x2: "6",
-														y2: "18"
-													})
-												]
-											})
-										}),
-										/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: () => editor.chain().focus().setTextAlign("right").run(),
-											active: editor.isActive({ textAlign: "right" }),
-											title: "Right Align",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [
-													/* @__PURE__ */ jsx("line", {
-														x1: "21",
-														y1: "10",
-														x2: "7",
-														y2: "10"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "21",
-														y1: "6",
-														x2: "3",
-														y2: "6"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "21",
-														y1: "14",
-														x2: "3",
-														y2: "14"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "21",
-														y1: "18",
-														x2: "7",
-														y2: "18"
-													})
-												]
-											})
-										}),
-										/* @__PURE__ */ jsx("div", { style: {
-											width: "1px",
-											height: "16px",
-											background: "#e2e8f0",
-											margin: "0 4px"
-										} }),
-										/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: () => editor.chain().focus().toggleBulletList().run(),
-											active: editor.isActive("bulletList"),
-											title: "Bullet List",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [
-													/* @__PURE__ */ jsx("line", {
-														x1: "8",
-														y1: "6",
-														x2: "21",
-														y2: "6"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "8",
-														y1: "12",
-														x2: "21",
-														y2: "12"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "8",
-														y1: "18",
-														x2: "21",
-														y2: "18"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "3",
-														y1: "6",
-														x2: "3.01",
-														y2: "6"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "3",
-														y1: "12",
-														x2: "3.01",
-														y2: "12"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "3",
-														y1: "18",
-														x2: "3.01",
-														y2: "18"
-													})
-												]
-											})
+									children: [/* @__PURE__ */ jsx("button", {
+										onClick: () => setDistractionFree(true),
+										style: iconBtnStyle,
+										title: "Distraction Free Mode",
+										children: /* @__PURE__ */ jsxs("svg", {
+											xmlns: "http://www.w3.org/2000/svg",
+											width: "24",
+											height: "24",
+											viewBox: "0 0 24 24",
+											fill: "none",
+											stroke: "currentColor",
+											strokeWidth: 2,
+											strokeLinecap: "round",
+											strokeLinejoin: "round",
+											className: "lucide",
+											style: {
+												width: "18px",
+												height: "18px",
+												flexShrink: 0
+											},
+											children: [
+												/* @__PURE__ */ jsx("polyline", { points: "15 3 21 3 21 9" }),
+												/* @__PURE__ */ jsx("polyline", { points: "9 21 3 21 3 15" }),
+												/* @__PURE__ */ jsx("line", {
+													x1: "21",
+													y1: "3",
+													x2: "14",
+													y2: "10"
+												}),
+												/* @__PURE__ */ jsx("line", {
+													x1: "3",
+													y1: "21",
+													x2: "10",
+													y2: "14"
+												})
+											]
 										})
-									]
-								}),
-								/* @__PURE__ */ jsx("div", { style: toolDivider }),
-								/* @__PURE__ */ jsxs("div", {
-									style: {
-										display: "flex",
-										gap: "4px"
-									},
-									children: [
-										/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: handleOpenLinkModal,
-											active: editor.isActive("link"),
-											title: "Insert Link",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [/* @__PURE__ */ jsx("path", { d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" }), /* @__PURE__ */ jsx("path", { d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" })]
-											})
-										}),
-										/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: () => fileInputRef.current?.click(),
-											title: "Insert Image",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [
-													/* @__PURE__ */ jsx("rect", {
-														x: "3",
-														y: "3",
-														width: "18",
-														height: "18",
-														rx: "2",
-														ry: "2"
-													}),
-													/* @__PURE__ */ jsx("circle", {
-														cx: "8.5",
-														cy: "8.5",
-														r: "1.5"
-													}),
-													/* @__PURE__ */ jsx("polyline", { points: "21 15 16 10 5 21" })
-												]
-											})
-										}),
-										/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: handleOpenSliderModal,
-											title: "Insert Image Slider",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [
-													/* @__PURE__ */ jsx("rect", {
-														width: "18",
-														height: "18",
-														x: "3",
-														y: "3",
-														rx: "2",
-														ry: "2"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "9",
-														y1: "3",
-														x2: "9",
-														y2: "21"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "15",
-														y1: "3",
-														x2: "15",
-														y2: "21"
-													})
-												]
-											})
-										}),
-										/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: handleOpenFaqModal,
-											title: "Insert FAQ Schema Block",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [
-													/* @__PURE__ */ jsx("circle", {
-														cx: "12",
-														cy: "12",
-														r: "10"
-													}),
-													/* @__PURE__ */ jsx("path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" }),
-													/* @__PURE__ */ jsx("path", { d: "M12 17h.01" })
-												]
-											})
-										}),
-										/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: handleOpenQuizModal,
-											title: "Insert Interactive Quiz",
-											children: /* @__PURE__ */ jsx("span", {
-												style: {
-													fontSize: "16px",
-													lineHeight: 1
-												},
-												children: "🧩"
-											})
-										}),
-										/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: handleOpenPollModal,
-											title: "Insert Interactive Poll",
-											children: /* @__PURE__ */ jsx("span", {
-												style: {
-													fontSize: "16px",
-													lineHeight: 1
-												},
-												children: "📊"
-											})
-										}),
-										/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: () => setVideoModalOpen(true),
-											title: "Video Portal",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [
-													/* @__PURE__ */ jsx("rect", {
-														width: "18",
-														height: "18",
-														x: "3",
-														y: "3",
-														rx: "2"
-													}),
-													/* @__PURE__ */ jsx("path", { d: "m15 8-5 4 5 4V8Z" }),
-													/* @__PURE__ */ jsx("path", { d: "M7 12h1" })
-												]
-											})
-										}),
-										/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: () => editor.chain().focus().toggleBlockquote().run(),
-											active: editor.isActive("blockquote"),
-											title: "Blockquote",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [/* @__PURE__ */ jsx("path", { d: "M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1 0 2.5 0 5-2 5" }), /* @__PURE__ */ jsx("path", { d: "M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1 0 2.5 0 5-2 5" })]
-											})
+									}), /* @__PURE__ */ jsx("button", {
+										onClick: () => setPreviewMode("google"),
+										style: iconBtnStyle,
+										title: "Search Preview",
+										children: /* @__PURE__ */ jsxs("svg", {
+											xmlns: "http://www.w3.org/2000/svg",
+											width: "24",
+											height: "24",
+											viewBox: "0 0 24 24",
+											fill: "none",
+											stroke: "currentColor",
+											strokeWidth: 2,
+											strokeLinecap: "round",
+											strokeLinejoin: "round",
+											className: "lucide",
+											style: {
+												width: "18px",
+												height: "18px",
+												flexShrink: 0
+											},
+											children: [/* @__PURE__ */ jsx("path", { d: "M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" }), /* @__PURE__ */ jsx("circle", {
+												cx: "12",
+												cy: "12",
+												r: "3"
+											})]
 										})
-									]
-								}),
-								/* @__PURE__ */ jsx("div", { style: toolDivider }),
-								/* @__PURE__ */ jsxs("div", {
-									style: {
-										display: "flex",
-										gap: "4px"
-									},
-									children: [
-										/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: () => editor.chain().focus().insertTable({
-												rows: 3,
-												cols: 3,
-												withHeaderRow: true
-											}).run(),
-											title: "Insert Table",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [
-													/* @__PURE__ */ jsx("rect", {
-														x: "3",
-														y: "3",
-														width: "18",
-														height: "18",
-														rx: "2",
-														ry: "2"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "3",
-														y1: "9",
-														x2: "21",
-														y2: "9"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "3",
-														y1: "15",
-														x2: "21",
-														y2: "15"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "9",
-														y1: "3",
-														x2: "9",
-														y2: "21"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "15",
-														y1: "3",
-														x2: "15",
-														y2: "21"
-													})
-												]
-											})
-										}),
-										/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: () => editor.chain().focus().addRowAfter().run(),
-											title: "Add Row",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [
-													/* @__PURE__ */ jsx("rect", {
-														width: "18",
-														height: "18",
-														x: "3",
-														y: "3",
-														rx: "2"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "3",
-														y1: "9",
-														x2: "21",
-														y2: "9"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "9",
-														y1: "21",
-														x2: "9",
-														y2: "9"
-													})
-												]
-											})
-										}),
-										/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: () => editor.chain().focus().addColumnAfter().run(),
-											title: "Add Column",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [
-													/* @__PURE__ */ jsx("rect", {
-														width: "18",
-														height: "18",
-														x: "3",
-														y: "3",
-														rx: "2"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "3",
-														y1: "9",
-														x2: "21",
-														y2: "9"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "12",
-														y1: "3",
-														x2: "12",
-														y2: "21"
-													})
-												]
-											})
-										}),
-										/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: () => editor.chain().focus().deleteTable().run(),
-											title: "Delete Table",
-											color: "#ef4444",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [
-													/* @__PURE__ */ jsx("path", { d: "M3 6h18" }),
-													/* @__PURE__ */ jsx("path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" }),
-													/* @__PURE__ */ jsx("path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" }),
-													/* @__PURE__ */ jsx("line", {
-														x1: "10",
-														y1: "11",
-														x2: "10",
-														y2: "17"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "14",
-														y1: "11",
-														x2: "14",
-														y2: "17"
-													})
-												]
-											})
-										})
-									]
-								}),
-								/* @__PURE__ */ jsx("div", { style: toolDivider }),
-								/* @__PURE__ */ jsx(SovereignToolBtn, {
-									onClick: () => editor.chain().focus().unsetAllMarks().clearNodes().run(),
-									title: "Clear Formatting",
-									children: /* @__PURE__ */ jsxs("svg", {
-										xmlns: "http://www.w3.org/2000/svg",
-										width: "24",
-										height: "24",
-										viewBox: "0 0 24 24",
-										fill: "none",
-										stroke: "currentColor",
-										strokeWidth: 2,
-										strokeLinecap: "round",
-										strokeLinejoin: "round",
-										className: "lucide",
-										style: {
-											width: "18px",
-											height: "18px",
-											flexShrink: 0
-										},
-										children: [
-											/* @__PURE__ */ jsx("path", { d: "M21 7L7 21" }),
-											/* @__PURE__ */ jsx("path", { d: "M7 7l14 14" }),
-											/* @__PURE__ */ jsx("path", { d: "M3 11l5 5" }),
-											/* @__PURE__ */ jsx("path", { d: "m13 16 5 5" }),
-											/* @__PURE__ */ jsx("path", { d: "m8 3 5 5" })
-										]
-									})
-								}),
-								/* @__PURE__ */ jsx(SovereignToolBtn, {
-									onClick: () => setActiveTab("guardian"),
-									title: "AI Shield",
-									color: "#8b5cf6",
-									children: /* @__PURE__ */ jsxs("svg", {
-										xmlns: "http://www.w3.org/2000/svg",
-										width: "24",
-										height: "24",
-										viewBox: "0 0 24 24",
-										fill: "none",
-										stroke: "currentColor",
-										strokeWidth: 2,
-										strokeLinecap: "round",
-										strokeLinejoin: "round",
-										className: "lucide",
-										style: {
-											width: "18px",
-											height: "18px",
-											flexShrink: 0
-										},
-										children: [/* @__PURE__ */ jsx("path", { d: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" }), /* @__PURE__ */ jsx("path", { d: "m9 12 2 2 4-4" })]
-									})
-								}),
-								/* @__PURE__ */ jsx("input", {
-									type: "file",
-									ref: fileInputRef,
-									onChange: handleImageUpload,
-									style: { display: "none" },
-									accept: "image/*"
-								}),
-								/* @__PURE__ */ jsx("input", {
-									type: "file",
-									ref: videoInputRef,
-									onChange: handleVideoUpload,
-									style: { display: "none" },
-									accept: "video/*"
-								}),
-								/* @__PURE__ */ jsx("input", {
-									type: "color",
-									ref: colorInputRef,
-									onChange: handleColorChange,
-									style: { display: "none" }
-								}),
-								/* @__PURE__ */ jsx("input", {
-									type: "file",
-									ref: sliderInputRef,
-									onChange: handleSliderImageUpload,
-									multiple: true,
-									style: { display: "none" },
-									accept: "image/*"
+									})]
 								})
 							]
 						})
@@ -6682,6 +6648,36 @@ function PostForm({ post }) {
 							]
 						})
 					]
+				})]
+			}),
+			/* @__PURE__ */ jsxs("div", {
+				style: {
+					position: "fixed",
+					bottom: "40px",
+					right: "40px",
+					zIndex: 1e5,
+					display: "flex",
+					flexDirection: "column",
+					alignItems: "flex-end",
+					gap: "8px"
+				},
+				children: [lastSaved && /* @__PURE__ */ jsxs("span", {
+					style: {
+						fontSize: "12px",
+						color: "#64748b",
+						fontWeight: 600,
+						background: "rgba(255,255,255,0.85)",
+						padding: "6px 12px",
+						borderRadius: "12px",
+						backdropFilter: "blur(8px)",
+						boxShadow: "0 4px 12px rgba(0,0,0,0.05)"
+					},
+					children: ["Saved: ", lastSaved]
+				}), /* @__PURE__ */ jsx("button", {
+					onClick: () => handleSave(true, false),
+					disabled: isPending,
+					style: publishBtnStyle,
+					children: isPending ? "Syncing..." : "Deploy"
 				})]
 			}),
 			faqModalOpen && /* @__PURE__ */ jsx("div", {
