@@ -561,10 +561,10 @@ var metaSelectStyle = {
 };
 var editorWrapperStyle = {
 	background: "#fff",
-	padding: "60px 40px",
+	padding: "40px 60px",
 	minHeight: "100vh",
 	position: "relative",
-	maxWidth: "850px",
+	maxWidth: "1200px",
 	margin: "0 auto",
 	width: "100%",
 	borderRadius: "0",
