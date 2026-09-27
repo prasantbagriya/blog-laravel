@@ -403,7 +403,7 @@ var publishBtnStyle = {
 var mainCanvasStyle = {
 	flex: 1,
 	overflowY: "auto",
-	background: "#f8fafc",
+	background: "#ffffff",
 	display: "flex",
 	flexDirection: "column",
 	position: "relative",
@@ -580,15 +580,15 @@ var metaSelectStyle = {
 };
 var editorWrapperStyle = {
 	background: "#fff",
-	padding: "50px",
+	padding: "60px 40px",
 	minHeight: "100vh",
 	position: "relative",
-	maxWidth: "1024px",
-	margin: "24px auto",
+	maxWidth: "850px",
+	margin: "0 auto",
 	width: "100%",
-	borderRadius: "24px",
-	border: "1px solid rgba(226,232,240,0.6)",
-	boxShadow: "0 10px 40px -10px rgba(0,0,0,0.04)"
+	borderRadius: "0",
+	border: "none",
+	boxShadow: "none"
 };
 var bubbleMenuStyle = {
 	background: "rgba(255,255,255,0.95)",
@@ -818,6 +818,8 @@ var InputGroup = ({ label, value, onChange, placeholder }) => /* @__PURE__ */ js
 });
 function PostForm({ post }) {
 	const [isMobile, setIsMobile] = useState(false);
+	const [sidebarWidth, setSidebarWidth] = useState(320);
+	const [isResizing, setIsResizing] = useState(false);
 	const [postId] = useState(post?.id || crypto.randomUUID());
 	useEffect(() => {
 		const handleResize = () => setIsMobile(window.innerWidth < 1024);
@@ -825,6 +827,22 @@ function PostForm({ post }) {
 		window.addEventListener("resize", handleResize);
 		return () => window.removeEventListener("resize", handleResize);
 	}, []);
+	useEffect(() => {
+		if (!isResizing) return;
+		const handleMouseMove = (e) => {
+			const newWidth = window.innerWidth - e.clientX;
+			if (newWidth > 200 && newWidth < 800) setSidebarWidth(newWidth);
+		};
+		const handleMouseUp = () => {
+			setIsResizing(false);
+		};
+		document.addEventListener("mousemove", handleMouseMove);
+		document.addEventListener("mouseup", handleMouseUp);
+		return () => {
+			document.removeEventListener("mousemove", handleMouseMove);
+			document.removeEventListener("mouseup", handleMouseUp);
+		};
+	}, [isResizing]);
 	const [title, setTitle] = useState(post?.title || "");
 	const [slug, setSlug] = useState(post?.slug || "");
 	const [urlFormat, setUrlFormat] = useState(post?.url_format || "blog/{slug}");
@@ -2754,7 +2772,7 @@ function PostForm({ post }) {
 							style: {
 								display: "flex",
 								gap: "4px",
-								maxWidth: "1000px",
+								maxWidth: "850px",
 								margin: "0 auto",
 								width: "100%",
 								flexWrap: "wrap",
@@ -3952,535 +3970,47 @@ function PostForm({ post }) {
 				}), /* @__PURE__ */ jsxs("aside", {
 					style: {
 						...intelSidebarStyle,
-						width: isMobile ? "100%" : "300px",
+						width: isMobile ? "100%" : `${sidebarWidth}px`,
 						borderLeft: isMobile ? "none" : "1px solid #e2e8f0",
 						borderTop: isMobile ? "1px solid #e2e8f0" : "none",
-						overflowY: isMobile ? "visible" : "auto"
+						overflowY: isMobile ? "visible" : "auto",
+						position: "relative"
 					},
-					children: [/* @__PURE__ */ jsxs("div", {
-						style: { padding: "24px 24px 0 24px" },
-						children: [/* @__PURE__ */ jsx("div", {
+					children: [
+						!isMobile && /* @__PURE__ */ jsx("div", {
+							onMouseDown: () => setIsResizing(true),
 							style: {
-								fontSize: "10px",
-								fontWeight: 900,
-								color: "#94a3b8",
-								letterSpacing: "1px",
-								marginBottom: "12px"
+								position: "absolute",
+								top: 0,
+								left: -4,
+								width: "8px",
+								height: "100%",
+								cursor: "col-resize",
+								zIndex: 10,
+								background: isResizing ? "rgba(59, 130, 246, 0.2)" : "transparent",
+								transition: "background 0.2s"
 							},
-							children: "INTEL MODULES"
-						}), /* @__PURE__ */ jsxs("div", {
-							style: intelTabsStyle,
-							children: [
-								/* @__PURE__ */ jsx(TabBtn, {
-									active: activeTab === "editor",
-									onClick: () => setActiveTab("editor"),
-									icon: /* @__PURE__ */ jsxs("svg", {
-										xmlns: "http://www.w3.org/2000/svg",
-										width: "24",
-										height: "24",
-										viewBox: "0 0 24 24",
-										fill: "none",
-										stroke: "currentColor",
-										strokeWidth: 2,
-										strokeLinecap: "round",
-										strokeLinejoin: "round",
-										className: "lucide",
-										style: {
-											width: "14px",
-											height: "14px"
-										},
-										children: [
-											/* @__PURE__ */ jsx("line", {
-												x1: "12",
-												y1: "20",
-												x2: "12",
-												y2: "10"
-											}),
-											/* @__PURE__ */ jsx("line", {
-												x1: "18",
-												y1: "20",
-												x2: "18",
-												y2: "4"
-											}),
-											/* @__PURE__ */ jsx("line", {
-												x1: "6",
-												y1: "20",
-												x2: "6",
-												y2: "16"
-											})
-										]
-									}),
-									label: "Audit",
-									status: seoScore > 80 ? "success" : "warning"
-								}),
-								/* @__PURE__ */ jsx(TabBtn, {
-									active: activeTab === "snippets",
-									onClick: () => setActiveTab("snippets"),
-									icon: /* @__PURE__ */ jsxs("svg", {
-										xmlns: "http://www.w3.org/2000/svg",
-										width: "24",
-										height: "24",
-										viewBox: "0 0 24 24",
-										fill: "none",
-										stroke: "currentColor",
-										strokeWidth: 2,
-										strokeLinecap: "round",
-										strokeLinejoin: "round",
-										className: "lucide",
-										style: {
-											width: "14px",
-											height: "14px"
-										},
-										children: [
-											/* @__PURE__ */ jsx("circle", {
-												cx: "12",
-												cy: "12",
-												r: "10"
-											}),
-											/* @__PURE__ */ jsx("circle", {
-												cx: "12",
-												cy: "12",
-												r: "6"
-											}),
-											/* @__PURE__ */ jsx("circle", {
-												cx: "12",
-												cy: "12",
-												r: "2"
-											})
-										]
-									}),
-									label: "Snippets",
-									status: snippetScore > 70 ? "success" : "neutral"
-								}),
-								/* @__PURE__ */ jsx(TabBtn, {
-									active: activeTab === "strategy",
-									onClick: () => setActiveTab("strategy"),
-									icon: /* @__PURE__ */ jsxs("svg", {
-										xmlns: "http://www.w3.org/2000/svg",
-										width: "24",
-										height: "24",
-										viewBox: "0 0 24 24",
-										fill: "none",
-										stroke: "currentColor",
-										strokeWidth: 2,
-										strokeLinecap: "round",
-										strokeLinejoin: "round",
-										className: "lucide",
-										style: {
-											width: "14px",
-											height: "14px"
-										},
-										children: [/* @__PURE__ */ jsx("path", { d: "M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.54Z" }), /* @__PURE__ */ jsx("path", { d: "M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.54Z" })]
-									}),
-									label: "Strategy",
-									status: "neutral"
-								}),
-								/* @__PURE__ */ jsx(TabBtn, {
-									active: activeTab === "meta",
-									onClick: () => setActiveTab("meta"),
-									icon: /* @__PURE__ */ jsxs("svg", {
-										xmlns: "http://www.w3.org/2000/svg",
-										width: "24",
-										height: "24",
-										viewBox: "0 0 24 24",
-										fill: "none",
-										stroke: "currentColor",
-										strokeWidth: 2,
-										strokeLinecap: "round",
-										strokeLinejoin: "round",
-										className: "lucide",
-										style: {
-											width: "14px",
-											height: "14px"
-										},
-										children: [/* @__PURE__ */ jsx("circle", {
-											cx: "11",
-											cy: "11",
-											r: "8"
-										}), /* @__PURE__ */ jsx("path", { d: "m21 21-4.3-4.3" })]
-									}),
-									label: "Meta",
-									status: seoTitle ? "success" : "warning"
-								}),
-								/* @__PURE__ */ jsx(TabBtn, {
-									active: activeTab === "eeat",
-									onClick: () => setActiveTab("eeat"),
-									icon: /* @__PURE__ */ jsxs("svg", {
-										xmlns: "http://www.w3.org/2000/svg",
-										width: "24",
-										height: "24",
-										viewBox: "0 0 24 24",
-										fill: "none",
-										stroke: "currentColor",
-										strokeWidth: 2,
-										strokeLinecap: "round",
-										strokeLinejoin: "round",
-										className: "lucide",
-										style: {
-											width: "14px",
-											height: "14px"
-										},
-										children: [/* @__PURE__ */ jsx("path", { d: "m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526" }), /* @__PURE__ */ jsx("circle", {
-											cx: "12",
-											cy: "8",
-											r: "6"
-										})]
-									}),
-									label: "EEAT",
-									status: factCheckedBy ? "success" : "warning"
-								}),
-								/* @__PURE__ */ jsx(TabBtn, {
-									active: activeTab === "guardian",
-									onClick: () => setActiveTab("guardian"),
-									icon: /* @__PURE__ */ jsxs("svg", {
-										xmlns: "http://www.w3.org/2000/svg",
-										width: "24",
-										height: "24",
-										viewBox: "0 0 24 24",
-										fill: "none",
-										stroke: "currentColor",
-										strokeWidth: 2,
-										strokeLinecap: "round",
-										strokeLinejoin: "round",
-										className: "lucide",
-										style: {
-											width: "14px",
-											height: "14px"
-										},
-										children: [/* @__PURE__ */ jsx("path", { d: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" }), /* @__PURE__ */ jsx("path", { d: "m9 12 2 2 4-4" })]
-									}),
-									label: "Shield",
-									status: "success"
-								}),
-								/* @__PURE__ */ jsx(TabBtn, {
-									active: activeTab === "schema",
-									onClick: () => setActiveTab("schema"),
-									icon: /* @__PURE__ */ jsxs("svg", {
-										xmlns: "http://www.w3.org/2000/svg",
-										width: "24",
-										height: "24",
-										viewBox: "0 0 24 24",
-										fill: "none",
-										stroke: "currentColor",
-										strokeWidth: 2,
-										strokeLinecap: "round",
-										strokeLinejoin: "round",
-										className: "lucide",
-										style: {
-											width: "14px",
-											height: "14px"
-										},
-										children: [
-											/* @__PURE__ */ jsx("path", { d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" }),
-											/* @__PURE__ */ jsx("path", { d: "M14 2v4a2 2 0 0 0 2 2h4" }),
-											/* @__PURE__ */ jsx("path", { d: "M10 12a1 1 0 0 0-1 1v1a1 1 0 0 1-1 1 1 1 0 0 1 1 1v1a1 1 0 0 0 1 1" }),
-											/* @__PURE__ */ jsx("path", { d: "M14 18a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1 1 1 0 0 1-1-1v-1a1 1 0 0 0-1-1" })
-										]
-									}),
-									label: "Schema",
-									status: faqs.length > 0 ? "success" : "neutral"
-								}),
-								/* @__PURE__ */ jsx(TabBtn, {
-									active: activeTab === "seo",
-									onClick: () => setActiveTab("seo"),
-									icon: /* @__PURE__ */ jsx("svg", {
-										xmlns: "http://www.w3.org/2000/svg",
-										width: "24",
-										height: "24",
-										viewBox: "0 0 24 24",
-										fill: "none",
-										stroke: "currentColor",
-										strokeWidth: 2,
-										strokeLinecap: "round",
-										strokeLinejoin: "round",
-										className: "lucide",
-										style: {
-											width: "14px",
-											height: "14px"
-										},
-										children: /* @__PURE__ */ jsx("polygon", { points: "13 2 3 14 12 14 11 22 21 10 12 10 13 2" })
-									}),
-									label: "Turbo",
-									status: "neutral"
-								})
-							]
-						})]
-					}), /* @__PURE__ */ jsxs("div", {
-						style: {
-							flex: 1,
-							overflowY: "auto",
-							padding: "24px"
-						},
-						children: [
-							activeTab === "editor" && /* @__PURE__ */ jsxs("div", { children: [
-								/* @__PURE__ */ jsxs("div", {
-									style: {
-										display: "flex",
-										gap: "16px",
-										marginBottom: "24px"
-									},
-									children: [
-										/* @__PURE__ */ jsx(MiniScore, {
-											label: "SEO",
-											value: seoScore
-										}),
-										/* @__PURE__ */ jsx(MiniScore, {
-											label: "HCU",
-											value: helpfulScore,
-											color: "#10b981"
-										}),
-										/* @__PURE__ */ jsx(MiniScore, {
-											label: "SNIP",
-											value: snippetScore,
-											color: "#8b5cf6"
-										})
-									]
-								}),
-								/* @__PURE__ */ jsx("h3", {
-									style: sidebarHeadingStyle,
-									children: "Google HCU Audit"
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									style: hcuCardStyle,
-									children: [
-										/* @__PURE__ */ jsxs("div", {
-											style: {
-												display: "flex",
-												justifyContent: "space-between",
-												marginBottom: "15px"
-											},
-											children: [/* @__PURE__ */ jsx("span", {
-												style: {
-													fontSize: "11px",
-													fontWeight: 900,
-													color: "#64748b"
-												},
-												children: "HELPFUL CONTENT SCORE"
-											}), /* @__PURE__ */ jsxs("span", {
-												style: {
-													fontSize: "18px",
-													fontWeight: 900,
-													color: helpfulScore > 80 ? "#10b981" : "#f59e0b"
-												},
-												children: [helpfulScore, "%"]
-											})]
-										}),
-										/* @__PURE__ */ jsx("div", {
-											style: {
-												height: "6px",
-												background: "#e2e8f0",
-												borderRadius: "3px",
-												overflow: "hidden",
-												marginBottom: "20px"
-											},
-											children: /* @__PURE__ */ jsx("div", { style: {
-												height: "100%",
-												background: helpfulScore > 80 ? "#10b981" : "#f59e0b"
-											} })
-										}),
-										/* @__PURE__ */ jsxs("div", {
-											style: {
-												display: "grid",
-												gridTemplateColumns: "1fr 1fr",
-												gap: "8px"
-											},
-											children: [
-												/* @__PURE__ */ jsx(StatBox, {
-													label: "INTENT",
-													value: userIntent.toUpperCase()
-												}),
-												/* @__PURE__ */ jsx(StatBox, {
-													label: "HUMAN",
-													value: `${humanScore}%`
-												}),
-												/* @__PURE__ */ jsx(StatBox, {
-													label: "GAIN",
-													value: "HIGH"
-												}),
-												/* @__PURE__ */ jsx(StatBox, {
-													label: "ENTITIES",
-													value: entities.length
-												})
-											]
-										})
-									]
-								}),
-								/* @__PURE__ */ jsx("h3", {
-									style: sidebarHeadingStyle,
-									children: "Technical SEO Tips"
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									style: {
-										display: "flex",
-										flexDirection: "column",
-										gap: "10px"
-									},
-									children: [
-										seoScore < 100 && /* @__PURE__ */ jsx(SeoTip, {
-											icon: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "14px",
-													height: "14px"
-												},
-												children: [
-													/* @__PURE__ */ jsx("circle", {
-														cx: "12",
-														cy: "12",
-														r: "10"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "12",
-														y1: "8",
-														x2: "12",
-														y2: "12"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "12",
-														y1: "16",
-														x2: "12.01",
-														y2: "16"
-													})
-												]
-											}),
-											text: "Increase content length to 1500+ words.",
-											type: "warning"
-										}),
-										visualHealth.altMissing > 0 && /* @__PURE__ */ jsx(SeoTip, {
-											icon: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "14px",
-													height: "14px"
-												},
-												children: [
-													/* @__PURE__ */ jsx("path", { d: "m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" }),
-													/* @__PURE__ */ jsx("line", {
-														x1: "12",
-														y1: "9",
-														x2: "12",
-														y2: "13"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "12",
-														y1: "17",
-														x2: "12.01",
-														y2: "17"
-													})
-												]
-											}),
-											text: `${visualHealth.altMissing} images missing ALT text.`,
-											type: "error"
-										}),
-										helpfulScore >= 80 && /* @__PURE__ */ jsx(SeoTip, {
-											icon: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "14px",
-													height: "14px"
-												},
-												children: [/* @__PURE__ */ jsx("path", { d: "M22 11.08V12a10 10 0 1 1-5.93-9.14" }), /* @__PURE__ */ jsx("polyline", { points: "22 4 12 14.01 9 11.01" })]
-											}),
-											text: "Content shows high human-gain value.",
-											type: "success"
-										})
-									]
-								}),
-								/* @__PURE__ */ jsx("h3", {
-									style: sidebarHeadingStyle,
-									children: "Document Outline"
-								}),
-								/* @__PURE__ */ jsx("div", {
-									style: {
-										display: "flex",
-										flexDirection: "column",
-										gap: "8px"
-									},
-									children: tableOfContents.map((h) => /* @__PURE__ */ jsx("div", {
-										style: {
-											...tocItemStyle,
-											paddingLeft: `${(h.level - 2) * 12}px`,
-											borderLeft: activeTab === "editor" ? "2px solid #e2e8f0" : "none"
-										},
-										children: h.text
-									}, h.id))
-								})
-							] }, "editor"),
-							activeTab === "snippets" && /* @__PURE__ */ jsxs("div", { children: [
-								/* @__PURE__ */ jsx("h3", {
-									style: sidebarHeadingStyle,
-									children: "Featured Snippet Audit"
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									style: hcuCardStyle,
-									children: [/* @__PURE__ */ jsxs("div", {
-										style: {
-											display: "flex",
-											justifyContent: "space-between",
-											marginBottom: "10px"
-										},
-										children: [/* @__PURE__ */ jsx("span", {
-											style: {
-												fontSize: "11px",
-												fontWeight: 900
-											},
-											children: "SNIPPET POTENTIAL"
-										}), /* @__PURE__ */ jsxs("span", {
-											style: {
-												fontSize: "18px",
-												fontWeight: 900,
-												color: "#8b5cf6"
-											},
-											children: [snippetScore, "%"]
-										})]
-									}), /* @__PURE__ */ jsx("p", {
-										style: {
-											fontSize: "12px",
-											color: "#64748b",
-											lineHeight: "1.5"
-										},
-										children: "Optimizing for Position Zero increases CTR by 30%."
-									})]
-								}),
-								/* @__PURE__ */ jsx("h4", {
-									style: {
-										fontSize: "11px",
-										fontWeight: 900,
-										marginBottom: "12px"
-									},
-									children: "OPTIMIZATION TIPS"
-								}),
-								snippetTips.map((tip, i) => /* @__PURE__ */ jsxs("div", {
-									style: tipRowStyle,
-									children: [
-										/* @__PURE__ */ jsxs("svg", {
+							onMouseEnter: (e) => e.currentTarget.style.background = "rgba(59, 130, 246, 0.2)",
+							onMouseLeave: (e) => e.currentTarget.style.background = isResizing ? "rgba(59, 130, 246, 0.2)" : "transparent"
+						}),
+						/* @__PURE__ */ jsxs("div", {
+							style: { padding: "24px 24px 0 24px" },
+							children: [/* @__PURE__ */ jsx("div", {
+								style: {
+									fontSize: "10px",
+									fontWeight: 900,
+									color: "#94a3b8",
+									letterSpacing: "1px",
+									marginBottom: "12px"
+								},
+								children: "INTEL MODULES"
+							}), /* @__PURE__ */ jsxs("div", {
+								style: intelTabsStyle,
+								children: [
+									/* @__PURE__ */ jsx(TabBtn, {
+										active: activeTab === "editor",
+										onClick: () => setActiveTab("editor"),
+										icon: /* @__PURE__ */ jsxs("svg", {
 											xmlns: "http://www.w3.org/2000/svg",
 											width: "24",
 											height: "24",
@@ -4492,1327 +4022,339 @@ function PostForm({ post }) {
 											strokeLinejoin: "round",
 											className: "lucide",
 											style: {
-												width: "12px",
-												height: "12px",
-												color: "#10b981"
+												width: "14px",
+												height: "14px"
 											},
-											children: [/* @__PURE__ */ jsx("path", { d: "M22 11.08V12a10 10 0 1 1-5.93-9.14" }), /* @__PURE__ */ jsx("polyline", { points: "22 4 12 14.01 9 11.01" })]
+											children: [
+												/* @__PURE__ */ jsx("line", {
+													x1: "12",
+													y1: "20",
+													x2: "12",
+													y2: "10"
+												}),
+												/* @__PURE__ */ jsx("line", {
+													x1: "18",
+													y1: "20",
+													x2: "18",
+													y2: "4"
+												}),
+												/* @__PURE__ */ jsx("line", {
+													x1: "6",
+													y1: "20",
+													x2: "6",
+													y2: "16"
+												})
+											]
 										}),
-										" ",
-										tip
-									]
-								}, i))
-							] }, "snippets"),
-							activeTab === "eeat" && /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("h3", {
-								style: sidebarHeadingStyle,
-								children: "EEAT Verification"
-							}), /* @__PURE__ */ jsxs("div", {
-								style: {
-									display: "flex",
-									flexDirection: "column",
-									gap: "16px"
-								},
-								children: [
-									availableAuthors.length > 0 && /* @__PURE__ */ jsxs("div", {
+										label: "Audit",
+										status: seoScore > 80 ? "success" : "warning"
+									}),
+									/* @__PURE__ */ jsx(TabBtn, {
+										active: activeTab === "snippets",
+										onClick: () => setActiveTab("snippets"),
+										icon: /* @__PURE__ */ jsxs("svg", {
+											xmlns: "http://www.w3.org/2000/svg",
+											width: "24",
+											height: "24",
+											viewBox: "0 0 24 24",
+											fill: "none",
+											stroke: "currentColor",
+											strokeWidth: 2,
+											strokeLinecap: "round",
+											strokeLinejoin: "round",
+											className: "lucide",
+											style: {
+												width: "14px",
+												height: "14px"
+											},
+											children: [
+												/* @__PURE__ */ jsx("circle", {
+													cx: "12",
+													cy: "12",
+													r: "10"
+												}),
+												/* @__PURE__ */ jsx("circle", {
+													cx: "12",
+													cy: "12",
+													r: "6"
+												}),
+												/* @__PURE__ */ jsx("circle", {
+													cx: "12",
+													cy: "12",
+													r: "2"
+												})
+											]
+										}),
+										label: "Snippets",
+										status: snippetScore > 70 ? "success" : "neutral"
+									}),
+									/* @__PURE__ */ jsx(TabBtn, {
+										active: activeTab === "strategy",
+										onClick: () => setActiveTab("strategy"),
+										icon: /* @__PURE__ */ jsxs("svg", {
+											xmlns: "http://www.w3.org/2000/svg",
+											width: "24",
+											height: "24",
+											viewBox: "0 0 24 24",
+											fill: "none",
+											stroke: "currentColor",
+											strokeWidth: 2,
+											strokeLinecap: "round",
+											strokeLinejoin: "round",
+											className: "lucide",
+											style: {
+												width: "14px",
+												height: "14px"
+											},
+											children: [/* @__PURE__ */ jsx("path", { d: "M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.54Z" }), /* @__PURE__ */ jsx("path", { d: "M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.54Z" })]
+										}),
+										label: "Strategy",
+										status: "neutral"
+									}),
+									/* @__PURE__ */ jsx(TabBtn, {
+										active: activeTab === "meta",
+										onClick: () => setActiveTab("meta"),
+										icon: /* @__PURE__ */ jsxs("svg", {
+											xmlns: "http://www.w3.org/2000/svg",
+											width: "24",
+											height: "24",
+											viewBox: "0 0 24 24",
+											fill: "none",
+											stroke: "currentColor",
+											strokeWidth: 2,
+											strokeLinecap: "round",
+											strokeLinejoin: "round",
+											className: "lucide",
+											style: {
+												width: "14px",
+												height: "14px"
+											},
+											children: [/* @__PURE__ */ jsx("circle", {
+												cx: "11",
+												cy: "11",
+												r: "8"
+											}), /* @__PURE__ */ jsx("path", { d: "m21 21-4.3-4.3" })]
+										}),
+										label: "Meta",
+										status: seoTitle ? "success" : "warning"
+									}),
+									/* @__PURE__ */ jsx(TabBtn, {
+										active: activeTab === "eeat",
+										onClick: () => setActiveTab("eeat"),
+										icon: /* @__PURE__ */ jsxs("svg", {
+											xmlns: "http://www.w3.org/2000/svg",
+											width: "24",
+											height: "24",
+											viewBox: "0 0 24 24",
+											fill: "none",
+											stroke: "currentColor",
+											strokeWidth: 2,
+											strokeLinecap: "round",
+											strokeLinejoin: "round",
+											className: "lucide",
+											style: {
+												width: "14px",
+												height: "14px"
+											},
+											children: [/* @__PURE__ */ jsx("path", { d: "m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526" }), /* @__PURE__ */ jsx("circle", {
+												cx: "12",
+												cy: "8",
+												r: "6"
+											})]
+										}),
+										label: "EEAT",
+										status: factCheckedBy ? "success" : "warning"
+									}),
+									/* @__PURE__ */ jsx(TabBtn, {
+										active: activeTab === "guardian",
+										onClick: () => setActiveTab("guardian"),
+										icon: /* @__PURE__ */ jsxs("svg", {
+											xmlns: "http://www.w3.org/2000/svg",
+											width: "24",
+											height: "24",
+											viewBox: "0 0 24 24",
+											fill: "none",
+											stroke: "currentColor",
+											strokeWidth: 2,
+											strokeLinecap: "round",
+											strokeLinejoin: "round",
+											className: "lucide",
+											style: {
+												width: "14px",
+												height: "14px"
+											},
+											children: [/* @__PURE__ */ jsx("path", { d: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" }), /* @__PURE__ */ jsx("path", { d: "m9 12 2 2 4-4" })]
+										}),
+										label: "Shield",
+										status: "success"
+									}),
+									/* @__PURE__ */ jsx(TabBtn, {
+										active: activeTab === "schema",
+										onClick: () => setActiveTab("schema"),
+										icon: /* @__PURE__ */ jsxs("svg", {
+											xmlns: "http://www.w3.org/2000/svg",
+											width: "24",
+											height: "24",
+											viewBox: "0 0 24 24",
+											fill: "none",
+											stroke: "currentColor",
+											strokeWidth: 2,
+											strokeLinecap: "round",
+											strokeLinejoin: "round",
+											className: "lucide",
+											style: {
+												width: "14px",
+												height: "14px"
+											},
+											children: [
+												/* @__PURE__ */ jsx("path", { d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" }),
+												/* @__PURE__ */ jsx("path", { d: "M14 2v4a2 2 0 0 0 2 2h4" }),
+												/* @__PURE__ */ jsx("path", { d: "M10 12a1 1 0 0 0-1 1v1a1 1 0 0 1-1 1 1 1 0 0 1 1 1v1a1 1 0 0 0 1 1" }),
+												/* @__PURE__ */ jsx("path", { d: "M14 18a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1 1 1 0 0 1-1-1v-1a1 1 0 0 0-1-1" })
+											]
+										}),
+										label: "Schema",
+										status: faqs.length > 0 ? "success" : "neutral"
+									}),
+									/* @__PURE__ */ jsx(TabBtn, {
+										active: activeTab === "seo",
+										onClick: () => setActiveTab("seo"),
+										icon: /* @__PURE__ */ jsx("svg", {
+											xmlns: "http://www.w3.org/2000/svg",
+											width: "24",
+											height: "24",
+											viewBox: "0 0 24 24",
+											fill: "none",
+											stroke: "currentColor",
+											strokeWidth: 2,
+											strokeLinecap: "round",
+											strokeLinejoin: "round",
+											className: "lucide",
+											style: {
+												width: "14px",
+												height: "14px"
+											},
+											children: /* @__PURE__ */ jsx("polygon", { points: "13 2 3 14 12 14 11 22 21 10 12 10 13 2" })
+										}),
+										label: "Turbo",
+										status: "neutral"
+									})
+								]
+							})]
+						}),
+						/* @__PURE__ */ jsxs("div", {
+							style: {
+								flex: 1,
+								overflowY: "auto",
+								padding: "24px"
+							},
+							children: [
+								activeTab === "editor" && /* @__PURE__ */ jsxs("div", { children: [
+									/* @__PURE__ */ jsxs("div", {
 										style: {
 											display: "flex",
-											flexDirection: "column",
-											gap: "6px",
-											background: "#f8fafc",
-											padding: "16px",
-											borderRadius: "12px",
-											border: "1px solid #e2e8f0"
+											gap: "16px",
+											marginBottom: "24px"
 										},
 										children: [
-											/* @__PURE__ */ jsx("label", {
-												style: metaLabelStyle,
-												children: "SELECT SAVED AUTHOR PROFILE"
+											/* @__PURE__ */ jsx(MiniScore, {
+												label: "SEO",
+												value: seoScore
 											}),
-											/* @__PURE__ */ jsxs("select", {
-												style: metaInputStyle,
-												value: availableAuthors.find((a) => a.name === author)?.id || "",
-												onChange: (e) => {
-													const selected = availableAuthors.find((a) => a.id === e.target.value);
-													if (selected) {
-														setAuthor(selected.name);
-														setAuthorExpertise(selected.jobTitle || "");
-														setAuthorBio(selected.bio || "");
-														setAuthorImage(selected.image || "");
-														setAuthorExperienceYears(selected.experienceYears || 0);
-														setAuthorSocials(selected.socials || {
-															twitter: "",
-															linkedin: "",
-															website: ""
-														});
-														if (selected.awards) setAuthorAwards(selected.awards);
-														if (selected.alumniOf) setAuthorAlumniOf(selected.alumniOf);
-														if (selected.knowsAbout) setAuthorKnowsAbout(selected.knowsAbout);
-													}
-												},
-												children: [/* @__PURE__ */ jsx("option", {
-													value: "",
-													children: "-- Choose an Author --"
-												}), availableAuthors.map((a) => /* @__PURE__ */ jsx("option", {
-													value: a.id,
-													children: a.name
-												}, a.id))]
+											/* @__PURE__ */ jsx(MiniScore, {
+												label: "HCU",
+												value: helpfulScore,
+												color: "#10b981"
 											}),
-											/* @__PURE__ */ jsx("span", {
-												style: {
-													fontSize: "11px",
-													color: "#64748b"
-												},
-												children: "This connects the post to a rich Author Profile for EEAT."
+											/* @__PURE__ */ jsx(MiniScore, {
+												label: "SNIP",
+												value: snippetScore,
+												color: "#8b5cf6"
 											})
 										]
 									}),
-									/* @__PURE__ */ jsxs("div", {
-										style: {
-											display: "flex",
-											flexDirection: "column",
-											gap: "6px",
-											background: "#f8fafc",
-											padding: "16px",
-											borderRadius: "12px",
-											border: "1px solid #e2e8f0",
-											marginTop: "16px"
-										},
-										children: [/* @__PURE__ */ jsx("label", {
-											style: metaLabelStyle,
-											children: "SELECT CATEGORY"
-										}), /* @__PURE__ */ jsxs("select", {
-											style: metaInputStyle,
-											value: category,
-											onChange: (e) => setCategory(e.target.value),
-											children: [/* @__PURE__ */ jsx("option", {
-												value: "General",
-												children: "General"
-											}), availableCategories.map((c) => /* @__PURE__ */ jsx("option", {
-												value: c.name,
-												children: c.name
-											}, c.id))]
-										})]
-									}),
-									/* @__PURE__ */ jsx(InputGroup, {
-										label: "FACT CHECKED BY",
-										value: factCheckedBy,
-										onChange: setFactCheckedBy,
-										placeholder: "e.g. Dr. Sarah Connor"
-									}),
-									/* @__PURE__ */ jsx(InputGroup, {
-										label: "FACT CHECKER ROLE",
-										value: factCheckerRole,
-										onChange: setFactCheckerRole,
-										placeholder: "e.g. Senior Medical Editor"
+									/* @__PURE__ */ jsx("h3", {
+										style: sidebarHeadingStyle,
+										children: "Google HCU Audit"
 									}),
 									/* @__PURE__ */ jsxs("div", {
-										style: {
-											display: "flex",
-											flexDirection: "column",
-											gap: "6px"
-										},
-										children: [/* @__PURE__ */ jsx("label", {
-											style: metaLabelStyle,
-											children: "🔬 RESEARCH METHODOLOGY"
-										}), /* @__PURE__ */ jsx("textarea", {
-											placeholder: "Describe how data was collected and verified...",
-											value: researchMethodology,
-											onChange: (e) => setResearchMethodology(e.target.value),
-											style: metaTextAreaStyle
-										})]
-									}),
-									/* @__PURE__ */ jsxs("div", {
-										style: {
-											display: "flex",
-											flexDirection: "column",
-											gap: "6px"
-										},
+										style: hcuCardStyle,
 										children: [
-											/* @__PURE__ */ jsx("label", {
-												style: metaLabelStyle,
-												children: "📚 SOURCES & CITATIONS"
-											}),
-											sources.map((src, i) => /* @__PURE__ */ jsxs("div", {
-												style: {
-													display: "flex",
-													alignItems: "center",
-													gap: "8px",
-													background: "#f8fafc",
-													borderRadius: "10px",
-													padding: "8px 12px",
-													fontSize: "12px",
-													border: "1px solid #e2e8f0"
-												},
-												children: [
-													/* @__PURE__ */ jsx("span", {
-														style: {
-															background: src.type === "primary" ? "#10b981" : "#3b82f6",
-															color: "white",
-															padding: "2px 7px",
-															borderRadius: "4px",
-															fontSize: "10px",
-															fontWeight: 800,
-															textTransform: "uppercase",
-															flexShrink: 0
-														},
-														children: src.type
-													}),
-													/* @__PURE__ */ jsx("span", {
-														style: {
-															flex: 1,
-															overflow: "hidden",
-															textOverflow: "ellipsis",
-															whiteSpace: "nowrap",
-															color: "#475569"
-														},
-														children: src.title || src.url
-													}),
-													/* @__PURE__ */ jsx("button", {
-														onClick: () => setSources(sources.filter((_, idx) => idx !== i)),
-														style: {
-															border: "none",
-															background: "#fee2e2",
-															color: "#dc2626",
-															borderRadius: "6px",
-															padding: "3px 8px",
-															cursor: "pointer",
-															fontSize: "11px",
-															fontWeight: 700
-														},
-														children: "✕"
-													})
-												]
-											}, i)),
-											/* @__PURE__ */ jsx("input", {
-												value: sourceInput.title,
-												onChange: (e) => setSourceInput({
-													...sourceInput,
-													title: e.target.value
-												}),
-												placeholder: "Source Title",
-												style: {
-													...metaInputStyle,
-													marginBottom: "6px"
-												}
-											}),
-											/* @__PURE__ */ jsx("input", {
-												value: sourceInput.url,
-												onChange: (e) => setSourceInput({
-													...sourceInput,
-													url: e.target.value
-												}),
-												placeholder: "Source URL (https://...)",
-												style: {
-													...metaInputStyle,
-													marginBottom: "6px"
-												}
-											}),
 											/* @__PURE__ */ jsxs("div", {
 												style: {
 													display: "flex",
+													justifyContent: "space-between",
+													marginBottom: "15px"
+												},
+												children: [/* @__PURE__ */ jsx("span", {
+													style: {
+														fontSize: "11px",
+														fontWeight: 900,
+														color: "#64748b"
+													},
+													children: "HELPFUL CONTENT SCORE"
+												}), /* @__PURE__ */ jsxs("span", {
+													style: {
+														fontSize: "18px",
+														fontWeight: 900,
+														color: helpfulScore > 80 ? "#10b981" : "#f59e0b"
+													},
+													children: [helpfulScore, "%"]
+												})]
+											}),
+											/* @__PURE__ */ jsx("div", {
+												style: {
+													height: "6px",
+													background: "#e2e8f0",
+													borderRadius: "3px",
+													overflow: "hidden",
+													marginBottom: "20px"
+												},
+												children: /* @__PURE__ */ jsx("div", { style: {
+													height: "100%",
+													background: helpfulScore > 80 ? "#10b981" : "#f59e0b"
+												} })
+											}),
+											/* @__PURE__ */ jsxs("div", {
+												style: {
+													display: "grid",
+													gridTemplateColumns: "1fr 1fr",
 													gap: "8px"
 												},
-												children: [/* @__PURE__ */ jsxs("select", {
-													value: sourceInput.type,
-													onChange: (e) => setSourceInput({
-														...sourceInput,
-														type: e.target.value
+												children: [
+													/* @__PURE__ */ jsx(StatBox, {
+														label: "INTENT",
+														value: userIntent.toUpperCase()
 													}),
-													style: {
-														...metaInputStyle,
-														flex: 1
-													},
-													children: [/* @__PURE__ */ jsx("option", {
-														value: "primary",
-														children: "Primary Source"
-													}), /* @__PURE__ */ jsx("option", {
-														value: "secondary",
-														children: "Secondary Source"
-													})]
-												}), /* @__PURE__ */ jsx("button", {
-													onClick: () => {
-														if (sourceInput.url.trim()) {
-															setSources([...sources, { ...sourceInput }]);
-															setSourceInput({
-																title: "",
-																url: "",
-																type: "primary"
-															});
-														}
-													},
-													style: {
-														...addNodeBtn,
-														width: "auto",
-														padding: "0 16px",
-														margin: 0
-													},
-													children: "Add"
-												})]
+													/* @__PURE__ */ jsx(StatBox, {
+														label: "HUMAN",
+														value: `${humanScore}%`
+													}),
+													/* @__PURE__ */ jsx(StatBox, {
+														label: "GAIN",
+														value: "HIGH"
+													}),
+													/* @__PURE__ */ jsx(StatBox, {
+														label: "ENTITIES",
+														value: entities.length
+													})
+												]
 											})
 										]
 									}),
+									/* @__PURE__ */ jsx("h3", {
+										style: sidebarHeadingStyle,
+										children: "Technical SEO Tips"
+									}),
 									/* @__PURE__ */ jsxs("div", {
-										style: eeatCheckStyle,
-										children: [/* @__PURE__ */ jsx("input", {
-											type: "checkbox",
-											checked: eeatChecklist.credentialsIncluded,
-											onChange: (e) => setEeatChecklist({
-												...eeatChecklist,
-												credentialsIncluded: e.target.checked
-											})
-										}), /* @__PURE__ */ jsx("span", { children: "AI-Assisted (Disclosure Required)" })]
-									})
-								]
-							})] }, "eeat"),
-							activeTab === "schema" && /* @__PURE__ */ jsxs("div", { children: [
-								/* @__PURE__ */ jsx("h3", {
-									style: sidebarHeadingStyle,
-									children: "FAQ Schema Nodes"
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									style: {
-										display: "flex",
-										flexDirection: "column",
-										gap: "12px"
-									},
-									children: [faqs.map((faq, i) => /* @__PURE__ */ jsxs("div", {
-										style: faqNodeStyle,
-										children: [/* @__PURE__ */ jsx("input", {
-											placeholder: "Question",
-											value: faq.question,
-											onChange: (e) => {
-												const n = [...faqs];
-												n[i].question = e.target.value;
-												handleSidebarFaqChange(n);
-											},
-											style: faqInputSmall
-										}), /* @__PURE__ */ jsx("textarea", {
-											placeholder: "Answer",
-											value: faq.answer,
-											onChange: (e) => {
-												const n = [...faqs];
-												n[i].answer = e.target.value;
-												handleSidebarFaqChange(n);
-											},
-											style: faqTextArea
-										})]
-									}, i)), /* @__PURE__ */ jsx("button", {
-										onClick: () => handleSidebarFaqChange([...faqs, {
-											question: "",
-											answer: ""
-										}]),
-										style: addNodeBtn,
-										children: "+ Add FAQ Node"
-									})]
-								}),
-								/* @__PURE__ */ jsx("h3", {
-									style: {
-										...sidebarHeadingStyle,
-										marginTop: "24px"
-									},
-									children: "HowTo Schema Nodes"
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									style: {
-										display: "flex",
-										flexDirection: "column",
-										gap: "12px"
-									},
-									children: [howToSteps.map((step, i) => /* @__PURE__ */ jsxs("div", {
-										style: faqNodeStyle,
-										children: [
-											/* @__PURE__ */ jsx("input", {
-												placeholder: "Step Name (e.g. Prepare Ingredients)",
-												value: step.name,
-												onChange: (e) => {
-													const n = [...howToSteps];
-													n[i].name = e.target.value;
-													setHowToSteps(n);
-												},
-												style: faqInputSmall
-											}),
-											/* @__PURE__ */ jsx("textarea", {
-												placeholder: "Step Description...",
-												value: step.text,
-												onChange: (e) => {
-													const n = [...howToSteps];
-													n[i].text = e.target.value;
-													setHowToSteps(n);
-												},
-												style: faqTextArea
-											}),
-											/* @__PURE__ */ jsx("button", {
-												onClick: () => setHowToSteps(howToSteps.filter((_, idx) => idx !== i)),
-												style: {
-													...closeModalBtn,
-													background: "#fee2e2",
-													color: "#ef4444",
-													width: "100%",
-													marginTop: "8px"
-												},
-												children: "Remove Step"
-											})
-										]
-									}, i)), /* @__PURE__ */ jsx("button", {
-										onClick: () => setHowToSteps([...howToSteps, {
-											name: "",
-											text: ""
-										}]),
-										style: addNodeBtn,
-										children: "+ Add HowTo Step"
-									})]
-								}),
-								/* @__PURE__ */ jsx("h3", {
-									style: {
-										...sidebarHeadingStyle,
-										marginTop: "24px"
-									},
-									children: "Product/Review SEO Rating (Article Review Snippet)"
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									style: {
-										display: "flex",
-										gap: "8px",
-										marginBottom: "12px"
-									},
-									children: [/* @__PURE__ */ jsx("input", {
-										placeholder: "Rating (e.g. 4.8)",
-										value: seoRating.ratingValue,
-										onChange: (e) => setSeoRating({
-											...seoRating,
-											ratingValue: e.target.value
-										}),
-										style: {
-											...faqInputSmall,
-											flex: 1
-										}
-									}), /* @__PURE__ */ jsx("input", {
-										placeholder: "Reviews Count (e.g. 154)",
-										value: seoRating.reviewCount,
-										onChange: (e) => setSeoRating({
-											...seoRating,
-											reviewCount: e.target.value
-										}),
-										style: {
-											...faqInputSmall,
-											flex: 1
-										}
-									})]
-								}),
-								/* @__PURE__ */ jsx("h3", {
-									style: {
-										...sidebarHeadingStyle,
-										marginTop: "24px"
-									},
-									children: "LocalBusiness Schema Details"
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									style: {
-										display: "flex",
-										flexDirection: "column",
-										gap: "8px"
-									},
-									children: [
-										/* @__PURE__ */ jsx("input", {
-											placeholder: "Business Name (e.g. Sikar Coaching)",
-											value: localBusiness.name,
-											onChange: (e) => setLocalBusiness({
-												...localBusiness,
-												name: e.target.value
-											}),
-											style: faqInputSmall
-										}),
-										/* @__PURE__ */ jsx("input", {
-											placeholder: "Telephone (e.g. +91 9999999999)",
-											value: localBusiness.telephone,
-											onChange: (e) => setLocalBusiness({
-												...localBusiness,
-												telephone: e.target.value
-											}),
-											style: {
-												...faqInputSmall,
-												marginBottom: 0
-											}
-										}),
-										/* @__PURE__ */ jsxs("div", {
-											style: {
-												display: "flex",
-												gap: "8px"
-											},
-											children: [/* @__PURE__ */ jsx("input", {
-												placeholder: "Rating (e.g. 4.8)",
-												value: localBusiness.ratingValue,
-												onChange: (e) => setLocalBusiness({
-													...localBusiness,
-													ratingValue: e.target.value
-												}),
-												style: {
-													...faqInputSmall,
-													flex: 1
-												}
-											}), /* @__PURE__ */ jsx("input", {
-												placeholder: "Reviews Count",
-												value: localBusiness.reviewCount,
-												onChange: (e) => setLocalBusiness({
-													...localBusiness,
-													reviewCount: e.target.value
-												}),
-												style: {
-													...faqInputSmall,
-													flex: 1
-												}
-											})]
-										}),
-										/* @__PURE__ */ jsx("input", {
-											placeholder: "Price Range (e.g. $$, INR 500-1000)",
-											value: localBusiness.priceRange,
-											onChange: (e) => setLocalBusiness({
-												...localBusiness,
-												priceRange: e.target.value
-											}),
-											style: faqInputSmall
-										}),
-										/* @__PURE__ */ jsx("div", {
-											style: {
-												fontSize: "11px",
-												fontWeight: 600,
-												color: "#64748b",
-												marginTop: "8px"
-											},
-											children: "Address Details"
-										}),
-										/* @__PURE__ */ jsx("input", {
-											placeholder: "Street Address",
-											value: localBusiness.streetAddress,
-											onChange: (e) => setLocalBusiness({
-												...localBusiness,
-												streetAddress: e.target.value
-											}),
-											style: {
-												...faqInputSmall,
-												marginBottom: 0
-											}
-										}),
-										/* @__PURE__ */ jsxs("div", {
-											style: {
-												display: "flex",
-												gap: "8px"
-											},
-											children: [/* @__PURE__ */ jsx("input", {
-												placeholder: "City",
-												value: localBusiness.addressLocality,
-												onChange: (e) => setLocalBusiness({
-													...localBusiness,
-													addressLocality: e.target.value
-												}),
-												style: {
-													...faqInputSmall,
-													flex: 1,
-													marginBottom: 0
-												}
-											}), /* @__PURE__ */ jsx("input", {
-												placeholder: "Region/State",
-												value: localBusiness.addressRegion,
-												onChange: (e) => setLocalBusiness({
-													...localBusiness,
-													addressRegion: e.target.value
-												}),
-												style: {
-													...faqInputSmall,
-													flex: 1,
-													marginBottom: 0
-												}
-											})]
-										}),
-										/* @__PURE__ */ jsxs("div", {
-											style: {
-												display: "flex",
-												gap: "8px"
-											},
-											children: [/* @__PURE__ */ jsx("input", {
-												placeholder: "Postal Code",
-												value: localBusiness.postalCode,
-												onChange: (e) => setLocalBusiness({
-													...localBusiness,
-													postalCode: e.target.value
-												}),
-												style: {
-													...faqInputSmall,
-													flex: 1
-												}
-											}), /* @__PURE__ */ jsx("input", {
-												placeholder: "Country Code (e.g. IN)",
-												value: localBusiness.addressCountry,
-												onChange: (e) => setLocalBusiness({
-													...localBusiness,
-													addressCountry: e.target.value
-												}),
-												style: {
-													...faqInputSmall,
-													flex: 1
-												}
-											})]
-										})
-									]
-								})
-							] }, "schema"),
-							activeTab === "strategy" && /* @__PURE__ */ jsxs("div", { children: [
-								/* @__PURE__ */ jsx("h3", {
-									style: sidebarHeadingStyle,
-									children: "Content Strategy"
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									style: hcuCardStyle,
-									children: [/* @__PURE__ */ jsx("label", {
-										style: metaLabelStyle,
-										children: "PRIMARY SEARCH INTENT"
-									}), /* @__PURE__ */ jsxs("select", {
-										value: userIntent,
-										onChange: (e) => setUserIntent(e.target.value),
-										style: metaSelectStyle,
-										children: [
-											/* @__PURE__ */ jsx("option", {
-												value: "informational",
-												children: "Informational"
-											}),
-											/* @__PURE__ */ jsx("option", {
-												value: "transactional",
-												children: "Transactional"
-											}),
-											/* @__PURE__ */ jsx("option", {
-												value: "navigational",
-												children: "Navigational"
-											})
-										]
-									})]
-								}),
-								/* @__PURE__ */ jsx("h3", {
-									style: sidebarHeadingStyle,
-									children: "🔍 GSC Indexing Controls"
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									style: {
-										display: "flex",
-										flexDirection: "column",
-										gap: "10px",
-										background: "#f8fafc",
-										padding: "16px",
-										borderRadius: "16px",
-										border: "1px solid #e2e8f0",
-										marginBottom: "20px"
-									},
-									children: [
-										/* @__PURE__ */ jsxs("label", {
-											style: {
-												display: "flex",
-												alignItems: "center",
-												gap: "10px",
-												cursor: "pointer",
-												fontSize: "13px",
-												fontWeight: 600
-											},
-											children: [/* @__PURE__ */ jsx("input", {
-												type: "checkbox",
-												checked: isNoIndex,
-												onChange: (e) => setIsNoIndex(e.target.checked),
-												style: {
-													width: "16px",
-													height: "16px",
-													accentColor: "#ef4444"
-												}
-											}), /* @__PURE__ */ jsx("span", {
-												style: { color: isNoIndex ? "#dc2626" : "#475569" },
-												children: "🚫 No Index (Exclude from Search)"
-											})]
-										}),
-										/* @__PURE__ */ jsxs("label", {
-											style: {
-												display: "flex",
-												alignItems: "center",
-												gap: "10px",
-												cursor: "pointer",
-												fontSize: "13px",
-												fontWeight: 600
-											},
-											children: [/* @__PURE__ */ jsx("input", {
-												type: "checkbox",
-												checked: isSponsored,
-												onChange: (e) => setIsSponsored(e.target.checked),
-												style: {
-													width: "16px",
-													height: "16px",
-													accentColor: "#f59e0b"
-												}
-											}), /* @__PURE__ */ jsx("span", {
-												style: { color: isSponsored ? "#b45309" : "#475569" },
-												children: "💰 Sponsored Content (Ad Disclosure)"
-											})]
-										}),
-										/* @__PURE__ */ jsxs("label", {
-											style: {
-												display: "flex",
-												alignItems: "center",
-												gap: "10px",
-												cursor: "pointer",
-												fontSize: "13px",
-												fontWeight: 600
-											},
-											children: [/* @__PURE__ */ jsx("input", {
-												type: "checkbox",
-												checked: isPillarPage,
-												onChange: (e) => setIsPillarPage(e.target.checked),
-												style: {
-													width: "16px",
-													height: "16px",
-													accentColor: "#8b5cf6"
-												}
-											}), /* @__PURE__ */ jsx("span", {
-												style: { color: isPillarPage ? "#7c3aed" : "#475569" },
-												children: "⭐ Cornerstone / Pillar Page"
-											})]
-										}),
-										/* @__PURE__ */ jsxs("label", {
-											style: {
-												display: "flex",
-												alignItems: "center",
-												gap: "10px",
-												cursor: "pointer",
-												fontSize: "13px",
-												fontWeight: 600
-											},
-											children: [/* @__PURE__ */ jsx("input", {
-												type: "checkbox",
-												checked: isAiAssisted,
-												onChange: (e) => setIsAiAssisted(e.target.checked),
-												style: {
-													width: "16px",
-													height: "16px",
-													accentColor: "#8b5cf6"
-												}
-											}), /* @__PURE__ */ jsx("span", {
-												style: { color: isAiAssisted ? "#7c3aed" : "#475569" },
-												children: "🤖 AI-Assisted Content"
-											})]
-										}),
-										isAiAssisted && /* @__PURE__ */ jsx("p", {
-											style: {
-												fontSize: "11px",
-												color: "#5b21b6",
-												margin: 0,
-												background: "#f5f3ff",
-												padding: "8px",
-												borderRadius: "8px",
-												border: "1px solid #ddd6fe"
-											},
-											children: "ℹ️ A disclosure note will appear on the published page per Google's AI content transparency policy."
-										}),
-										isNoIndex && /* @__PURE__ */ jsx("p", {
-											style: {
-												fontSize: "11px",
-												color: "#dc2626",
-												margin: 0,
-												background: "#fef2f2",
-												padding: "8px",
-												borderRadius: "8px",
-												border: "1px solid #fecaca"
-											},
-											children: "⚠️ This page will be excluded from Google search results."
-										})
-									]
-								}),
-								/* @__PURE__ */ jsx("h3", {
-									style: sidebarHeadingStyle,
-									children: "📝 Editorial Corrections"
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									style: {
-										display: "flex",
-										flexDirection: "column",
-										gap: "10px",
-										background: "#f8fafc",
-										padding: "16px",
-										borderRadius: "16px",
-										border: "1px solid #e2e8f0",
-										marginBottom: "20px"
-									},
-									children: [
-										corrections.map((c, i) => /* @__PURE__ */ jsxs("div", {
-											style: {
-												display: "flex",
-												justifyContent: "space-between",
-												alignItems: "center",
-												padding: "6px 10px",
-												background: "#fff",
-												borderRadius: "10px",
-												border: "1px solid #e2e8f0",
-												fontSize: "12px"
-											},
-											children: [/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("strong", {
-												style: { color: "#1e40af" },
-												children: new Date(c.date).toLocaleDateString("en-IN", {
-													year: "numeric",
-													month: "short",
-													day: "numeric"
-												})
-											}), /* @__PURE__ */ jsx("span", {
-												style: {
-													color: "#475569",
-													marginLeft: "8px"
-												},
-												children: c.note
-											})] }), /* @__PURE__ */ jsx("button", {
-												type: "button",
-												onClick: () => setCorrections((prev) => prev.filter((_, idx) => idx !== i)),
-												style: {
-													background: "none",
-													border: "none",
-													color: "#ef4444",
-													cursor: "pointer",
-													fontSize: "14px",
-													padding: "2px 6px"
-												},
-												children: "✕"
-											})]
-										}, i)),
-										/* @__PURE__ */ jsxs("div", {
-											style: {
-												display: "flex",
-												gap: "8px"
-											},
-											children: [/* @__PURE__ */ jsx("input", {
-												type: "text",
-												value: newCorrectionNote,
-												onChange: (e) => setNewCorrectionNote(e.target.value),
-												placeholder: "Correction note...",
-												style: {
-													...metaInputStyle,
-													flex: 1
-												}
-											}), /* @__PURE__ */ jsx("button", {
-												type: "button",
-												onClick: () => {
-													if (newCorrectionNote.trim()) {
-														setCorrections((prev) => [...prev, {
-															date: (/* @__PURE__ */ new Date()).toISOString(),
-															note: newCorrectionNote.trim()
-														}]);
-														setNewCorrectionNote("");
-													}
-												},
-												style: {
-													background: "#3b82f6",
-													color: "#fff",
-													border: "none",
-													borderRadius: "10px",
-													padding: "8px 14px",
-													fontSize: "12px",
-													fontWeight: 700,
-													cursor: "pointer",
-													whiteSpace: "nowrap"
-												},
-												children: "+ Add"
-											})]
-										}),
-										/* @__PURE__ */ jsx("p", {
-											style: {
-												fontSize: "10px",
-												color: "#94a3b8",
-												margin: 0
-											},
-											children: "Corrections will be displayed publicly on the article page for transparency."
-										})
-									]
-								}),
-								/* @__PURE__ */ jsx("h3", {
-									style: sidebarHeadingStyle,
-									children: "🔄 Content Review Cycle"
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									style: {
-										display: "flex",
-										flexDirection: "column",
-										gap: "10px",
-										marginBottom: "20px"
-									},
-									children: [/* @__PURE__ */ jsxs("div", {
 										style: {
 											display: "flex",
 											flexDirection: "column",
-											gap: "6px"
+											gap: "10px"
 										},
-										children: [/* @__PURE__ */ jsx("label", {
-											style: metaLabelStyle,
-											children: "REVIEW EVERY (DAYS)"
-										}), /* @__PURE__ */ jsx("input", {
-											type: "number",
-											min: 30,
-											max: 365,
-											value: reviewCycleDays || "",
-											onChange: (e) => {
-												const d = Number(e.target.value);
-												setReviewCycleDays(d);
-												if (d > 0) {
-													const next = /* @__PURE__ */ new Date();
-													next.setDate(next.getDate() + d);
-													setNextReviewDate(next.toISOString().split("T")[0]);
-												}
-											},
-											placeholder: "90",
-											style: metaInputStyle
-										})]
-									}), /* @__PURE__ */ jsxs("div", {
-										style: {
-											display: "flex",
-											flexDirection: "column",
-											gap: "6px"
-										},
-										children: [/* @__PURE__ */ jsx("label", {
-											style: metaLabelStyle,
-											children: "NEXT REVIEW DATE"
-										}), /* @__PURE__ */ jsx("input", {
-											type: "date",
-											value: nextReviewDate,
-											onChange: (e) => setNextReviewDate(e.target.value),
-											style: metaInputStyle
-										})]
-									})]
-								}),
-								/* @__PURE__ */ jsx("h3", {
-									style: sidebarHeadingStyle,
-									children: "🚀 Key Takeaways"
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									style: {
-										display: "flex",
-										flexDirection: "column",
-										gap: "8px",
-										marginBottom: "20px"
-									},
-									children: [keyTakeaways.map((kt, i) => /* @__PURE__ */ jsxs("div", {
-										style: {
-											display: "flex",
-											gap: "8px",
-											alignItems: "center",
-											background: "#f0fdf4",
-											padding: "8px 12px",
-											borderRadius: "10px",
-											border: "1px solid #bbf7d0"
-										},
-										children: [/* @__PURE__ */ jsxs("span", {
-											style: {
-												flex: 1,
-												fontSize: "12px",
-												color: "#166534"
-											},
-											children: ["✓ ", kt]
-										}), /* @__PURE__ */ jsx("button", {
-											onClick: () => setKeyTakeaways(keyTakeaways.filter((_, idx) => idx !== i)),
-											style: {
-												border: "none",
-												background: "#fecaca",
-												color: "#dc2626",
-												borderRadius: "6px",
-												padding: "3px 8px",
-												cursor: "pointer",
-												fontSize: "11px",
-												fontWeight: 700
-											},
-											children: "✕"
-										})]
-									}, i)), /* @__PURE__ */ jsxs("div", {
-										style: {
-											display: "flex",
-											gap: "8px"
-										},
-										children: [/* @__PURE__ */ jsx("input", {
-											value: takeawayInput,
-											onChange: (e) => setTakeawayInput(e.target.value),
-											onKeyDown: (e) => {
-												if (e.key === "Enter" && takeawayInput.trim()) {
-													setKeyTakeaways([...keyTakeaways, takeawayInput.trim()]);
-													setTakeawayInput("");
-												}
-											},
-											placeholder: "Add a key takeaway point...",
-											style: {
-												...metaInputStyle,
-												flex: 1
-											}
-										}), /* @__PURE__ */ jsx("button", {
-											onClick: () => {
-												if (takeawayInput.trim()) {
-													setKeyTakeaways([...keyTakeaways, takeawayInput.trim()]);
-													setTakeawayInput("");
-												}
-											},
-											style: {
-												...addNodeBtn,
-												width: "auto",
-												padding: "0 14px",
-												margin: 0
-											},
-											children: "Add"
-										})]
-									})]
-								}),
-								/* @__PURE__ */ jsx("h3", {
-									style: sidebarHeadingStyle,
-									children: "🌐 Semantic Mentions (Wikidata)"
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									style: {
-										display: "flex",
-										flexDirection: "column",
-										gap: "8px",
-										marginBottom: "20px"
-									},
-									children: [
-										semanticMentions.map((m, i) => /* @__PURE__ */ jsxs("div", {
-											style: {
-												display: "flex",
-												alignItems: "center",
-												gap: "8px",
-												background: "#faf5ff",
-												borderRadius: "10px",
-												padding: "8px 12px",
-												fontSize: "12px",
-												border: "1px solid #e9d5ff"
-											},
-											children: [/* @__PURE__ */ jsxs("div", {
-												style: { flex: 1 },
-												children: [/* @__PURE__ */ jsx("div", {
-													style: {
-														fontWeight: 700,
-														color: "#6d28d9"
-													},
-													children: m.name
-												}), m.sameAs && /* @__PURE__ */ jsx("div", {
-													style: {
-														color: "#94a3b8",
-														fontSize: "10px",
-														overflow: "hidden",
-														textOverflow: "ellipsis",
-														whiteSpace: "nowrap"
-													},
-													children: m.sameAs
-												})]
-											}), /* @__PURE__ */ jsx("button", {
-												onClick: () => setSemanticMentions(semanticMentions.filter((_, idx) => idx !== i)),
-												style: {
-													border: "none",
-													background: "#fee2e2",
-													color: "#dc2626",
-													borderRadius: "6px",
-													padding: "3px 8px",
-													cursor: "pointer",
-													fontSize: "11px",
-													fontWeight: 700
-												},
-												children: "✕"
-											})]
-										}, i)),
-										/* @__PURE__ */ jsx("input", {
-											value: mentionNameInput,
-											onChange: (e) => setMentionNameInput(e.target.value),
-											placeholder: "Entity Name (e.g. Artificial Intelligence)",
-											style: {
-												...metaInputStyle,
-												marginBottom: "6px"
-											}
-										}),
-										/* @__PURE__ */ jsx("input", {
-											value: mentionSameAsInput,
-											onChange: (e) => setMentionSameAsInput(e.target.value),
-											placeholder: "Wikidata URL (https://www.wikidata.org/wiki/...)",
-											style: {
-												...metaInputStyle,
-												marginBottom: "6px"
-											}
-										}),
-										/* @__PURE__ */ jsx("button", {
-											onClick: () => {
-												if (mentionNameInput.trim()) {
-													setSemanticMentions([...semanticMentions, {
-														name: mentionNameInput.trim(),
-														sameAs: mentionSameAsInput.trim()
-													}]);
-													setMentionNameInput("");
-													setMentionSameAsInput("");
-												}
-											},
-											style: addNodeBtn,
-											children: "+ Add Entity"
-										})
-									]
-								}),
-								/* @__PURE__ */ jsx("h3", {
-									style: sidebarHeadingStyle,
-									children: "LSI Keyword Cloud"
-								}),
-								/* @__PURE__ */ jsx("div", {
-									style: {
-										display: "flex",
-										flexWrap: "wrap",
-										gap: "6px"
-									},
-									children: lsiKeywords.map((k) => /* @__PURE__ */ jsx("span", {
-										style: lsiTagStyle,
-										children: k
-									}, k))
-								})
-							] }, "strategy"),
-							activeTab === "guardian" && /* @__PURE__ */ jsxs("div", { children: [
-								/* @__PURE__ */ jsx("h3", {
-									style: sidebarHeadingStyle,
-									children: "Sovereign Shield"
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									style: guardianCard,
-									children: [
-										/* @__PURE__ */ jsxs("svg", {
-											xmlns: "http://www.w3.org/2000/svg",
-											width: "24",
-											height: "24",
-											viewBox: "0 0 24 24",
-											fill: "none",
-											stroke: "currentColor",
-											strokeWidth: 2,
-											strokeLinecap: "round",
-											strokeLinejoin: "round",
-											className: "lucide",
-											style: {
-												width: "32px",
-												height: "32px",
-												color: "#2563eb"
-											},
-											children: [
-												/* @__PURE__ */ jsx("path", { d: "M2 12a10 10 0 0 1 20 0" }),
-												/* @__PURE__ */ jsx("path", { d: "M7 12a5 5 0 0 1 5-5" }),
-												/* @__PURE__ */ jsx("path", { d: "M12 20a8 8 0 0 1-8-8" }),
-												/* @__PURE__ */ jsx("path", { d: "M12 20a8 8 0 0 0 8-8" }),
-												/* @__PURE__ */ jsx("path", { d: "M12 12a2.5 2.5 0 0 1 5 0" }),
-												/* @__PURE__ */ jsx("path", { d: "M12 12a2.5 2.5 0 0 1-5 0" }),
-												/* @__PURE__ */ jsx("path", { d: "M20 12a8 8 0 0 0-8-8" }),
-												/* @__PURE__ */ jsx("path", { d: "M22 12a10 10 0 0 0-10-10" }),
-												/* @__PURE__ */ jsx("path", { d: "M2 12a10 10 0 0 0 10 10" }),
-												/* @__PURE__ */ jsx("path", { d: "M4 12a8 8 0 0 0 8 8" })
-											]
-										}),
-										/* @__PURE__ */ jsx("h4", {
-											style: { margin: "10px 0 5px" },
-											children: "Content Signature"
-										}),
-										/* @__PURE__ */ jsx("p", {
-											style: {
-												fontSize: "11px",
-												color: "#64748b"
-											},
-											children: "Verified Human-First Content"
-										})
-									]
-								}),
-								/* @__PURE__ */ jsx("div", {
-									style: hcuCardStyle,
-									children: /* @__PURE__ */ jsxs("div", {
-										style: {
-											display: "flex",
-											justifyContent: "space-between"
-										},
-										children: [/* @__PURE__ */ jsx("span", {
-											style: {
-												fontSize: "11px",
-												fontWeight: 900
-											},
-											children: "HUMANIZATION"
-										}), /* @__PURE__ */ jsxs("span", {
-											style: {
-												fontSize: "14px",
-												fontWeight: 900
-											},
-											children: [humanScore, "%"]
-										})]
-									})
-								})
-							] }, "guardian"),
-							activeTab === "meta" && /* @__PURE__ */ jsxs("div", { children: [
-								/* @__PURE__ */ jsx("h3", {
-									style: sidebarHeadingStyle,
-									children: "Search Engine Listing"
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									style: hcuCardStyle,
-									children: [
-										/* @__PURE__ */ jsx(InputGroup, {
-											label: "MAIN POST HEADLINE",
-											value: title,
-											onChange: setTitle,
-											placeholder: "Title of your post"
-										}),
-										/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
-										/* @__PURE__ */ jsxs("button", {
-											onClick: () => setPreviewMode("google"),
-											style: {
-												...addNodeBtn,
-												background: "#f8fafc",
-												marginBottom: "15px",
-												color: "#2563eb",
-												display: "flex",
-												alignItems: "center",
-												justifyContent: "center",
-												gap: "8px"
-											},
-											children: [/* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "14px",
-													height: "14px"
-												},
-												children: [
-													/* @__PURE__ */ jsx("circle", {
-														cx: "12",
-														cy: "12",
-														r: "10"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "2",
-														y1: "12",
-														x2: "22",
-														y2: "12"
-													}),
-													/* @__PURE__ */ jsx("path", { d: "M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" })
-												]
-											}), " Launch SERP Simulator"]
-										}),
-										/* @__PURE__ */ jsx(InputGroup, {
-											label: "SEO TITLE",
-											value: seoTitle,
-											onChange: setSeoTitle,
-											placeholder: "Target Keyword in Title"
-										}),
-										/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
-										/* @__PURE__ */ jsx(InputGroup, {
-											label: "CUSTOM URL SLUG",
-											value: slug,
-											onChange: (val) => setSlug(val.toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/[\s_-]+/g, "-")),
-											placeholder: "e.g. custom-post-url (leave empty for auto)"
-										}),
-										/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
-										/* @__PURE__ */ jsxs("div", {
-											style: {
-												display: "flex",
-												flexDirection: "column",
-												gap: "6px"
-											},
-											children: [/* @__PURE__ */ jsx("label", {
-												style: metaLabelStyle,
-												children: "URL FORMAT"
-											}), /* @__PURE__ */ jsxs("select", {
-												value: urlFormat,
-												onChange: (e) => setUrlFormat(e.target.value),
-												style: metaInputStyle,
-												children: [
-													/* @__PURE__ */ jsx("option", {
-														value: "news/{slug}",
-														children: "domain.com/news/article-name"
-													}),
-													/* @__PURE__ */ jsx("option", {
-														value: "{slug}",
-														children: "domain.com/article-name"
-													}),
-													/* @__PURE__ */ jsx("option", {
-														value: "{category}/{slug}",
-														children: "domain.com/category/article-name"
-													}),
-													/* @__PURE__ */ jsx("option", {
-														value: "blog/{slug}",
-														children: "domain.com/blog/article-name"
-													}),
-													/* @__PURE__ */ jsx("option", {
-														value: "blog/{category}/{slug}",
-														children: "domain.com/blog/category/article-name"
-													}),
-													/* @__PURE__ */ jsx("option", {
-														value: "news/{category}/{slug}",
-														children: "domain.com/news/category/article-name"
-													})
-												]
-											})]
-										}),
-										/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
-										/* @__PURE__ */ jsx("label", {
-											style: metaLabelStyle,
-											children: "META DESCRIPTION"
-										}),
-										/* @__PURE__ */ jsx("textarea", {
-											value: metaDescription,
-											onChange: (e) => setMetaDescription(e.target.value),
-											style: metaTextAreaStyle,
-											placeholder: "150-160 characters for optimal CTR"
-										}),
-										/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
-										/* @__PURE__ */ jsx("label", {
-											style: metaLabelStyle,
-											children: "EXCERPT (SHORT SUMMARY)"
-										}),
-										/* @__PURE__ */ jsx("textarea", {
-											value: excerpt,
-											onChange: (e) => setExcerpt(e.target.value),
-											style: metaTextAreaStyle,
-											placeholder: "Short summary for blog feed"
-										})
-									]
-								}),
-								/* @__PURE__ */ jsx("h3", {
-									style: sidebarHeadingStyle,
-									children: "Visual Assets"
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									style: hcuCardStyle,
-									children: [
-										/* @__PURE__ */ jsx("label", {
-											style: metaLabelStyle,
-											children: "COVER IMAGE"
-										}),
-										coverImage && /* @__PURE__ */ jsxs("div", {
-											style: {
-												position: "relative",
-												marginBottom: "10px"
-											},
-											children: [/* @__PURE__ */ jsx("img", {
-												loading: "lazy",
-												decoding: "async",
-												fetchPriority: "low",
-												src: coverImage,
-												alt: "Cover",
-												style: {
-													width: "100%",
-													height: "120px",
-													objectFit: "cover",
-													borderRadius: "12px"
-												}
-											}), /* @__PURE__ */ jsx("button", {
-												onClick: () => setCoverImage(""),
-												style: {
-													position: "absolute",
-													top: "8px",
-													right: "8px",
-													background: "rgba(0,0,0,0.5)",
-													border: "none",
-													color: "#fff",
-													padding: "4px",
-													borderRadius: "6px",
-													cursor: "pointer"
-												},
-												children: /* @__PURE__ */ jsxs("svg", {
+										children: [
+											seoScore < 100 && /* @__PURE__ */ jsx(SeoTip, {
+												icon: /* @__PURE__ */ jsxs("svg", {
 													xmlns: "http://www.w3.org/2000/svg",
 													width: "24",
 													height: "24",
@@ -5824,98 +4366,298 @@ function PostForm({ post }) {
 													strokeLinejoin: "round",
 													className: "lucide",
 													style: {
-														width: "12px",
-														height: "12px"
+														width: "14px",
+														height: "14px"
 													},
-													children: [/* @__PURE__ */ jsx("line", {
-														x1: "18",
-														y1: "6",
-														x2: "6",
-														y2: "18"
-													}), /* @__PURE__ */ jsx("line", {
-														x1: "6",
-														y1: "6",
-														x2: "18",
-														y2: "18"
-													})]
-												})
-											})]
-										}),
-										coverImage && coverImageWidth !== null && coverImageWidth < 1200 && /* @__PURE__ */ jsxs("div", {
+													children: [
+														/* @__PURE__ */ jsx("circle", {
+															cx: "12",
+															cy: "12",
+															r: "10"
+														}),
+														/* @__PURE__ */ jsx("line", {
+															x1: "12",
+															y1: "8",
+															x2: "12",
+															y2: "12"
+														}),
+														/* @__PURE__ */ jsx("line", {
+															x1: "12",
+															y1: "16",
+															x2: "12.01",
+															y2: "16"
+														})
+													]
+												}),
+												text: "Increase content length to 1500+ words.",
+												type: "warning"
+											}),
+											visualHealth.altMissing > 0 && /* @__PURE__ */ jsx(SeoTip, {
+												icon: /* @__PURE__ */ jsxs("svg", {
+													xmlns: "http://www.w3.org/2000/svg",
+													width: "24",
+													height: "24",
+													viewBox: "0 0 24 24",
+													fill: "none",
+													stroke: "currentColor",
+													strokeWidth: 2,
+													strokeLinecap: "round",
+													strokeLinejoin: "round",
+													className: "lucide",
+													style: {
+														width: "14px",
+														height: "14px"
+													},
+													children: [
+														/* @__PURE__ */ jsx("path", { d: "m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" }),
+														/* @__PURE__ */ jsx("line", {
+															x1: "12",
+															y1: "9",
+															x2: "12",
+															y2: "13"
+														}),
+														/* @__PURE__ */ jsx("line", {
+															x1: "12",
+															y1: "17",
+															x2: "12.01",
+															y2: "17"
+														})
+													]
+												}),
+												text: `${visualHealth.altMissing} images missing ALT text.`,
+												type: "error"
+											}),
+											helpfulScore >= 80 && /* @__PURE__ */ jsx(SeoTip, {
+												icon: /* @__PURE__ */ jsxs("svg", {
+													xmlns: "http://www.w3.org/2000/svg",
+													width: "24",
+													height: "24",
+													viewBox: "0 0 24 24",
+													fill: "none",
+													stroke: "currentColor",
+													strokeWidth: 2,
+													strokeLinecap: "round",
+													strokeLinejoin: "round",
+													className: "lucide",
+													style: {
+														width: "14px",
+														height: "14px"
+													},
+													children: [/* @__PURE__ */ jsx("path", { d: "M22 11.08V12a10 10 0 1 1-5.93-9.14" }), /* @__PURE__ */ jsx("polyline", { points: "22 4 12 14.01 9 11.01" })]
+												}),
+												text: "Content shows high human-gain value.",
+												type: "success"
+											})
+										]
+									}),
+									/* @__PURE__ */ jsx("h3", {
+										style: sidebarHeadingStyle,
+										children: "Document Outline"
+									}),
+									/* @__PURE__ */ jsx("div", {
+										style: {
+											display: "flex",
+											flexDirection: "column",
+											gap: "8px"
+										},
+										children: tableOfContents.map((h) => /* @__PURE__ */ jsx("div", {
 											style: {
-												fontSize: "11px",
-												color: "#b45309",
-												background: "#fffbeb",
-												border: "1px solid #fef3c7",
-												padding: "8px 12px",
-												borderRadius: "10px",
-												marginBottom: "10px",
-												lineHeight: 1.4
+												...tocItemStyle,
+												paddingLeft: `${(h.level - 2) * 12}px`,
+												borderLeft: activeTab === "editor" ? "2px solid #e2e8f0" : "none"
+											},
+											children: h.text
+										}, h.id))
+									})
+								] }, "editor"),
+								activeTab === "snippets" && /* @__PURE__ */ jsxs("div", { children: [
+									/* @__PURE__ */ jsx("h3", {
+										style: sidebarHeadingStyle,
+										children: "Featured Snippet Audit"
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										style: hcuCardStyle,
+										children: [/* @__PURE__ */ jsxs("div", {
+											style: {
+												display: "flex",
+												justifyContent: "space-between",
+												marginBottom: "10px"
+											},
+											children: [/* @__PURE__ */ jsx("span", {
+												style: {
+													fontSize: "11px",
+													fontWeight: 900
+												},
+												children: "SNIPPET POTENTIAL"
+											}), /* @__PURE__ */ jsxs("span", {
+												style: {
+													fontSize: "18px",
+													fontWeight: 900,
+													color: "#8b5cf6"
+												},
+												children: [snippetScore, "%"]
+											})]
+										}), /* @__PURE__ */ jsx("p", {
+											style: {
+												fontSize: "12px",
+												color: "#64748b",
+												lineHeight: "1.5"
+											},
+											children: "Optimizing for Position Zero increases CTR by 30%."
+										})]
+									}),
+									/* @__PURE__ */ jsx("h4", {
+										style: {
+											fontSize: "11px",
+											fontWeight: 900,
+											marginBottom: "12px"
+										},
+										children: "OPTIMIZATION TIPS"
+									}),
+									snippetTips.map((tip, i) => /* @__PURE__ */ jsxs("div", {
+										style: tipRowStyle,
+										children: [
+											/* @__PURE__ */ jsxs("svg", {
+												xmlns: "http://www.w3.org/2000/svg",
+												width: "24",
+												height: "24",
+												viewBox: "0 0 24 24",
+												fill: "none",
+												stroke: "currentColor",
+												strokeWidth: 2,
+												strokeLinecap: "round",
+												strokeLinejoin: "round",
+												className: "lucide",
+												style: {
+													width: "12px",
+													height: "12px",
+													color: "#10b981"
+												},
+												children: [/* @__PURE__ */ jsx("path", { d: "M22 11.08V12a10 10 0 1 1-5.93-9.14" }), /* @__PURE__ */ jsx("polyline", { points: "22 4 12 14.01 9 11.01" })]
+											}),
+											" ",
+											tip
+										]
+									}, i))
+								] }, "snippets"),
+								activeTab === "eeat" && /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("h3", {
+									style: sidebarHeadingStyle,
+									children: "EEAT Verification"
+								}), /* @__PURE__ */ jsxs("div", {
+									style: {
+										display: "flex",
+										flexDirection: "column",
+										gap: "16px"
+									},
+									children: [
+										availableAuthors.length > 0 && /* @__PURE__ */ jsxs("div", {
+											style: {
+												display: "flex",
+												flexDirection: "column",
+												gap: "6px",
+												background: "#f8fafc",
+												padding: "16px",
+												borderRadius: "12px",
+												border: "1px solid #e2e8f0"
 											},
 											children: [
-												"⚠️ Cover image width (",
-												coverImageWidth,
-												"px) is under 1200px. Google Discover requires ≥1200px wide images for premium cards."
+												/* @__PURE__ */ jsx("label", {
+													style: metaLabelStyle,
+													children: "SELECT SAVED AUTHOR PROFILE"
+												}),
+												/* @__PURE__ */ jsxs("select", {
+													style: metaInputStyle,
+													value: availableAuthors.find((a) => a.name === author)?.id || "",
+													onChange: (e) => {
+														const selected = availableAuthors.find((a) => a.id === e.target.value);
+														if (selected) {
+															setAuthor(selected.name);
+															setAuthorExpertise(selected.jobTitle || "");
+															setAuthorBio(selected.bio || "");
+															setAuthorImage(selected.image || "");
+															setAuthorExperienceYears(selected.experienceYears || 0);
+															setAuthorSocials(selected.socials || {
+																twitter: "",
+																linkedin: "",
+																website: ""
+															});
+															if (selected.awards) setAuthorAwards(selected.awards);
+															if (selected.alumniOf) setAuthorAlumniOf(selected.alumniOf);
+															if (selected.knowsAbout) setAuthorKnowsAbout(selected.knowsAbout);
+														}
+													},
+													children: [/* @__PURE__ */ jsx("option", {
+														value: "",
+														children: "-- Choose an Author --"
+													}), availableAuthors.map((a) => /* @__PURE__ */ jsx("option", {
+														value: a.id,
+														children: a.name
+													}, a.id))]
+												}),
+												/* @__PURE__ */ jsx("span", {
+													style: {
+														fontSize: "11px",
+														color: "#64748b"
+													},
+													children: "This connects the post to a rich Author Profile for EEAT."
+												})
 											]
 										}),
 										/* @__PURE__ */ jsxs("div", {
 											style: {
 												display: "flex",
-												gap: "8px"
+												flexDirection: "column",
+												gap: "6px",
+												background: "#f8fafc",
+												padding: "16px",
+												borderRadius: "12px",
+												border: "1px solid #e2e8f0",
+												marginTop: "16px"
 											},
-											children: [/* @__PURE__ */ jsx("button", {
-												type: "button",
-												onClick: () => setMediaPickerTarget("cover"),
-												style: {
-													...addNodeBtn,
-													background: "#f8fafc",
-													flex: 1
-												},
-												children: "Choose from Library"
-											}), /* @__PURE__ */ jsx("button", {
-												type: "button",
-												onClick: () => coverInputRef.current?.click(),
-												style: {
-													...addNodeBtn,
-													background: "#fff",
-													border: "1px dashed #cbd5e1",
-													flex: 1
-												},
-												children: coverImage ? "Change Cover Photo" : "Upload Cover Photo"
+											children: [/* @__PURE__ */ jsx("label", {
+												style: metaLabelStyle,
+												children: "SELECT CATEGORY"
+											}), /* @__PURE__ */ jsxs("select", {
+												style: metaInputStyle,
+												value: category,
+												onChange: (e) => setCategory(e.target.value),
+												children: [/* @__PURE__ */ jsx("option", {
+													value: "General",
+													children: "General"
+												}), availableCategories.map((c) => /* @__PURE__ */ jsx("option", {
+													value: c.name,
+													children: c.name
+												}, c.id))]
 											})]
 										}),
-										/* @__PURE__ */ jsx("input", {
-											type: "file",
-											ref: coverInputRef,
-											onChange: handleCoverUpload,
-											style: { display: "none" },
-											accept: "image/*"
-										}),
-										coverImage && /* @__PURE__ */ jsx("div", {
-											style: { marginTop: "10px" },
-											children: /* @__PURE__ */ jsx(InputGroup, {
-												label: "COVER IMAGE ALT TEXT",
-												value: coverImageAlt,
-												onChange: setCoverImageAlt,
-												placeholder: "Describe the image for SEO and accessibility"
-											})
-										})
-									]
-								}),
-								/* @__PURE__ */ jsx("h3", {
-									style: sidebarHeadingStyle,
-									children: "Keywords & Indexing"
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									style: hcuCardStyle,
-									children: [
 										/* @__PURE__ */ jsx(InputGroup, {
-											label: "FOCUS KEYWORD",
-											value: focusKeyword,
-											onChange: setFocusKeyword,
-											placeholder: "Primary search term"
+											label: "FACT CHECKED BY",
+											value: factCheckedBy,
+											onChange: setFactCheckedBy,
+											placeholder: "e.g. Dr. Sarah Connor"
 										}),
-										/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
+										/* @__PURE__ */ jsx(InputGroup, {
+											label: "FACT CHECKER ROLE",
+											value: factCheckerRole,
+											onChange: setFactCheckerRole,
+											placeholder: "e.g. Senior Medical Editor"
+										}),
+										/* @__PURE__ */ jsxs("div", {
+											style: {
+												display: "flex",
+												flexDirection: "column",
+												gap: "6px"
+											},
+											children: [/* @__PURE__ */ jsx("label", {
+												style: metaLabelStyle,
+												children: "🔬 RESEARCH METHODOLOGY"
+											}), /* @__PURE__ */ jsx("textarea", {
+												placeholder: "Describe how data was collected and verified...",
+												value: researchMethodology,
+												onChange: (e) => setResearchMethodology(e.target.value),
+												style: metaTextAreaStyle
+											})]
+										}),
 										/* @__PURE__ */ jsxs("div", {
 											style: {
 												display: "flex",
@@ -5925,71 +4667,114 @@ function PostForm({ post }) {
 											children: [
 												/* @__PURE__ */ jsx("label", {
 													style: metaLabelStyle,
-													children: "LSI FOCUS TAGS"
+													children: "📚 SOURCES & CITATIONS"
 												}),
-												/* @__PURE__ */ jsx("div", {
+												sources.map((src, i) => /* @__PURE__ */ jsxs("div", {
 													style: {
 														display: "flex",
-														flexWrap: "wrap",
-														gap: "6px",
-														marginBottom: "8px"
+														alignItems: "center",
+														gap: "8px",
+														background: "#f8fafc",
+														borderRadius: "10px",
+														padding: "8px 12px",
+														fontSize: "12px",
+														border: "1px solid #e2e8f0"
 													},
-													children: tags.map((tag, i) => /* @__PURE__ */ jsxs("span", {
-														style: {
-															background: "#eff6ff",
-															color: "#2563eb",
-															border: "1px solid #dbeafe",
-															padding: "4px 10px",
-															borderRadius: "20px",
-															fontSize: "11px",
-															fontWeight: 700,
-															display: "flex",
-															alignItems: "center",
-															gap: "6px"
-														},
-														children: [tag, /* @__PURE__ */ jsx("button", {
-															onClick: () => setTags(tags.filter((_, idx) => idx !== i)),
+													children: [
+														/* @__PURE__ */ jsx("span", {
+															style: {
+																background: src.type === "primary" ? "#10b981" : "#3b82f6",
+																color: "white",
+																padding: "2px 7px",
+																borderRadius: "4px",
+																fontSize: "10px",
+																fontWeight: 800,
+																textTransform: "uppercase",
+																flexShrink: 0
+															},
+															children: src.type
+														}),
+														/* @__PURE__ */ jsx("span", {
+															style: {
+																flex: 1,
+																overflow: "hidden",
+																textOverflow: "ellipsis",
+																whiteSpace: "nowrap",
+																color: "#475569"
+															},
+															children: src.title || src.url
+														}),
+														/* @__PURE__ */ jsx("button", {
+															onClick: () => setSources(sources.filter((_, idx) => idx !== i)),
 															style: {
 																border: "none",
-																background: "none",
+																background: "#fee2e2",
+																color: "#dc2626",
+																borderRadius: "6px",
+																padding: "3px 8px",
 																cursor: "pointer",
-																color: "#2563eb",
-																fontWeight: 900,
-																padding: 0,
-																lineHeight: 1
+																fontSize: "11px",
+																fontWeight: 700
 															},
 															children: "✕"
-														})]
-													}, i))
+														})
+													]
+												}, i)),
+												/* @__PURE__ */ jsx("input", {
+													value: sourceInput.title,
+													onChange: (e) => setSourceInput({
+														...sourceInput,
+														title: e.target.value
+													}),
+													placeholder: "Source Title",
+													style: {
+														...metaInputStyle,
+														marginBottom: "6px"
+													}
+												}),
+												/* @__PURE__ */ jsx("input", {
+													value: sourceInput.url,
+													onChange: (e) => setSourceInput({
+														...sourceInput,
+														url: e.target.value
+													}),
+													placeholder: "Source URL (https://...)",
+													style: {
+														...metaInputStyle,
+														marginBottom: "6px"
+													}
 												}),
 												/* @__PURE__ */ jsxs("div", {
 													style: {
 														display: "flex",
 														gap: "8px"
 													},
-													children: [/* @__PURE__ */ jsx("input", {
-														value: tagInput,
-														onChange: (e) => setTagInput(e.target.value),
-														onKeyDown: (e) => {
-															if (e.key === "Enter") {
-																e.preventDefault();
-																if (tagInput.trim() && !tags.includes(tagInput.trim())) {
-																	setTags([...tags, tagInput.trim()]);
-																	setTagInput("");
-																}
-															}
-														},
-														placeholder: "Add tag and press Enter",
+													children: [/* @__PURE__ */ jsxs("select", {
+														value: sourceInput.type,
+														onChange: (e) => setSourceInput({
+															...sourceInput,
+															type: e.target.value
+														}),
 														style: {
 															...metaInputStyle,
 															flex: 1
-														}
+														},
+														children: [/* @__PURE__ */ jsx("option", {
+															value: "primary",
+															children: "Primary Source"
+														}), /* @__PURE__ */ jsx("option", {
+															value: "secondary",
+															children: "Secondary Source"
+														})]
 													}), /* @__PURE__ */ jsx("button", {
-														onClick: (e) => {
-															e.preventDefault();
-															if (tagInput.trim() && !tags.includes(tagInput.trim())) {
-																setTags([...tags, tagInput.trim()]);
-																setTagInput("");
+														onClick: () => {
+															if (sourceInput.url.trim()) {
+																setSources([...sources, { ...sourceInput }]);
+																setSourceInput({
+																	title: "",
+																	url: "",
+																	type: "primary"
+																});
 															}
 														},
 														style: {
@@ -6003,238 +4788,825 @@ function PostForm({ post }) {
 												})
 											]
 										}),
-										/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
-										/* @__PURE__ */ jsx(InputGroup, {
-											label: "KEYWORDS (LEGACY)",
-											value: keywords,
-											onChange: setKeywords,
-											placeholder: "Comma separated keywords"
-										}),
-										/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
-										/* @__PURE__ */ jsx(InputGroup, {
-											label: "CANONICAL URL",
-											value: canonicalUrl,
-											onChange: setCanonicalUrl,
-											placeholder: "Avoid duplicate content issues"
-										})
-									]
-								}),
-								/* @__PURE__ */ jsx("h3", {
-									style: sidebarHeadingStyle,
-									children: "Social Media (Open Graph)"
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									style: hcuCardStyle,
-									children: [
-										/* @__PURE__ */ jsx(InputGroup, {
-											label: "OG TITLE",
-											value: ogTitle,
-											onChange: setOgTitle,
-											placeholder: "Catchy title for social shares"
-										}),
-										/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
-										/* @__PURE__ */ jsx("label", {
-											style: metaLabelStyle,
-											children: "OG DESCRIPTION"
-										}),
-										/* @__PURE__ */ jsx("textarea", {
-											value: ogDescription,
-											onChange: (e) => setOgDescription(e.target.value),
-											style: metaTextAreaStyle,
-											placeholder: "Display on Facebook/Twitter"
-										})
-									]
-								}),
-								/* @__PURE__ */ jsx("h3", {
-									style: sidebarHeadingStyle,
-									children: "Twitter Settings"
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									style: hcuCardStyle,
-									children: [
-										/* @__PURE__ */ jsx(InputGroup, {
-											label: "TWITTER CARD TYPE",
-											value: twitterCard,
-											onChange: setTwitterCard,
-											placeholder: "e.g. summary_large_image"
-										}),
-										/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
-										/* @__PURE__ */ jsx(InputGroup, {
-											label: "TWITTER TITLE",
-											value: twitterTitle,
-											onChange: setTwitterTitle,
-											placeholder: "Title for Twitter"
-										}),
-										/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
-										/* @__PURE__ */ jsx("label", {
-											style: metaLabelStyle,
-											children: "TWITTER DESCRIPTION"
-										}),
-										/* @__PURE__ */ jsx("textarea", {
-											value: twitterDescription,
-											onChange: (e) => setTwitterDescription(e.target.value),
-											style: metaTextAreaStyle,
-											placeholder: "Description for Twitter"
-										})
-									]
-								})
-							] }, "meta"),
-							activeTab === "seo" && /* @__PURE__ */ jsxs("div", { children: [
-								/* @__PURE__ */ jsx("h3", {
-									style: sidebarHeadingStyle,
-									children: "AI SEO Audit"
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									style: {
-										...hcuCardStyle,
-										background: "linear-gradient(135deg, #fdf4ff 0%, #f3e8ff 100%)",
-										border: "1px solid #e9d5ff"
-									},
-									children: [
 										/* @__PURE__ */ jsxs("div", {
-											style: {
-												display: "flex",
-												alignItems: "center",
-												gap: "10px",
-												marginBottom: "15px"
-											},
-											children: [/* @__PURE__ */ jsx("span", {
-												style: { fontSize: "18px" },
-												children: "✨"
-											}), /* @__PURE__ */ jsx("span", {
-												style: {
-													fontWeight: 800,
-													fontSize: "14px",
-													color: "#7e22ce"
+											style: eeatCheckStyle,
+											children: [/* @__PURE__ */ jsx("input", {
+												type: "checkbox",
+												checked: eeatChecklist.credentialsIncluded,
+												onChange: (e) => setEeatChecklist({
+													...eeatChecklist,
+													credentialsIncluded: e.target.checked
+												})
+											}), /* @__PURE__ */ jsx("span", { children: "AI-Assisted (Disclosure Required)" })]
+										})
+									]
+								})] }, "eeat"),
+								activeTab === "schema" && /* @__PURE__ */ jsxs("div", { children: [
+									/* @__PURE__ */ jsx("h3", {
+										style: sidebarHeadingStyle,
+										children: "FAQ Schema Nodes"
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										style: {
+											display: "flex",
+											flexDirection: "column",
+											gap: "12px"
+										},
+										children: [faqs.map((faq, i) => /* @__PURE__ */ jsxs("div", {
+											style: faqNodeStyle,
+											children: [/* @__PURE__ */ jsx("input", {
+												placeholder: "Question",
+												value: faq.question,
+												onChange: (e) => {
+													const n = [...faqs];
+													n[i].question = e.target.value;
+													handleSidebarFaqChange(n);
 												},
-												children: "GEMINI AUTO-FILL"
+												style: faqInputSmall
+											}), /* @__PURE__ */ jsx("textarea", {
+												placeholder: "Answer",
+												value: faq.answer,
+												onChange: (e) => {
+													const n = [...faqs];
+													n[i].answer = e.target.value;
+													handleSidebarFaqChange(n);
+												},
+												style: faqTextArea
 											})]
-										}),
-										/* @__PURE__ */ jsx("p", {
+										}, i)), /* @__PURE__ */ jsx("button", {
+											onClick: () => handleSidebarFaqChange([...faqs, {
+												question: "",
+												answer: ""
+											}]),
+											style: addNodeBtn,
+											children: "+ Add FAQ Node"
+										})]
+									}),
+									/* @__PURE__ */ jsx("h3", {
+										style: {
+											...sidebarHeadingStyle,
+											marginTop: "24px"
+										},
+										children: "HowTo Schema Nodes"
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										style: {
+											display: "flex",
+											flexDirection: "column",
+											gap: "12px"
+										},
+										children: [howToSteps.map((step, i) => /* @__PURE__ */ jsxs("div", {
+											style: faqNodeStyle,
+											children: [
+												/* @__PURE__ */ jsx("input", {
+													placeholder: "Step Name (e.g. Prepare Ingredients)",
+													value: step.name,
+													onChange: (e) => {
+														const n = [...howToSteps];
+														n[i].name = e.target.value;
+														setHowToSteps(n);
+													},
+													style: faqInputSmall
+												}),
+												/* @__PURE__ */ jsx("textarea", {
+													placeholder: "Step Description...",
+													value: step.text,
+													onChange: (e) => {
+														const n = [...howToSteps];
+														n[i].text = e.target.value;
+														setHowToSteps(n);
+													},
+													style: faqTextArea
+												}),
+												/* @__PURE__ */ jsx("button", {
+													onClick: () => setHowToSteps(howToSteps.filter((_, idx) => idx !== i)),
+													style: {
+														...closeModalBtn,
+														background: "#fee2e2",
+														color: "#ef4444",
+														width: "100%",
+														marginTop: "8px"
+													},
+													children: "Remove Step"
+												})
+											]
+										}, i)), /* @__PURE__ */ jsx("button", {
+											onClick: () => setHowToSteps([...howToSteps, {
+												name: "",
+												text: ""
+											}]),
+											style: addNodeBtn,
+											children: "+ Add HowTo Step"
+										})]
+									}),
+									/* @__PURE__ */ jsx("h3", {
+										style: {
+											...sidebarHeadingStyle,
+											marginTop: "24px"
+										},
+										children: "Product/Review SEO Rating (Article Review Snippet)"
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										style: {
+											display: "flex",
+											gap: "8px",
+											marginBottom: "12px"
+										},
+										children: [/* @__PURE__ */ jsx("input", {
+											placeholder: "Rating (e.g. 4.8)",
+											value: seoRating.ratingValue,
+											onChange: (e) => setSeoRating({
+												...seoRating,
+												ratingValue: e.target.value
+											}),
 											style: {
-												fontSize: "11px",
-												color: "#6b21a8",
-												marginBottom: "15px"
-											},
-											children: "Analyze content and generate missing SEO values (Meta, Tags, FAQs, etc.)"
-										}),
-										/* @__PURE__ */ jsx("button", {
-											onClick: (e) => {
-												e.preventDefault();
-												runAiAudit();
-											},
-											disabled: isAiAuditing,
+												...faqInputSmall,
+												flex: 1
+											}
+										}), /* @__PURE__ */ jsx("input", {
+											placeholder: "Reviews Count (e.g. 154)",
+											value: seoRating.reviewCount,
+											onChange: (e) => setSeoRating({
+												...seoRating,
+												reviewCount: e.target.value
+											}),
 											style: {
-												...addNodeBtn,
-												background: isAiAuditing ? "#e9d5ff" : "#9333ea",
-												color: "#fff",
-												border: "none",
-												fontWeight: "bold",
-												width: "100%",
-												marginBottom: aiSuggestions ? "15px" : "0"
-											},
-											children: isAiAuditing ? "Analyzing Content..." : "Run AI SEO Audit"
-										}),
-										aiSuggestions && /* @__PURE__ */ jsx("div", {
+												...faqInputSmall,
+												flex: 1
+											}
+										})]
+									}),
+									/* @__PURE__ */ jsx("h3", {
+										style: {
+											...sidebarHeadingStyle,
+											marginTop: "24px"
+										},
+										children: "LocalBusiness Schema Details"
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										style: {
+											display: "flex",
+											flexDirection: "column",
+											gap: "8px"
+										},
+										children: [
+											/* @__PURE__ */ jsx("input", {
+												placeholder: "Business Name (e.g. Sikar Coaching)",
+												value: localBusiness.name,
+												onChange: (e) => setLocalBusiness({
+													...localBusiness,
+													name: e.target.value
+												}),
+												style: faqInputSmall
+											}),
+											/* @__PURE__ */ jsx("input", {
+												placeholder: "Telephone (e.g. +91 9999999999)",
+												value: localBusiness.telephone,
+												onChange: (e) => setLocalBusiness({
+													...localBusiness,
+													telephone: e.target.value
+												}),
+												style: {
+													...faqInputSmall,
+													marginBottom: 0
+												}
+											}),
+											/* @__PURE__ */ jsxs("div", {
+												style: {
+													display: "flex",
+													gap: "8px"
+												},
+												children: [/* @__PURE__ */ jsx("input", {
+													placeholder: "Rating (e.g. 4.8)",
+													value: localBusiness.ratingValue,
+													onChange: (e) => setLocalBusiness({
+														...localBusiness,
+														ratingValue: e.target.value
+													}),
+													style: {
+														...faqInputSmall,
+														flex: 1
+													}
+												}), /* @__PURE__ */ jsx("input", {
+													placeholder: "Reviews Count",
+													value: localBusiness.reviewCount,
+													onChange: (e) => setLocalBusiness({
+														...localBusiness,
+														reviewCount: e.target.value
+													}),
+													style: {
+														...faqInputSmall,
+														flex: 1
+													}
+												})]
+											}),
+											/* @__PURE__ */ jsx("input", {
+												placeholder: "Price Range (e.g. $$, INR 500-1000)",
+												value: localBusiness.priceRange,
+												onChange: (e) => setLocalBusiness({
+													...localBusiness,
+													priceRange: e.target.value
+												}),
+												style: faqInputSmall
+											}),
+											/* @__PURE__ */ jsx("div", {
+												style: {
+													fontSize: "11px",
+													fontWeight: 600,
+													color: "#64748b",
+													marginTop: "8px"
+												},
+												children: "Address Details"
+											}),
+											/* @__PURE__ */ jsx("input", {
+												placeholder: "Street Address",
+												value: localBusiness.streetAddress,
+												onChange: (e) => setLocalBusiness({
+													...localBusiness,
+													streetAddress: e.target.value
+												}),
+												style: {
+													...faqInputSmall,
+													marginBottom: 0
+												}
+											}),
+											/* @__PURE__ */ jsxs("div", {
+												style: {
+													display: "flex",
+													gap: "8px"
+												},
+												children: [/* @__PURE__ */ jsx("input", {
+													placeholder: "City",
+													value: localBusiness.addressLocality,
+													onChange: (e) => setLocalBusiness({
+														...localBusiness,
+														addressLocality: e.target.value
+													}),
+													style: {
+														...faqInputSmall,
+														flex: 1,
+														marginBottom: 0
+													}
+												}), /* @__PURE__ */ jsx("input", {
+													placeholder: "Region/State",
+													value: localBusiness.addressRegion,
+													onChange: (e) => setLocalBusiness({
+														...localBusiness,
+														addressRegion: e.target.value
+													}),
+													style: {
+														...faqInputSmall,
+														flex: 1,
+														marginBottom: 0
+													}
+												})]
+											}),
+											/* @__PURE__ */ jsxs("div", {
+												style: {
+													display: "flex",
+													gap: "8px"
+												},
+												children: [/* @__PURE__ */ jsx("input", {
+													placeholder: "Postal Code",
+													value: localBusiness.postalCode,
+													onChange: (e) => setLocalBusiness({
+														...localBusiness,
+														postalCode: e.target.value
+													}),
+													style: {
+														...faqInputSmall,
+														flex: 1
+													}
+												}), /* @__PURE__ */ jsx("input", {
+													placeholder: "Country Code (e.g. IN)",
+													value: localBusiness.addressCountry,
+													onChange: (e) => setLocalBusiness({
+														...localBusiness,
+														addressCountry: e.target.value
+													}),
+													style: {
+														...faqInputSmall,
+														flex: 1
+													}
+												})]
+											})
+										]
+									})
+								] }, "schema"),
+								activeTab === "strategy" && /* @__PURE__ */ jsxs("div", { children: [
+									/* @__PURE__ */ jsx("h3", {
+										style: sidebarHeadingStyle,
+										children: "Content Strategy"
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										style: hcuCardStyle,
+										children: [/* @__PURE__ */ jsx("label", {
+											style: metaLabelStyle,
+											children: "PRIMARY SEARCH INTENT"
+										}), /* @__PURE__ */ jsxs("select", {
+											value: userIntent,
+											onChange: (e) => setUserIntent(e.target.value),
+											style: metaSelectStyle,
+											children: [
+												/* @__PURE__ */ jsx("option", {
+													value: "informational",
+													children: "Informational"
+												}),
+												/* @__PURE__ */ jsx("option", {
+													value: "transactional",
+													children: "Transactional"
+												}),
+												/* @__PURE__ */ jsx("option", {
+													value: "navigational",
+													children: "Navigational"
+												})
+											]
+										})]
+									}),
+									/* @__PURE__ */ jsx("h3", {
+										style: sidebarHeadingStyle,
+										children: "🔍 GSC Indexing Controls"
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										style: {
+											display: "flex",
+											flexDirection: "column",
+											gap: "10px",
+											background: "#f8fafc",
+											padding: "16px",
+											borderRadius: "16px",
+											border: "1px solid #e2e8f0",
+											marginBottom: "20px"
+										},
+										children: [
+											/* @__PURE__ */ jsxs("label", {
+												style: {
+													display: "flex",
+													alignItems: "center",
+													gap: "10px",
+													cursor: "pointer",
+													fontSize: "13px",
+													fontWeight: 600
+												},
+												children: [/* @__PURE__ */ jsx("input", {
+													type: "checkbox",
+													checked: isNoIndex,
+													onChange: (e) => setIsNoIndex(e.target.checked),
+													style: {
+														width: "16px",
+														height: "16px",
+														accentColor: "#ef4444"
+													}
+												}), /* @__PURE__ */ jsx("span", {
+													style: { color: isNoIndex ? "#dc2626" : "#475569" },
+													children: "🚫 No Index (Exclude from Search)"
+												})]
+											}),
+											/* @__PURE__ */ jsxs("label", {
+												style: {
+													display: "flex",
+													alignItems: "center",
+													gap: "10px",
+													cursor: "pointer",
+													fontSize: "13px",
+													fontWeight: 600
+												},
+												children: [/* @__PURE__ */ jsx("input", {
+													type: "checkbox",
+													checked: isSponsored,
+													onChange: (e) => setIsSponsored(e.target.checked),
+													style: {
+														width: "16px",
+														height: "16px",
+														accentColor: "#f59e0b"
+													}
+												}), /* @__PURE__ */ jsx("span", {
+													style: { color: isSponsored ? "#b45309" : "#475569" },
+													children: "💰 Sponsored Content (Ad Disclosure)"
+												})]
+											}),
+											/* @__PURE__ */ jsxs("label", {
+												style: {
+													display: "flex",
+													alignItems: "center",
+													gap: "10px",
+													cursor: "pointer",
+													fontSize: "13px",
+													fontWeight: 600
+												},
+												children: [/* @__PURE__ */ jsx("input", {
+													type: "checkbox",
+													checked: isPillarPage,
+													onChange: (e) => setIsPillarPage(e.target.checked),
+													style: {
+														width: "16px",
+														height: "16px",
+														accentColor: "#8b5cf6"
+													}
+												}), /* @__PURE__ */ jsx("span", {
+													style: { color: isPillarPage ? "#7c3aed" : "#475569" },
+													children: "⭐ Cornerstone / Pillar Page"
+												})]
+											}),
+											/* @__PURE__ */ jsxs("label", {
+												style: {
+													display: "flex",
+													alignItems: "center",
+													gap: "10px",
+													cursor: "pointer",
+													fontSize: "13px",
+													fontWeight: 600
+												},
+												children: [/* @__PURE__ */ jsx("input", {
+													type: "checkbox",
+													checked: isAiAssisted,
+													onChange: (e) => setIsAiAssisted(e.target.checked),
+													style: {
+														width: "16px",
+														height: "16px",
+														accentColor: "#8b5cf6"
+													}
+												}), /* @__PURE__ */ jsx("span", {
+													style: { color: isAiAssisted ? "#7c3aed" : "#475569" },
+													children: "🤖 AI-Assisted Content"
+												})]
+											}),
+											isAiAssisted && /* @__PURE__ */ jsx("p", {
+												style: {
+													fontSize: "11px",
+													color: "#5b21b6",
+													margin: 0,
+													background: "#f5f3ff",
+													padding: "8px",
+													borderRadius: "8px",
+													border: "1px solid #ddd6fe"
+												},
+												children: "ℹ️ A disclosure note will appear on the published page per Google's AI content transparency policy."
+											}),
+											isNoIndex && /* @__PURE__ */ jsx("p", {
+												style: {
+													fontSize: "11px",
+													color: "#dc2626",
+													margin: 0,
+													background: "#fef2f2",
+													padding: "8px",
+													borderRadius: "8px",
+													border: "1px solid #fecaca"
+												},
+												children: "⚠️ This page will be excluded from Google search results."
+											})
+										]
+									}),
+									/* @__PURE__ */ jsx("h3", {
+										style: sidebarHeadingStyle,
+										children: "📝 Editorial Corrections"
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										style: {
+											display: "flex",
+											flexDirection: "column",
+											gap: "10px",
+											background: "#f8fafc",
+											padding: "16px",
+											borderRadius: "16px",
+											border: "1px solid #e2e8f0",
+											marginBottom: "20px"
+										},
+										children: [
+											corrections.map((c, i) => /* @__PURE__ */ jsxs("div", {
+												style: {
+													display: "flex",
+													justifyContent: "space-between",
+													alignItems: "center",
+													padding: "6px 10px",
+													background: "#fff",
+													borderRadius: "10px",
+													border: "1px solid #e2e8f0",
+													fontSize: "12px"
+												},
+												children: [/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("strong", {
+													style: { color: "#1e40af" },
+													children: new Date(c.date).toLocaleDateString("en-IN", {
+														year: "numeric",
+														month: "short",
+														day: "numeric"
+													})
+												}), /* @__PURE__ */ jsx("span", {
+													style: {
+														color: "#475569",
+														marginLeft: "8px"
+													},
+													children: c.note
+												})] }), /* @__PURE__ */ jsx("button", {
+													type: "button",
+													onClick: () => setCorrections((prev) => prev.filter((_, idx) => idx !== i)),
+													style: {
+														background: "none",
+														border: "none",
+														color: "#ef4444",
+														cursor: "pointer",
+														fontSize: "14px",
+														padding: "2px 6px"
+													},
+													children: "✕"
+												})]
+											}, i)),
+											/* @__PURE__ */ jsxs("div", {
+												style: {
+													display: "flex",
+													gap: "8px"
+												},
+												children: [/* @__PURE__ */ jsx("input", {
+													type: "text",
+													value: newCorrectionNote,
+													onChange: (e) => setNewCorrectionNote(e.target.value),
+													placeholder: "Correction note...",
+													style: {
+														...metaInputStyle,
+														flex: 1
+													}
+												}), /* @__PURE__ */ jsx("button", {
+													type: "button",
+													onClick: () => {
+														if (newCorrectionNote.trim()) {
+															setCorrections((prev) => [...prev, {
+																date: (/* @__PURE__ */ new Date()).toISOString(),
+																note: newCorrectionNote.trim()
+															}]);
+															setNewCorrectionNote("");
+														}
+													},
+													style: {
+														background: "#3b82f6",
+														color: "#fff",
+														border: "none",
+														borderRadius: "10px",
+														padding: "8px 14px",
+														fontSize: "12px",
+														fontWeight: 700,
+														cursor: "pointer",
+														whiteSpace: "nowrap"
+													},
+													children: "+ Add"
+												})]
+											}),
+											/* @__PURE__ */ jsx("p", {
+												style: {
+													fontSize: "10px",
+													color: "#94a3b8",
+													margin: 0
+												},
+												children: "Corrections will be displayed publicly on the article page for transparency."
+											})
+										]
+									}),
+									/* @__PURE__ */ jsx("h3", {
+										style: sidebarHeadingStyle,
+										children: "🔄 Content Review Cycle"
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										style: {
+											display: "flex",
+											flexDirection: "column",
+											gap: "10px",
+											marginBottom: "20px"
+										},
+										children: [/* @__PURE__ */ jsxs("div", {
 											style: {
 												display: "flex",
 												flexDirection: "column",
-												gap: "10px",
-												marginTop: "10px"
+												gap: "6px"
 											},
-											children: Object.entries(aiSuggestions).map(([key, val]) => {
-												const isApplied = appliedAiSuggestions[key];
-												const message = val?.message || "";
-												const suggestionValue = val?.value ?? val;
-												return /* @__PURE__ */ jsxs("div", {
-													style: {
-														background: isApplied ? "#f0fdf4" : "#fff",
-														padding: "12px",
-														borderRadius: "8px",
-														border: `1px solid ${isApplied ? "#bbf7d0" : "#e2e8f0"}`,
-														fontSize: "11px"
-													},
-													children: [
-														/* @__PURE__ */ jsx("div", {
-															style: {
-																display: "flex",
-																justifyContent: "space-between",
-																alignItems: "center",
-																marginBottom: "6px"
-															},
-															children: /* @__PURE__ */ jsxs("div", {
-																style: {
-																	fontWeight: "bold",
-																	color: isApplied ? "#166534" : "#475569",
-																	textTransform: "uppercase"
-																},
-																children: [
-																	key,
-																	" ",
-																	isApplied && "✅ Updated"
-																]
-															})
-														}),
-														!isApplied && message && /* @__PURE__ */ jsxs("div", {
-															style: {
-																color: "#b45309",
-																marginBottom: "8px",
-																background: "#fffbeb",
-																padding: "6px 8px",
-																borderRadius: "4px",
-																border: "1px solid #fef3c7"
-															},
-															children: ["⚠️ ", message]
-														}),
-														/* @__PURE__ */ jsx("div", {
-															style: {
-																color: "#1e293b",
-																marginBottom: isApplied ? "0" : "10px",
-																background: isApplied ? "transparent" : "#f8fafc",
-																padding: isApplied ? "0" : "8px",
-																borderRadius: "4px",
-																overflowWrap: "anywhere"
-															},
-															children: typeof suggestionValue === "string" ? suggestionValue : JSON.stringify(suggestionValue)
-														}),
-														!isApplied && /* @__PURE__ */ jsx("button", {
-															onClick: (e) => {
-																e.preventDefault();
-																applyAiSuggestion(key, val);
-															},
-															style: {
-																background: "#9333ea",
-																border: "none",
-																padding: "6px 12px",
-																borderRadius: "4px",
-																cursor: "pointer",
-																fontWeight: "bold",
-																color: "#fff",
-																width: "100%"
-															},
-															children: "Apply Suggestion"
-														})
-													]
-												}, key);
-											})
-										})
-									]
-								}),
-								/* @__PURE__ */ jsx("h3", {
-									style: sidebarHeadingStyle,
-									children: "Turbo Indexing Engine"
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									style: hcuCardStyle,
-									children: [
-										/* @__PURE__ */ jsxs("div", {
+											children: [/* @__PURE__ */ jsx("label", {
+												style: metaLabelStyle,
+												children: "REVIEW EVERY (DAYS)"
+											}), /* @__PURE__ */ jsx("input", {
+												type: "number",
+												min: 30,
+												max: 365,
+												value: reviewCycleDays || "",
+												onChange: (e) => {
+													const d = Number(e.target.value);
+													setReviewCycleDays(d);
+													if (d > 0) {
+														const next = /* @__PURE__ */ new Date();
+														next.setDate(next.getDate() + d);
+														setNextReviewDate(next.toISOString().split("T")[0]);
+													}
+												},
+												placeholder: "90",
+												style: metaInputStyle
+											})]
+										}), /* @__PURE__ */ jsxs("div", {
 											style: {
 												display: "flex",
-												alignItems: "center",
-												gap: "10px",
-												marginBottom: "15px"
+												flexDirection: "column",
+												gap: "6px"
 											},
-											children: [/* @__PURE__ */ jsx("svg", {
+											children: [/* @__PURE__ */ jsx("label", {
+												style: metaLabelStyle,
+												children: "NEXT REVIEW DATE"
+											}), /* @__PURE__ */ jsx("input", {
+												type: "date",
+												value: nextReviewDate,
+												onChange: (e) => setNextReviewDate(e.target.value),
+												style: metaInputStyle
+											})]
+										})]
+									}),
+									/* @__PURE__ */ jsx("h3", {
+										style: sidebarHeadingStyle,
+										children: "🚀 Key Takeaways"
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										style: {
+											display: "flex",
+											flexDirection: "column",
+											gap: "8px",
+											marginBottom: "20px"
+										},
+										children: [keyTakeaways.map((kt, i) => /* @__PURE__ */ jsxs("div", {
+											style: {
+												display: "flex",
+												gap: "8px",
+												alignItems: "center",
+												background: "#f0fdf4",
+												padding: "8px 12px",
+												borderRadius: "10px",
+												border: "1px solid #bbf7d0"
+											},
+											children: [/* @__PURE__ */ jsxs("span", {
+												style: {
+													flex: 1,
+													fontSize: "12px",
+													color: "#166534"
+												},
+												children: ["✓ ", kt]
+											}), /* @__PURE__ */ jsx("button", {
+												onClick: () => setKeyTakeaways(keyTakeaways.filter((_, idx) => idx !== i)),
+												style: {
+													border: "none",
+													background: "#fecaca",
+													color: "#dc2626",
+													borderRadius: "6px",
+													padding: "3px 8px",
+													cursor: "pointer",
+													fontSize: "11px",
+													fontWeight: 700
+												},
+												children: "✕"
+											})]
+										}, i)), /* @__PURE__ */ jsxs("div", {
+											style: {
+												display: "flex",
+												gap: "8px"
+											},
+											children: [/* @__PURE__ */ jsx("input", {
+												value: takeawayInput,
+												onChange: (e) => setTakeawayInput(e.target.value),
+												onKeyDown: (e) => {
+													if (e.key === "Enter" && takeawayInput.trim()) {
+														setKeyTakeaways([...keyTakeaways, takeawayInput.trim()]);
+														setTakeawayInput("");
+													}
+												},
+												placeholder: "Add a key takeaway point...",
+												style: {
+													...metaInputStyle,
+													flex: 1
+												}
+											}), /* @__PURE__ */ jsx("button", {
+												onClick: () => {
+													if (takeawayInput.trim()) {
+														setKeyTakeaways([...keyTakeaways, takeawayInput.trim()]);
+														setTakeawayInput("");
+													}
+												},
+												style: {
+													...addNodeBtn,
+													width: "auto",
+													padding: "0 14px",
+													margin: 0
+												},
+												children: "Add"
+											})]
+										})]
+									}),
+									/* @__PURE__ */ jsx("h3", {
+										style: sidebarHeadingStyle,
+										children: "🌐 Semantic Mentions (Wikidata)"
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										style: {
+											display: "flex",
+											flexDirection: "column",
+											gap: "8px",
+											marginBottom: "20px"
+										},
+										children: [
+											semanticMentions.map((m, i) => /* @__PURE__ */ jsxs("div", {
+												style: {
+													display: "flex",
+													alignItems: "center",
+													gap: "8px",
+													background: "#faf5ff",
+													borderRadius: "10px",
+													padding: "8px 12px",
+													fontSize: "12px",
+													border: "1px solid #e9d5ff"
+												},
+												children: [/* @__PURE__ */ jsxs("div", {
+													style: { flex: 1 },
+													children: [/* @__PURE__ */ jsx("div", {
+														style: {
+															fontWeight: 700,
+															color: "#6d28d9"
+														},
+														children: m.name
+													}), m.sameAs && /* @__PURE__ */ jsx("div", {
+														style: {
+															color: "#94a3b8",
+															fontSize: "10px",
+															overflow: "hidden",
+															textOverflow: "ellipsis",
+															whiteSpace: "nowrap"
+														},
+														children: m.sameAs
+													})]
+												}), /* @__PURE__ */ jsx("button", {
+													onClick: () => setSemanticMentions(semanticMentions.filter((_, idx) => idx !== i)),
+													style: {
+														border: "none",
+														background: "#fee2e2",
+														color: "#dc2626",
+														borderRadius: "6px",
+														padding: "3px 8px",
+														cursor: "pointer",
+														fontSize: "11px",
+														fontWeight: 700
+													},
+													children: "✕"
+												})]
+											}, i)),
+											/* @__PURE__ */ jsx("input", {
+												value: mentionNameInput,
+												onChange: (e) => setMentionNameInput(e.target.value),
+												placeholder: "Entity Name (e.g. Artificial Intelligence)",
+												style: {
+													...metaInputStyle,
+													marginBottom: "6px"
+												}
+											}),
+											/* @__PURE__ */ jsx("input", {
+												value: mentionSameAsInput,
+												onChange: (e) => setMentionSameAsInput(e.target.value),
+												placeholder: "Wikidata URL (https://www.wikidata.org/wiki/...)",
+												style: {
+													...metaInputStyle,
+													marginBottom: "6px"
+												}
+											}),
+											/* @__PURE__ */ jsx("button", {
+												onClick: () => {
+													if (mentionNameInput.trim()) {
+														setSemanticMentions([...semanticMentions, {
+															name: mentionNameInput.trim(),
+															sameAs: mentionSameAsInput.trim()
+														}]);
+														setMentionNameInput("");
+														setMentionSameAsInput("");
+													}
+												},
+												style: addNodeBtn,
+												children: "+ Add Entity"
+											})
+										]
+									}),
+									/* @__PURE__ */ jsx("h3", {
+										style: sidebarHeadingStyle,
+										children: "LSI Keyword Cloud"
+									}),
+									/* @__PURE__ */ jsx("div", {
+										style: {
+											display: "flex",
+											flexWrap: "wrap",
+											gap: "6px"
+										},
+										children: lsiKeywords.map((k) => /* @__PURE__ */ jsx("span", {
+											style: lsiTagStyle,
+											children: k
+										}, k))
+									})
+								] }, "strategy"),
+								activeTab === "guardian" && /* @__PURE__ */ jsxs("div", { children: [
+									/* @__PURE__ */ jsx("h3", {
+										style: sidebarHeadingStyle,
+										children: "Sovereign Shield"
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										style: guardianCard,
+										children: [
+											/* @__PURE__ */ jsxs("svg", {
 												xmlns: "http://www.w3.org/2000/svg",
 												width: "24",
 												height: "24",
@@ -6246,75 +5618,84 @@ function PostForm({ post }) {
 												strokeLinejoin: "round",
 												className: "lucide",
 												style: {
-													width: "20px",
-													height: "20px",
-													color: "#f59e0b",
-													fill: "#f59e0b"
+													width: "32px",
+													height: "32px",
+													color: "#2563eb"
 												},
-												children: /* @__PURE__ */ jsx("polygon", { points: "13 2 3 14 12 14 11 22 21 10 12 10 13 2" })
-											}), /* @__PURE__ */ jsx("span", {
+												children: [
+													/* @__PURE__ */ jsx("path", { d: "M2 12a10 10 0 0 1 20 0" }),
+													/* @__PURE__ */ jsx("path", { d: "M7 12a5 5 0 0 1 5-5" }),
+													/* @__PURE__ */ jsx("path", { d: "M12 20a8 8 0 0 1-8-8" }),
+													/* @__PURE__ */ jsx("path", { d: "M12 20a8 8 0 0 0 8-8" }),
+													/* @__PURE__ */ jsx("path", { d: "M12 12a2.5 2.5 0 0 1 5 0" }),
+													/* @__PURE__ */ jsx("path", { d: "M12 12a2.5 2.5 0 0 1-5 0" }),
+													/* @__PURE__ */ jsx("path", { d: "M20 12a8 8 0 0 0-8-8" }),
+													/* @__PURE__ */ jsx("path", { d: "M22 12a10 10 0 0 0-10-10" }),
+													/* @__PURE__ */ jsx("path", { d: "M2 12a10 10 0 0 0 10 10" }),
+													/* @__PURE__ */ jsx("path", { d: "M4 12a8 8 0 0 0 8 8" })
+												]
+											}),
+											/* @__PURE__ */ jsx("h4", {
+												style: { margin: "10px 0 5px" },
+												children: "Content Signature"
+											}),
+											/* @__PURE__ */ jsx("p", {
 												style: {
-													fontWeight: 800,
-													fontSize: "14px"
+													fontSize: "11px",
+													color: "#64748b"
 												},
-												children: "INSTANT INDEXING"
+												children: "Verified Human-First Content"
+											})
+										]
+									}),
+									/* @__PURE__ */ jsx("div", {
+										style: hcuCardStyle,
+										children: /* @__PURE__ */ jsxs("div", {
+											style: {
+												display: "flex",
+												justifyContent: "space-between"
+											},
+											children: [/* @__PURE__ */ jsx("span", {
+												style: {
+													fontSize: "11px",
+													fontWeight: 900
+												},
+												children: "HUMANIZATION"
+											}), /* @__PURE__ */ jsxs("span", {
+												style: {
+													fontSize: "14px",
+													fontWeight: 900
+												},
+												children: [humanScore, "%"]
 											})]
-										}),
-										/* @__PURE__ */ jsx("p", {
-											style: {
-												fontSize: "11px",
-												color: "#64748b",
-												marginBottom: "15px"
-											},
-											children: "Ping Google Search Console API immediately upon deployment."
-										}),
-										/* @__PURE__ */ jsx("button", {
-											onClick: () => {
-												setIsIndexing(true);
-												setTimeout(() => {
-													setIsIndexing(false);
-													setIndexStatus("success");
-													setTimeout(() => setIndexStatus("idle"), 3e3);
-												}, 2e3);
-											},
-											disabled: isIndexing || indexStatus === "success",
-											style: {
-												...addNodeBtn,
-												background: indexStatus === "success" ? "#f0fdf4" : isIndexing ? "#f1f5f9" : "#fffbeb",
-												border: `1px solid ${indexStatus === "success" ? "#dcfce7" : isIndexing ? "#e2e8f0" : "#fef3c7"}`,
-												color: indexStatus === "success" ? "#10b981" : isIndexing ? "#94a3b8" : "#b45309",
-												transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-											},
-											children: isIndexing ? /* @__PURE__ */ jsxs("span", {
+										})
+									})
+								] }, "guardian"),
+								activeTab === "meta" && /* @__PURE__ */ jsxs("div", { children: [
+									/* @__PURE__ */ jsx("h3", {
+										style: sidebarHeadingStyle,
+										children: "Search Engine Listing"
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										style: hcuCardStyle,
+										children: [
+											/* @__PURE__ */ jsx(InputGroup, {
+												label: "MAIN POST HEADLINE",
+												value: title,
+												onChange: setTitle,
+												placeholder: "Title of your post"
+											}),
+											/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
+											/* @__PURE__ */ jsxs("button", {
+												onClick: () => setPreviewMode("google"),
 												style: {
+													...addNodeBtn,
+													background: "#f8fafc",
+													marginBottom: "15px",
+													color: "#2563eb",
 													display: "flex",
 													alignItems: "center",
-													gap: "8px"
-												},
-												children: [/* @__PURE__ */ jsx("div", {
-													style: { display: "flex" },
-													children: /* @__PURE__ */ jsx("svg", {
-														xmlns: "http://www.w3.org/2000/svg",
-														width: "24",
-														height: "24",
-														viewBox: "0 0 24 24",
-														fill: "none",
-														stroke: "currentColor",
-														strokeWidth: 2,
-														strokeLinecap: "round",
-														strokeLinejoin: "round",
-														className: "lucide",
-														style: {
-															width: "14px",
-															height: "14px"
-														},
-														children: /* @__PURE__ */ jsx("polyline", { points: "22 12 18 12 15 21 9 3 6 12 2 12" })
-													})
-												}), "Pinging GSC API..."]
-											}) : indexStatus === "success" ? /* @__PURE__ */ jsxs("span", {
-												style: {
-													display: "flex",
-													alignItems: "center",
+													justifyContent: "center",
 													gap: "8px"
 												},
 												children: [/* @__PURE__ */ jsxs("svg", {
@@ -6332,244 +5713,682 @@ function PostForm({ post }) {
 														width: "14px",
 														height: "14px"
 													},
-													children: [/* @__PURE__ */ jsx("path", { d: "M22 11.08V12a10 10 0 1 1-5.93-9.14" }), /* @__PURE__ */ jsx("polyline", { points: "22 4 12 14.01 9 11.01" })]
-												}), " Ping Success!"]
-											}) : "Request Priority Crawl"
-										})
-									]
-								}),
-								/* @__PURE__ */ jsx("h3", {
-									style: sidebarHeadingStyle,
-									children: "📊 SEO Readiness Checklist"
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									style: {
-										...hcuCardStyle,
-										display: "flex",
-										flexDirection: "column",
-										gap: "12px",
-										background: "#fafaf9"
-									},
-									children: [
-										/* @__PURE__ */ jsxs("div", {
-											style: {
-												display: "flex",
-												alignItems: "flex-start",
-												gap: "8px",
-												fontSize: "12.5px",
-												lineHeight: "1.4"
-											},
-											children: [/* @__PURE__ */ jsx("span", {
-												style: { fontSize: "14px" },
-												children: title.length > 0 && title.length <= 110 ? "✅" : "❌"
-											}), /* @__PURE__ */ jsxs("div", { children: [
-												/* @__PURE__ */ jsx("strong", { children: "Title Length:" }),
-												" ",
-												title.length,
-												"/110 chars",
-												title.length > 110 && /* @__PURE__ */ jsx("p", {
+													children: [
+														/* @__PURE__ */ jsx("circle", {
+															cx: "12",
+															cy: "12",
+															r: "10"
+														}),
+														/* @__PURE__ */ jsx("line", {
+															x1: "2",
+															y1: "12",
+															x2: "22",
+															y2: "12"
+														}),
+														/* @__PURE__ */ jsx("path", { d: "M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" })
+													]
+												}), " Launch SERP Simulator"]
+											}),
+											/* @__PURE__ */ jsx(InputGroup, {
+												label: "SEO TITLE",
+												value: seoTitle,
+												onChange: setSeoTitle,
+												placeholder: "Target Keyword in Title"
+											}),
+											/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
+											/* @__PURE__ */ jsx(InputGroup, {
+												label: "CUSTOM URL SLUG",
+												value: slug,
+												onChange: (val) => setSlug(val.toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/[\s_-]+/g, "-")),
+												placeholder: "e.g. custom-post-url (leave empty for auto)"
+											}),
+											/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
+											/* @__PURE__ */ jsxs("div", {
+												style: {
+													display: "flex",
+													flexDirection: "column",
+													gap: "6px"
+												},
+												children: [/* @__PURE__ */ jsx("label", {
+													style: metaLabelStyle,
+													children: "URL FORMAT"
+												}), /* @__PURE__ */ jsxs("select", {
+													value: urlFormat,
+													onChange: (e) => setUrlFormat(e.target.value),
+													style: metaInputStyle,
+													children: [
+														/* @__PURE__ */ jsx("option", {
+															value: "news/{slug}",
+															children: "domain.com/news/article-name"
+														}),
+														/* @__PURE__ */ jsx("option", {
+															value: "{slug}",
+															children: "domain.com/article-name"
+														}),
+														/* @__PURE__ */ jsx("option", {
+															value: "{category}/{slug}",
+															children: "domain.com/category/article-name"
+														}),
+														/* @__PURE__ */ jsx("option", {
+															value: "blog/{slug}",
+															children: "domain.com/blog/article-name"
+														}),
+														/* @__PURE__ */ jsx("option", {
+															value: "blog/{category}/{slug}",
+															children: "domain.com/blog/category/article-name"
+														}),
+														/* @__PURE__ */ jsx("option", {
+															value: "news/{category}/{slug}",
+															children: "domain.com/news/category/article-name"
+														})
+													]
+												})]
+											}),
+											/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
+											/* @__PURE__ */ jsx("label", {
+												style: metaLabelStyle,
+												children: "META DESCRIPTION"
+											}),
+											/* @__PURE__ */ jsx("textarea", {
+												value: metaDescription,
+												onChange: (e) => setMetaDescription(e.target.value),
+												style: metaTextAreaStyle,
+												placeholder: "150-160 characters for optimal CTR"
+											}),
+											/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
+											/* @__PURE__ */ jsx("label", {
+												style: metaLabelStyle,
+												children: "EXCERPT (SHORT SUMMARY)"
+											}),
+											/* @__PURE__ */ jsx("textarea", {
+												value: excerpt,
+												onChange: (e) => setExcerpt(e.target.value),
+												style: metaTextAreaStyle,
+												placeholder: "Short summary for blog feed"
+											})
+										]
+									}),
+									/* @__PURE__ */ jsx("h3", {
+										style: sidebarHeadingStyle,
+										children: "Visual Assets"
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										style: hcuCardStyle,
+										children: [
+											/* @__PURE__ */ jsx("label", {
+												style: metaLabelStyle,
+												children: "COVER IMAGE"
+											}),
+											coverImage && /* @__PURE__ */ jsxs("div", {
+												style: {
+													position: "relative",
+													marginBottom: "10px"
+												},
+												children: [/* @__PURE__ */ jsx("img", {
+													loading: "lazy",
+													decoding: "async",
+													fetchPriority: "low",
+													src: coverImage,
+													alt: "Cover",
 													style: {
-														fontSize: "11px",
-														color: "#ef4444",
-														margin: "2px 0 0 0"
-													},
-													children: "Keep under 110 characters for optimal search snippet display."
-												}),
-												title.length === 0 && /* @__PURE__ */ jsx("p", {
+														width: "100%",
+														height: "120px",
+														objectFit: "cover",
+														borderRadius: "12px"
+													}
+												}), /* @__PURE__ */ jsx("button", {
+													onClick: () => setCoverImage(""),
 													style: {
-														fontSize: "11px",
-														color: "#ef4444",
-														margin: "2px 0 0 0"
+														position: "absolute",
+														top: "8px",
+														right: "8px",
+														background: "rgba(0,0,0,0.5)",
+														border: "none",
+														color: "#fff",
+														padding: "4px",
+														borderRadius: "6px",
+														cursor: "pointer"
 													},
-													children: "Title is required."
+													children: /* @__PURE__ */ jsxs("svg", {
+														xmlns: "http://www.w3.org/2000/svg",
+														width: "24",
+														height: "24",
+														viewBox: "0 0 24 24",
+														fill: "none",
+														stroke: "currentColor",
+														strokeWidth: 2,
+														strokeLinecap: "round",
+														strokeLinejoin: "round",
+														className: "lucide",
+														style: {
+															width: "12px",
+															height: "12px"
+														},
+														children: [/* @__PURE__ */ jsx("line", {
+															x1: "18",
+															y1: "6",
+															x2: "6",
+															y2: "18"
+														}), /* @__PURE__ */ jsx("line", {
+															x1: "6",
+															y1: "6",
+															x2: "18",
+															y2: "18"
+														})]
+													})
+												})]
+											}),
+											coverImage && coverImageWidth !== null && coverImageWidth < 1200 && /* @__PURE__ */ jsxs("div", {
+												style: {
+													fontSize: "11px",
+													color: "#b45309",
+													background: "#fffbeb",
+													border: "1px solid #fef3c7",
+													padding: "8px 12px",
+													borderRadius: "10px",
+													marginBottom: "10px",
+													lineHeight: 1.4
+												},
+												children: [
+													"⚠️ Cover image width (",
+													coverImageWidth,
+													"px) is under 1200px. Google Discover requires ≥1200px wide images for premium cards."
+												]
+											}),
+											/* @__PURE__ */ jsxs("div", {
+												style: {
+													display: "flex",
+													gap: "8px"
+												},
+												children: [/* @__PURE__ */ jsx("button", {
+													type: "button",
+													onClick: () => setMediaPickerTarget("cover"),
+													style: {
+														...addNodeBtn,
+														background: "#f8fafc",
+														flex: 1
+													},
+													children: "Choose from Library"
+												}), /* @__PURE__ */ jsx("button", {
+													type: "button",
+													onClick: () => coverInputRef.current?.click(),
+													style: {
+														...addNodeBtn,
+														background: "#fff",
+														border: "1px dashed #cbd5e1",
+														flex: 1
+													},
+													children: coverImage ? "Change Cover Photo" : "Upload Cover Photo"
+												})]
+											}),
+											/* @__PURE__ */ jsx("input", {
+												type: "file",
+												ref: coverInputRef,
+												onChange: handleCoverUpload,
+												style: { display: "none" },
+												accept: "image/*"
+											}),
+											coverImage && /* @__PURE__ */ jsx("div", {
+												style: { marginTop: "10px" },
+												children: /* @__PURE__ */ jsx(InputGroup, {
+													label: "COVER IMAGE ALT TEXT",
+													value: coverImageAlt,
+													onChange: setCoverImageAlt,
+													placeholder: "Describe the image for SEO and accessibility"
 												})
-											] })]
-										}),
-										/* @__PURE__ */ jsxs("div", {
-											style: {
-												display: "flex",
-												alignItems: "flex-start",
-												gap: "8px",
-												fontSize: "12.5px",
-												lineHeight: "1.4"
-											},
-											children: [/* @__PURE__ */ jsx("span", {
-												style: { fontSize: "14px" },
-												children: metaDescription.length >= 50 && metaDescription.length <= 160 ? "✅" : "⚠️"
-											}), /* @__PURE__ */ jsxs("div", { children: [
-												/* @__PURE__ */ jsx("strong", { children: "Meta Description:" }),
-												" ",
-												metaDescription.length,
-												" chars (Recommended: 50–160)",
-												(metaDescription.length < 50 || metaDescription.length > 160) && /* @__PURE__ */ jsx("p", {
+											})
+										]
+									}),
+									/* @__PURE__ */ jsx("h3", {
+										style: sidebarHeadingStyle,
+										children: "Keywords & Indexing"
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										style: hcuCardStyle,
+										children: [
+											/* @__PURE__ */ jsx(InputGroup, {
+												label: "FOCUS KEYWORD",
+												value: focusKeyword,
+												onChange: setFocusKeyword,
+												placeholder: "Primary search term"
+											}),
+											/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
+											/* @__PURE__ */ jsxs("div", {
+												style: {
+													display: "flex",
+													flexDirection: "column",
+													gap: "6px"
+												},
+												children: [
+													/* @__PURE__ */ jsx("label", {
+														style: metaLabelStyle,
+														children: "LSI FOCUS TAGS"
+													}),
+													/* @__PURE__ */ jsx("div", {
+														style: {
+															display: "flex",
+															flexWrap: "wrap",
+															gap: "6px",
+															marginBottom: "8px"
+														},
+														children: tags.map((tag, i) => /* @__PURE__ */ jsxs("span", {
+															style: {
+																background: "#eff6ff",
+																color: "#2563eb",
+																border: "1px solid #dbeafe",
+																padding: "4px 10px",
+																borderRadius: "20px",
+																fontSize: "11px",
+																fontWeight: 700,
+																display: "flex",
+																alignItems: "center",
+																gap: "6px"
+															},
+															children: [tag, /* @__PURE__ */ jsx("button", {
+																onClick: () => setTags(tags.filter((_, idx) => idx !== i)),
+																style: {
+																	border: "none",
+																	background: "none",
+																	cursor: "pointer",
+																	color: "#2563eb",
+																	fontWeight: 900,
+																	padding: 0,
+																	lineHeight: 1
+																},
+																children: "✕"
+															})]
+														}, i))
+													}),
+													/* @__PURE__ */ jsxs("div", {
+														style: {
+															display: "flex",
+															gap: "8px"
+														},
+														children: [/* @__PURE__ */ jsx("input", {
+															value: tagInput,
+															onChange: (e) => setTagInput(e.target.value),
+															onKeyDown: (e) => {
+																if (e.key === "Enter") {
+																	e.preventDefault();
+																	if (tagInput.trim() && !tags.includes(tagInput.trim())) {
+																		setTags([...tags, tagInput.trim()]);
+																		setTagInput("");
+																	}
+																}
+															},
+															placeholder: "Add tag and press Enter",
+															style: {
+																...metaInputStyle,
+																flex: 1
+															}
+														}), /* @__PURE__ */ jsx("button", {
+															onClick: (e) => {
+																e.preventDefault();
+																if (tagInput.trim() && !tags.includes(tagInput.trim())) {
+																	setTags([...tags, tagInput.trim()]);
+																	setTagInput("");
+																}
+															},
+															style: {
+																...addNodeBtn,
+																width: "auto",
+																padding: "0 16px",
+																margin: 0
+															},
+															children: "Add"
+														})]
+													})
+												]
+											}),
+											/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
+											/* @__PURE__ */ jsx(InputGroup, {
+												label: "KEYWORDS (LEGACY)",
+												value: keywords,
+												onChange: setKeywords,
+												placeholder: "Comma separated keywords"
+											}),
+											/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
+											/* @__PURE__ */ jsx(InputGroup, {
+												label: "CANONICAL URL",
+												value: canonicalUrl,
+												onChange: setCanonicalUrl,
+												placeholder: "Avoid duplicate content issues"
+											})
+										]
+									}),
+									/* @__PURE__ */ jsx("h3", {
+										style: sidebarHeadingStyle,
+										children: "Social Media (Open Graph)"
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										style: hcuCardStyle,
+										children: [
+											/* @__PURE__ */ jsx(InputGroup, {
+												label: "OG TITLE",
+												value: ogTitle,
+												onChange: setOgTitle,
+												placeholder: "Catchy title for social shares"
+											}),
+											/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
+											/* @__PURE__ */ jsx("label", {
+												style: metaLabelStyle,
+												children: "OG DESCRIPTION"
+											}),
+											/* @__PURE__ */ jsx("textarea", {
+												value: ogDescription,
+												onChange: (e) => setOgDescription(e.target.value),
+												style: metaTextAreaStyle,
+												placeholder: "Display on Facebook/Twitter"
+											})
+										]
+									}),
+									/* @__PURE__ */ jsx("h3", {
+										style: sidebarHeadingStyle,
+										children: "Twitter Settings"
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										style: hcuCardStyle,
+										children: [
+											/* @__PURE__ */ jsx(InputGroup, {
+												label: "TWITTER CARD TYPE",
+												value: twitterCard,
+												onChange: setTwitterCard,
+												placeholder: "e.g. summary_large_image"
+											}),
+											/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
+											/* @__PURE__ */ jsx(InputGroup, {
+												label: "TWITTER TITLE",
+												value: twitterTitle,
+												onChange: setTwitterTitle,
+												placeholder: "Title for Twitter"
+											}),
+											/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
+											/* @__PURE__ */ jsx("label", {
+												style: metaLabelStyle,
+												children: "TWITTER DESCRIPTION"
+											}),
+											/* @__PURE__ */ jsx("textarea", {
+												value: twitterDescription,
+												onChange: (e) => setTwitterDescription(e.target.value),
+												style: metaTextAreaStyle,
+												placeholder: "Description for Twitter"
+											})
+										]
+									})
+								] }, "meta"),
+								activeTab === "seo" && /* @__PURE__ */ jsxs("div", { children: [
+									/* @__PURE__ */ jsx("h3", {
+										style: sidebarHeadingStyle,
+										children: "AI SEO Audit"
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										style: {
+											...hcuCardStyle,
+											background: "linear-gradient(135deg, #fdf4ff 0%, #f3e8ff 100%)",
+											border: "1px solid #e9d5ff"
+										},
+										children: [
+											/* @__PURE__ */ jsxs("div", {
+												style: {
+													display: "flex",
+													alignItems: "center",
+													gap: "10px",
+													marginBottom: "15px"
+												},
+												children: [/* @__PURE__ */ jsx("span", {
+													style: { fontSize: "18px" },
+													children: "✨"
+												}), /* @__PURE__ */ jsx("span", {
 													style: {
-														fontSize: "11px",
-														color: "#b45309",
-														margin: "2px 0 0 0"
+														fontWeight: 800,
+														fontSize: "14px",
+														color: "#7e22ce"
 													},
-													children: "Provide between 50 and 160 characters for high search click-through rate."
+													children: "GEMINI AUTO-FILL"
+												})]
+											}),
+											/* @__PURE__ */ jsx("p", {
+												style: {
+													fontSize: "11px",
+													color: "#6b21a8",
+													marginBottom: "15px"
+												},
+												children: "Analyze content and generate missing SEO values (Meta, Tags, FAQs, etc.)"
+											}),
+											/* @__PURE__ */ jsx("button", {
+												onClick: (e) => {
+													e.preventDefault();
+													runAiAudit();
+												},
+												disabled: isAiAuditing,
+												style: {
+													...addNodeBtn,
+													background: isAiAuditing ? "#e9d5ff" : "#9333ea",
+													color: "#fff",
+													border: "none",
+													fontWeight: "bold",
+													width: "100%",
+													marginBottom: aiSuggestions ? "15px" : "0"
+												},
+												children: isAiAuditing ? "Analyzing Content..." : "Run AI SEO Audit"
+											}),
+											aiSuggestions && /* @__PURE__ */ jsx("div", {
+												style: {
+													display: "flex",
+													flexDirection: "column",
+													gap: "10px",
+													marginTop: "10px"
+												},
+												children: Object.entries(aiSuggestions).map(([key, val]) => {
+													const isApplied = appliedAiSuggestions[key];
+													const message = val?.message || "";
+													const suggestionValue = val?.value ?? val;
+													return /* @__PURE__ */ jsxs("div", {
+														style: {
+															background: isApplied ? "#f0fdf4" : "#fff",
+															padding: "12px",
+															borderRadius: "8px",
+															border: `1px solid ${isApplied ? "#bbf7d0" : "#e2e8f0"}`,
+															fontSize: "11px"
+														},
+														children: [
+															/* @__PURE__ */ jsx("div", {
+																style: {
+																	display: "flex",
+																	justifyContent: "space-between",
+																	alignItems: "center",
+																	marginBottom: "6px"
+																},
+																children: /* @__PURE__ */ jsxs("div", {
+																	style: {
+																		fontWeight: "bold",
+																		color: isApplied ? "#166534" : "#475569",
+																		textTransform: "uppercase"
+																	},
+																	children: [
+																		key,
+																		" ",
+																		isApplied && "✅ Updated"
+																	]
+																})
+															}),
+															!isApplied && message && /* @__PURE__ */ jsxs("div", {
+																style: {
+																	color: "#b45309",
+																	marginBottom: "8px",
+																	background: "#fffbeb",
+																	padding: "6px 8px",
+																	borderRadius: "4px",
+																	border: "1px solid #fef3c7"
+																},
+																children: ["⚠️ ", message]
+															}),
+															/* @__PURE__ */ jsx("div", {
+																style: {
+																	color: "#1e293b",
+																	marginBottom: isApplied ? "0" : "10px",
+																	background: isApplied ? "transparent" : "#f8fafc",
+																	padding: isApplied ? "0" : "8px",
+																	borderRadius: "4px",
+																	overflowWrap: "anywhere"
+																},
+																children: typeof suggestionValue === "string" ? suggestionValue : JSON.stringify(suggestionValue)
+															}),
+															!isApplied && /* @__PURE__ */ jsx("button", {
+																onClick: (e) => {
+																	e.preventDefault();
+																	applyAiSuggestion(key, val);
+																},
+																style: {
+																	background: "#9333ea",
+																	border: "none",
+																	padding: "6px 12px",
+																	borderRadius: "4px",
+																	cursor: "pointer",
+																	fontWeight: "bold",
+																	color: "#fff",
+																	width: "100%"
+																},
+																children: "Apply Suggestion"
+															})
+														]
+													}, key);
 												})
-											] })]
-										}),
-										/* @__PURE__ */ jsxs("div", {
-											style: {
-												display: "flex",
-												alignItems: "flex-start",
-												gap: "8px",
-												fontSize: "12.5px",
-												lineHeight: "1.4"
-											},
-											children: [/* @__PURE__ */ jsx("span", {
-												style: { fontSize: "14px" },
-												children: coverImage ? coverImageWidth !== null && coverImageWidth >= 1200 ? "✅" : "⚠️" : "❌"
-											}), /* @__PURE__ */ jsxs("div", { children: [
-												/* @__PURE__ */ jsx("strong", { children: "Discover Cover Image:" }),
-												" ",
-												coverImage ? coverImageWidth !== null ? `${coverImageWidth}px width` : "Cover image set" : "Cover image missing",
-												coverImage && coverImageWidth !== null && coverImageWidth < 1200 && /* @__PURE__ */ jsx("p", {
+											})
+										]
+									}),
+									/* @__PURE__ */ jsx("h3", {
+										style: sidebarHeadingStyle,
+										children: "Turbo Indexing Engine"
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										style: hcuCardStyle,
+										children: [
+											/* @__PURE__ */ jsxs("div", {
+												style: {
+													display: "flex",
+													alignItems: "center",
+													gap: "10px",
+													marginBottom: "15px"
+												},
+												children: [/* @__PURE__ */ jsx("svg", {
+													xmlns: "http://www.w3.org/2000/svg",
+													width: "24",
+													height: "24",
+													viewBox: "0 0 24 24",
+													fill: "none",
+													stroke: "currentColor",
+													strokeWidth: 2,
+													strokeLinecap: "round",
+													strokeLinejoin: "round",
+													className: "lucide",
 													style: {
-														fontSize: "11px",
-														color: "#b45309",
-														margin: "2px 0 0 0"
+														width: "20px",
+														height: "20px",
+														color: "#f59e0b",
+														fill: "#f59e0b"
 													},
-													children: "Image is under 1200px wide. Google Discover requires ≥1200px width for premium  cards."
-												}),
-												!coverImage && /* @__PURE__ */ jsx("p", {
+													children: /* @__PURE__ */ jsx("polygon", { points: "13 2 3 14 12 14 11 22 21 10 12 10 13 2" })
+												}), /* @__PURE__ */ jsx("span", {
 													style: {
-														fontSize: "11px",
-														color: "#ef4444",
-														margin: "2px 0 0 0"
+														fontWeight: 800,
+														fontSize: "14px"
 													},
-													children: "Set a cover image for Discover and social sharing."
-												})
-											] })]
-										}),
-										/* @__PURE__ */ jsxs("div", {
-											style: {
-												display: "flex",
-												alignItems: "flex-start",
-												gap: "8px",
-												fontSize: "12.5px",
-												lineHeight: "1.4"
-											},
-											children: [/* @__PURE__ */ jsx("span", {
-												style: { fontSize: "14px" },
-												children: authorBio && authorBio.trim().length > 15 ? "✅" : "❌"
-											}), /* @__PURE__ */ jsxs("div", { children: [
-												/* @__PURE__ */ jsx("strong", { children: "Author Expertise Bio:" }),
-												" ",
-												authorBio ? `${authorBio.trim().length} chars` : "Author bio missing",
-												(!authorBio || authorBio.trim().length <= 15) && /* @__PURE__ */ jsx("p", {
+													children: "INSTANT INDEXING"
+												})]
+											}),
+											/* @__PURE__ */ jsx("p", {
+												style: {
+													fontSize: "11px",
+													color: "#64748b",
+													marginBottom: "15px"
+												},
+												children: "Ping Google Search Console API immediately upon deployment."
+											}),
+											/* @__PURE__ */ jsx("button", {
+												onClick: () => {
+													setIsIndexing(true);
+													setTimeout(() => {
+														setIsIndexing(false);
+														setIndexStatus("success");
+														setTimeout(() => setIndexStatus("idle"), 3e3);
+													}, 2e3);
+												},
+												disabled: isIndexing || indexStatus === "success",
+												style: {
+													...addNodeBtn,
+													background: indexStatus === "success" ? "#f0fdf4" : isIndexing ? "#f1f5f9" : "#fffbeb",
+													border: `1px solid ${indexStatus === "success" ? "#dcfce7" : isIndexing ? "#e2e8f0" : "#fef3c7"}`,
+													color: indexStatus === "success" ? "#10b981" : isIndexing ? "#94a3b8" : "#b45309",
+													transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+												},
+												children: isIndexing ? /* @__PURE__ */ jsxs("span", {
 													style: {
-														fontSize: "11px",
-														color: "#ef4444",
-														margin: "2px 0 0 0"
+														display: "flex",
+														alignItems: "center",
+														gap: "8px"
 													},
-													children: "A professional biography is required for Google E-E-A-T trust signals."
-												})
-											] })]
-										}),
-										/* @__PURE__ */ jsxs("div", {
-											style: {
-												display: "flex",
-												alignItems: "flex-start",
-												gap: "8px",
-												fontSize: "12.5px",
-												lineHeight: "1.4"
-											},
-											children: [/* @__PURE__ */ jsx("span", {
-												style: { fontSize: "14px" },
-												children: category && category !== "General" && category.trim() !== "" ? "✅" : "⚠️"
-											}), /* @__PURE__ */ jsxs("div", { children: [
-												/* @__PURE__ */ jsx("strong", { children: "Taxonomy Category:" }),
-												" ",
-												category,
-												(category === "General" || !category) && /* @__PURE__ */ jsx("p", {
+													children: [/* @__PURE__ */ jsx("div", {
+														style: { display: "flex" },
+														children: /* @__PURE__ */ jsx("svg", {
+															xmlns: "http://www.w3.org/2000/svg",
+															width: "24",
+															height: "24",
+															viewBox: "0 0 24 24",
+															fill: "none",
+															stroke: "currentColor",
+															strokeWidth: 2,
+															strokeLinecap: "round",
+															strokeLinejoin: "round",
+															className: "lucide",
+															style: {
+																width: "14px",
+																height: "14px"
+															},
+															children: /* @__PURE__ */ jsx("polyline", { points: "22 12 18 12 15 21 9 3 6 12 2 12" })
+														})
+													}), "Pinging GSC API..."]
+												}) : indexStatus === "success" ? /* @__PURE__ */ jsxs("span", {
 													style: {
-														fontSize: "11px",
-														color: "#b45309",
-														margin: "2px 0 0 0"
+														display: "flex",
+														alignItems: "center",
+														gap: "8px"
 													},
-													children: "Categorize your post rather than leaving it in \"General\" for semantic indexing."
-												})
-											] })]
-										}),
-										/* @__PURE__ */ jsxs("div", {
-											style: {
-												display: "flex",
-												alignItems: "flex-start",
-												gap: "8px",
-												fontSize: "12.5px",
-												lineHeight: "1.4"
-											},
-											children: [/* @__PURE__ */ jsx("span", {
-												style: { fontSize: "14px" },
-												children: tags.length >= 1 ? "✅" : "⚠️"
-											}), /* @__PURE__ */ jsxs("div", { children: [
-												/* @__PURE__ */ jsx("strong", { children: "LSI Focus Tags:" }),
-												" ",
-												tags.length,
-												" tags set",
-												tags.length === 0 && /* @__PURE__ */ jsx("p", {
-													style: {
-														fontSize: "11px",
-														color: "#b45309",
-														margin: "2px 0 0 0"
-													},
-													children: "Add at least one relevant focus tag to define content associations."
-												})
-											] })]
-										}),
-										/* @__PURE__ */ jsxs("div", {
-											style: {
-												display: "flex",
-												alignItems: "flex-start",
-												gap: "8px",
-												fontSize: "12.5px",
-												lineHeight: "1.4"
-											},
-											children: [/* @__PURE__ */ jsx("span", {
-												style: { fontSize: "14px" },
-												children: canonicalUrl || slug || title ? "✅" : "⚠️"
-											}), /* @__PURE__ */ jsxs("div", { children: [
-												/* @__PURE__ */ jsx("strong", { children: "Canonical Link:" }),
-												" ",
-												canonicalUrl ? "Explicit URL set" : "Auto-generated dynamic URL"
-											] })]
-										}),
-										/* @__PURE__ */ jsxs("div", {
-											style: {
-												display: "flex",
-												alignItems: "flex-start",
-												gap: "8px",
-												fontSize: "12.5px",
-												lineHeight: "1.4"
-											},
-											children: [/* @__PURE__ */ jsx("span", {
-												style: { fontSize: "14px" },
-												children: faqs.length > 0 ? "✅" : "ℹ️"
-											}), /* @__PURE__ */ jsxs("div", { children: [
-												/* @__PURE__ */ jsx("strong", { children: "FAQ Schema:" }),
-												" ",
-												faqs.length,
-												" FAQ nodes",
-												faqs.length === 0 && /* @__PURE__ */ jsx("p", {
-													style: {
-														fontSize: "11px",
-														color: "#64748b",
-														margin: "2px 0 0 0"
-													},
-													children: "FAQ schema is optional but recommended to rank in Voice Search / AI Overview citations."
-												})
-											] })]
-										}),
-										(() => {
-											const matches = (editor?.getHTML() || "").match(/href=['"]([^'"]+)['"]/gi);
-											const internalLinkCount = matches ? matches.filter((m) => {
-												const href = m.match(/href=['"]([^'"]+)['"]/i)?.[1] || "";
-												return href.startsWith("/") && !href.startsWith("//") || href.includes("blog.com");
-											}).length : 0;
-											return /* @__PURE__ */ jsxs("div", {
+													children: [/* @__PURE__ */ jsxs("svg", {
+														xmlns: "http://www.w3.org/2000/svg",
+														width: "24",
+														height: "24",
+														viewBox: "0 0 24 24",
+														fill: "none",
+														stroke: "currentColor",
+														strokeWidth: 2,
+														strokeLinecap: "round",
+														strokeLinejoin: "round",
+														className: "lucide",
+														style: {
+															width: "14px",
+															height: "14px"
+														},
+														children: [/* @__PURE__ */ jsx("path", { d: "M22 11.08V12a10 10 0 1 1-5.93-9.14" }), /* @__PURE__ */ jsx("polyline", { points: "22 4 12 14.01 9 11.01" })]
+													}), " Ping Success!"]
+												}) : "Request Priority Crawl"
+											})
+										]
+									}),
+									/* @__PURE__ */ jsx("h3", {
+										style: sidebarHeadingStyle,
+										children: "📊 SEO Readiness Checklist"
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										style: {
+											...hcuCardStyle,
+											display: "flex",
+											flexDirection: "column",
+											gap: "12px",
+											background: "#fafaf9"
+										},
+										children: [
+											/* @__PURE__ */ jsxs("div", {
 												style: {
 													display: "flex",
 													alignItems: "flex-start",
@@ -6579,71 +6398,290 @@ function PostForm({ post }) {
 												},
 												children: [/* @__PURE__ */ jsx("span", {
 													style: { fontSize: "14px" },
-													children: internalLinkCount >= 2 ? "✅" : "⚠️"
+													children: title.length > 0 && title.length <= 110 ? "✅" : "❌"
 												}), /* @__PURE__ */ jsxs("div", { children: [
-													/* @__PURE__ */ jsx("strong", { children: "Internal Links:" }),
+													/* @__PURE__ */ jsx("strong", { children: "Title Length:" }),
 													" ",
-													internalLinkCount,
-													" links detected",
-													internalLinkCount < 2 && /* @__PURE__ */ jsx("p", {
+													title.length,
+													"/110 chars",
+													title.length > 110 && /* @__PURE__ */ jsx("p", {
+														style: {
+															fontSize: "11px",
+															color: "#ef4444",
+															margin: "2px 0 0 0"
+														},
+														children: "Keep under 110 characters for optimal search snippet display."
+													}),
+													title.length === 0 && /* @__PURE__ */ jsx("p", {
+														style: {
+															fontSize: "11px",
+															color: "#ef4444",
+															margin: "2px 0 0 0"
+														},
+														children: "Title is required."
+													})
+												] })]
+											}),
+											/* @__PURE__ */ jsxs("div", {
+												style: {
+													display: "flex",
+													alignItems: "flex-start",
+													gap: "8px",
+													fontSize: "12.5px",
+													lineHeight: "1.4"
+												},
+												children: [/* @__PURE__ */ jsx("span", {
+													style: { fontSize: "14px" },
+													children: metaDescription.length >= 50 && metaDescription.length <= 160 ? "✅" : "⚠️"
+												}), /* @__PURE__ */ jsxs("div", { children: [
+													/* @__PURE__ */ jsx("strong", { children: "Meta Description:" }),
+													" ",
+													metaDescription.length,
+													" chars (Recommended: 50–160)",
+													(metaDescription.length < 50 || metaDescription.length > 160) && /* @__PURE__ */ jsx("p", {
 														style: {
 															fontSize: "11px",
 															color: "#b45309",
 															margin: "2px 0 0 0"
 														},
-														children: "Add at least 2 internal links to other parts of your website to increase crawl depth and build relevance."
+														children: "Provide between 50 and 160 characters for high search click-through rate."
 													})
 												] })]
-											});
-										})()
-									]
-								}),
-								/* @__PURE__ */ jsx("h3", {
-									style: sidebarHeadingStyle,
-									children: "Performance Tuning"
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									style: {
-										display: "flex",
-										flexDirection: "column",
-										gap: "12px"
-									},
-									children: [
-										/* @__PURE__ */ jsxs("div", {
-											style: eeatCheckStyle,
-											children: [/* @__PURE__ */ jsx("input", {
-												type: "checkbox",
-												defaultChecked: true
-											}), /* @__PURE__ */ jsx("span", { children: "Lazy Load Visual Assets" })]
-										}),
-										/* @__PURE__ */ jsxs("div", {
-											style: eeatCheckStyle,
-											children: [/* @__PURE__ */ jsx("input", {
-												type: "checkbox",
-												defaultChecked: true
-											}), /* @__PURE__ */ jsx("span", { children: "Preload Critical Fonts" })]
-										}),
-										/* @__PURE__ */ jsxs("div", {
-											style: eeatCheckStyle,
-											children: [/* @__PURE__ */ jsx("input", { type: "checkbox" }), /* @__PURE__ */ jsx("span", { children: "Enable Edge Caching (CDN)" })]
-										})
-									]
-								}),
-								/* @__PURE__ */ jsx("h3", {
-									style: sidebarHeadingStyle,
-									children: "Search Priority"
-								}),
-								/* @__PURE__ */ jsxs("select", {
-									style: metaSelectStyle,
-									children: [
-										/* @__PURE__ */ jsx("option", { children: "Normal (0.8)" }),
-										/* @__PURE__ */ jsx("option", { children: "High (0.9)" }),
-										/* @__PURE__ */ jsx("option", { children: "Critical (1.0)" })
-									]
-								})
-							] }, "seo")
-						]
-					})]
+											}),
+											/* @__PURE__ */ jsxs("div", {
+												style: {
+													display: "flex",
+													alignItems: "flex-start",
+													gap: "8px",
+													fontSize: "12.5px",
+													lineHeight: "1.4"
+												},
+												children: [/* @__PURE__ */ jsx("span", {
+													style: { fontSize: "14px" },
+													children: coverImage ? coverImageWidth !== null && coverImageWidth >= 1200 ? "✅" : "⚠️" : "❌"
+												}), /* @__PURE__ */ jsxs("div", { children: [
+													/* @__PURE__ */ jsx("strong", { children: "Discover Cover Image:" }),
+													" ",
+													coverImage ? coverImageWidth !== null ? `${coverImageWidth}px width` : "Cover image set" : "Cover image missing",
+													coverImage && coverImageWidth !== null && coverImageWidth < 1200 && /* @__PURE__ */ jsx("p", {
+														style: {
+															fontSize: "11px",
+															color: "#b45309",
+															margin: "2px 0 0 0"
+														},
+														children: "Image is under 1200px wide. Google Discover requires ≥1200px width for premium  cards."
+													}),
+													!coverImage && /* @__PURE__ */ jsx("p", {
+														style: {
+															fontSize: "11px",
+															color: "#ef4444",
+															margin: "2px 0 0 0"
+														},
+														children: "Set a cover image for Discover and social sharing."
+													})
+												] })]
+											}),
+											/* @__PURE__ */ jsxs("div", {
+												style: {
+													display: "flex",
+													alignItems: "flex-start",
+													gap: "8px",
+													fontSize: "12.5px",
+													lineHeight: "1.4"
+												},
+												children: [/* @__PURE__ */ jsx("span", {
+													style: { fontSize: "14px" },
+													children: authorBio && authorBio.trim().length > 15 ? "✅" : "❌"
+												}), /* @__PURE__ */ jsxs("div", { children: [
+													/* @__PURE__ */ jsx("strong", { children: "Author Expertise Bio:" }),
+													" ",
+													authorBio ? `${authorBio.trim().length} chars` : "Author bio missing",
+													(!authorBio || authorBio.trim().length <= 15) && /* @__PURE__ */ jsx("p", {
+														style: {
+															fontSize: "11px",
+															color: "#ef4444",
+															margin: "2px 0 0 0"
+														},
+														children: "A professional biography is required for Google E-E-A-T trust signals."
+													})
+												] })]
+											}),
+											/* @__PURE__ */ jsxs("div", {
+												style: {
+													display: "flex",
+													alignItems: "flex-start",
+													gap: "8px",
+													fontSize: "12.5px",
+													lineHeight: "1.4"
+												},
+												children: [/* @__PURE__ */ jsx("span", {
+													style: { fontSize: "14px" },
+													children: category && category !== "General" && category.trim() !== "" ? "✅" : "⚠️"
+												}), /* @__PURE__ */ jsxs("div", { children: [
+													/* @__PURE__ */ jsx("strong", { children: "Taxonomy Category:" }),
+													" ",
+													category,
+													(category === "General" || !category) && /* @__PURE__ */ jsx("p", {
+														style: {
+															fontSize: "11px",
+															color: "#b45309",
+															margin: "2px 0 0 0"
+														},
+														children: "Categorize your post rather than leaving it in \"General\" for semantic indexing."
+													})
+												] })]
+											}),
+											/* @__PURE__ */ jsxs("div", {
+												style: {
+													display: "flex",
+													alignItems: "flex-start",
+													gap: "8px",
+													fontSize: "12.5px",
+													lineHeight: "1.4"
+												},
+												children: [/* @__PURE__ */ jsx("span", {
+													style: { fontSize: "14px" },
+													children: tags.length >= 1 ? "✅" : "⚠️"
+												}), /* @__PURE__ */ jsxs("div", { children: [
+													/* @__PURE__ */ jsx("strong", { children: "LSI Focus Tags:" }),
+													" ",
+													tags.length,
+													" tags set",
+													tags.length === 0 && /* @__PURE__ */ jsx("p", {
+														style: {
+															fontSize: "11px",
+															color: "#b45309",
+															margin: "2px 0 0 0"
+														},
+														children: "Add at least one relevant focus tag to define content associations."
+													})
+												] })]
+											}),
+											/* @__PURE__ */ jsxs("div", {
+												style: {
+													display: "flex",
+													alignItems: "flex-start",
+													gap: "8px",
+													fontSize: "12.5px",
+													lineHeight: "1.4"
+												},
+												children: [/* @__PURE__ */ jsx("span", {
+													style: { fontSize: "14px" },
+													children: canonicalUrl || slug || title ? "✅" : "⚠️"
+												}), /* @__PURE__ */ jsxs("div", { children: [
+													/* @__PURE__ */ jsx("strong", { children: "Canonical Link:" }),
+													" ",
+													canonicalUrl ? "Explicit URL set" : "Auto-generated dynamic URL"
+												] })]
+											}),
+											/* @__PURE__ */ jsxs("div", {
+												style: {
+													display: "flex",
+													alignItems: "flex-start",
+													gap: "8px",
+													fontSize: "12.5px",
+													lineHeight: "1.4"
+												},
+												children: [/* @__PURE__ */ jsx("span", {
+													style: { fontSize: "14px" },
+													children: faqs.length > 0 ? "✅" : "ℹ️"
+												}), /* @__PURE__ */ jsxs("div", { children: [
+													/* @__PURE__ */ jsx("strong", { children: "FAQ Schema:" }),
+													" ",
+													faqs.length,
+													" FAQ nodes",
+													faqs.length === 0 && /* @__PURE__ */ jsx("p", {
+														style: {
+															fontSize: "11px",
+															color: "#64748b",
+															margin: "2px 0 0 0"
+														},
+														children: "FAQ schema is optional but recommended to rank in Voice Search / AI Overview citations."
+													})
+												] })]
+											}),
+											(() => {
+												const matches = (editor?.getHTML() || "").match(/href=['"]([^'"]+)['"]/gi);
+												const internalLinkCount = matches ? matches.filter((m) => {
+													const href = m.match(/href=['"]([^'"]+)['"]/i)?.[1] || "";
+													return href.startsWith("/") && !href.startsWith("//") || href.includes("blog.com");
+												}).length : 0;
+												return /* @__PURE__ */ jsxs("div", {
+													style: {
+														display: "flex",
+														alignItems: "flex-start",
+														gap: "8px",
+														fontSize: "12.5px",
+														lineHeight: "1.4"
+													},
+													children: [/* @__PURE__ */ jsx("span", {
+														style: { fontSize: "14px" },
+														children: internalLinkCount >= 2 ? "✅" : "⚠️"
+													}), /* @__PURE__ */ jsxs("div", { children: [
+														/* @__PURE__ */ jsx("strong", { children: "Internal Links:" }),
+														" ",
+														internalLinkCount,
+														" links detected",
+														internalLinkCount < 2 && /* @__PURE__ */ jsx("p", {
+															style: {
+																fontSize: "11px",
+																color: "#b45309",
+																margin: "2px 0 0 0"
+															},
+															children: "Add at least 2 internal links to other parts of your website to increase crawl depth and build relevance."
+														})
+													] })]
+												});
+											})()
+										]
+									}),
+									/* @__PURE__ */ jsx("h3", {
+										style: sidebarHeadingStyle,
+										children: "Performance Tuning"
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										style: {
+											display: "flex",
+											flexDirection: "column",
+											gap: "12px"
+										},
+										children: [
+											/* @__PURE__ */ jsxs("div", {
+												style: eeatCheckStyle,
+												children: [/* @__PURE__ */ jsx("input", {
+													type: "checkbox",
+													defaultChecked: true
+												}), /* @__PURE__ */ jsx("span", { children: "Lazy Load Visual Assets" })]
+											}),
+											/* @__PURE__ */ jsxs("div", {
+												style: eeatCheckStyle,
+												children: [/* @__PURE__ */ jsx("input", {
+													type: "checkbox",
+													defaultChecked: true
+												}), /* @__PURE__ */ jsx("span", { children: "Preload Critical Fonts" })]
+											}),
+											/* @__PURE__ */ jsxs("div", {
+												style: eeatCheckStyle,
+												children: [/* @__PURE__ */ jsx("input", { type: "checkbox" }), /* @__PURE__ */ jsx("span", { children: "Enable Edge Caching (CDN)" })]
+											})
+										]
+									}),
+									/* @__PURE__ */ jsx("h3", {
+										style: sidebarHeadingStyle,
+										children: "Search Priority"
+									}),
+									/* @__PURE__ */ jsxs("select", {
+										style: metaSelectStyle,
+										children: [
+											/* @__PURE__ */ jsx("option", { children: "Normal (0.8)" }),
+											/* @__PURE__ */ jsx("option", { children: "High (0.9)" }),
+											/* @__PURE__ */ jsx("option", { children: "Critical (1.0)" })
+										]
+									})
+								] }, "seo")
+							]
+						})
+					]
 				})]
 			}),
 			faqModalOpen && /* @__PURE__ */ jsx("div", {

@@ -291,7 +291,7 @@ const headerTitleStyle: React.CSSProperties = { fontSize: '19px', fontWeight: 80
 const scoreHubStyle: React.CSSProperties = { display: 'flex', gap: '16px', marginRight: '16px' };
 const iconBtnStyle: React.CSSProperties = { background: '#fff', border: '1px solid #e2e8f0', padding: '10px 16px', borderRadius: '12px', cursor: 'pointer', color: '#475569', whiteSpace: 'nowrap', fontWeight: 600, fontSize: '13px', transition: 'all 0.2s', boxShadow: '0 2px 8px -2px rgba(0,0,0,0.04)' };
 const publishBtnStyle: React.CSSProperties = { background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: '#fff', border: 'none', padding: '16px 36px', borderRadius: '16px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 12px 24px -6px rgba(37, 99, 235, 0.4)', whiteSpace: 'nowrap', transition: 'all 0.3s', letterSpacing: '0.5px', fontSize: '15px', position: 'fixed', bottom: '40px', right: '40px', zIndex: 100000 };
-const mainCanvasStyle: React.CSSProperties = { flex: 1, overflowY: 'auto', background: '#f8fafc', display: 'flex', flexDirection: 'column', position: 'relative', scrollBehavior: 'smooth' };
+const mainCanvasStyle: React.CSSProperties = { flex: 1, overflowY: 'auto', background: '#ffffff', display: 'flex', flexDirection: 'column', position: 'relative', scrollBehavior: 'smooth' };
 const floatingToolbarStyle: React.CSSProperties = { position: 'sticky', top: '0', zIndex: 100, background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(24px)', padding: '12px 40px', borderBottom: '1px solid rgba(226,232,240,0.6)', display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', userSelect: 'none', boxShadow: '0 4px 12px -8px rgba(0,0,0,0.05)' };
 const toolDivider: React.CSSProperties = { width: '1px', height: '24px', background: '#cbd5e1', margin: '0 6px' };
 const intelSidebarStyle: React.CSSProperties = { width: '340px', background: '#ffffff', borderLeft: '1px solid rgba(226,232,240,0.6)', display: 'flex', flexDirection: 'column', boxShadow: '-8px 0 24px -12px rgba(0,0,0,0.03)' };
@@ -309,7 +309,7 @@ const guardianCard: React.CSSProperties = { display: 'flex', flexDirection: 'col
 const headerSelectWrapper: React.CSSProperties = { display: 'flex', alignItems: 'center', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '0 12px', margin: '0 4px', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.01)' };
 const headerSelectStyle: React.CSSProperties = { border: 'none', background: 'transparent', fontSize: '12.5px', fontWeight: 700, color: '#334155', outline: 'none', height: '36px', cursor: 'pointer' };
 const metaSelectStyle: React.CSSProperties = { width: '100%', padding: '14px', border: '1px solid #e2e8f0', borderRadius: '14px', fontSize: '14px', fontWeight: 600, background: '#fff', color: '#1e293b' };
-const editorWrapperStyle: React.CSSProperties = { background: '#fff', padding: '50px', minHeight: '100vh', position: 'relative', maxWidth: '1024px', margin: '24px auto', width: '100%', borderRadius: '24px', border: '1px solid rgba(226,232,240,0.6)', boxShadow: '0 10px 40px -10px rgba(0,0,0,0.04)' };
+const editorWrapperStyle: React.CSSProperties = { background: '#fff', padding: '60px 40px', minHeight: '100vh', position: 'relative', maxWidth: '850px', margin: '0 auto', width: '100%', borderRadius: '0', border: 'none', boxShadow: 'none' };
 const bubbleMenuStyle: React.CSSProperties = { background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '6px', display: 'flex', gap: '6px', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.1)', zIndex: 1000 };
 const floatingMenuStyle: React.CSSProperties = { background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '4px', display: 'flex', gap: '4px', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)', zIndex: 1000 };
 const fMenuBtn: React.CSSProperties = { padding: '8px 12px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '12.5px', fontWeight: 800, color: '#475569', borderRadius: '8px', transition: 'background 0.2s' };
@@ -380,6 +380,8 @@ interface PostFormProps {
 
 export default function PostForm({ post }: PostFormProps) {
    const [isMobile, setIsMobile] = useState(false);
+   const [sidebarWidth, setSidebarWidth] = useState(320);
+   const [isResizing, setIsResizing] = useState(false);
 
    const [postId] = useState(post?.id || crypto.randomUUID());
 
@@ -389,6 +391,29 @@ export default function PostForm({ post }: PostFormProps) {
      window.addEventListener('resize', handleResize);
      return () => window.removeEventListener('resize', handleResize);
    }, []);
+
+   useEffect(() => {
+     if (!isResizing) return;
+     
+     const handleMouseMove = (e: MouseEvent) => {
+        const newWidth = window.innerWidth - e.clientX;
+        if (newWidth > 200 && newWidth < 800) {
+           setSidebarWidth(newWidth);
+        }
+     };
+     
+     const handleMouseUp = () => {
+        setIsResizing(false);
+     };
+     
+     document.addEventListener('mousemove', handleMouseMove);
+     document.addEventListener('mouseup', handleMouseUp);
+     
+     return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+     };
+   }, [isResizing]);
    const [title, setTitle] = useState(post?.title || '');
    const [slug, setSlug] = useState(post?.slug || '');
    const [urlFormat, setUrlFormat] = useState(post?.url_format || 'blog/{slug}');
@@ -1323,7 +1348,7 @@ export default function PostForm({ post }: PostFormProps) {
             <main style={{ ...mainCanvasStyle, overflowY: isMobile ? 'visible' : 'auto' }}>
                 <div style={floatingToolbarStyle}>
                    {/* History Group */}
-                   <div style={{ display: 'flex', gap: '4px', maxWidth: '1000px', margin: '0 auto', width: '100%', flexWrap: 'wrap', alignItems: 'center' }}>
+                   <div style={{ display: 'flex', gap: '4px', maxWidth: '850px', margin: '0 auto', width: '100%', flexWrap: 'wrap', alignItems: 'center' }}>
                       <div style={{ display: 'flex', gap: '4px' }}>
                          <SovereignToolBtn onClick={() => editor.chain().focus().undo().run()} title="Undo">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
@@ -1519,7 +1544,25 @@ export default function PostForm({ post }: PostFormProps) {
                    </div>
              </main>
 
-            <aside style={{ ...intelSidebarStyle, width: isMobile ? '100%' : '300px', borderLeft: isMobile ? 'none' : '1px solid #e2e8f0', borderTop: isMobile ? '1px solid #e2e8f0' : 'none', overflowY: isMobile ? 'visible' : 'auto' }}>
+            <aside style={{ ...intelSidebarStyle, width: isMobile ? '100%' : `${sidebarWidth}px`, borderLeft: isMobile ? 'none' : '1px solid #e2e8f0', borderTop: isMobile ? '1px solid #e2e8f0' : 'none', overflowY: isMobile ? 'visible' : 'auto', position: 'relative' }}>
+               {!isMobile && (
+                  <div 
+                     onMouseDown={() => setIsResizing(true)}
+                     style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: -4,
+                        width: '8px',
+                        height: '100%',
+                        cursor: 'col-resize',
+                        zIndex: 10,
+                        background: isResizing ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
+                        transition: 'background 0.2s'
+                     }}
+                     onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)')}
+                     onMouseLeave={(e) => (e.currentTarget.style.background = isResizing ? 'rgba(59, 130, 246, 0.2)' : 'transparent')}
+                  />
+               )}
                <div style={{ padding: '24px 24px 0 24px' }}>
                   <div style={{ fontSize: '10px', fontWeight: 900, color: '#94a3b8', letterSpacing: '1px', marginBottom: '12px' }}>INTEL MODULES</div>
                    <div style={intelTabsStyle}>
