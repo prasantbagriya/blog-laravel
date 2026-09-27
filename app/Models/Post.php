@@ -13,6 +13,7 @@ class Post extends Model
     protected $keyType = 'string';
 
     protected $guarded = [];
+    protected $appends = ['url_path'];
 
     protected $casts = [
         'authorSocials' => 'array',
@@ -38,6 +39,19 @@ class Post extends Model
         'lsiKeywords' => 'array',
         'seoRating' => 'array',
     ];
+
+    public function getUrlPathAttribute()
+    {
+        $format = $this->url_format ?? 'blog/{slug}';
+        
+        $path = str_replace('{slug}', $this->slug ?? '', $format);
+        if (str_contains($path, '{category}')) {
+            $catSlug = $this->category ? strtolower(str_replace(' ', '-', $this->category)) : 'general';
+            $path = str_replace('{category}', $catSlug, $path);
+        }
+        
+        return '/' . ltrim($path, '/');
+    }
 
     public function community()
     {

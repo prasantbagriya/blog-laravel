@@ -156,13 +156,13 @@ export default function Index({ posts, meta }) {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-16">
                     {posts.map((post) => (
                         <article key={post.id} className="border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-xl overflow-hidden hover:shadow-xl dark:hover:shadow-black/40 transition-shadow flex flex-col">
-                            <Link href={window.BASE_PATH + `/blog/${post.slug}`} className="relative h-48 block">
+                            <Link href={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + (post.url_path || `/blog/${post.slug}`)} className="relative h-48 block">
                                 <Image src={post.coverImage || '/uploads/read.webp'} alt={post.title} fill style={{ objectFit: 'cover' }} />
                             </Link>
                             <div className="p-6 flex flex-col flex-grow">
                                 <span className="text-sm text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider mb-2">{post.category}</span>
                                 <h2 className="text-xl font-bold mb-3 text-slate-900 dark:text-white">
-                                    <Link href={window.BASE_PATH + `/blog/${post.slug}`}>{post.title}</Link>
+                                    <Link href={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + (post.url_path || `/blog/${post.slug}`)}>{post.title}</Link>
                                 </h2>
                                 <p className="text-slate-600 dark:text-zinc-400 mb-4 flex-grow">{post.excerpt}</p>
                                 <div className="flex justify-between items-center text-sm text-slate-500 dark:text-zinc-500 pt-4 border-t border-slate-100 dark:border-zinc-800">

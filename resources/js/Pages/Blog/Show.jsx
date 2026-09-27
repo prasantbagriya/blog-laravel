@@ -185,7 +185,7 @@ export default function Show({ post, recentPosts, meta, comments = [], userComme
         return d.toLocaleString('sv-SE', { timeZone: 'Asia/Kolkata' }).replace(' ', 'T') + '+05:30';
     };
 
-    const finalCanonicalUrl = post.canonicalUrl || `https://coachingsinsikar.com/blog/${post.slug}`;
+    const finalCanonicalUrl = post.canonicalUrl || `https://coachingsinsikar.com${post.url_path || '/blog/'+post.slug}`;
     const displayAuthor = post.author?.toLowerCase() === 'prasant' ? 'Prashant' : post.author;
 
     return (
@@ -519,7 +519,7 @@ export default function Show({ post, recentPosts, meta, comments = [], userComme
                         <h3 className="text-xl font-bold mb-6 pb-2 border-b-2 border-blue-600 inline-block text-slate-900 dark:text-white">Recent Articles</h3>
                         <div className="flex flex-col gap-4">
                             {recentPosts && recentPosts.map((rp) => (
-                                <Link key={rp.id} href={`${window.BASE_PATH}/blog/${rp.slug}`} className="flex gap-4 group bg-white dark:bg-zinc-900 p-3 rounded-xl border border-slate-100 dark:border-zinc-800 shadow-sm hover:shadow-md transition-all">
+                                <Link key={rp.id} href={`${window.BASE_PATH}${rp.url_path || '/blog/'+rp.slug}`} className="flex gap-4 group bg-white dark:bg-zinc-900 p-3 rounded-xl border border-slate-100 dark:border-zinc-800 shadow-sm hover:shadow-md transition-all">
                                     <div className="relative w-24 h-20 shrink-0 rounded-lg overflow-hidden border border-slate-100 bg-slate-50">
                                         <Image src={rp.coverImage || '/uploads/read.webp'} alt={rp.title} fill style={{ objectFit: 'cover' }} className="transition-transform duration-300 group-hover:scale-105" />
                                     </div>

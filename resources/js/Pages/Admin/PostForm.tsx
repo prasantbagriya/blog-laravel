@@ -389,6 +389,7 @@ export default function PostForm({ post }: PostFormProps) {
    }, []);
    const [title, setTitle] = useState(post?.title || '');
    const [slug, setSlug] = useState(post?.slug || '');
+   const [urlFormat, setUrlFormat] = useState(post?.url_format || 'blog/{slug}');
    const [metaDescription, setMetaDescription] = useState(post?.metaDescription || '');
    const [excerpt, setExcerpt] = useState(post?.excerpt || '');
    const [coverImage, setCoverImage] = useState(post?.coverImage || '');
@@ -1074,6 +1075,7 @@ export default function PostForm({ post }: PostFormProps) {
             id: postId,
             title,
             slug: cleanSlug,
+            url_format: urlFormat,
             content: editor.getHTML(),
             metaDescription,
             excerpt: excerpt || metaDescription || title,
@@ -1878,6 +1880,18 @@ export default function PostForm({ post }: PostFormProps) {
                                  onChange={(val: string) => setSlug(val.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/[\s_-]+/g, '-'))} 
                                  placeholder="e.g. custom-post-url (leave empty for auto)" 
                               />
+                              <div style={{ height: '15px' }} />
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                 <label style={metaLabelStyle}>URL FORMAT</label>
+                                 <select value={urlFormat} onChange={e => setUrlFormat(e.target.value)} style={metaInputStyle}>
+                                    <option value="news/{slug}">domain.com/news/article-name</option>
+                                    <option value="{slug}">domain.com/article-name</option>
+                                    <option value="{category}/{slug}">domain.com/category/article-name</option>
+                                    <option value="blog/{slug}">domain.com/blog/article-name</option>
+                                    <option value="blog/{category}/{slug}">domain.com/blog/category/article-name</option>
+                                    <option value="news/{category}/{slug}">domain.com/news/category/article-name</option>
+                                 </select>
+                              </div>
                               <div style={{ height: '15px' }} />
                               <label style={metaLabelStyle}>META DESCRIPTION</label>
                               <textarea value={metaDescription} onChange={e => setMetaDescription(e.target.value)} style={metaTextAreaStyle} placeholder="150-160 characters for optimal CTR" />

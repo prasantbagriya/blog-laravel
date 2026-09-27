@@ -33,13 +33,13 @@ export default function AuthorShow({ author, posts, meta }) {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {posts.map((post) => (
                         <article key={post.id} className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl transition-shadow flex flex-col">
-                            <Link href={window.BASE_PATH + `/blog/${post.slug}`} className="relative h-48 block">
+                            <Link href={window.BASE_PATH + (post.url_path || `/blog/${post.slug}`)} className="relative h-48 block">
                                 <Image src={post.coverImage || '/uploads/read.webp'} alt={post.title} fill style={{ objectFit: 'cover' }} />
                             </Link>
                             <div className="p-6 flex flex-col flex-grow">
                                 <span className="text-sm text-blue-600 font-bold uppercase tracking-wider mb-2">{post.category}</span>
                                 <h2 className="text-xl font-bold mb-3">
-                                    <Link href={window.BASE_PATH + `/blog/${post.slug}`}>{post.title}</Link>
+                                    <Link href={window.BASE_PATH + (post.url_path || `/blog/${post.slug}`)}>{post.title}</Link>
                                 </h2>
                                 <p className="text-gray-600 mb-4 flex-grow">{post.excerpt}</p>
                             </div>

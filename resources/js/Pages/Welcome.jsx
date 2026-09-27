@@ -184,7 +184,7 @@ const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses, fall
                                                                 {suggestions.blogs.map(blog => (
                                                                     <Link 
                                                                         key={`blog-${blog.id}`} 
-                                                                        href={`${basePath || ''}/blog/${blog.slug}`}
+                                                                        href={(basePath || '') + (blog.url_path || `/blog/${blog.slug}`)}
                                                                         className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors"
                                                                     >
                                                                         <div className="bg-amber-50 p-2 rounded-lg text-amber-600"><BookOpen size={16} /></div>
@@ -311,14 +311,14 @@ const BlogSection = ({ morePosts, basePath, formatDate }) => {
                             className="flex-grow flex flex-col"
                             gradientColor={borderColors[index % borderColors.length]}
                         >
-                            <Link href={`${basePath}/blog/${post.slug}`} className="relative aspect-[16/9] w-full block overflow-hidden shrink-0">
+                            <Link href={`${basePath}${post.url_path || '/blog/'+post.slug}`} className="relative aspect-[16/9] w-full block overflow-hidden shrink-0">
                                 <Image src={post.coverImage || '/uploads/read.webp'} alt={post.title} fill width="672" height="378" style={{objectFit: 'cover'}} className="group-hover:scale-105 transition-transform duration-500" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             </Link>
                             
                             <div className="p-4 md:p-5 flex-grow flex flex-col bg-white dark:bg-zinc-900">
                                 <h3 className="text-base md:text-lg font-bold text-slate-900 dark:text-white leading-snug mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                    <Link href={`${basePath}/blog/${post.slug}`} className="focus:outline-none">{post.title}</Link>
+                                    <Link href={`${basePath}${post.url_path || '/blog/'+post.slug}`} className="focus:outline-none">{post.title}</Link>
                                 </h3>
                                 
                                 {post.excerpt && (
@@ -336,7 +336,7 @@ const BlogSection = ({ morePosts, basePath, formatDate }) => {
                                         <span className="text-slate-500 dark:text-zinc-400">Posted:</span>
                                         <span className="font-semibold text-slate-800 dark:text-zinc-200">{formatDate(post.date)}</span>
                                     </div>
-                                    <Link href={`${basePath}/blog/${post.slug}`} className="bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-bold py-2.5 rounded-full transition-all text-sm w-full text-center flex justify-center items-center active:scale-[0.98]">
+                                    <Link href={`${basePath}${post.url_path || '/blog/'+post.slug}`} className="bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-bold py-2.5 rounded-full transition-all text-sm w-full text-center flex justify-center items-center active:scale-[0.98]">
                                         Read Article
                                     </Link>
                                 </div>

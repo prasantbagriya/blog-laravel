@@ -63,7 +63,7 @@ export default function CategoryShow({ categoryName, posts, meta }) {
                                     className="group bg-white dark:bg-zinc-900 rounded-2xl overflow-hidden border border-slate-200 dark:border-zinc-800 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
                                 >
                                     {/* Cover Image */}
-                                    <Link href={basePath + `/blog/${post.slug}`} className="relative h-48 block overflow-hidden">
+                                    <Link href={basePath + (post.url_path || `/blog/${post.slug}`)} className="relative h-48 block overflow-hidden">
                                         <Image
                                             src={post.coverImage || '/uploads/read.webp'}
                                             alt={post.title}
@@ -85,7 +85,7 @@ export default function CategoryShow({ categoryName, posts, meta }) {
 
                                         {/* Title */}
                                         <h2 className="text-base font-extrabold text-slate-900 dark:text-white mb-2 leading-snug group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-                                            <Link href={basePath + `/blog/${post.slug}`}>{post.title}</Link>
+                                            <Link href={basePath + (post.url_path || `/blog/${post.slug}`)}>{post.title}</Link>
                                         </h2>
 
                                         {/* Excerpt */}
@@ -102,7 +102,7 @@ export default function CategoryShow({ categoryName, posts, meta }) {
                                                 <span>{post.date ? new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''}</span>
                                             </div>
                                             <Link
-                                                href={basePath + `/blog/${post.slug}`}
+                                                href={basePath + (post.url_path || `/blog/${post.slug}`)}
                                                 className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 dark:text-amber-400 hover:gap-2 transition-all"
                                             >
                                                 Read <ArrowRight className="w-3.5 h-3.5" />

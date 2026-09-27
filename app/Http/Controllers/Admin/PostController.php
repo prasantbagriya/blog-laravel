@@ -73,6 +73,7 @@ class PostController extends Controller
             'focusKeyword' => 'nullable|string',
             'lsiKeywords' => 'nullable|array',
             'type' => 'nullable|string',
+            'url_format' => 'nullable|string',
             'link_url' => 'nullable|string',
             'media_urls' => 'nullable|array',
             'community_id' => 'nullable|exists:communities,id',

@@ -20,6 +20,12 @@ Route::get('/news-sitemap.xml', [\App\Http\Controllers\NewsSitemapController::cl
 Route::get('/blog', [\App\Http\Controllers\BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('blog.show');
 
+Route::get('/news', [\App\Http\Controllers\BlogController::class, 'index'])->name('news.index');
+Route::get('/news/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('news.show');
+
+Route::get('/blog/{category}/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('blog.category.show');
+Route::get('/news/{category}/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('news.category.show');
+
 // Temporary route to run migrations from cPanel browser
 Route::middleware(['auth', 'admin'])->get('/run-migrations-secret', function () {
     try {
@@ -287,10 +293,13 @@ Route::middleware(['auth', 'admin'])->get('/fix-admin-temp', function () {
 });
 Route::fallback(function () {
     $path = request()->path();
-    // Redirect old root-level post slugs to /blog/...
-    $post = \App\Models\Post::where('slug', $path)->first();
+    $segments = explode('/', $path);
+    $lastSegment = end($segments);
+
+    $post = \App\Models\Post::where('slug', $lastSegment)->first();
     if ($post) {
-        return redirect('/blog/' . $path, 301);
+        return app(\App\Http\Controllers\BlogController::class)->show($lastSegment);
     }
+
     return redirect('/');
 });
