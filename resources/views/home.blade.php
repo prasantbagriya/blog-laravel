@@ -38,6 +38,7 @@
     @endif
 
     <meta name="google-site-verification" content="HcrL5h0jDeKpvNkKKIjIAUm-bR_AY0bu07aJsU4qLuQ">
+    <meta name="msvalidate.01" content="FB8652B2A23AAD6CEE2AF8CACF4580A9" />
     <link rel="alternate" type="application/rss+xml" title="Blog RSS Feed" href="{{ url('/blog/feed.xml') }}">
     <link rel="icon" type="image/webp" sizes="192x192" href="/uploads/logo.webp">
     <link rel="icon" type="image/webp" sizes="96x96" href="/uploads/logo.webp">
@@ -92,6 +93,19 @@
         };
         engagementEvents.forEach((eventName) => window.addEventListener(eventName, onFirstEngagement, { passive: true, once: true }));
         window.setTimeout(scheduleAfterLoad, 8000);
+    </script>
+
+    <!-- Google Publisher SWG -->
+    <script async type="application/javascript" src="https://news.google.com/swg/js/v1/swg-basic.js"></script>
+    <script>
+    (self.SWG_BASIC = self.SWG_BASIC || []).push( basicSubscriptions => {
+        basicSubscriptions.init({
+        type: "NewsArticle",
+        isPartOfType: ["Product"],
+        isPartOfProductId: "CAowxuXhCw:openaccess",
+        clientOptions: { theme: "light", lang: "en" },
+        });
+    });
     </script>
 </head>
 <body class="font-sans antialiased">

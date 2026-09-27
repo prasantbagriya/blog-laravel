@@ -410,6 +410,17 @@ class BlogController extends Controller
                 "name" => !empty($post->seoTitle) ? $post->seoTitle : $post->title,
                 "description" => $seoDescription,
                 "image" => !empty($post->coverImage) ? (str_starts_with($post->coverImage, 'http') ? $post->coverImage : url($post->coverImage)) : url('/uploads/logo.webp'),
+                "brand" => [
+                    "@type" => "Brand",
+                    "name" => "Coachinginsikar"
+                ],
+                "offers" => [
+                    "@type" => "Offer",
+                    "url" => url($finalCanonicalUrl),
+                    "priceCurrency" => "INR",
+                    "price" => "0",
+                    "availability" => "https://schema.org/InStock"
+                ],
                 "aggregateRating" => [
                     "@type" => "AggregateRating",
                     "ratingValue" => $seoRatingData['ratingValue'],
@@ -431,23 +442,42 @@ class BlogController extends Controller
         $keywordArray = array_unique($keywordArray);
         $cleanKeywords = !empty($keywordArray) ? implode(', ', $keywordArray) : null;
 
-        $recentPostsArray = Post::where('published', true)
-            ->whereNull('community_id')
+        $recentPostsCache = \Illuminate\Support\Facades\Cache::remember('blog_recent_posts_5', 3600, function () {
+            return Post::where('published', true)
+                ->whereNull('community_id')
+                ->orderBy('date', 'desc')
+                ->limit(6)
+                ->get()
+                ->toArray();
+        });
+
+        $recentPostsArray = collect($recentPostsCache)
             ->where('id', '!=', $post->id)
-            ->orderBy('date', 'desc')
-            ->limit(5)
-            ->get()
+            ->take(5)
+            ->values()
             ->toArray();
 
-        // array_walk_recursive($recentPostsArray, function(&$item, $key) {
-        //     if (is_string($item) && str_contains($item, 'uploads/')) {
-        //         $item = preg_replace('/(uploads\/[^"\'\s>]+)\.(png|jpg|jpeg|bmp)/i', '$1.webp', $item);
-        //     }
-        // });
+        $comments = \App\Models\Comment::with(['author', 'replies'])
+            ->where('post_id', $post->id)
+            ->whereNull('parent_id')
+            ->where('is_spam', false)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $userCommentVotes = [];
+        if (auth()->check()) {
+            $userCommentVotes = \Illuminate\Support\Facades\DB::table('votes')
+                ->where('user_id', auth()->id())
+                ->where('votable_type', \App\Models\Comment::class)
+                ->pluck('value', 'votable_id')
+                ->toArray();
+        }
 
         return Inertia::render('Blog/Show', [
             'post' => $post->toArray(),
             'recentPosts' => $recentPostsArray,
+            'comments' => $comments,
+            'userCommentVotes' => $userCommentVotes,
             'meta' => [
                 'title' => $seoTitle,
                 'description' => $seoDescription,

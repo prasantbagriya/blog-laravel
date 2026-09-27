@@ -165,10 +165,10 @@ class PostController extends Controller
         $post = Post::with(['author', 'community'])->findOrFail($id);
         $community = $post->community;
 
-        // Fetch top level comments and eager load replies recursively
         $comments = \App\Models\Comment::with(['author', 'replies'])
             ->where('post_id', $post->id)
             ->whereNull('parent_id')
+            ->where('is_spam', false)
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -213,19 +213,47 @@ class PostController extends Controller
 
     public function storeComment(Request $request, $postId)
     {
+        // Rate Limiting: 3 comments per minute per user
+        $rateLimitKey = 'comment_store_' . auth()->id();
+        if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($rateLimitKey, 3)) {
+            return back()->withErrors(['content' => 'You are posting comments too fast. Please wait a moment.']);
+        }
+        \Illuminate\Support\Facades\RateLimiter::hit($rateLimitKey, 60);
+
         $request->validate([
-            'content' => 'required|string',
+            'content' => 'required|string|max:3000',
             'parent_id' => 'nullable|exists:comments,id'
         ]);
 
         $post = Post::findOrFail($postId);
+        $rawContent = $request->content;
+        $safeContent = clean(strip_tags($rawContent));
+
+        // Duplicate Detection: Exact match in the last 15 minutes
+        $isDuplicate = \App\Models\Comment::where('author_id', auth()->id())
+            ->where('post_id', $post->id)
+            ->where('content', $safeContent)
+            ->where('created_at', '>=', now()->subMinutes(15))
+            ->exists();
+            
+        if ($isDuplicate) {
+            return back()->withErrors(['content' => 'You have already posted this comment recently.']);
+        }
+
+        // Spam Filter: Prevent bot link spam
+        $urlCount = substr_count(strtolower($rawContent), 'http');
+        $isSpam = $urlCount > 2;
+        $spamReason = $isSpam ? 'Too many URLs detected' : null;
 
         $comment = \App\Models\Comment::create([
             'post_id' => $post->id,
             'author_id' => auth()->id(),
             'parent_id' => $request->parent_id,
-            'content' => clean($request->content),
-            'score' => 1
+            'content' => $safeContent,
+            'score' => 1,
+            'is_spam' => $isSpam,
+            'spam_reason' => $spamReason,
+            'status' => $isSpam ? 'spam' : 'published',
         ]);
 
         $comment->load('author', 'replies');

@@ -2,6 +2,7 @@
 <html amp lang="en">
   <head>
     <meta charset="utf-8">
+    <meta name="msvalidate.01" content="FB8652B2A23AAD6CEE2AF8CACF4580A9" />
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     <script async custom-element="amp-story" src="https://cdn.ampproject.org/v0/amp-story-1.0.js"></script>
     <title>{{ $story->title }}</title>

@@ -204,6 +204,7 @@ class BusinessController extends Controller
             'services.*.price' => 'nullable|string',
             'logo' => 'nullable|image|max:2048',
             'cover_image' => 'nullable|image|max:4096',
+            'opening_hours' => 'nullable|string|max:255',
         ]);
 
         $slug = $request->filled('slug') 

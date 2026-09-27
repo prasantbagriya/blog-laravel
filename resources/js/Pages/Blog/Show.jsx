@@ -1,9 +1,13 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, useForm, router, usePage } from '@inertiajs/react';
 import GlobalNavbar from '../../NextComponents/GlobalNavbar';
 import BlogFooter from '../../NextComponents/BlogFooter';
 import React, { useEffect, useRef, useState } from 'react';
 import SeoMeta from '../../NextComponents/SeoMeta';
+import { ArrowBigUp, ArrowBigDown, MessageSquare } from 'lucide-react';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 
+dayjs.extend(relativeTime);
 // Polyfill for Next.js Image
 const Image = ({ src, alt, fill, style, sizes, priority, fetchPriority, ...props }) => {
     const imgStyle = fill ? { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%', ...style } : style;
@@ -12,9 +16,137 @@ const Image = ({ src, alt, fill, style, sizes, priority, fetchPriority, ...props
     return <img src={src} alt={alt} style={imgStyle} sizes={sizes} fetchPriority={finalFetchPriority} loading={loadingAttr} decoding={priority ? 'sync' : 'async'} {...props} />;
 };
 
-export default function Show({ post, recentPosts, meta }) {
+// Recursive Comment Component
+const CommentThread = ({ comment, postId, auth, userCommentVotes }) => {
+    const userVote = userCommentVotes?.[comment.id] || 0;
+    const [showReplyForm, setShowReplyForm] = useState(false);
+    
+    const { data, setData, post, processing, reset } = useForm({
+        content: '',
+        parent_id: comment.id,
+    });
+
+    const submitReply = (e) => {
+        e.preventDefault();
+        post(route('post.comment.store', postId), {
+            onSuccess: () => {
+                setShowReplyForm(false);
+                reset();
+            }
+        });
+    };
+
+    return (
+        <div className="mt-5">
+            <div className="flex gap-3">
+                <div className="flex flex-col items-center group">
+                    <img src={`https://ui-avatars.com/api/?name=${comment.author?.username}&background=random`} width="32" height="32" className="w-8 h-8 rounded-full shadow-sm" />
+                    <div className="w-0.5 h-full bg-slate-200 dark:bg-zinc-800 mt-2 group-hover:bg-blue-400 dark:group-hover:bg-blue-500 transition-colors cursor-pointer rounded-full"></div>
+                </div>
+                
+                <div className="flex-1 pb-3">
+                    <div className="flex items-center gap-2 mb-1.5">
+                        <span className="font-bold text-[13px] text-slate-900 dark:text-white">u/{comment.author?.username || 'deleted'}</span>
+                        <span className="text-slate-500 dark:text-zinc-500 text-[12px]">{dayjs(comment.created_at).fromNow()}</span>
+                    </div>
+                    
+                    <div className="text-[14px] text-slate-800 dark:text-zinc-300 mb-3 leading-relaxed">
+                        {comment.content}
+                    </div>
+                    
+                    <div className="flex items-center gap-1.5 -ml-2">
+                        <div className="flex items-center gap-1 bg-slate-100 dark:bg-zinc-800 rounded-full px-1 py-0.5">
+                            <button 
+                                onClick={(e) => { e.preventDefault(); router.post('/vote', { votable_type: 'comment', votable_id: comment.id, value: 1 }, { preserveScroll: true }); }}
+                                className={`flex items-center justify-center w-7 h-7 rounded-full transition-all border-0 outline-none focus:outline-none focus:ring-0 ${userVote === 1 ? 'text-rose-600 bg-rose-100 dark:bg-rose-900/30' : 'text-slate-500 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700 hover:text-rose-500'}`}
+                            >
+                                <ArrowBigUp size={18} className={userVote === 1 ? 'fill-current' : ''} />
+                            </button>
+                            <span className={`text-[12px] font-extrabold px-1 ${userVote === 1 ? 'text-rose-600' : userVote === -1 ? 'text-blue-600' : 'text-slate-700 dark:text-zinc-300'}`}>{comment.score}</span>
+                            <button 
+                                onClick={(e) => { e.preventDefault(); router.post('/vote', { votable_type: 'comment', votable_id: comment.id, value: -1 }, { preserveScroll: true }); }}
+                                className={`flex items-center justify-center w-7 h-7 rounded-full transition-all border-0 outline-none focus:outline-none focus:ring-0 ${userVote === -1 ? 'text-blue-600 bg-blue-100 dark:bg-blue-900/30' : 'text-slate-500 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700 hover:text-blue-500'}`}
+                            >
+                                <ArrowBigDown size={18} className={userVote === -1 ? 'fill-current' : ''} />
+                            </button>
+                        </div>
+                        
+                        <button 
+                            onClick={() => setShowReplyForm(!showReplyForm)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-100 dark:bg-zinc-800 rounded-full transition-colors border-0 outline-none focus:outline-none focus:ring-0 text-slate-500 dark:text-zinc-400"
+                        >
+                            <MessageSquare size={16} />
+                            <span className="text-[12px] font-bold">Reply</span>
+                        </button>
+                    </div>
+
+                    {/* Reply Form */}
+                    {showReplyForm && auth?.user && (
+                        <div className="mt-3 mb-4 pr-4">
+                            <form onSubmit={submitReply}>
+                                <textarea
+                                    value={data.content}
+                                    onChange={e => setData('content', e.target.value)}
+                                    placeholder="What are your thoughts?"
+                                    className="w-full bg-slate-50 dark:bg-zinc-900/50 border border-slate-200 dark:border-zinc-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl py-3 px-4 text-[14px] text-slate-900 dark:text-white outline-none transition-colors min-h-[100px] hover:border-blue-400"
+                                ></textarea>
+                                <div className="flex justify-end gap-2 mt-2">
+                                    <button 
+                                        type="button" 
+                                        onClick={() => setShowReplyForm(false)}
+                                        className="px-5 py-2 font-bold text-[14px] bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 rounded-full transition-colors border-0 outline-none focus:outline-none focus:ring-0"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button 
+                                        type="submit" 
+                                        disabled={processing || !data.content}
+                                        className="px-5 py-2 font-bold text-[14px] bg-rose-600 hover:bg-rose-700 text-white rounded-full transition-transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100 border-0 outline-none focus:outline-none focus:ring-0 shadow-md shadow-rose-600/20"
+                                    >
+                                        Reply
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    )}
+
+                    {/* Nested Replies */}
+                    {comment.replies && comment.replies.length > 0 && (
+                        <div className="pl-4">
+                            {comment.replies.map(reply => (
+                                <CommentThread key={reply.id} comment={reply} postId={postId} auth={auth} userCommentVotes={userCommentVotes} />
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default function Show({ post, recentPosts, meta, comments = [], userCommentVotes = {} }) {
+    const { auth } = usePage().props;
+    const { data, setData, post: submitForm, processing, reset } = useForm({
+        content: '',
+        parent_id: null,
+    });
+
+    const submitComment = (e) => {
+        e.preventDefault();
+        submitForm(route('post.comment.store', post.id), {
+            onSuccess: () => reset()
+        });
+    };
     const contentRef = useRef(null);
     const [toc, setToc] = useState([]);
+
+    let seoRating = null;
+    if (post?.seoRating || post?.seo_rating) {
+        try {
+            const raw = post.seoRating || post.seo_rating;
+            seoRating = typeof raw === 'string' ? JSON.parse(raw) : raw;
+        } catch(e) {}
+    }
 
     useEffect(() => {
         if (!contentRef.current) return;
@@ -80,31 +212,57 @@ export default function Show({ post, recentPosts, meta }) {
                             </div>
                         )}
 
-                        <div className="flex items-center gap-4 text-gray-600 mb-8">
-                            {post.authorImage && (
-                                <img loading="lazy" decoding="async" fetchPriority="low" src={post.authorImage.startsWith('http') || post.authorImage.startsWith('/') ? post.authorImage : '/' + post.authorImage} alt={displayAuthor} width="48" height="48" className="w-12 h-12 rounded-full object-cover" />
-                            )}
-                            <div>
-                                <Link href={window.BASE_PATH + '/author/' + (displayAuthor ? displayAuthor.toLowerCase().replace(/[^a-z0-9]+/g, '-') : '')} className="font-semibold text-lg text-slate-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 hover:underline">
-                                    {displayAuthor}
-                                </Link>
-                                {post.authorJobTitle && (
-                                    <p className="text-sm font-medium text-slate-500 dark:text-zinc-400">{post.authorJobTitle}</p>
+                        <div className="flex flex-row items-center justify-between gap-2 sm:gap-4 mb-8 p-3 sm:p-4 border border-black dark:border-white rounded-lg bg-white dark:bg-zinc-900">
+                            <div className="flex items-center gap-3 sm:gap-4 text-gray-600 min-w-0">
+                                {post.authorImage && (
+                                    <img loading="lazy" decoding="async" fetchPriority="low" src={post.authorImage.startsWith('http') || post.authorImage.startsWith('/') ? post.authorImage : '/' + post.authorImage} alt={displayAuthor} width="48" height="48" className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover shrink-0" />
                                 )}
-                                {post.authorAwards && post.authorAwards.length > 0 && (
-                                    <p className="text-xs font-semibold text-amber-600 dark:text-amber-500 mt-0.5 flex items-center gap-1">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
-                                        {post.authorAwards[0]} {post.authorAwards.length > 1 ? `+${post.authorAwards.length - 1}` : ''}
-                                    </p>
-                                )}
-                                <p className="text-xs text-slate-600 dark:text-zinc-500 mt-1">{formatDate(post.date)}</p>
+                                <div className="truncate">
+                                    <Link href={window.BASE_PATH + '/author/' + (displayAuthor ? displayAuthor.toLowerCase().replace(/[^a-z0-9]+/g, '-') : '')} className="font-semibold text-base sm:text-lg text-slate-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 hover:underline truncate block">
+                                        {displayAuthor}
+                                    </Link>
+                                    {post.authorJobTitle && (
+                                        <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-zinc-400 truncate">{post.authorJobTitle}</p>
+                                    )}
+                                    {post.authorAwards && post.authorAwards.length > 0 && (
+                                        <p className="text-[10px] sm:text-xs font-semibold text-amber-600 dark:text-amber-500 mt-0.5 flex items-center gap-1 truncate">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+                                            <span className="truncate">{post.authorAwards[0]} {post.authorAwards.length > 1 ? `+${post.authorAwards.length - 1}` : ''}</span>
+                                        </p>
+                                    )}
+                                    <p className="text-[10px] sm:text-xs text-slate-600 dark:text-zinc-500 mt-0.5 sm:mt-1">{formatDate(post.date)}</p>
+                                </div>
                             </div>
+                            
+                            {/* Google News Preferred Source Button */}
+                            <a href="https://google.com/preferences/source?q=coachingsinsikar.com" target="_blank" rel="noopener noreferrer" className="shrink-0 inline-flex items-center gap-1.5 sm:gap-3 px-2 sm:px-4 py-1.5 sm:py-2 bg-white dark:bg-zinc-900 hover:bg-gray-50 dark:hover:bg-zinc-800 text-gray-700 dark:text-gray-200 text-[11px] sm:text-[15px] font-medium rounded border border-gray-300 dark:border-gray-700 shadow-sm transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4 sm:w-[18px] sm:h-[18px]">
+                                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                                </svg>
+                                <span className="hidden sm:inline">Make us preferred source on Google</span>
+                                <span className="inline sm:hidden">Follow</span>
+                            </a>
                         </div>
 
                         {post.factCheckedBy && (
                             <div className="flex items-center gap-2 mb-8 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/50 rounded-lg text-emerald-800 dark:text-emerald-400 text-sm">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-check-circle-2 text-emerald-600 dark:text-emerald-500"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
                                 <span>Fact-checked by <strong>{post.factCheckedBy}</strong> {post.factCheckerRole ? `(${post.factCheckerRole})` : ''}</span>
+                            </div>
+                        )}
+
+                        {seoRating && seoRating.ratingValue && (
+                            <div className="flex items-center gap-2 mb-8 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50 rounded-lg text-amber-800 dark:text-amber-400 text-sm w-fit">
+                                <div className="flex text-amber-500">
+                                    {[...Array(5)].map((_, i) => (
+                                        <svg key={i} className={`w-4 h-4 ${i < Math.round(Number(seoRating.ratingValue)) ? 'fill-current' : 'text-amber-200 dark:text-amber-800/50 fill-current'}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                                    ))}
+                                </div>
+                                <span className="font-semibold text-slate-800 dark:text-amber-300">{parseFloat(seoRating.ratingValue).toFixed(1)}/5 Rating</span>
+                                <span className="text-amber-600 dark:text-amber-500/80">({seoRating.reviewCount} reviews)</span>
                             </div>
                         )}
 
@@ -287,6 +445,60 @@ export default function Show({ post, recentPosts, meta }) {
                                     </div>
                                 )}
                             </div>
+                        </div>
+                    </div>
+                    {/* Comments Section */}
+                    <div className="mt-12 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-4 sm:p-8 shadow-sm">
+                        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                            <MessageSquare size={20} className="text-blue-600 dark:text-blue-400" />
+                            Discussions ({comments.length})
+                        </h3>
+                        
+                        {auth?.user ? (
+                            <div className="mb-8">
+                                <div className="text-[13px] mb-2 font-medium text-slate-700 dark:text-zinc-300">
+                                    Comment as <span className="text-blue-600 dark:text-blue-400">{auth.user.username || auth.user.name}</span>
+                                </div>
+                                <form onSubmit={submitComment}>
+                                    <textarea
+                                        value={data.content}
+                                        onChange={e => setData('content', e.target.value)}
+                                        placeholder="What are your thoughts?"
+                                        className="w-full bg-slate-50 dark:bg-zinc-900/50 border border-slate-200 dark:border-zinc-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-2xl py-4 px-5 text-[15px] text-slate-900 dark:text-white outline-none transition-all min-h-[140px] hover:border-blue-400"
+                                    ></textarea>
+                                    <div className="flex justify-end mt-3">
+                                        <button 
+                                            type="submit" 
+                                            disabled={processing || !data.content}
+                                            className="px-8 py-2.5 font-bold text-[14px] bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100 border-0 outline-none focus:outline-none focus:ring-0 shadow-lg shadow-blue-600/20"
+                                        >
+                                            Comment
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col sm:flex-row items-center justify-between border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-900/50 rounded-2xl p-6 mt-2 mb-8 shadow-sm gap-4">
+                                <h2 className="text-slate-900 dark:text-white font-bold text-lg text-center sm:text-left">Log in or sign up to leave a comment</h2>
+                                <div className="flex gap-3 w-full sm:w-auto">
+                                    <Link href="/login" className="flex-1 sm:flex-none text-center px-6 py-2 font-bold text-[14px] text-slate-700 dark:text-white bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-full hover:bg-slate-50 dark:hover:bg-zinc-700 transition-colors shadow-sm">Log In</Link>
+                                    <Link href="/register" className="flex-1 sm:flex-none text-center px-6 py-2 font-bold text-[14px] text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-colors shadow-md shadow-blue-600/20">Sign Up</Link>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="pt-2">
+                            {comments.length > 0 ? (
+                                comments.map(comment => (
+                                    <CommentThread key={comment.id} comment={comment} postId={post.id} auth={auth} userCommentVotes={userCommentVotes} />
+                                ))
+                            ) : (
+                                <div className="text-center py-12 border-t border-slate-100 dark:border-zinc-800/50 mt-4">
+                                    <MessageSquare size={40} className="mx-auto text-slate-300 dark:text-zinc-700 mb-4" />
+                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">No Comments Yet</h3>
+                                    <p className="text-slate-500 dark:text-zinc-400">Be the first to share your thoughts on this article!</p>
+                                </div>
+                            )}
                         </div>
                     </div>
                     

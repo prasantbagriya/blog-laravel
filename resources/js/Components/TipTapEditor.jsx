@@ -28,7 +28,7 @@ const ToolbarButton = ({ onClick, disabled, isActive, title, children }) => (
         className={`p-1.5 rounded transition-colors flex items-center justify-center border-0 outline-none focus:outline-none focus:ring-0 ${
             isActive 
             ? 'bg-[#E2E2E2] dark:bg-zinc-700 text-[#1C1C1C] dark:text-zinc-100' 
-            : 'text-[#878A8C] dark:text-zinc-400 hover:bg-[#E2E2E2] dark:hover:bg-zinc-700 hover:text-[#1C1C1C] dark:hover:text-zinc-100'
+            : 'bg-transparent text-[#878A8C] dark:text-zinc-400 hover:bg-[#E2E2E2] dark:hover:bg-zinc-700 hover:text-[#1C1C1C] dark:hover:text-zinc-100'
         } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
         title={title}
     >

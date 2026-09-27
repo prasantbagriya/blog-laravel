@@ -30,12 +30,12 @@ export default function Dashboard({ auth, userBusinesses = [], userCommunities =
 
             {/* ── MOBILE TOPBAR ── */}
             <header className="md:hidden sticky top-0 z-40 h-16 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border-b border-slate-200 dark:border-zinc-800 flex items-center justify-between px-4 shadow-sm">
-                <Link href="/" className="flex items-center gap-2">
+                <a href="/" className="flex items-center gap-2">
                     <div className="w-8 h-8 bg-slate-900 dark:bg-white rounded-lg flex items-center justify-center overflow-hidden">
                         <img src="/uploads/logo.webp" alt="Logo" className="w-full h-full object-cover dark:invert-0 invert" />
                     </div>
                     <span className="font-bold text-lg text-slate-900 dark:text-white tracking-tight">Dashboard</span>
-                </Link>
+                </a>
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2 bg-slate-100 dark:bg-zinc-800 py-1 px-2 rounded-full">
                         <div className="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-900/30 overflow-hidden flex items-center justify-center">
@@ -59,12 +59,12 @@ export default function Dashboard({ auth, userBusinesses = [], userCommunities =
                     <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
                     <aside className="relative w-72 max-w-[85vw] bg-white dark:bg-zinc-900 h-full flex flex-col shadow-2xl z-10 animate-in slide-in-from-left duration-200">
                         <div className="h-16 flex items-center justify-between px-5 border-b border-slate-200 dark:border-zinc-800">
-                            <Link href="/" className="flex items-center gap-2" onClick={() => setSidebarOpen(false)}>
+                            <a href="/" className="flex items-center gap-2" onClick={() => setSidebarOpen(false)}>
                                 <div className="w-7 h-7 bg-slate-900 dark:bg-white rounded-lg flex items-center justify-center overflow-hidden">
                                     <img src="/uploads/logo.webp" alt="Logo" className="w-full h-full object-cover dark:invert-0 invert" />
                                 </div>
                                 <span className="font-bold text-base text-slate-900 dark:text-white">Coaching Sikar</span>
-                            </Link>
+                            </a>
                             <button onClick={() => setSidebarOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-500">
                                 <X size={16} />
                             </button>
@@ -87,9 +87,9 @@ export default function Dashboard({ auth, userBusinesses = [], userCommunities =
 
                             <div className="pt-4 mt-4 border-t border-slate-200 dark:border-zinc-800">
                                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 px-2">Navigation</div>
-                                <Link href="/" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800/50 rounded-xl font-medium">
+                                <a href="/" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800/50 rounded-xl font-medium">
                                     <Home size={17} /> Back to Home
-                                </Link>
+                                </a>
                             </div>
                         </div>
 
@@ -110,12 +110,12 @@ export default function Dashboard({ auth, userBusinesses = [], userCommunities =
                 {/* ── DESKTOP SIDEBAR ── */}
                 <aside className="hidden md:flex w-72 bg-white dark:bg-zinc-900 border-r border-slate-200 dark:border-zinc-800 shrink-0 min-h-screen flex-col shadow-sm sticky top-0 z-20">
                     <div className="h-20 flex items-center px-8 border-b border-slate-200 dark:border-zinc-800">
-                        <Link href="/" className="flex items-center space-x-2 group shrink-0">
+                        <a href="/" className="flex items-center space-x-2 group shrink-0">
                             <div className="w-8 h-8 bg-slate-900 dark:bg-white rounded-lg flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform overflow-hidden">
                                 <img src="/uploads/logo.webp" alt="Logo" className="w-full h-full object-cover dark:invert-0 invert" />
                             </div>
                             <span className="font-bold text-xl text-slate-900 dark:text-white tracking-tighter">Coaching Sikar</span>
-                        </Link>
+                        </a>
                     </div>
 
                     <div className="p-6 flex-1 space-y-2">
@@ -132,9 +132,9 @@ export default function Dashboard({ auth, userBusinesses = [], userCommunities =
 
                         <div className="pt-6 mt-6 border-t border-slate-200 dark:border-zinc-800">
                             <div className="text-[11px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest mb-4 px-2">Navigation</div>
-                            <Link href="/" className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800/50 hover:text-slate-900 dark:hover:text-white rounded-xl font-medium transition-all">
+                            <a href="/" className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800/50 hover:text-slate-900 dark:hover:text-white rounded-xl font-medium transition-all">
                                 <Home size={18} /> Back to Home
-                            </Link>
+                            </a>
                         </div>
                     </div>
 
@@ -436,10 +436,10 @@ export default function Dashboard({ auth, userBusinesses = [], userCommunities =
                         <Users size={20} />
                         <span className="text-[10px] font-bold">Communities</span>
                     </a>
-                    <Link href="/" className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl text-slate-500 dark:text-zinc-400">
+                    <a href="/" className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl text-slate-500 dark:text-zinc-400">
                         <Home size={20} />
                         <span className="text-[10px] font-bold">Home</span>
-                    </Link>
+                    </a>
                 </div>
             </nav>
         </div>

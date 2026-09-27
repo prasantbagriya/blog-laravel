@@ -681,11 +681,11 @@ export const BusinessProfileView: React.FC<BusinessProfileViewProps> = ({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {business.products.map((p) => (
                         <div key={p.id} className="p-3.5 rounded-sm bg-[#F5F5F2] dark:bg-[#20201F] text-xs space-y-1">
-                          <div className="font-bold text-[#1A1A1A] dark:text-white flex justify-between">
-                            <span>{p.name}</span>
-                            <span className="text-[#0052FF] font-mono">{p.price}</span>
+                          <div className="font-bold text-[#1A1A1A] dark:text-white flex justify-between items-start gap-3 mb-1">
+                            <span className="flex-1 break-words">{p.name}</span>
+                            <span className="text-[#0052FF] font-mono whitespace-nowrap shrink-0">{p.price}</span>
                           </div>
-                          <p className="text-[#555555] dark:text-[#A0A09C] text-[11px]">{p.description}</p>
+                          <p className="text-[#555555] dark:text-[#A0A09C] text-[11px] break-words">{p.description}</p>
                         </div>
                       ))}
                     </div>

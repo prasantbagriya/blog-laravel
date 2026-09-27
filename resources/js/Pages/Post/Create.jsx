@@ -86,21 +86,21 @@ export default function CreatePost({ auth, communities, default_community_id, ed
                                 <button 
                                     type="button" 
                                     onClick={() => setData('type', 'TEXT')}
-                                    className={`flex-1 py-2.5 px-4 flex items-center justify-center gap-2 text-sm font-bold rounded-xl transition-all border-0 outline-none focus:outline-none focus:ring-0 ${data.type === 'TEXT' ? 'bg-white dark:bg-zinc-800 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 dark:text-zinc-400 hover:text-slate-700 dark:hover:text-zinc-300'}`}
+                                    className={`flex-1 py-2.5 px-4 flex items-center justify-center gap-2 text-sm font-bold rounded-xl transition-all border-0 outline-none focus:outline-none focus:ring-0 ${data.type === 'TEXT' ? 'bg-white dark:bg-zinc-800 text-blue-600 dark:text-blue-400 shadow-sm' : 'bg-transparent text-slate-500 dark:text-zinc-400 hover:text-slate-700 dark:hover:text-zinc-300'}`}
                                 >
                                     <PencilLine size={18} /> <span className="hidden sm:inline">Post</span>
                                 </button>
                                 <button 
                                     type="button" 
                                     onClick={() => setData('type', 'MEDIA')}
-                                    className={`flex-1 py-2.5 px-4 flex items-center justify-center gap-2 text-sm font-bold rounded-xl transition-all border-0 outline-none focus:outline-none focus:ring-0 ${data.type === 'MEDIA' ? 'bg-white dark:bg-zinc-800 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 dark:text-zinc-400 hover:text-slate-700 dark:hover:text-zinc-300'}`}
+                                    className={`flex-1 py-2.5 px-4 flex items-center justify-center gap-2 text-sm font-bold rounded-xl transition-all border-0 outline-none focus:outline-none focus:ring-0 ${data.type === 'MEDIA' ? 'bg-white dark:bg-zinc-800 text-blue-600 dark:text-blue-400 shadow-sm' : 'bg-transparent text-slate-500 dark:text-zinc-400 hover:text-slate-700 dark:hover:text-zinc-300'}`}
                                 >
                                     <ImageIcon size={18} /> <span className="hidden sm:inline">Media</span>
                                 </button>
                                 <button 
                                     type="button" 
                                     onClick={() => setData('type', 'LINK')}
-                                    className={`flex-1 py-2.5 px-4 flex items-center justify-center gap-2 text-sm font-bold rounded-xl transition-all border-0 outline-none focus:outline-none focus:ring-0 ${data.type === 'LINK' ? 'bg-white dark:bg-zinc-800 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 dark:text-zinc-400 hover:text-slate-700 dark:hover:text-zinc-300'}`}
+                                    className={`flex-1 py-2.5 px-4 flex items-center justify-center gap-2 text-sm font-bold rounded-xl transition-all border-0 outline-none focus:outline-none focus:ring-0 ${data.type === 'LINK' ? 'bg-white dark:bg-zinc-800 text-blue-600 dark:text-blue-400 shadow-sm' : 'bg-transparent text-slate-500 dark:text-zinc-400 hover:text-slate-700 dark:hover:text-zinc-300'}`}
                                 >
                                     <LinkIcon size={18} /> <span className="hidden sm:inline">Link</span>
                                 </button>
@@ -164,7 +164,7 @@ export default function CreatePost({ auth, communities, default_community_id, ed
                                                         <ImageIcon size={32} className="text-blue-500" strokeWidth={1.5} />
                                                     </div>
                                                     <p className="text-slate-500 dark:text-zinc-400 font-medium mb-4">Drag and drop or click to upload media</p>
-                                                    <label htmlFor="media_file" className="px-8 py-3 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 cursor-pointer transition-colors shadow-md hover:shadow-lg hover:-translate-y-0.5 inline-block">
+                                                    <label htmlFor="media_file" className="px-8 py-3 bg-blue-600 dark:bg-blue-500 text-white font-bold rounded-full hover:bg-blue-700 dark:hover:bg-blue-600 cursor-pointer transition-colors shadow-md hover:shadow-lg hover:-translate-y-0.5 inline-block">
                                                         Upload File
                                                     </label>
                                                 </div>
@@ -205,7 +205,7 @@ export default function CreatePost({ auth, communities, default_community_id, ed
                                     <button 
                                         type="submit" 
                                         disabled={processing}
-                                        className="px-10 py-3.5 bg-rose-600 hover:bg-rose-700 text-white font-extrabold rounded-full transition-all shadow-lg shadow-rose-600/30 hover:shadow-rose-600/50 hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-md text-base border-none outline-none focus:outline-none ring-0 focus:ring-0"
+                                        className="px-10 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-full transition-all shadow-lg shadow-blue-600/30 hover:shadow-blue-600/50 hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-md text-base border-none outline-none focus:outline-none ring-0 focus:ring-0 dark:bg-blue-500 dark:hover:bg-blue-600"
                                     >
                                         {processing ? 'Posting...' : (isEdit ? 'Update Post' : 'Publish Post')}
                                     </button>

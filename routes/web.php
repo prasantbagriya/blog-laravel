@@ -174,8 +174,11 @@ Route::get('/businesses/create', function () {
 })->middleware(['auth', 'verified'])->name('businesses.create');
 
 Route::get('/test-edit', function() {
-    return "Route is working! Cache is cleared.";
+    \Illuminate\Support\Facades\Artisan::call('cache:clear');
+    return "Cache has been cleared successfully!";
 });
+
+Route::get('/blog/feed.xml', [\App\Http\Controllers\RssController::class, 'blogFeed'])->name('blog.rss');
 
 Route::get('/businesses/{slug}/edit', function ($slug) {
     $business = \App\Models\Business::where('slug', $slug)->orWhere('id', $slug)->first();

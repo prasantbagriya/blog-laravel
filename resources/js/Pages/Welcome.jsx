@@ -321,6 +321,12 @@ const BlogSection = ({ morePosts, basePath, formatDate }) => {
                                     <Link href={`${basePath}/blog/${post.slug}`} className="focus:outline-none">{post.title}</Link>
                                 </h3>
                                 
+                                {post.excerpt && (
+                                    <p className="text-sm text-slate-600 dark:text-zinc-400 line-clamp-1 mb-3">
+                                        {post.excerpt}
+                                    </p>
+                                )}
+                                
                                 <div className="flex flex-wrap gap-1.5 mb-4">
                                     <span className="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-semibold px-2 py-0.5 rounded border border-blue-100 dark:border-blue-800/30">{post.category || 'Article'}</span>
                                 </div>

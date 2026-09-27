@@ -27,8 +27,9 @@ class RssController extends Controller
     public function blogFeed()
     {
         $posts = Post::where('published', true)
+            ->whereNull('community_id')
             ->where('isNoIndex', false)
-            ->orderBy('created_at', 'desc')
+            ->orderBy('date', 'desc')
             ->take(30)
             ->get();
 

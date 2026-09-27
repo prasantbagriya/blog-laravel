@@ -68,4 +68,19 @@ class Post extends Model
     {
         return $query->where('published', true);
     }
+
+    protected static function booted()
+    {
+        static::saved(function ($post) {
+            \Illuminate\Support\Facades\Cache::forget('blog_all_posts');
+            \Illuminate\Support\Facades\Cache::forget('homepage_data_v6');
+            \Illuminate\Support\Facades\Cache::forget('blog_recent_posts_5'); // added for recent posts sidebar
+        });
+
+        static::deleted(function ($post) {
+            \Illuminate\Support\Facades\Cache::forget('blog_all_posts');
+            \Illuminate\Support\Facades\Cache::forget('homepage_data_v6');
+            \Illuminate\Support\Facades\Cache::forget('blog_recent_posts_5'); // added for recent posts sidebar
+        });
+    }
 }

@@ -103,6 +103,7 @@
         </script>
         
         <meta name="google-site-verification" content="HcrL5h0jDeKpvNkKKIjIAUm-bR_AY0bu07aJsU4qLuQ" />
+        <meta name="msvalidate.01" content="FB8652B2A23AAD6CEE2AF8CACF4580A9" />
 
         <link rel="alternate" type="application/rss+xml" title="Blog RSS Feed" href="{{ url('/blog/feed.xml') }}" />
 
@@ -138,7 +139,19 @@
                 document.documentElement.classList.remove('dark')
             }
         </script>
-    </head>
+    <!-- Google Publisher SWG -->
+    <script async type="application/javascript" src="https://news.google.com/swg/js/v1/swg-basic.js"></script>
+    <script>
+    (self.SWG_BASIC = self.SWG_BASIC || []).push( basicSubscriptions => {
+        basicSubscriptions.init({
+        type: "NewsArticle",
+        isPartOfType: ["Product"],
+        isPartOfProductId: "CAowxuXhCw:openaccess",
+        clientOptions: { theme: "light", lang: "en" },
+        });
+    });
+    </script>
+</head>
     <body class="font-sans antialiased">
         {{-- SEO Fallback for Crawlers when SSR is off --}}
         @if(isset($html_content))

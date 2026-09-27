@@ -25,7 +25,9 @@ class Comment extends Model
 
     public function replies()
     {
-        return $this->hasMany(Comment::class, 'parent_id')->with('author', 'replies');
+        return $this->hasMany(Comment::class, 'parent_id')
+            ->where('is_spam', false)
+            ->with('author', 'replies');
     }
 
     public function reports()

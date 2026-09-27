@@ -567,10 +567,10 @@ export const BusinessProfileView: React.FC<BusinessProfileViewProps> = ({
                       {business.products.map((p) => (
                         <div key={p.id} className="p-4 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-100 dark:border-zinc-700 hover:border-amber-200 dark:hover:border-amber-800/30 transition-colors">
                           <div className="flex justify-between items-start gap-3 mb-2">
-                            <span className="font-bold text-slate-900 dark:text-white text-sm">{p.name}</span>
-                            <span className="text-xs font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2.5 py-1 rounded-lg whitespace-nowrap">{p.price}</span>
+                            <span className="font-bold text-slate-900 dark:text-white text-sm flex-1 break-words">{p.name}</span>
+                            <span className="text-xs font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2.5 py-1 rounded-lg whitespace-nowrap shrink-0">{p.price}</span>
                           </div>
-                          <p className="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed">{p.description}</p>
+                          <p className="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed break-words">{p.description}</p>
                         </div>
                       ))}
                     </div>
