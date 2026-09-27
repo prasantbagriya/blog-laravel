@@ -290,7 +290,7 @@ const navIconStyle: React.CSSProperties = { background: '#f8fafc', border: '1px 
 const headerTitleStyle: React.CSSProperties = { fontSize: '19px', fontWeight: 800, letterSpacing: '-0.4px', background: 'linear-gradient(135deg, #0f172a, #334155)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' };
 const scoreHubStyle: React.CSSProperties = { display: 'flex', gap: '16px', marginRight: '16px' };
 const iconBtnStyle: React.CSSProperties = { background: '#fff', border: '1px solid #e2e8f0', padding: '10px 16px', borderRadius: '12px', cursor: 'pointer', color: '#475569', whiteSpace: 'nowrap', fontWeight: 600, fontSize: '13px', transition: 'all 0.2s', boxShadow: '0 2px 8px -2px rgba(0,0,0,0.04)' };
-const publishBtnStyle: React.CSSProperties = { background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: '#fff', border: 'none', padding: '16px 36px', borderRadius: '16px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 12px 24px -6px rgba(37, 99, 235, 0.4)', whiteSpace: 'nowrap', transition: 'all 0.3s', letterSpacing: '0.5px', fontSize: '15px' };
+const publishBtnStyle: React.CSSProperties = { background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: '#fff', border: 'none', padding: '12px 24px', borderRadius: '8px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)', whiteSpace: 'nowrap', transition: 'all 0.2s', letterSpacing: '0.5px', fontSize: '14px' };
 const mainCanvasStyle: React.CSSProperties = { flex: 1, overflowY: 'auto', background: '#ffffff', display: 'flex', flexDirection: 'column', position: 'relative', scrollBehavior: 'smooth' };
 const floatingToolbarStyle: React.CSSProperties = { position: 'sticky', top: '0', zIndex: 100, background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(24px)', padding: '12px 24px', borderBottom: '1px solid rgba(226,232,240,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', userSelect: 'none', boxShadow: '0 4px 12px -8px rgba(0,0,0,0.05)' };
 const toolDivider: React.CSSProperties = { width: '1px', height: '24px', background: '#cbd5e1', margin: '0 6px' };
@@ -417,6 +417,7 @@ export default function PostForm({ post }: PostFormProps) {
    const [title, setTitle] = useState(post?.title || '');
    const [slug, setSlug] = useState(post?.slug || '');
    const [urlFormat, setUrlFormat] = useState(post?.url_format || 'blog/{slug}');
+   const [deployModalOpen, setDeployModalOpen] = useState(false);
    const [metaDescription, setMetaDescription] = useState(post?.metaDescription || '');
    const [excerpt, setExcerpt] = useState(post?.excerpt || '');
    const [coverImage, setCoverImage] = useState(post?.coverImage || '');
@@ -1916,18 +1917,6 @@ export default function PostForm({ post }: PostFormProps) {
                                  placeholder="e.g. custom-post-url (leave empty for auto)" 
                               />
                               <div style={{ height: '15px' }} />
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                 <label style={metaLabelStyle}>URL FORMAT</label>
-                                 <select value={urlFormat} onChange={e => setUrlFormat(e.target.value)} style={metaInputStyle}>
-                                    <option value="news/{slug}">domain.com/news/article-name</option>
-                                    <option value="{slug}">domain.com/article-name</option>
-                                    <option value="{category}/{slug}">domain.com/category/article-name</option>
-                                    <option value="blog/{slug}">domain.com/blog/article-name</option>
-                                    <option value="blog/{category}/{slug}">domain.com/blog/category/article-name</option>
-                                    <option value="news/{category}/{slug}">domain.com/news/category/article-name</option>
-                                 </select>
-                              </div>
-                              <div style={{ height: '15px' }} />
                               <label style={metaLabelStyle}>META DESCRIPTION</label>
                               <textarea value={metaDescription} onChange={e => setMetaDescription(e.target.value)} style={metaTextAreaStyle} placeholder="150-160 characters for optimal CTR" />
                               <div style={{ height: '15px' }} />
@@ -2295,10 +2284,45 @@ export default function PostForm({ post }: PostFormProps) {
          {/* Floating Deploy Container at Bottom Right */}
          <div style={{ position: 'fixed', bottom: '40px', right: '40px', zIndex: 100000, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
             {lastSaved && <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, background: 'rgba(255,255,255,0.85)', padding: '6px 12px', borderRadius: '12px', backdropFilter: 'blur(8px)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>Saved: {lastSaved}</span>}
-            <button onClick={() => handleSave(true, false)} disabled={isPending} style={publishBtnStyle}>
-               {isPending ? 'Syncing...' : 'Deploy'}
+            <button onClick={() => setDeployModalOpen(true)} disabled={isPending} style={publishBtnStyle}>
+               Deploy
             </button>
          </div>
+
+         {/* Deploy Modal */}
+         {deployModalOpen && (
+             <div style={modalBackdropStyle}>
+                 <div style={{ ...modalContentStyle, maxWidth: '500px' }}>
+                     <div style={modalHeaderStyle}>
+                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                             <span style={{ fontSize: '24px' }}>🚀</span>
+                             <h3 style={modalTitleStyle}>Deploy Options</h3>
+                         </div>
+                         <button onClick={() => setDeployModalOpen(false)} style={closeBtnStyle}>✕</button>
+                     </div>
+                     <div style={modalBodyStyle}>
+                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '24px' }}>
+                             <label style={metaLabelStyle}>URL FORMAT</label>
+                             <select value={urlFormat} onChange={e => setUrlFormat(e.target.value)} style={metaInputStyle}>
+                                 <option value="news/{slug}">domain.com/news/article-name</option>
+                                 <option value="{slug}">domain.com/article-name</option>
+                                 <option value="{category}/{slug}">domain.com/category/article-name</option>
+                                 <option value="blog/{slug}">domain.com/blog/article-name</option>
+                                 <option value="blog/{category}/{slug}">domain.com/blog/category/article-name</option>
+                                 <option value="news/{category}/{slug}">domain.com/news/category/article-name</option>
+                             </select>
+                             <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0' }}>Choose the URL structure for this post before publishing.</p>
+                         </div>
+                     </div>
+                     <div style={modalFooterStyle}>
+                         <button onClick={() => setDeployModalOpen(false)} style={cancelBtnStyle}>Cancel</button>
+                         <button onClick={() => { setDeployModalOpen(false); handleSave(true, false); }} disabled={isPending} style={saveBtnStyle}>
+                             {isPending ? 'Publishing...' : 'Publish Now'}
+                         </button>
+                     </div>
+                 </div>
+             </div>
+         )}
 
 
          {/* FAQ Modal */}

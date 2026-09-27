@@ -372,15 +372,15 @@ var publishBtnStyle = {
 	background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
 	color: "#fff",
 	border: "none",
-	padding: "16px 36px",
-	borderRadius: "16px",
+	padding: "12px 24px",
+	borderRadius: "8px",
 	fontWeight: 800,
 	cursor: "pointer",
-	boxShadow: "0 12px 24px -6px rgba(37, 99, 235, 0.4)",
+	boxShadow: "0 4px 12px rgba(37, 99, 235, 0.3)",
 	whiteSpace: "nowrap",
-	transition: "all 0.3s",
+	transition: "all 0.2s",
 	letterSpacing: "0.5px",
-	fontSize: "15px"
+	fontSize: "14px"
 };
 var mainCanvasStyle = {
 	flex: 1,
@@ -827,6 +827,7 @@ function PostForm({ post }) {
 	const [title, setTitle] = useState(post?.title || "");
 	const [slug, setSlug] = useState(post?.slug || "");
 	const [urlFormat, setUrlFormat] = useState(post?.url_format || "blog/{slug}");
+	const [deployModalOpen, setDeployModalOpen] = useState(false);
 	const [metaDescription, setMetaDescription] = useState(post?.metaDescription || "");
 	const [excerpt, setExcerpt] = useState(post?.excerpt || "");
 	const [coverImage, setCoverImage] = useState(post?.coverImage || "");
@@ -5709,48 +5710,6 @@ function PostForm({ post }) {
 												placeholder: "e.g. custom-post-url (leave empty for auto)"
 											}),
 											/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
-											/* @__PURE__ */ jsxs("div", {
-												style: {
-													display: "flex",
-													flexDirection: "column",
-													gap: "6px"
-												},
-												children: [/* @__PURE__ */ jsx("label", {
-													style: metaLabelStyle,
-													children: "URL FORMAT"
-												}), /* @__PURE__ */ jsxs("select", {
-													value: urlFormat,
-													onChange: (e) => setUrlFormat(e.target.value),
-													style: metaInputStyle,
-													children: [
-														/* @__PURE__ */ jsx("option", {
-															value: "news/{slug}",
-															children: "domain.com/news/article-name"
-														}),
-														/* @__PURE__ */ jsx("option", {
-															value: "{slug}",
-															children: "domain.com/article-name"
-														}),
-														/* @__PURE__ */ jsx("option", {
-															value: "{category}/{slug}",
-															children: "domain.com/category/article-name"
-														}),
-														/* @__PURE__ */ jsx("option", {
-															value: "blog/{slug}",
-															children: "domain.com/blog/article-name"
-														}),
-														/* @__PURE__ */ jsx("option", {
-															value: "blog/{category}/{slug}",
-															children: "domain.com/blog/category/article-name"
-														}),
-														/* @__PURE__ */ jsx("option", {
-															value: "news/{category}/{slug}",
-															children: "domain.com/news/category/article-name"
-														})
-													]
-												})]
-											}),
-											/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
 											/* @__PURE__ */ jsx("label", {
 												style: metaLabelStyle,
 												children: "META DESCRIPTION"
@@ -6674,11 +6633,115 @@ function PostForm({ post }) {
 					},
 					children: ["Saved: ", lastSaved]
 				}), /* @__PURE__ */ jsx("button", {
-					onClick: () => handleSave(true, false),
+					onClick: () => setDeployModalOpen(true),
 					disabled: isPending,
 					style: publishBtnStyle,
-					children: isPending ? "Syncing..." : "Deploy"
+					children: "Deploy"
 				})]
+			}),
+			deployModalOpen && /* @__PURE__ */ jsx("div", {
+				style: modalBackdropStyle,
+				children: /* @__PURE__ */ jsxs("div", {
+					style: {
+						...modalContentStyle,
+						maxWidth: "500px"
+					},
+					children: [
+						/* @__PURE__ */ jsxs("div", {
+							style: modalHeaderStyle,
+							children: [/* @__PURE__ */ jsxs("div", {
+								style: {
+									display: "flex",
+									alignItems: "center",
+									gap: "10px"
+								},
+								children: [/* @__PURE__ */ jsx("span", {
+									style: { fontSize: "24px" },
+									children: "🚀"
+								}), /* @__PURE__ */ jsx("h3", {
+									style: modalTitleStyle,
+									children: "Deploy Options"
+								})]
+							}), /* @__PURE__ */ jsx("button", {
+								onClick: () => setDeployModalOpen(false),
+								style: closeBtnStyle,
+								children: "✕"
+							})]
+						}),
+						/* @__PURE__ */ jsx("div", {
+							style: modalBodyStyle,
+							children: /* @__PURE__ */ jsxs("div", {
+								style: {
+									display: "flex",
+									flexDirection: "column",
+									gap: "8px",
+									marginBottom: "24px"
+								},
+								children: [
+									/* @__PURE__ */ jsx("label", {
+										style: metaLabelStyle,
+										children: "URL FORMAT"
+									}),
+									/* @__PURE__ */ jsxs("select", {
+										value: urlFormat,
+										onChange: (e) => setUrlFormat(e.target.value),
+										style: metaInputStyle,
+										children: [
+											/* @__PURE__ */ jsx("option", {
+												value: "news/{slug}",
+												children: "domain.com/news/article-name"
+											}),
+											/* @__PURE__ */ jsx("option", {
+												value: "{slug}",
+												children: "domain.com/article-name"
+											}),
+											/* @__PURE__ */ jsx("option", {
+												value: "{category}/{slug}",
+												children: "domain.com/category/article-name"
+											}),
+											/* @__PURE__ */ jsx("option", {
+												value: "blog/{slug}",
+												children: "domain.com/blog/article-name"
+											}),
+											/* @__PURE__ */ jsx("option", {
+												value: "blog/{category}/{slug}",
+												children: "domain.com/blog/category/article-name"
+											}),
+											/* @__PURE__ */ jsx("option", {
+												value: "news/{category}/{slug}",
+												children: "domain.com/news/category/article-name"
+											})
+										]
+									}),
+									/* @__PURE__ */ jsx("p", {
+										style: {
+											fontSize: "12px",
+											color: "#64748b",
+											margin: "4px 0 0 0"
+										},
+										children: "Choose the URL structure for this post before publishing."
+									})
+								]
+							})
+						}),
+						/* @__PURE__ */ jsxs("div", {
+							style: modalFooterStyle,
+							children: [/* @__PURE__ */ jsx("button", {
+								onClick: () => setDeployModalOpen(false),
+								style: cancelBtnStyle,
+								children: "Cancel"
+							}), /* @__PURE__ */ jsx("button", {
+								onClick: () => {
+									setDeployModalOpen(false);
+									handleSave(true, false);
+								},
+								disabled: isPending,
+								style: saveBtnStyle,
+								children: isPending ? "Publishing..." : "Publish Now"
+							})]
+						})
+					]
+				})
 			}),
 			faqModalOpen && /* @__PURE__ */ jsx("div", {
 				style: modalBackdropStyle,
