@@ -205,7 +205,7 @@ function Show({ post, recentPosts, meta, comments = [], userCommentVotes = {} })
 			year: "numeric"
 		});
 	};
-	const finalCanonicalUrl = post.canonicalUrl || `https://coachingsinsikar.com/blog/${post.slug}`;
+	const finalCanonicalUrl = post.canonicalUrl || `https://coachingsinsikar.com${post.url_path || "/blog/" + post.slug}`;
 	const displayAuthor = post.author?.toLowerCase() === "prasant" ? "Prashant" : post.author;
 	return /* @__PURE__ */ jsxs("div", {
 		className: "bg-white dark:bg-zinc-950 min-h-screen text-slate-900 dark:text-white transition-colors duration-300",
@@ -869,7 +869,7 @@ function Show({ post, recentPosts, meta, comments = [], userCommentVotes = {} })
 						}), /* @__PURE__ */ jsx("div", {
 							className: "flex flex-col gap-4",
 							children: recentPosts && recentPosts.map((rp) => /* @__PURE__ */ jsxs(Link, {
-								href: `${window.BASE_PATH}/blog/${rp.slug}`,
+								href: `${window.BASE_PATH}${rp.url_path || "/blog/" + rp.slug}`,
 								className: "flex gap-4 group bg-white dark:bg-zinc-900 p-3 rounded-xl border border-slate-100 dark:border-zinc-800 shadow-sm hover:shadow-md transition-all",
 								children: [/* @__PURE__ */ jsx("div", {
 									className: "relative w-24 h-20 shrink-0 rounded-lg overflow-hidden border border-slate-100 bg-slate-50",

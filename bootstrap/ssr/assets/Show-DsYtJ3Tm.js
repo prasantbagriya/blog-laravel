@@ -69,7 +69,7 @@ function AuthorShow({ author, posts, meta }) {
 						children: posts.map((post) => /* @__PURE__ */ jsxs("article", {
 							className: "border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl transition-shadow flex flex-col",
 							children: [/* @__PURE__ */ jsx(Link, {
-								href: window.BASE_PATH + `/blog/${post.slug}`,
+								href: window.BASE_PATH + (post.url_path || `/blog/${post.slug}`),
 								className: "relative h-48 block",
 								children: /* @__PURE__ */ jsx(Image, {
 									src: post.coverImage || "/uploads/read.webp",
@@ -87,7 +87,7 @@ function AuthorShow({ author, posts, meta }) {
 									/* @__PURE__ */ jsx("h2", {
 										className: "text-xl font-bold mb-3",
 										children: /* @__PURE__ */ jsx(Link, {
-											href: window.BASE_PATH + `/blog/${post.slug}`,
+											href: window.BASE_PATH + (post.url_path || `/blog/${post.slug}`),
 											children: post.title
 										})
 									}),

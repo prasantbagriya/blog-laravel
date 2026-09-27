@@ -189,7 +189,7 @@ var HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses, fallba
 														className: "px-4 py-1.5 text-xs font-bold text-slate-400 tracking-wider uppercase",
 														children: "Blog Posts"
 													}), suggestions.blogs.map((blog) => /* @__PURE__ */ jsxs(Link$1, {
-														href: `${basePath || ""}/blog/${blog.slug}`,
+														href: (basePath || "") + (blog.url_path || `/blog/${blog.slug}`),
 														className: "flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors",
 														children: [/* @__PURE__ */ jsx("div", {
 															className: "bg-amber-50 p-2 rounded-lg text-amber-600",
@@ -377,7 +377,7 @@ var BlogSection = ({ morePosts, basePath, formatDate }) => {
 						className: "flex-grow flex flex-col",
 						gradientColor: borderColors[index % borderColors.length],
 						children: [/* @__PURE__ */ jsxs(Link$1, {
-							href: `${basePath}/blog/${post.slug}`,
+							href: `${basePath}${post.url_path || "/blog/" + post.slug}`,
 							className: "relative aspect-[16/9] w-full block overflow-hidden shrink-0",
 							children: [/* @__PURE__ */ jsx(Image$1, {
 								src: post.coverImage || "/uploads/read.webp",
@@ -394,7 +394,7 @@ var BlogSection = ({ morePosts, basePath, formatDate }) => {
 								/* @__PURE__ */ jsx("h3", {
 									className: "text-base md:text-lg font-bold text-slate-900 dark:text-white leading-snug mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors",
 									children: /* @__PURE__ */ jsx(Link$1, {
-										href: `${basePath}/blog/${post.slug}`,
+										href: `${basePath}${post.url_path || "/blog/" + post.slug}`,
 										className: "focus:outline-none",
 										children: post.title
 									})
@@ -422,7 +422,7 @@ var BlogSection = ({ morePosts, basePath, formatDate }) => {
 											children: formatDate(post.date)
 										})]
 									}), /* @__PURE__ */ jsx(Link$1, {
-										href: `${basePath}/blog/${post.slug}`,
+										href: `${basePath}${post.url_path || "/blog/" + post.slug}`,
 										className: "bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-bold py-2.5 rounded-full transition-all text-sm w-full text-center flex justify-center items-center active:scale-[0.98]",
 										children: "Read Article"
 									})]

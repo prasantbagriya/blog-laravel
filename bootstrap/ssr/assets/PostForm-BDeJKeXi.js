@@ -781,6 +781,7 @@ function PostForm({ post }) {
 	}, []);
 	const [title, setTitle] = useState(post?.title || "");
 	const [slug, setSlug] = useState(post?.slug || "");
+	const [urlFormat, setUrlFormat] = useState(post?.url_format || "blog/{slug}");
 	const [metaDescription, setMetaDescription] = useState(post?.metaDescription || "");
 	const [excerpt, setExcerpt] = useState(post?.excerpt || "");
 	const [coverImage, setCoverImage] = useState(post?.coverImage || "");
@@ -1581,6 +1582,7 @@ function PostForm({ post }) {
 				id: postId,
 				title,
 				slug: cleanSlug,
+				url_format: urlFormat,
 				content: editor.getHTML(),
 				metaDescription,
 				excerpt: excerpt || metaDescription || title,
@@ -5664,6 +5666,48 @@ function PostForm({ post }) {
 											value: slug,
 											onChange: (val) => setSlug(val.toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/[\s_-]+/g, "-")),
 											placeholder: "e.g. custom-post-url (leave empty for auto)"
+										}),
+										/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
+										/* @__PURE__ */ jsxs("div", {
+											style: {
+												display: "flex",
+												flexDirection: "column",
+												gap: "6px"
+											},
+											children: [/* @__PURE__ */ jsx("label", {
+												style: metaLabelStyle,
+												children: "URL FORMAT"
+											}), /* @__PURE__ */ jsxs("select", {
+												value: urlFormat,
+												onChange: (e) => setUrlFormat(e.target.value),
+												style: metaInputStyle,
+												children: [
+													/* @__PURE__ */ jsx("option", {
+														value: "news/{slug}",
+														children: "domain.com/news/article-name"
+													}),
+													/* @__PURE__ */ jsx("option", {
+														value: "{slug}",
+														children: "domain.com/article-name"
+													}),
+													/* @__PURE__ */ jsx("option", {
+														value: "{category}/{slug}",
+														children: "domain.com/category/article-name"
+													}),
+													/* @__PURE__ */ jsx("option", {
+														value: "blog/{slug}",
+														children: "domain.com/blog/article-name"
+													}),
+													/* @__PURE__ */ jsx("option", {
+														value: "blog/{category}/{slug}",
+														children: "domain.com/blog/category/article-name"
+													}),
+													/* @__PURE__ */ jsx("option", {
+														value: "news/{category}/{slug}",
+														children: "domain.com/news/category/article-name"
+													})
+												]
+											})]
 										}),
 										/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
 										/* @__PURE__ */ jsx("label", {

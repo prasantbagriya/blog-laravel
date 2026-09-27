@@ -214,7 +214,7 @@ class BlogController extends Controller
         
         $articleSchema = [
             "@context" => "https://schema.org",
-            "@type" => "Article",
+            "@type" => (str_contains($post->url_format ?? '', 'news')) ? "NewsArticle" : "Article",
             "inLanguage" => app()->getLocale() ?? "en",
             "isAccessibleForFree" => true,
             "wordCount" => $wordCount,

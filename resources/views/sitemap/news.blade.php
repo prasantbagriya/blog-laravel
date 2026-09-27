@@ -3,7 +3,7 @@
         xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
     @foreach ($posts as $post)
         <url>
-            <loc>{{ route('blog.show', $post->slug) }}</loc>
+            <loc>{{ url($post->url_path) }}</loc>
             <news:news>
                 <news:publication>
                     <news:name>{{ config('app.name') }}</news:name>

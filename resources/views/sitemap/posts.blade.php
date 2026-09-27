@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
     @foreach ($posts as $post)
         <url>
-            <loc>{{ route('blog.show', $post->slug) }}</loc>
+            <loc>{{ url($post->url_path) }}</loc>
             <lastmod>{{ $post->updated_at->tz('UTC')->toAtomString() }}</lastmod>
             <changefreq>weekly</changefreq>
             <priority>0.8</priority>

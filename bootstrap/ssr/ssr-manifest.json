@@ -4,7 +4,7 @@
   ],
   "node_modules/laravel-vite-plugin/inertia-helpers/index.js": [],
   "resources/css/app.css": [
-    "/build/assets/PostForm-Bm0CqI0Z.js",
+    "/build/assets/PostForm-BDeJKeXi.js",
     "/build/assets/PostForm-CJYGQp37.css"
   ],
   "resources/js/Components/AnimatedBorderCard.jsx": [
@@ -122,14 +122,14 @@
     "/build/assets/Index-B5FYT5Xv.js"
   ],
   "resources/js/Pages/Admin/PostForm.tsx": [
-    "/build/assets/PostForm-Bm0CqI0Z.js",
+    "/build/assets/PostForm-BDeJKeXi.js",
     "/build/assets/PostForm-CJYGQp37.css"
   ],
   "resources/js/Pages/Admin/Posts/Edit.jsx": [
-    "/build/assets/Edit-BLSPM-Jk.js"
+    "/build/assets/Edit-BE6qf77S.js"
   ],
   "resources/js/Pages/Admin/Posts/New.jsx": [
-    "/build/assets/New-xP3AOmCd.js"
+    "/build/assets/New-BGSf0y9g.js"
   ],
   "resources/js/Pages/Admin/SeoAudit/Index.jsx": [
     "/build/assets/Index-C5-2xXZJ.js"
@@ -174,13 +174,13 @@
     "/build/assets/Index-8IcjoYkZ2.js"
   ],
   "resources/js/Pages/Author/Show.jsx": [
-    "/build/assets/Show-DAn30m4K.js"
+    "/build/assets/Show-DsYtJ3Tm.js"
   ],
   "resources/js/Pages/Blog/Index.jsx": [
-    "/build/assets/Index-C5gMOcpQ2.js"
+    "/build/assets/Index-BaHa9avt2.js"
   ],
   "resources/js/Pages/Blog/Show.jsx": [
-    "/build/assets/Show-DrhcLb1n.js"
+    "/build/assets/Show-D0aAJs28.js"
   ],
   "resources/js/Pages/Business/Create.jsx": [
     "/build/assets/Create-B25a-HfN.js"
@@ -192,7 +192,7 @@
     "/build/assets/Index-BdSkuhje.js"
   ],
   "resources/js/Pages/Category/Show.jsx": [
-    "/build/assets/Show-DM9yqWAI.js"
+    "/build/assets/Show-BHJqV6xJ.js"
   ],
   "resources/js/Pages/Community/Create.jsx": [
     "/build/assets/Create-C2m6OfXS.js"
@@ -272,7 +272,7 @@
     "/build/assets/Index-x1XGuNl0.css"
   ],
   "resources/js/Pages/Search/Index.jsx": [
-    "/build/assets/Index-PrkdRR3L.js"
+    "/build/assets/Index-bEqYA5O1.js"
   ],
   "resources/js/Pages/Static/About.jsx": [
     "/build/assets/About-DTg5gwwB.js"
@@ -299,7 +299,7 @@
     "/build/assets/Show-DE9zTaJ9.js"
   ],
   "resources/js/Pages/Welcome.jsx": [
-    "/build/assets/Welcome-BEk_jbnO.js"
+    "/build/assets/Welcome-Cy0kU3Zu.js"
   ],
   "resources/js/ssr.jsx": []
 }

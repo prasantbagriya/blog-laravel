@@ -178,7 +178,7 @@ function Index({ posts, meta }) {
 					children: posts.map((post) => /* @__PURE__ */ jsxs("article", {
 						className: "border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-xl overflow-hidden hover:shadow-xl dark:hover:shadow-black/40 transition-shadow flex flex-col",
 						children: [/* @__PURE__ */ jsx(Link, {
-							href: window.BASE_PATH + `/blog/${post.slug}`,
+							href: (typeof window !== "undefined" && window.BASE_PATH ? window.BASE_PATH : "") + (post.url_path || `/blog/${post.slug}`),
 							className: "relative h-48 block",
 							children: /* @__PURE__ */ jsx(Image$1, {
 								src: post.coverImage || "/uploads/read.webp",
@@ -196,7 +196,7 @@ function Index({ posts, meta }) {
 								/* @__PURE__ */ jsx("h2", {
 									className: "text-xl font-bold mb-3 text-slate-900 dark:text-white",
 									children: /* @__PURE__ */ jsx(Link, {
-										href: window.BASE_PATH + `/blog/${post.slug}`,
+										href: (typeof window !== "undefined" && window.BASE_PATH ? window.BASE_PATH : "") + (post.url_path || `/blog/${post.slug}`),
 										children: post.title
 									})
 								}),

@@ -95,7 +95,7 @@ function CategoryShow({ categoryName, posts, meta }) {
 						children: posts.map((post) => /* @__PURE__ */ jsxs("article", {
 							className: "group bg-white dark:bg-zinc-900 rounded-2xl overflow-hidden border border-slate-200 dark:border-zinc-800 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col",
 							children: [/* @__PURE__ */ jsxs(Link, {
-								href: basePath + `/blog/${post.slug}`,
+								href: basePath + (post.url_path || `/blog/${post.slug}`),
 								className: "relative h-48 block overflow-hidden",
 								children: [/* @__PURE__ */ jsx(Image$1, {
 									src: post.coverImage || "/uploads/read.webp",
@@ -118,7 +118,7 @@ function CategoryShow({ categoryName, posts, meta }) {
 									/* @__PURE__ */ jsx("h2", {
 										className: "text-base font-extrabold text-slate-900 dark:text-white mb-2 leading-snug group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors",
 										children: /* @__PURE__ */ jsx(Link, {
-											href: basePath + `/blog/${post.slug}`,
+											href: basePath + (post.url_path || `/blog/${post.slug}`),
 											children: post.title
 										})
 									}),
@@ -136,7 +136,7 @@ function CategoryShow({ categoryName, posts, meta }) {
 												year: "numeric"
 											}) : "" })]
 										}), /* @__PURE__ */ jsxs(Link, {
-											href: basePath + `/blog/${post.slug}`,
+											href: basePath + (post.url_path || `/blog/${post.slug}`),
 											className: "inline-flex items-center gap-1 text-xs font-bold text-amber-600 dark:text-amber-400 hover:gap-2 transition-all",
 											children: ["Read ", /* @__PURE__ */ jsx(ArrowRight, { className: "w-3.5 h-3.5" })]
 										})]
