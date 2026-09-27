@@ -6658,24 +6658,57 @@ function PostForm({ post }) {
 								children: [/* @__PURE__ */ jsx("span", {
 									style: { fontSize: "24px" },
 									children: "🚀"
-								}), /* @__PURE__ */ jsx("h3", {
-									style: modalTitleStyle,
+								}), /* @__PURE__ */ jsx("h2", {
+									style: {
+										fontSize: "16px",
+										fontWeight: 700,
+										margin: 0
+									},
 									children: "Deploy Options"
 								})]
 							}), /* @__PURE__ */ jsx("button", {
 								onClick: () => setDeployModalOpen(false),
-								style: closeBtnStyle,
-								children: "✕"
+								style: closeModalBtn,
+								children: /* @__PURE__ */ jsxs("svg", {
+									xmlns: "http://www.w3.org/2000/svg",
+									width: "24",
+									height: "24",
+									viewBox: "0 0 24 24",
+									fill: "none",
+									stroke: "currentColor",
+									strokeWidth: 2,
+									strokeLinecap: "round",
+									strokeLinejoin: "round",
+									className: "lucide",
+									style: {
+										width: "20px",
+										height: "20px"
+									},
+									children: [/* @__PURE__ */ jsx("line", {
+										x1: "18",
+										y1: "6",
+										x2: "6",
+										y2: "18"
+									}), /* @__PURE__ */ jsx("line", {
+										x1: "6",
+										y1: "6",
+										x2: "18",
+										y2: "18"
+									})]
+								})
 							})]
 						}),
 						/* @__PURE__ */ jsx("div", {
-							style: modalBodyStyle,
+							style: {
+								padding: "24px",
+								overflowY: "auto"
+							},
 							children: /* @__PURE__ */ jsxs("div", {
 								style: {
 									display: "flex",
 									flexDirection: "column",
 									gap: "8px",
-									marginBottom: "24px"
+									marginBottom: "8px"
 								},
 								children: [
 									/* @__PURE__ */ jsx("label", {
@@ -6725,10 +6758,27 @@ function PostForm({ post }) {
 							})
 						}),
 						/* @__PURE__ */ jsxs("div", {
-							style: modalFooterStyle,
+							style: {
+								display: "flex",
+								justifyContent: "flex-end",
+								gap: "12px",
+								padding: "16px 24px",
+								borderTop: "1px solid #e2e8f0",
+								background: "#f8fafc",
+								borderBottomLeftRadius: "24px",
+								borderBottomRightRadius: "24px"
+							},
 							children: [/* @__PURE__ */ jsx("button", {
 								onClick: () => setDeployModalOpen(false),
-								style: cancelBtnStyle,
+								style: {
+									padding: "10px 16px",
+									borderRadius: "10px",
+									background: "#e2e8f0",
+									color: "#475569",
+									fontWeight: 700,
+									border: "none",
+									cursor: "pointer"
+								},
 								children: "Cancel"
 							}), /* @__PURE__ */ jsx("button", {
 								onClick: () => {
@@ -6736,7 +6786,16 @@ function PostForm({ post }) {
 									handleSave(true, false);
 								},
 								disabled: isPending,
-								style: saveBtnStyle,
+								style: {
+									background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+									color: "#fff",
+									border: "none",
+									padding: "10px 24px",
+									borderRadius: "10px",
+									fontWeight: 700,
+									cursor: "pointer",
+									boxShadow: "0 4px 12px rgba(37, 99, 235, 0.3)"
+								},
 								children: isPending ? "Publishing..." : "Publish Now"
 							})]
 						})

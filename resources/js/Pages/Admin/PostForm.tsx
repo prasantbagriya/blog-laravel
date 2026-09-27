@@ -2296,12 +2296,14 @@ export default function PostForm({ post }: PostFormProps) {
                      <div style={modalHeaderStyle}>
                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                              <span style={{ fontSize: '24px' }}>🚀</span>
-                             <h3 style={modalTitleStyle}>Deploy Options</h3>
+                             <h2 style={{ fontSize: '16px', fontWeight: 700, margin: 0 }}>Deploy Options</h2>
                          </div>
-                         <button onClick={() => setDeployModalOpen(false)} style={closeBtnStyle}>✕</button>
+                         <button onClick={() => setDeployModalOpen(false)} style={closeModalBtn}>
+                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '20px', height: '20px' }}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                         </button>
                      </div>
-                     <div style={modalBodyStyle}>
-                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '24px' }}>
+                     <div style={{ padding: '24px', overflowY: 'auto' }}>
+                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '8px' }}>
                              <label style={metaLabelStyle}>URL FORMAT</label>
                              <select value={urlFormat} onChange={e => setUrlFormat(e.target.value)} style={metaInputStyle}>
                                  <option value="news/{slug}">domain.com/news/article-name</option>
@@ -2314,9 +2316,9 @@ export default function PostForm({ post }: PostFormProps) {
                              <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0' }}>Choose the URL structure for this post before publishing.</p>
                          </div>
                      </div>
-                     <div style={modalFooterStyle}>
-                         <button onClick={() => setDeployModalOpen(false)} style={cancelBtnStyle}>Cancel</button>
-                         <button onClick={() => { setDeployModalOpen(false); handleSave(true, false); }} disabled={isPending} style={saveBtnStyle}>
+                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', padding: '16px 24px', borderTop: '1px solid #e2e8f0', background: '#f8fafc', borderBottomLeftRadius: '24px', borderBottomRightRadius: '24px' }}>
+                         <button onClick={() => setDeployModalOpen(false)} style={{ padding: '10px 16px', borderRadius: '10px', background: '#e2e8f0', color: '#475569', fontWeight: 700, border: 'none', cursor: 'pointer' }}>Cancel</button>
+                         <button onClick={() => { setDeployModalOpen(false); handleSave(true, false); }} disabled={isPending} style={{ background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: '#fff', border: 'none', padding: '10px 24px', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)' }}>
                              {isPending ? 'Publishing...' : 'Publish Now'}
                          </button>
                      </div>
