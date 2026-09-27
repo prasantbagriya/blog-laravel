@@ -369,19 +369,6 @@ var navIconStyle = {
 	color: "#475569",
 	boxShadow: "0 2px 4px rgba(0,0,0,0.02)"
 };
-var headerTitleStyle = {
-	fontSize: "19px",
-	fontWeight: 800,
-	letterSpacing: "-0.4px",
-	background: "linear-gradient(135deg, #0f172a, #334155)",
-	WebkitBackgroundClip: "text",
-	WebkitTextFillColor: "transparent"
-};
-var scoreHubStyle = {
-	display: "flex",
-	gap: "16px",
-	marginRight: "16px"
-};
 var iconBtnStyle = {
 	background: "#fff",
 	border: "1px solid #e2e8f0",
@@ -399,14 +386,19 @@ var publishBtnStyle = {
 	background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
 	color: "#fff",
 	border: "none",
-	padding: "12px 28px",
-	borderRadius: "12px",
-	fontWeight: 700,
+	padding: "16px 36px",
+	borderRadius: "16px",
+	fontWeight: 800,
 	cursor: "pointer",
-	boxShadow: "0 8px 16px -4px rgba(37, 99, 235, 0.3)",
+	boxShadow: "0 12px 24px -6px rgba(37, 99, 235, 0.4)",
 	whiteSpace: "nowrap",
 	transition: "all 0.3s",
-	letterSpacing: "0.5px"
+	letterSpacing: "0.5px",
+	fontSize: "15px",
+	position: "fixed",
+	bottom: "40px",
+	right: "40px",
+	zIndex: 1e5
 };
 var mainCanvasStyle = {
 	flex: 1,
@@ -2627,14 +2619,14 @@ function PostForm({ post }) {
 			/* @__PURE__ */ jsxs("div", {
 				role: "banner",
 				style: headerStyle,
-				children: [/* @__PURE__ */ jsxs("div", {
+				children: [/* @__PURE__ */ jsx("div", {
 					style: {
 						display: "flex",
 						alignItems: "center",
 						gap: "20px",
 						flex: 1
 					},
-					children: [/* @__PURE__ */ jsx("button", {
+					children: /* @__PURE__ */ jsx("button", {
 						onClick: () => window.history.back(),
 						style: navIconStyle,
 						children: /* @__PURE__ */ jsx("svg", {
@@ -2654,26 +2646,7 @@ function PostForm({ post }) {
 							},
 							children: /* @__PURE__ */ jsx("path", { d: "m15 18-6-6 6-6" })
 						})
-					}), /* @__PURE__ */ jsx("div", {
-						style: {
-							display: "flex",
-							flexDirection: "column",
-							flex: 1
-						},
-						children: /* @__PURE__ */ jsx("input", {
-							value: title,
-							onChange: (e) => setTitle(e.target.value),
-							placeholder: post ? "Edit Sovereign Post" : "New Sovereign Post",
-							style: {
-								...headerTitleStyle,
-								border: "none",
-								outline: "none",
-								background: "transparent",
-								width: "100%",
-								padding: "0"
-							}
-						})
-					})]
+					})
 				}), /* @__PURE__ */ jsxs("div", {
 					style: {
 						display: "flex",
@@ -2681,25 +2654,6 @@ function PostForm({ post }) {
 						gap: "16px"
 					},
 					children: [
-						/* @__PURE__ */ jsxs("div", {
-							style: scoreHubStyle,
-							children: [
-								/* @__PURE__ */ jsx(MiniScore, {
-									label: "SEO",
-									value: seoScore
-								}),
-								/* @__PURE__ */ jsx(MiniScore, {
-									label: "HCU",
-									value: helpfulScore,
-									color: "#10b981"
-								}),
-								/* @__PURE__ */ jsx(MiniScore, {
-									label: "SNIP",
-									value: snippetScore,
-									color: "#8b5cf6"
-								})
-							]
-						}),
 						/* @__PURE__ */ jsx("button", {
 							onClick: () => setDistractionFree(true),
 							style: iconBtnStyle,
@@ -4259,6 +4213,29 @@ function PostForm({ post }) {
 						},
 						children: [
 							activeTab === "editor" && /* @__PURE__ */ jsxs("div", { children: [
+								/* @__PURE__ */ jsxs("div", {
+									style: {
+										display: "flex",
+										gap: "16px",
+										marginBottom: "24px"
+									},
+									children: [
+										/* @__PURE__ */ jsx(MiniScore, {
+											label: "SEO",
+											value: seoScore
+										}),
+										/* @__PURE__ */ jsx(MiniScore, {
+											label: "HCU",
+											value: helpfulScore,
+											color: "#10b981"
+										}),
+										/* @__PURE__ */ jsx(MiniScore, {
+											label: "SNIP",
+											value: snippetScore,
+											color: "#8b5cf6"
+										})
+									]
+								}),
 								/* @__PURE__ */ jsx("h3", {
 									style: sidebarHeadingStyle,
 									children: "Google HCU Audit"
@@ -5665,6 +5642,13 @@ function PostForm({ post }) {
 								/* @__PURE__ */ jsxs("div", {
 									style: hcuCardStyle,
 									children: [
+										/* @__PURE__ */ jsx(InputGroup, {
+											label: "MAIN POST HEADLINE",
+											value: title,
+											onChange: setTitle,
+											placeholder: "Title of your post"
+										}),
+										/* @__PURE__ */ jsx("div", { style: { height: "15px" } }),
 										/* @__PURE__ */ jsxs("button", {
 											onClick: () => setPreviewMode("google"),
 											style: {

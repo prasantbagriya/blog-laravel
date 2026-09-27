@@ -290,7 +290,7 @@ const navIconStyle: React.CSSProperties = { background: '#f8fafc', border: '1px 
 const headerTitleStyle: React.CSSProperties = { fontSize: '19px', fontWeight: 800, letterSpacing: '-0.4px', background: 'linear-gradient(135deg, #0f172a, #334155)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' };
 const scoreHubStyle: React.CSSProperties = { display: 'flex', gap: '16px', marginRight: '16px' };
 const iconBtnStyle: React.CSSProperties = { background: '#fff', border: '1px solid #e2e8f0', padding: '10px 16px', borderRadius: '12px', cursor: 'pointer', color: '#475569', whiteSpace: 'nowrap', fontWeight: 600, fontSize: '13px', transition: 'all 0.2s', boxShadow: '0 2px 8px -2px rgba(0,0,0,0.04)' };
-const publishBtnStyle: React.CSSProperties = { background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 8px 16px -4px rgba(37, 99, 235, 0.3)', whiteSpace: 'nowrap', transition: 'all 0.3s', letterSpacing: '0.5px' };
+const publishBtnStyle: React.CSSProperties = { background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: '#fff', border: 'none', padding: '16px 36px', borderRadius: '16px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 12px 24px -6px rgba(37, 99, 235, 0.4)', whiteSpace: 'nowrap', transition: 'all 0.3s', letterSpacing: '0.5px', fontSize: '15px', position: 'fixed', bottom: '40px', right: '40px', zIndex: 100000 };
 const mainCanvasStyle: React.CSSProperties = { flex: 1, overflowY: 'auto', background: '#f8fafc', display: 'flex', flexDirection: 'column', position: 'relative', scrollBehavior: 'smooth' };
 const floatingToolbarStyle: React.CSSProperties = { position: 'sticky', top: '0', zIndex: 100, background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(24px)', padding: '12px 40px', borderBottom: '1px solid rgba(226,232,240,0.6)', display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', userSelect: 'none', boxShadow: '0 4px 12px -8px rgba(0,0,0,0.05)' };
 const toolDivider: React.CSSProperties = { width: '1px', height: '24px', background: '#cbd5e1', margin: '0 6px' };
@@ -1304,23 +1304,9 @@ export default function PostForm({ post }: PostFormProps) {
                <button onClick={() => window.history.back()} style={navIconStyle}>
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '20px', height: '20px' }}><path d="m15 18-6-6 6-6"/></svg>
                </button>
-
-               <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                  <input 
-                     value={title} 
-                     onChange={e => setTitle(e.target.value)} 
-                     placeholder={post ? 'Edit Sovereign Post' : 'New Sovereign Post'} 
-                     style={{ ...headerTitleStyle, border: 'none', outline: 'none', background: 'transparent', width: '100%', padding: '0' }} 
-                  />
-               </div>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-               <div style={scoreHubStyle}>
-                  <MiniScore label="SEO" value={seoScore} />
-                  <MiniScore label="HCU" value={helpfulScore} color="#10b981" />
-                  <MiniScore label="SNIP" value={snippetScore} color="#8b5cf6" />
-               </div>
                <button onClick={() => setDistractionFree(true)} style={iconBtnStyle} title="Distraction Free Mode">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
                </button>
@@ -1554,6 +1540,11 @@ export default function PostForm({ post }: PostFormProps) {
                <div style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
                                        {activeTab === 'editor' && (
                         <div key="editor"   >
+                           <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+                              <MiniScore label="SEO" value={seoScore} />
+                              <MiniScore label="HCU" value={helpfulScore} color="#10b981" />
+                              <MiniScore label="SNIP" value={snippetScore} color="#8b5cf6" />
+                           </div>
                            <h3 style={sidebarHeadingStyle}>Google HCU Audit</h3>
                            <div style={hcuCardStyle}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
@@ -1871,6 +1862,8 @@ export default function PostForm({ post }: PostFormProps) {
                         <div key="meta"  >
                            <h3 style={sidebarHeadingStyle}>Search Engine Listing</h3>
                            <div style={hcuCardStyle}>
+                              <InputGroup label="MAIN POST HEADLINE" value={title} onChange={setTitle} placeholder="Title of your post" />
+                              <div style={{ height: '15px' }} />
                               <button onClick={() => setPreviewMode('google')} style={{ ...addNodeBtn, background: '#f8fafc', marginBottom: '15px', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '14px', height: '14px' }}><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Launch SERP Simulator
                               </button>
