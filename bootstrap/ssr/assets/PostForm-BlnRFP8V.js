@@ -2629,7 +2629,10 @@ function PostForm({ post }) {
 						overflowY: isMobile ? "visible" : "auto"
 					},
 					children: [/* @__PURE__ */ jsx("div", {
-						style: floatingToolbarStyle,
+						style: {
+							...floatingToolbarStyle,
+							padding: isMobile ? "8px 12px" : "12px 24px"
+						},
 						children: /* @__PURE__ */ jsxs("div", {
 							style: {
 								display: "flex",
@@ -3758,7 +3761,10 @@ function PostForm({ post }) {
 							]
 						})
 					}), /* @__PURE__ */ jsxs("div", {
-						style: editorWrapperStyle,
+						style: {
+							...editorWrapperStyle,
+							padding: isMobile ? "20px" : "40px 60px"
+						},
 						children: [/* @__PURE__ */ jsx(BubbleMenu, {
 							editor,
 							shouldShow: ({ editor, state }) => {
@@ -3972,7 +3978,11 @@ function PostForm({ post }) {
 								},
 								children: "INTEL MODULES"
 							}), /* @__PURE__ */ jsxs("div", {
-								style: intelTabsStyle,
+								style: {
+									...intelTabsStyle,
+									display: isMobile ? "flex" : "grid",
+									overflowX: isMobile ? "auto" : "visible"
+								},
 								children: [
 									/* @__PURE__ */ jsx(TabBtn, {
 										active: activeTab === "editor",
@@ -6612,8 +6622,8 @@ function PostForm({ post }) {
 			/* @__PURE__ */ jsxs("div", {
 				style: {
 					position: "fixed",
-					bottom: "40px",
-					right: "40px",
+					bottom: isMobile ? "20px" : "40px",
+					right: isMobile ? "20px" : "40px",
 					zIndex: 1e5,
 					display: "flex",
 					flexDirection: "column",

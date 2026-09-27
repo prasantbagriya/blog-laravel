@@ -1326,7 +1326,7 @@ export default function PostForm({ post }: PostFormProps) {
             )}
          <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', flex: 1, overflow: isMobile ? 'auto' : 'hidden' }}>
             <main style={{ ...mainCanvasStyle, overflowY: isMobile ? 'visible' : 'auto' }}>
-                <div style={floatingToolbarStyle}>
+                <div style={{ ...floatingToolbarStyle, padding: isMobile ? '8px 12px' : '12px 24px' }}>
                    <div style={{ display: 'flex', alignItems: 'center', width: '100%', maxWidth: '1200px', justifyContent: 'space-between' }}>
                       {/* Left: Back Button */}
                       <button onClick={() => window.history.back()} style={{ ...navIconStyle, border: 'none', background: 'transparent' }}>
@@ -1490,7 +1490,7 @@ export default function PostForm({ post }: PostFormProps) {
                    </div>
                 </div>
 
-               <div style={editorWrapperStyle}>
+               <div style={{ ...editorWrapperStyle, padding: isMobile ? '20px' : '40px 60px' }}>
                    <BubbleMenu editor={editor} shouldShow={({ editor, state }) => {
                       // Check NodeSelection for atom nodes (contenteditable:false)
                       const { selection } = state;
@@ -1563,7 +1563,7 @@ export default function PostForm({ post }: PostFormProps) {
                )}
                <div style={{ padding: '24px 24px 0 24px' }}>
                   <div style={{ fontSize: '10px', fontWeight: 900, color: '#94a3b8', letterSpacing: '1px', marginBottom: '12px' }}>INTEL MODULES</div>
-                   <div style={intelTabsStyle}>
+                   <div style={{ ...intelTabsStyle, display: isMobile ? 'flex' : 'grid', overflowX: isMobile ? 'auto' : 'visible' }}>
                      <TabBtn active={activeTab === 'editor'} onClick={() => setActiveTab('editor')} icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '14px', height: '14px' }}><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>} label="Audit" status={seoScore > 80 ? 'success' : 'warning'} />
                      <TabBtn active={activeTab === 'snippets'} onClick={() => setActiveTab('snippets')} icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '14px', height: '14px' }}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>} label="Snippets" status={snippetScore > 70 ? 'success' : 'neutral'} />
                      <TabBtn active={activeTab === 'strategy'} onClick={() => setActiveTab('strategy')} icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '14px', height: '14px' }}><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.54Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.54Z"/></svg>} label="Strategy" status="neutral" />
@@ -2282,7 +2282,7 @@ export default function PostForm({ post }: PostFormProps) {
           </div>
 
          {/* Floating Deploy Container at Bottom Right */}
-         <div style={{ position: 'fixed', bottom: '40px', right: '40px', zIndex: 100000, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+         <div style={{ position: 'fixed', bottom: isMobile ? '20px' : '40px', right: isMobile ? '20px' : '40px', zIndex: 100000, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
             {lastSaved && <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, background: 'rgba(255,255,255,0.85)', padding: '6px 12px', borderRadius: '12px', backdropFilter: 'blur(8px)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>Saved: {lastSaved}</span>}
             <button onClick={() => setDeployModalOpen(true)} disabled={isPending} style={publishBtnStyle}>
                Deploy
