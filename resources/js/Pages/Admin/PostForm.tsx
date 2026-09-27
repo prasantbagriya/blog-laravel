@@ -309,7 +309,7 @@ const guardianCard: React.CSSProperties = { display: 'flex', flexDirection: 'col
 const headerSelectWrapper: React.CSSProperties = { display: 'flex', alignItems: 'center', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '0 12px', margin: '0 4px', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.01)' };
 const headerSelectStyle: React.CSSProperties = { border: 'none', background: 'transparent', fontSize: '12.5px', fontWeight: 700, color: '#334155', outline: 'none', height: '36px', cursor: 'pointer' };
 const metaSelectStyle: React.CSSProperties = { width: '100%', padding: '14px', border: '1px solid #e2e8f0', borderRadius: '14px', fontSize: '14px', fontWeight: 600, background: '#fff', color: '#1e293b' };
-const editorWrapperStyle: React.CSSProperties = { background: '#fff', padding: '40px 60px', minHeight: '100vh', position: 'relative', maxWidth: '1200px', margin: '0 auto', width: '100%', borderRadius: '0', border: 'none', boxShadow: 'none' };
+const editorWrapperStyle: React.CSSProperties = { background: '#fff', minHeight: '100vh', position: 'relative', maxWidth: '1200px', margin: '0 auto', width: '100%', borderRadius: '0', border: 'none', boxShadow: 'none' };
 const bubbleMenuStyle: React.CSSProperties = { background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '6px', display: 'flex', gap: '6px', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.1)', zIndex: 1000 };
 const floatingMenuStyle: React.CSSProperties = { background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '4px', display: 'flex', gap: '4px', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)', zIndex: 1000 };
 const fMenuBtn: React.CSSProperties = { padding: '8px 12px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '12.5px', fontWeight: 800, color: '#475569', borderRadius: '8px', transition: 'background 0.2s' };
@@ -1327,15 +1327,21 @@ export default function PostForm({ post }: PostFormProps) {
          <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', flex: 1, overflow: isMobile ? 'auto' : 'hidden' }}>
             <main style={{ ...mainCanvasStyle, overflowY: isMobile ? 'visible' : 'auto' }}>
                 <div style={{ ...floatingToolbarStyle, padding: isMobile ? '8px 12px' : '12px 24px' }}>
-                   <div style={{ display: 'flex', alignItems: 'center', width: '100%', maxWidth: '1200px', justifyContent: 'space-between' }}>
+                   <div style={{ display: 'flex', alignItems: 'center', width: '100%', maxWidth: '1200px', gap: isMobile ? '8px' : '16px' }}>
+                      {/* Global Style for hiding scrollbar in toolbar */}
+                      <style>{`
+                         .toolbar-scroll::-webkit-scrollbar { display: none; }
+                         .toolbar-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+                      `}</style>
+                      
                       {/* Left: Back Button */}
-                      <button onClick={() => window.history.back()} style={{ ...navIconStyle, border: 'none', background: 'transparent' }}>
+                      <button onClick={() => window.history.back()} style={{ ...navIconStyle, border: 'none', background: 'transparent', flexShrink: 0 }}>
                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '20px', height: '20px' }}><path d="m15 18-6-6 6-6"/></svg>
                       </button>
 
-                      {/* Center: Formatting Toolbar */}
-                      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center' }}>
-                      <div style={{ display: 'flex', gap: '4px' }}>
+                      {/* Center: Formatting Toolbar (Scrollable Row) */}
+                      <div className="toolbar-scroll" style={{ display: 'flex', gap: '4px', alignItems: 'center', flex: 1, overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: '2px' }}>
+                      <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
                          <SovereignToolBtn onClick={() => editor.chain().focus().undo().run()} title="Undo">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
                          </SovereignToolBtn>
@@ -1343,10 +1349,10 @@ export default function PostForm({ post }: PostFormProps) {
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
                          </SovereignToolBtn>
                       </div>
-                      <div style={toolDivider} />
+                      <div style={{ ...toolDivider, flexShrink: 0 }} />
 
                       {/* Formatting Group */}
-                      <div style={{ display: 'flex', gap: '4px' }}>
+                      <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
                          <SovereignToolBtn onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')} title="Bold">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/></svg>
                          </SovereignToolBtn>
@@ -1366,10 +1372,10 @@ export default function PostForm({ post }: PostFormProps) {
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="m9 11-6 6v3h9l3-3"/><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4"/></svg>
                          </SovereignToolBtn>
                       </div>
-                      <div style={toolDivider} />
+                      <div style={{ ...toolDivider, flexShrink: 0 }} />
 
                       {/* Structure & Size Group */}
-                      <div style={headerSelectWrapper}>
+                      <div style={{ ...headerSelectWrapper, flexShrink: 0 }}>
                          <select 
                             onChange={(e) => {
                                const val = e.target.value;
@@ -1399,10 +1405,10 @@ export default function PostForm({ post }: PostFormProps) {
                             ))}
                          </select>
                       </div>
-                      <div style={toolDivider} />
+                      <div style={{ ...toolDivider, flexShrink: 0 }} />
 
                       {/* Alignment & Lists */}
-                      <div style={{ display: 'flex', gap: '4px' }}>
+                      <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
                          <SovereignToolBtn onClick={() => editor.chain().focus().setTextAlign('left').run()} active={editor.isActive({ textAlign: 'left' })} title="Left Align">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>
                          </SovereignToolBtn>
@@ -1417,10 +1423,10 @@ export default function PostForm({ post }: PostFormProps) {
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
                          </SovereignToolBtn>
                       </div>
-                      <div style={toolDivider} />
+                      <div style={{ ...toolDivider, flexShrink: 0 }} />
 
                       {/* Inserts & Tables */}
-                      <div style={{ display: 'flex', gap: '4px' }}>
+                      <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
                          <SovereignToolBtn onClick={handleOpenLinkModal} active={editor.isActive('link')} title="Insert Link">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
                          </SovereignToolBtn>
@@ -1446,10 +1452,10 @@ export default function PostForm({ post }: PostFormProps) {
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1 0 2.5 0 5-2 5"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1 0 2.5 0 5-2 5"/></svg>
                          </SovereignToolBtn>
                       </div>
-                      <div style={toolDivider} />
+                      <div style={{ ...toolDivider, flexShrink: 0 }} />
 
                       {/* Advanced Tables */}
-                      <div style={{ display: 'flex', gap: '4px' }}>
+                      <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
                          <SovereignToolBtn onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} title="Insert Table">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
                          </SovereignToolBtn>
@@ -1463,14 +1469,16 @@ export default function PostForm({ post }: PostFormProps) {
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                          </SovereignToolBtn>
                       </div>
-                      <div style={toolDivider} />
+                      <div style={{ ...toolDivider, flexShrink: 0 }} />
 
-                      <SovereignToolBtn onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()} title="Clear Formatting">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M21 7L7 21"/><path d="M7 7l14 14"/><path d="M3 11l5 5"/><path d="m13 16 5 5"/><path d="m8 3 5 5"/></svg>
-                      </SovereignToolBtn>
-                      <SovereignToolBtn onClick={() => setActiveTab('guardian')} title="AI Shield" color="#8b5cf6">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
-                      </SovereignToolBtn>
+                      <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+                         <SovereignToolBtn onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()} title="Clear Formatting">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M21 7L7 21"/><path d="M7 7l14 14"/><path d="M3 11l5 5"/><path d="m13 16 5 5"/><path d="m8 3 5 5"/></svg>
+                         </SovereignToolBtn>
+                         <SovereignToolBtn onClick={() => setActiveTab('guardian')} title="AI Shield" color="#8b5cf6">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+                         </SovereignToolBtn>
+                      </div>
                       <input type="file" ref={fileInputRef} onChange={handleImageUpload} style={{ display: 'none' }} accept="image/*" />
                       <input type="file" ref={videoInputRef} onChange={handleVideoUpload} style={{ display: 'none' }} accept="video/*" />
                       <input type="color" ref={colorInputRef} onChange={handleColorChange} style={{ display: 'none' }} />
@@ -1478,7 +1486,7 @@ export default function PostForm({ post }: PostFormProps) {
                       </div>
                       
                       {/* Right: Actions */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
                          <button onClick={() => setDistractionFree(true)} style={iconBtnStyle} title="Distraction Free Mode">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
                          </button>
@@ -1486,11 +1494,10 @@ export default function PostForm({ post }: PostFormProps) {
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                          </button>
                       </div>
-
                    </div>
                 </div>
 
-               <div style={{ ...editorWrapperStyle, padding: isMobile ? '20px' : '40px 60px' }}>
+               <div style={{ ...editorWrapperStyle, padding: isMobile ? '16px' : '40px 24px' }}>
                    <BubbleMenu editor={editor} shouldShow={({ editor, state }) => {
                       // Check NodeSelection for atom nodes (contenteditable:false)
                       const { selection } = state;

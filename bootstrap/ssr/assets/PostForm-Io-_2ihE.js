@@ -561,7 +561,6 @@ var metaSelectStyle = {
 };
 var editorWrapperStyle = {
 	background: "#fff",
-	padding: "40px 60px",
 	minHeight: "100vh",
 	position: "relative",
 	maxWidth: "1200px",
@@ -2639,15 +2638,20 @@ function PostForm({ post }) {
 								alignItems: "center",
 								width: "100%",
 								maxWidth: "1200px",
-								justifyContent: "space-between"
+								gap: isMobile ? "8px" : "16px"
 							},
 							children: [
+								/* @__PURE__ */ jsx("style", { children: `
+                         .toolbar-scroll::-webkit-scrollbar { display: none; }
+                         .toolbar-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+                      ` }),
 								/* @__PURE__ */ jsx("button", {
 									onClick: () => window.history.back(),
 									style: {
 										...navIconStyle,
 										border: "none",
-										background: "transparent"
+										background: "transparent",
+										flexShrink: 0
 									},
 									children: /* @__PURE__ */ jsx("svg", {
 										xmlns: "http://www.w3.org/2000/svg",
@@ -2668,18 +2672,22 @@ function PostForm({ post }) {
 									})
 								}),
 								/* @__PURE__ */ jsxs("div", {
+									className: "toolbar-scroll",
 									style: {
 										display: "flex",
 										gap: "4px",
-										flexWrap: "wrap",
 										alignItems: "center",
-										justifyContent: "center"
+										flex: 1,
+										overflowX: "auto",
+										WebkitOverflowScrolling: "touch",
+										paddingBottom: "2px"
 									},
 									children: [
 										/* @__PURE__ */ jsxs("div", {
 											style: {
 												display: "flex",
-												gap: "4px"
+												gap: "4px",
+												flexShrink: 0
 											},
 											children: [/* @__PURE__ */ jsx(SovereignToolBtn, {
 												onClick: () => editor.chain().focus().undo().run(),
@@ -2725,11 +2733,15 @@ function PostForm({ post }) {
 												})
 											})]
 										}),
-										/* @__PURE__ */ jsx("div", { style: toolDivider }),
+										/* @__PURE__ */ jsx("div", { style: {
+											...toolDivider,
+											flexShrink: 0
+										} }),
 										/* @__PURE__ */ jsxs("div", {
 											style: {
 												display: "flex",
-												gap: "4px"
+												gap: "4px",
+												flexShrink: 0
 											},
 											children: [
 												/* @__PURE__ */ jsx(SovereignToolBtn, {
@@ -2904,9 +2916,15 @@ function PostForm({ post }) {
 												})
 											]
 										}),
-										/* @__PURE__ */ jsx("div", { style: toolDivider }),
+										/* @__PURE__ */ jsx("div", { style: {
+											...toolDivider,
+											flexShrink: 0
+										} }),
 										/* @__PURE__ */ jsxs("div", {
-											style: headerSelectWrapper,
+											style: {
+												...headerSelectWrapper,
+												flexShrink: 0
+											},
 											children: [
 												/* @__PURE__ */ jsxs("select", {
 													onChange: (e) => {
@@ -2976,11 +2994,15 @@ function PostForm({ post }) {
 												})
 											]
 										}),
-										/* @__PURE__ */ jsx("div", { style: toolDivider }),
+										/* @__PURE__ */ jsx("div", { style: {
+											...toolDivider,
+											flexShrink: 0
+										} }),
 										/* @__PURE__ */ jsxs("div", {
 											style: {
 												display: "flex",
-												gap: "4px"
+												gap: "4px",
+												flexShrink: 0
 											},
 											children: [
 												/* @__PURE__ */ jsx(SovereignToolBtn, {
@@ -3195,11 +3217,15 @@ function PostForm({ post }) {
 												})
 											]
 										}),
-										/* @__PURE__ */ jsx("div", { style: toolDivider }),
+										/* @__PURE__ */ jsx("div", { style: {
+											...toolDivider,
+											flexShrink: 0
+										} }),
 										/* @__PURE__ */ jsxs("div", {
 											style: {
 												display: "flex",
-												gap: "4px"
+												gap: "4px",
+												flexShrink: 0
 											},
 											children: [
 												/* @__PURE__ */ jsx(SovereignToolBtn, {
@@ -3414,11 +3440,15 @@ function PostForm({ post }) {
 												})
 											]
 										}),
-										/* @__PURE__ */ jsx("div", { style: toolDivider }),
+										/* @__PURE__ */ jsx("div", { style: {
+											...toolDivider,
+											flexShrink: 0
+										} }),
 										/* @__PURE__ */ jsxs("div", {
 											style: {
 												display: "flex",
-												gap: "4px"
+												gap: "4px",
+												flexShrink: 0
 											},
 											children: [
 												/* @__PURE__ */ jsx(SovereignToolBtn, {
@@ -3605,57 +3635,66 @@ function PostForm({ post }) {
 												})
 											]
 										}),
-										/* @__PURE__ */ jsx("div", { style: toolDivider }),
-										/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: () => editor.chain().focus().unsetAllMarks().clearNodes().run(),
-											title: "Clear Formatting",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [
-													/* @__PURE__ */ jsx("path", { d: "M21 7L7 21" }),
-													/* @__PURE__ */ jsx("path", { d: "M7 7l14 14" }),
-													/* @__PURE__ */ jsx("path", { d: "M3 11l5 5" }),
-													/* @__PURE__ */ jsx("path", { d: "m13 16 5 5" }),
-													/* @__PURE__ */ jsx("path", { d: "m8 3 5 5" })
-												]
-											})
-										}),
-										/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: () => setActiveTab("guardian"),
-											title: "AI Shield",
-											color: "#8b5cf6",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [/* @__PURE__ */ jsx("path", { d: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" }), /* @__PURE__ */ jsx("path", { d: "m9 12 2 2 4-4" })]
-											})
+										/* @__PURE__ */ jsx("div", { style: {
+											...toolDivider,
+											flexShrink: 0
+										} }),
+										/* @__PURE__ */ jsxs("div", {
+											style: {
+												display: "flex",
+												gap: "4px",
+												flexShrink: 0
+											},
+											children: [/* @__PURE__ */ jsx(SovereignToolBtn, {
+												onClick: () => editor.chain().focus().unsetAllMarks().clearNodes().run(),
+												title: "Clear Formatting",
+												children: /* @__PURE__ */ jsxs("svg", {
+													xmlns: "http://www.w3.org/2000/svg",
+													width: "24",
+													height: "24",
+													viewBox: "0 0 24 24",
+													fill: "none",
+													stroke: "currentColor",
+													strokeWidth: 2,
+													strokeLinecap: "round",
+													strokeLinejoin: "round",
+													className: "lucide",
+													style: {
+														width: "18px",
+														height: "18px",
+														flexShrink: 0
+													},
+													children: [
+														/* @__PURE__ */ jsx("path", { d: "M21 7L7 21" }),
+														/* @__PURE__ */ jsx("path", { d: "M7 7l14 14" }),
+														/* @__PURE__ */ jsx("path", { d: "M3 11l5 5" }),
+														/* @__PURE__ */ jsx("path", { d: "m13 16 5 5" }),
+														/* @__PURE__ */ jsx("path", { d: "m8 3 5 5" })
+													]
+												})
+											}), /* @__PURE__ */ jsx(SovereignToolBtn, {
+												onClick: () => setActiveTab("guardian"),
+												title: "AI Shield",
+												color: "#8b5cf6",
+												children: /* @__PURE__ */ jsxs("svg", {
+													xmlns: "http://www.w3.org/2000/svg",
+													width: "24",
+													height: "24",
+													viewBox: "0 0 24 24",
+													fill: "none",
+													stroke: "currentColor",
+													strokeWidth: 2,
+													strokeLinecap: "round",
+													strokeLinejoin: "round",
+													className: "lucide",
+													style: {
+														width: "18px",
+														height: "18px",
+														flexShrink: 0
+													},
+													children: [/* @__PURE__ */ jsx("path", { d: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" }), /* @__PURE__ */ jsx("path", { d: "m9 12 2 2 4-4" })]
+												})
+											})]
 										}),
 										/* @__PURE__ */ jsx("input", {
 											type: "file",
@@ -3691,7 +3730,8 @@ function PostForm({ post }) {
 									style: {
 										display: "flex",
 										alignItems: "center",
-										gap: "12px"
+										gap: "8px",
+										flexShrink: 0
 									},
 									children: [/* @__PURE__ */ jsx("button", {
 										onClick: () => setDistractionFree(true),
@@ -3763,7 +3803,7 @@ function PostForm({ post }) {
 					}), /* @__PURE__ */ jsxs("div", {
 						style: {
 							...editorWrapperStyle,
-							padding: isMobile ? "20px" : "40px 60px"
+							padding: isMobile ? "16px" : "40px 24px"
 						},
 						children: [/* @__PURE__ */ jsx(BubbleMenu, {
 							editor,
