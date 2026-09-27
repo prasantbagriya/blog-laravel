@@ -339,65 +339,79 @@ var PollBlock = Node.create({
 var rootContainerStyle = {
 	position: "fixed",
 	inset: 0,
-	background: "#ffffff",
+	background: "#fcfdfd",
 	display: "flex",
 	flexDirection: "column",
-	zIndex: 999999
+	zIndex: 999999,
+	fontFamily: "\"Inter\", \"Roboto\", sans-serif"
 };
 var headerStyle = {
-	height: "80px",
-	background: "#fff",
-	borderBottom: "1px solid #e2e8f0",
+	height: "76px",
+	background: "rgba(255, 255, 255, 0.85)",
+	backdropFilter: "blur(20px)",
+	borderBottom: "1px solid rgba(226, 232, 240, 0.6)",
 	display: "flex",
 	justifyContent: "space-between",
 	alignItems: "center",
 	padding: "0 40px",
 	position: "sticky",
 	top: 0,
-	zIndex: 1e3
+	zIndex: 1e3,
+	boxShadow: "0 4px 24px -12px rgba(0,0,0,0.04)"
 };
 var navIconStyle = {
-	background: "#f1f5f9",
-	border: "none",
-	padding: "10px",
-	borderRadius: "12px",
-	cursor: "pointer"
-};
-var headerTitleStyle = {
-	fontSize: "20px",
-	fontWeight: 800,
-	color: "#1e293b",
-	letterSpacing: "-0.5px"
-};
-var scoreHubStyle = {
-	display: "flex",
-	gap: "16px",
-	marginRight: "10px"
-};
-var iconBtnStyle = {
-	background: "#fff",
+	background: "#f8fafc",
 	border: "1px solid #e2e8f0",
 	padding: "10px",
 	borderRadius: "12px",
 	cursor: "pointer",
-	color: "#64748b",
-	whiteSpace: "nowrap"
+	transition: "all 0.2s",
+	color: "#475569",
+	boxShadow: "0 2px 4px rgba(0,0,0,0.02)"
+};
+var headerTitleStyle = {
+	fontSize: "19px",
+	fontWeight: 800,
+	letterSpacing: "-0.4px",
+	background: "linear-gradient(135deg, #0f172a, #334155)",
+	WebkitBackgroundClip: "text",
+	WebkitTextFillColor: "transparent"
+};
+var scoreHubStyle = {
+	display: "flex",
+	gap: "16px",
+	marginRight: "16px"
+};
+var iconBtnStyle = {
+	background: "#fff",
+	border: "1px solid #e2e8f0",
+	padding: "10px 16px",
+	borderRadius: "12px",
+	cursor: "pointer",
+	color: "#475569",
+	whiteSpace: "nowrap",
+	fontWeight: 600,
+	fontSize: "13px",
+	transition: "all 0.2s",
+	boxShadow: "0 2px 8px -2px rgba(0,0,0,0.04)"
 };
 var publishBtnStyle = {
-	background: "#2563eb",
+	background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
 	color: "#fff",
 	border: "none",
 	padding: "12px 28px",
-	borderRadius: "10px",
+	borderRadius: "12px",
 	fontWeight: 700,
 	cursor: "pointer",
-	boxShadow: "0 4px 6px -1px rgba(37, 99, 235, 0.2)",
-	whiteSpace: "nowrap"
+	boxShadow: "0 8px 16px -4px rgba(37, 99, 235, 0.3)",
+	whiteSpace: "nowrap",
+	transition: "all 0.3s",
+	letterSpacing: "0.5px"
 };
 var mainCanvasStyle = {
 	flex: 1,
 	overflowY: "auto",
-	background: "#ffffff",
+	background: "#f8fafc",
 	display: "flex",
 	flexDirection: "column",
 	position: "relative",
@@ -407,76 +421,84 @@ var floatingToolbarStyle = {
 	position: "sticky",
 	top: "0",
 	zIndex: 100,
-	background: "rgba(255,255,255,0.92)",
-	backdropFilter: "blur(16px)",
-	padding: "16px 40px",
-	borderBottom: "1px solid #e2e8f0",
+	background: "rgba(255,255,255,0.75)",
+	backdropFilter: "blur(24px)",
+	padding: "12px 40px",
+	borderBottom: "1px solid rgba(226,232,240,0.6)",
 	display: "flex",
 	flexWrap: "wrap",
-	gap: "10px",
+	gap: "8px",
 	alignItems: "center",
-	userSelect: "none"
+	userSelect: "none",
+	boxShadow: "0 4px 12px -8px rgba(0,0,0,0.05)"
 };
 var toolDivider = {
 	width: "1px",
 	height: "24px",
-	background: "#e2e8f0",
-	margin: "0 4px"
+	background: "#cbd5e1",
+	margin: "0 6px"
 };
 var intelSidebarStyle = {
-	width: "300px",
-	background: "#fff",
-	borderLeft: "1px solid #e2e8f0",
+	width: "340px",
+	background: "#ffffff",
+	borderLeft: "1px solid rgba(226,232,240,0.6)",
 	display: "flex",
-	flexDirection: "column"
+	flexDirection: "column",
+	boxShadow: "-8px 0 24px -12px rgba(0,0,0,0.03)"
 };
 var intelTabsStyle = {
 	display: "grid",
 	gridTemplateColumns: "repeat(4, 1fr)",
-	background: "#f1f5f9",
+	background: "#f8fafc",
 	padding: "6px",
 	borderRadius: "16px",
-	gap: "4px"
+	gap: "4px",
+	border: "1px solid #e2e8f0"
 };
 var sidebarHeadingStyle = {
 	fontSize: "11px",
 	fontWeight: 800,
-	color: "#94a3b8",
+	color: "#64748b",
 	marginBottom: "16px",
 	marginTop: "30px",
 	textTransform: "uppercase",
 	letterSpacing: "1px"
 };
 var hcuCardStyle = {
-	background: "#f8fafc",
-	padding: "20px",
-	borderRadius: "20px",
-	border: "1px solid #e2e8f0",
-	marginBottom: "24px"
+	background: "#ffffff",
+	padding: "24px",
+	borderRadius: "24px",
+	border: "1px solid rgba(226,232,240,0.8)",
+	marginBottom: "24px",
+	boxShadow: "0 10px 30px -10px rgba(0,0,0,0.03)"
 };
 var metaLabelStyle = {
-	fontSize: "11px",
+	fontSize: "11.5px",
 	fontWeight: 700,
-	color: "#94a3b8",
+	color: "#475569",
 	marginBottom: "8px",
-	display: "block"
+	display: "block",
+	letterSpacing: "0.5px"
 };
 var metaInputStyle = {
 	width: "100%",
-	padding: "12px 16px",
+	padding: "14px 18px",
 	border: "1px solid #e2e8f0",
-	borderRadius: "12px",
+	borderRadius: "14px",
 	fontSize: "14px",
 	outline: "none",
-	background: "#f8fafc"
+	background: "#fcfdfd",
+	color: "#1e293b",
+	fontWeight: 500,
+	transition: "border-color 0.2s, box-shadow 0.2s"
 };
 var tipRowStyle = {
 	display: "flex",
 	alignItems: "center",
-	gap: "8px",
-	fontSize: "12px",
-	color: "#475569",
-	marginBottom: "8px",
+	gap: "10px",
+	fontSize: "12.5px",
+	color: "#334155",
+	marginBottom: "10px",
 	fontWeight: 600
 };
 var eeatCheckStyle = {
@@ -489,43 +511,49 @@ var eeatCheckStyle = {
 };
 var metaTextAreaStyle = {
 	width: "100%",
-	padding: "12px 16px",
+	padding: "14px 18px",
 	border: "1px solid #e2e8f0",
-	borderRadius: "12px",
+	borderRadius: "14px",
 	fontSize: "14px",
-	minHeight: "100px",
+	minHeight: "110px",
 	outline: "none",
-	background: "#f8fafc"
+	background: "#fcfdfd",
+	color: "#1e293b",
+	fontWeight: 500,
+	lineHeight: "1.6"
 };
 var addNodeBtn = {
 	width: "100%",
-	padding: "12px",
-	background: "#fff",
-	border: "1px solid #e2e8f0",
-	borderRadius: "12px",
-	fontSize: "12px",
+	padding: "14px",
+	background: "#ffffff",
+	border: "1px dashed #cbd5e1",
+	borderRadius: "14px",
+	fontSize: "12.5px",
 	fontWeight: 800,
-	color: "#2563eb",
+	color: "#3b82f6",
 	cursor: "pointer",
-	whiteSpace: "nowrap"
+	whiteSpace: "nowrap",
+	transition: "all 0.2s",
+	textTransform: "uppercase",
+	letterSpacing: "0.5px"
 };
 var lsiTagStyle = {
-	background: "#eff6ff",
+	background: "linear-gradient(135deg, #eff6ff, #e0e7ff)",
 	color: "#2563eb",
 	padding: "6px 12px",
-	borderRadius: "8px",
-	fontSize: "11px",
+	borderRadius: "10px",
+	fontSize: "11.5px",
 	fontWeight: 700,
-	border: "1px solid #dbeafe"
+	border: "1px solid #bfdbfe"
 };
 var guardianCard = {
 	display: "flex",
 	flexDirection: "column",
 	alignItems: "center",
 	padding: "30px",
-	background: "#f0f7ff",
+	background: "linear-gradient(135deg, #f0fdf4, #dcfce7)",
 	borderRadius: "24px",
-	border: "1px solid #dbeafe",
+	border: "1px solid #bbf7d0",
 	marginBottom: "20px"
 };
 var headerSelectWrapper = {
@@ -533,52 +561,58 @@ var headerSelectWrapper = {
 	alignItems: "center",
 	background: "#f8fafc",
 	border: "1px solid #e2e8f0",
-	borderRadius: "10px",
+	borderRadius: "12px",
 	padding: "0 12px",
-	margin: "0 4px"
+	margin: "0 4px",
+	boxShadow: "inset 0 2px 4px rgba(0,0,0,0.01)"
 };
 var headerSelectStyle = {
 	border: "none",
 	background: "transparent",
-	fontSize: "12px",
-	fontWeight: 800,
-	color: "#475569",
+	fontSize: "12.5px",
+	fontWeight: 700,
+	color: "#334155",
 	outline: "none",
-	height: "34px",
+	height: "36px",
 	cursor: "pointer"
 };
 var metaSelectStyle = {
 	width: "100%",
-	padding: "12px",
+	padding: "14px",
 	border: "1px solid #e2e8f0",
-	borderRadius: "12px",
+	borderRadius: "14px",
 	fontSize: "14px",
 	fontWeight: 600,
-	background: "#fff"
+	background: "#fff",
+	color: "#1e293b"
 };
 var editorWrapperStyle = {
 	background: "#fff",
-	padding: "40px",
+	padding: "50px",
 	minHeight: "100vh",
 	position: "relative",
-	maxWidth: "1000px",
-	margin: "0 auto",
-	width: "100%"
+	maxWidth: "1024px",
+	margin: "24px auto",
+	width: "100%",
+	borderRadius: "24px",
+	border: "1px solid rgba(226,232,240,0.6)",
+	boxShadow: "0 10px 40px -10px rgba(0,0,0,0.04)"
 };
 var bubbleMenuStyle = {
-	background: "#fff",
+	background: "rgba(255,255,255,0.95)",
+	backdropFilter: "blur(16px)",
 	border: "1px solid #e2e8f0",
-	borderRadius: "14px",
+	borderRadius: "16px",
 	padding: "6px",
 	display: "flex",
 	gap: "6px",
-	boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)",
+	boxShadow: "0 20px 40px -10px rgba(0,0,0,0.1)",
 	zIndex: 1e3
 };
 var modalBackdropStyle = {
 	position: "fixed",
 	inset: 0,
-	background: "rgba(15, 23, 42, 0.3)",
+	background: "rgba(15, 23, 42, 0.4)",
 	backdropFilter: "blur(8px)",
 	zIndex: 1e4,
 	display: "flex",
@@ -591,65 +625,73 @@ var modalContentStyle = {
 	maxWidth: "850px",
 	borderRadius: "32px",
 	overflow: "hidden",
-	boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)"
+	boxShadow: "0 30px 60px -15px rgba(0,0,0,0.3)"
 };
 var modalHeaderStyle = {
 	padding: "24px 40px",
-	borderBottom: "1px solid #e2e8f0",
+	borderBottom: "1px solid #f1f5f9",
 	display: "flex",
 	justifyContent: "space-between",
-	alignItems: "center"
+	alignItems: "center",
+	background: "#fafcff"
 };
 var closeModalBtn = {
 	border: "none",
 	background: "#f1f5f9",
-	padding: "8px",
-	borderRadius: "10px",
+	padding: "10px",
+	borderRadius: "12px",
 	cursor: "pointer",
-	whiteSpace: "nowrap"
+	whiteSpace: "nowrap",
+	transition: "background 0.2s",
+	color: "#475569"
 };
 var faqNodeStyle = {
-	padding: "16px",
+	padding: "20px",
 	background: "#f8fafc",
-	borderRadius: "12px",
-	border: "1px solid #e2e8f0"
+	borderRadius: "16px",
+	border: "1px solid #e2e8f0",
+	boxShadow: "0 4px 6px -4px rgba(0,0,0,0.02)"
 };
 var faqInputSmall = {
 	width: "100%",
-	padding: "10px",
+	padding: "12px",
 	border: "1px solid #e2e8f0",
-	borderRadius: "8px",
-	marginBottom: "10px",
+	borderRadius: "10px",
+	marginBottom: "12px",
 	fontSize: "13px",
-	fontWeight: 600
+	fontWeight: 600,
+	background: "#fff"
 };
 var faqTextArea = {
 	width: "100%",
-	padding: "10px",
+	padding: "12px",
 	border: "1px solid #e2e8f0",
-	borderRadius: "8px",
-	fontSize: "13px",
-	minHeight: "80px"
+	borderRadius: "10px",
+	fontSize: "13.5px",
+	minHeight: "90px",
+	background: "#fff",
+	lineHeight: "1.5"
 };
 var deepWorkOverlayStyle = {
 	position: "fixed",
 	inset: 0,
-	background: "#ffffff",
+	background: "#fafcff",
 	zIndex: 2e6,
 	overflowY: "auto"
 };
 var exitDeepWorkStyle = {
 	background: "#f1f5f9",
-	border: "none",
+	border: "1px solid #e2e8f0",
 	padding: "12px 24px",
-	borderRadius: "12px",
+	borderRadius: "14px",
 	fontSize: "14px",
 	fontWeight: 700,
-	color: "#475569",
+	color: "#334155",
 	cursor: "pointer",
 	display: "flex",
 	alignItems: "center",
-	gap: "8px"
+	gap: "8px",
+	boxShadow: "0 4px 12px rgba(0,0,0,0.02)"
 };
 var deepWorkTitleStyle = {
 	width: "100%",
@@ -664,31 +706,36 @@ var deepWorkTitleStyle = {
 	letterSpacing: "-0.04em"
 };
 var tocItemStyle = {
-	fontSize: "12px",
+	fontSize: "12.5px",
 	fontWeight: 600,
 	color: "#64748b",
 	cursor: "pointer",
-	padding: "4px 0",
+	padding: "6px 0",
 	transition: "all 0.2s"
 };
 var MiniScore = ({ label, value, color = "#2563eb" }) => /* @__PURE__ */ jsxs("div", {
 	style: {
 		display: "flex",
 		flexDirection: "column",
-		alignItems: "center"
+		alignItems: "center",
+		padding: "10px",
+		background: "#f8fafc",
+		borderRadius: "16px",
+		border: "1px solid #e2e8f0",
+		minWidth: "65px"
 	},
 	children: [/* @__PURE__ */ jsx("span", {
 		style: {
 			fontSize: "10px",
 			fontWeight: 900,
-			color: "#94a3b8",
+			color: "#64748b",
 			letterSpacing: "0.5px",
-			marginBottom: "2px"
+			marginBottom: "4px"
 		},
 		children: label
 	}), /* @__PURE__ */ jsxs("span", {
 		style: {
-			fontSize: "16px",
+			fontSize: "18px",
 			fontWeight: 900,
 			color
 		},
@@ -702,32 +749,38 @@ var TabBtn = ({ label, icon, active, onClick, status = "neutral" }) => /* @__PUR
 		display: "flex",
 		flexDirection: "column",
 		alignItems: "center",
-		gap: "4px",
-		padding: "10px 0",
-		background: active ? "#fff" : "transparent",
-		border: "none",
+		gap: "6px",
+		padding: "12px 0",
+		background: active ? "#ffffff" : "transparent",
+		border: active ? "1px solid #e2e8f0" : "1px solid transparent",
 		color: active ? "#2563eb" : "#64748b",
-		borderRadius: "12px",
+		borderRadius: "14px",
 		cursor: "pointer",
-		transition: "all 0.2s",
-		boxShadow: active ? "0 4px 6px -1px rgba(0,0,0,0.05)" : "none"
+		transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+		boxShadow: active ? "0 8px 16px -8px rgba(37,99,235,0.15)" : "none"
 	},
 	children: [
 		status !== "neutral" && /* @__PURE__ */ jsx("div", { style: {
 			position: "absolute",
 			top: "8px",
-			right: "8px",
-			width: "6px",
-			height: "6px",
+			right: "10px",
+			width: "8px",
+			height: "8px",
 			borderRadius: "50%",
-			background: status === "success" ? "#10b981" : "#f59e0b"
+			background: status === "success" ? "#10b981" : "#f59e0b",
+			border: "2px solid #fff"
 		} }),
-		icon,
-		" ",
+		/* @__PURE__ */ jsx("div", {
+			style: {
+				color: active ? "#2563eb" : "#94a3b8",
+				transition: "color 0.2s"
+			},
+			children: icon
+		}),
 		/* @__PURE__ */ jsx("span", {
 			style: {
-				fontSize: "8px",
-				fontWeight: 900,
+				fontSize: "9px",
+				fontWeight: 800,
 				letterSpacing: "0.5px"
 			},
 			children: label.toUpperCase()
@@ -739,18 +792,19 @@ var SovereignToolBtn = ({ children, onClick, active, title, color }) => /* @__PU
 	onClick,
 	title,
 	style: {
-		width: "38px",
-		height: "38px",
-		borderRadius: "10px",
-		border: active ? "2px solid #2563eb" : "1px solid #e2e8f0",
-		background: active ? "#eff6ff" : "#fff",
+		width: "42px",
+		height: "42px",
+		borderRadius: "12px",
+		border: active ? "2px solid #3b82f6" : "1px solid #e2e8f0",
+		background: active ? "#eff6ff" : "#ffffff",
 		cursor: "pointer",
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
 		padding: 0,
-		transition: "all 0.2s",
-		color: active ? "#2563eb" : color || "#1e293b"
+		transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+		color: active ? "#2563eb" : color || "#475569",
+		boxShadow: active ? "0 4px 12px -4px rgba(59, 130, 246, 0.25)" : "0 2px 4px rgba(0,0,0,0.02)"
 	},
 	children
 });
@@ -758,7 +812,7 @@ var InputGroup = ({ label, value, onChange, placeholder }) => /* @__PURE__ */ js
 	style: {
 		display: "flex",
 		flexDirection: "column",
-		gap: "6px"
+		gap: "8px"
 	},
 	children: [/* @__PURE__ */ jsx("label", {
 		style: metaLabelStyle,

@@ -283,61 +283,62 @@ const PollBlock = Node.create({
 
 import "../../../css/app.css";
 
-// --- Sovereign Styles & Helper Components ---
-const rootContainerStyle: React.CSSProperties = { position: 'fixed', inset: 0, background: '#ffffff', display: 'flex', flexDirection: 'column', zIndex: 999999 };
-const headerStyle: React.CSSProperties = { height: '80px', background: '#fff', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 40px', position: 'sticky', top: 0, zIndex: 1000 };
-const navIconStyle: React.CSSProperties = { background: '#f1f5f9', border: 'none', padding: '10px', borderRadius: '12px', cursor: 'pointer' };
-const headerTitleStyle: React.CSSProperties = { fontSize: '20px', fontWeight: 800, color: '#1e293b', letterSpacing: '-0.5px' };
-const scoreHubStyle: React.CSSProperties = { display: 'flex', gap: '16px', marginRight: '10px' };
-const iconBtnStyle: React.CSSProperties = { background: '#fff', border: '1px solid #e2e8f0', padding: '10px', borderRadius: '12px', cursor: 'pointer', color: '#64748b', whiteSpace: 'nowrap' };
-const publishBtnStyle: React.CSSProperties = { background: '#2563eb', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 6px -1px rgba(37, 99, 235, 0.2)', whiteSpace: 'nowrap' };
-const mainCanvasStyle: React.CSSProperties = { flex: 1, overflowY: 'auto', background: '#ffffff', display: 'flex', flexDirection: 'column', position: 'relative', scrollBehavior: 'smooth' };
-const floatingToolbarStyle: React.CSSProperties = { position: 'sticky', top: '0', zIndex: 100, background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(16px)', padding: '16px 40px', borderBottom: '1px solid #e2e8f0', display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center', userSelect: 'none' };
-const toolDivider: React.CSSProperties = { width: '1px', height: '24px', background: '#e2e8f0', margin: '0 4px' };
-const intelSidebarStyle: React.CSSProperties = { width: '300px', background: '#fff', borderLeft: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' };
-const intelTabsStyle: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', background: '#f1f5f9', padding: '6px', borderRadius: '16px', gap: '4px' };
-const sidebarHeadingStyle: React.CSSProperties = { fontSize: '11px', fontWeight: 800, color: '#94a3b8', marginBottom: '16px', marginTop: '30px', textTransform: 'uppercase', letterSpacing: '1px' };
-const hcuCardStyle: React.CSSProperties = { background: '#f8fafc', padding: '20px', borderRadius: '20px', border: '1px solid #e2e8f0', marginBottom: '24px' };
-const metaLabelStyle: React.CSSProperties = { fontSize: '11px', fontWeight: 700, color: '#94a3b8', marginBottom: '8px', display: 'block' };
-const metaInputStyle: React.CSSProperties = { width: '100%', padding: '12px 16px', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '14px', outline: 'none', background: '#f8fafc' };
-const tipRowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#475569', marginBottom: '8px', fontWeight: 600 };
+// --- Premium UI Upgrade 2026 Styles & Helper Components ---
+const rootContainerStyle: React.CSSProperties = { position: 'fixed', inset: 0, background: '#fcfdfd', display: 'flex', flexDirection: 'column', zIndex: 999999, fontFamily: '"Inter", "Roboto", sans-serif' };
+const headerStyle: React.CSSProperties = { height: '76px', background: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(226, 232, 240, 0.6)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 40px', position: 'sticky', top: 0, zIndex: 1000, boxShadow: '0 4px 24px -12px rgba(0,0,0,0.04)' };
+const navIconStyle: React.CSSProperties = { background: '#f8fafc', border: '1px solid #e2e8f0', padding: '10px', borderRadius: '12px', cursor: 'pointer', transition: 'all 0.2s', color: '#475569', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' };
+const headerTitleStyle: React.CSSProperties = { fontSize: '19px', fontWeight: 800, letterSpacing: '-0.4px', background: 'linear-gradient(135deg, #0f172a, #334155)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' };
+const scoreHubStyle: React.CSSProperties = { display: 'flex', gap: '16px', marginRight: '16px' };
+const iconBtnStyle: React.CSSProperties = { background: '#fff', border: '1px solid #e2e8f0', padding: '10px 16px', borderRadius: '12px', cursor: 'pointer', color: '#475569', whiteSpace: 'nowrap', fontWeight: 600, fontSize: '13px', transition: 'all 0.2s', boxShadow: '0 2px 8px -2px rgba(0,0,0,0.04)' };
+const publishBtnStyle: React.CSSProperties = { background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 8px 16px -4px rgba(37, 99, 235, 0.3)', whiteSpace: 'nowrap', transition: 'all 0.3s', letterSpacing: '0.5px' };
+const mainCanvasStyle: React.CSSProperties = { flex: 1, overflowY: 'auto', background: '#f8fafc', display: 'flex', flexDirection: 'column', position: 'relative', scrollBehavior: 'smooth' };
+const floatingToolbarStyle: React.CSSProperties = { position: 'sticky', top: '0', zIndex: 100, background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(24px)', padding: '12px 40px', borderBottom: '1px solid rgba(226,232,240,0.6)', display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', userSelect: 'none', boxShadow: '0 4px 12px -8px rgba(0,0,0,0.05)' };
+const toolDivider: React.CSSProperties = { width: '1px', height: '24px', background: '#cbd5e1', margin: '0 6px' };
+const intelSidebarStyle: React.CSSProperties = { width: '340px', background: '#ffffff', borderLeft: '1px solid rgba(226,232,240,0.6)', display: 'flex', flexDirection: 'column', boxShadow: '-8px 0 24px -12px rgba(0,0,0,0.03)' };
+const intelTabsStyle: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', background: '#f8fafc', padding: '6px', borderRadius: '16px', gap: '4px', border: '1px solid #e2e8f0' };
+const sidebarHeadingStyle: React.CSSProperties = { fontSize: '11px', fontWeight: 800, color: '#64748b', marginBottom: '16px', marginTop: '30px', textTransform: 'uppercase', letterSpacing: '1px' };
+const hcuCardStyle: React.CSSProperties = { background: '#ffffff', padding: '24px', borderRadius: '24px', border: '1px solid rgba(226,232,240,0.8)', marginBottom: '24px', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.03)' };
+const metaLabelStyle: React.CSSProperties = { fontSize: '11.5px', fontWeight: 700, color: '#475569', marginBottom: '8px', display: 'block', letterSpacing: '0.5px' };
+const metaInputStyle: React.CSSProperties = { width: '100%', padding: '14px 18px', border: '1px solid #e2e8f0', borderRadius: '14px', fontSize: '14px', outline: 'none', background: '#fcfdfd', color: '#1e293b', fontWeight: 500, transition: 'border-color 0.2s, box-shadow 0.2s' };
+const tipRowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: '10px', fontSize: '12.5px', color: '#334155', marginBottom: '10px', fontWeight: 600 };
 const eeatCheckStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', fontWeight: 600, color: '#475569' };
-const metaTextAreaStyle: React.CSSProperties = { width: '100%', padding: '12px 16px', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '14px', minHeight: '100px', outline: 'none', background: '#f8fafc' };
-const addNodeBtn: React.CSSProperties = { width: '100%', padding: '12px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '12px', fontWeight: 800, color: '#2563eb', cursor: 'pointer', whiteSpace: 'nowrap' };
-const lsiTagStyle: React.CSSProperties = { background: '#eff6ff', color: '#2563eb', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: 700, border: '1px solid #dbeafe' };
-const guardianCard: React.CSSProperties = { display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '30px', background: '#f0f7ff', borderRadius: '24px', border: '1px solid #dbeafe', marginBottom: '20px' };
-const headerSelectWrapper: React.CSSProperties = { display: 'flex', alignItems: 'center', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '0 12px', margin: '0 4px' };
-const headerSelectStyle: React.CSSProperties = { border: 'none', background: 'transparent', fontSize: '12px', fontWeight: 800, color: '#475569', outline: 'none', height: '34px', cursor: 'pointer' };
-const metaSelectStyle: React.CSSProperties = { width: '100%', padding: '12px', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '14px', fontWeight: 600, background: '#fff' };
-const editorWrapperStyle: React.CSSProperties = { background: '#fff', padding: '40px', minHeight: '100vh', position: 'relative', maxWidth: '1000px', margin: '0 auto', width: '100%' };
-const bubbleMenuStyle: React.CSSProperties = { background: '#fff', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '6px', display: 'flex', gap: '6px', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)', zIndex: 1000 };
-const floatingMenuStyle: React.CSSProperties = { background: '#fff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '4px', display: 'flex', gap: '4px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', zIndex: 1000 };
-const fMenuBtn: React.CSSProperties = { padding: '6px 10px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '12px', fontWeight: 800, color: '#64748b' };
-const modalBackdropStyle: React.CSSProperties = { position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.3)', backdropFilter: 'blur(8px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center' };
-const modalContentStyle: React.CSSProperties = { background: '#fff', width: '90%', maxWidth: '850px', borderRadius: '32px', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' };
-const modalHeaderStyle: React.CSSProperties = { padding: '24px 40px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' };
-const closeModalBtn: React.CSSProperties = { border: 'none', background: '#f1f5f9', padding: '8px', borderRadius: '10px', cursor: 'pointer', whiteSpace: 'nowrap' };
-const faqNodeStyle: React.CSSProperties = { padding: '16px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' };
-const faqInputSmall: React.CSSProperties = { width: '100%', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px', marginBottom: '10px', fontSize: '13px', fontWeight: 600 };
-const faqTextArea: React.CSSProperties = { width: '100%', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', minHeight: '80px' };
+const metaTextAreaStyle: React.CSSProperties = { width: '100%', padding: '14px 18px', border: '1px solid #e2e8f0', borderRadius: '14px', fontSize: '14px', minHeight: '110px', outline: 'none', background: '#fcfdfd', color: '#1e293b', fontWeight: 500, lineHeight: '1.6' };
+const addNodeBtn: React.CSSProperties = { width: '100%', padding: '14px', background: '#ffffff', border: '1px dashed #cbd5e1', borderRadius: '14px', fontSize: '12.5px', fontWeight: 800, color: '#3b82f6', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s', textTransform: 'uppercase', letterSpacing: '0.5px' };
+const lsiTagStyle: React.CSSProperties = { background: 'linear-gradient(135deg, #eff6ff, #e0e7ff)', color: '#2563eb', padding: '6px 12px', borderRadius: '10px', fontSize: '11.5px', fontWeight: 700, border: '1px solid #bfdbfe' };
+const guardianCard: React.CSSProperties = { display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '30px', background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', borderRadius: '24px', border: '1px solid #bbf7d0', marginBottom: '20px' };
+const headerSelectWrapper: React.CSSProperties = { display: 'flex', alignItems: 'center', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '0 12px', margin: '0 4px', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.01)' };
+const headerSelectStyle: React.CSSProperties = { border: 'none', background: 'transparent', fontSize: '12.5px', fontWeight: 700, color: '#334155', outline: 'none', height: '36px', cursor: 'pointer' };
+const metaSelectStyle: React.CSSProperties = { width: '100%', padding: '14px', border: '1px solid #e2e8f0', borderRadius: '14px', fontSize: '14px', fontWeight: 600, background: '#fff', color: '#1e293b' };
+const editorWrapperStyle: React.CSSProperties = { background: '#fff', padding: '50px', minHeight: '100vh', position: 'relative', maxWidth: '1024px', margin: '24px auto', width: '100%', borderRadius: '24px', border: '1px solid rgba(226,232,240,0.6)', boxShadow: '0 10px 40px -10px rgba(0,0,0,0.04)' };
+const bubbleMenuStyle: React.CSSProperties = { background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '6px', display: 'flex', gap: '6px', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.1)', zIndex: 1000 };
+const floatingMenuStyle: React.CSSProperties = { background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '4px', display: 'flex', gap: '4px', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)', zIndex: 1000 };
+const fMenuBtn: React.CSSProperties = { padding: '8px 12px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '12.5px', fontWeight: 800, color: '#475569', borderRadius: '8px', transition: 'background 0.2s' };
+const modalBackdropStyle: React.CSSProperties = { position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(8px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center' };
+const modalContentStyle: React.CSSProperties = { background: '#fff', width: '90%', maxWidth: '850px', borderRadius: '32px', overflow: 'hidden', boxShadow: '0 30px 60px -15px rgba(0,0,0,0.3)' };
+const modalHeaderStyle: React.CSSProperties = { padding: '24px 40px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fafcff' };
+const closeModalBtn: React.CSSProperties = { border: 'none', background: '#f1f5f9', padding: '10px', borderRadius: '12px', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'background 0.2s', color: '#475569' };
+const faqNodeStyle: React.CSSProperties = { padding: '20px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -4px rgba(0,0,0,0.02)' };
+const faqInputSmall: React.CSSProperties = { width: '100%', padding: '12px', border: '1px solid #e2e8f0', borderRadius: '10px', marginBottom: '12px', fontSize: '13px', fontWeight: 600, background: '#fff' };
+const faqTextArea: React.CSSProperties = { width: '100%', padding: '12px', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '13.5px', minHeight: '90px', background: '#fff', lineHeight: '1.5' };
 
-const deepWorkOverlayStyle: React.CSSProperties = { position: 'fixed', inset: 0, background: '#ffffff', zIndex: 2000000, overflowY: 'auto' };
-const exitDeepWorkStyle: React.CSSProperties = { background: '#f1f5f9', border: 'none', padding: '12px 24px', borderRadius: '12px', fontSize: '14px', fontWeight: 700, color: '#475569', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' };
+const deepWorkOverlayStyle: React.CSSProperties = { position: 'fixed', inset: 0, background: '#fafcff', zIndex: 2000000, overflowY: 'auto' };
+const exitDeepWorkStyle: React.CSSProperties = { background: '#f1f5f9', border: '1px solid #e2e8f0', padding: '12px 24px', borderRadius: '14px', fontSize: '14px', fontWeight: 700, color: '#334155', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' };
 const deepWorkTitleStyle: React.CSSProperties = { width: '100%', fontSize: '64px', fontWeight: 900, border: 'none', outline: 'none', background: 'transparent', textAlign: 'center', color: '#0f172a', marginBottom: '60px', letterSpacing: '-0.04em' };
-const tocItemStyle: React.CSSProperties = { fontSize: '12px', fontWeight: 600, color: '#64748b', cursor: 'pointer', padding: '4px 0', transition: 'all 0.2s' };
+const tocItemStyle: React.CSSProperties = { fontSize: '12.5px', fontWeight: 600, color: '#64748b', cursor: 'pointer', padding: '6px 0', transition: 'all 0.2s' };
 
 
 const MiniScore = ({ label, value, color = '#2563eb' }: any) => (
-   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <span style={{ fontSize: '10px', fontWeight: 900, color: '#94a3b8', letterSpacing: '0.5px', marginBottom: '2px' }}>{label}</span>
-      <span style={{ fontSize: '16px', fontWeight: 900, color }}>{value}%</span>
+   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0', minWidth: '65px' }}>
+      <span style={{ fontSize: '10px', fontWeight: 900, color: '#64748b', letterSpacing: '0.5px', marginBottom: '4px' }}>{label}</span>
+      <span style={{ fontSize: '18px', fontWeight: 900, color }}>{value}%</span>
    </div>
 );
 
 const TabBtn = ({ label, icon, active, onClick, status = 'neutral' }: any) => (
-   <button onClick={onClick} style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', padding: '10px 0', background: active ? '#fff' : 'transparent', border: 'none', color: active ? '#2563eb' : '#64748b', borderRadius: '12px', cursor: 'pointer', transition: 'all 0.2s', boxShadow: active ? '0 4px 6px -1px rgba(0,0,0,0.05)' : 'none' }}>
-      {status !== 'neutral' && <div style={{ position: 'absolute', top: '8px', right: '8px', width: '6px', height: '6px', borderRadius: '50%', background: status === 'success' ? '#10b981' : '#f59e0b' }} />}
-      {icon} <span style={{ fontSize: '8px', fontWeight: 900, letterSpacing: '0.5px' }}>{label.toUpperCase()}</span>
+   <button onClick={onClick} style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', padding: '12px 0', background: active ? '#ffffff' : 'transparent', border: active ? '1px solid #e2e8f0' : '1px solid transparent', color: active ? '#2563eb' : '#64748b', borderRadius: '14px', cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', boxShadow: active ? '0 8px 16px -8px rgba(37,99,235,0.15)' : 'none' }}>
+      {status !== 'neutral' && <div style={{ position: 'absolute', top: '8px', right: '10px', width: '8px', height: '8px', borderRadius: '50%', background: status === 'success' ? '#10b981' : '#f59e0b', border: '2px solid #fff' }} />}
+      <div style={{ color: active ? '#2563eb' : '#94a3b8', transition: 'color 0.2s' }}>{icon}</div>
+      <span style={{ fontSize: '9px', fontWeight: 800, letterSpacing: '0.5px' }}>{label.toUpperCase()}</span>
    </button>
 );
 
@@ -347,18 +348,19 @@ const SovereignToolBtn = ({ children, onClick, active, title, color }: any) => (
       onClick={onClick} 
       title={title} 
       style={{ 
-         width: '38px', 
-         height: '38px', 
-         borderRadius: '10px', 
-         border: active ? '2px solid #2563eb' : '1px solid #e2e8f0', 
-         background: active ? '#eff6ff' : '#fff', 
+         width: '42px', 
+         height: '42px', 
+         borderRadius: '12px', 
+         border: active ? '2px solid #3b82f6' : '1px solid #e2e8f0', 
+         background: active ? '#eff6ff' : '#ffffff', 
          cursor: 'pointer', 
          display: 'flex', 
          alignItems: 'center', 
          justifyContent: 'center', 
          padding: 0,
-         transition: 'all 0.2s',
-         color: active ? '#2563eb' : (color || '#1e293b')
+         transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+         color: active ? '#2563eb' : (color || '#475569'),
+         boxShadow: active ? '0 4px 12px -4px rgba(59, 130, 246, 0.25)' : '0 2px 4px rgba(0,0,0,0.02)'
       }}
    >
       {children}
@@ -366,7 +368,7 @@ const SovereignToolBtn = ({ children, onClick, active, title, color }: any) => (
 );
 
 const InputGroup = ({ label, value, onChange, placeholder }: any) => (
-   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
       <label style={metaLabelStyle}>{label}</label>
       <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} style={metaInputStyle} />
    </div>
