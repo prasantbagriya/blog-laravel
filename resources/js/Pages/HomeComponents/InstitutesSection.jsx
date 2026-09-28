@@ -26,11 +26,11 @@ const InstitutesSection = ({ featuredBusinesses, basePath }) => {
                         
                         return (
                         <article key={biz.id} className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden border border-slate-200 dark:border-zinc-800 hover:-translate-y-1 transition-all duration-300 flex flex-col group">
-                            <Link href={reviewUrl} className="relative aspect-[16/9] w-full block overflow-hidden bg-slate-100 dark:bg-zinc-800 flex items-center justify-center p-4">
+                            <Link href={reviewUrl} className="relative aspect-[21/9] w-full block overflow-hidden bg-slate-100 dark:bg-zinc-800 flex items-center justify-center p-4">
                                 <img
                                     src={biz.logo || '/uploads/read.webp'}
                                     alt={biz.name}
-                                    className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-4 border-white dark:border-zinc-900 shadow-md relative z-10 group-hover:scale-105 transition-transform duration-500"
+                                    className="w-20 h-20 rounded-full object-cover border-4 border-white dark:border-zinc-900 shadow-md relative z-10 group-hover:scale-105 transition-transform duration-500"
                                 />
                                 {/* Cover image background effect */}
                                 <div 
@@ -38,6 +38,12 @@ const InstitutesSection = ({ featuredBusinesses, basePath }) => {
                                     style={{ backgroundImage: `url(${biz.cover_image || biz.coverImage || biz.logo || '/uploads/read.webp'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
                                 ></div>
                                 <div className="absolute inset-0 bg-slate-900/40 dark:bg-slate-900/60 mix-blend-multiply"></div>
+                                
+                                {/* Trust Score Badge Floating */}
+                                <div className="absolute top-3 right-3 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1.5 border border-white/20 z-20">
+                                    <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
+                                    <span className="text-xs font-bold text-slate-900 dark:text-white">{biz.trust_score || biz.trustScore || 85}<span className="text-[10px] text-slate-500">/100</span></span>
+                                </div>
                             </Link>
                             
                             <div className="p-4 md:p-5 flex-grow flex flex-col border-t border-slate-100 dark:border-zinc-800">
