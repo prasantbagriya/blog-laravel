@@ -74,6 +74,7 @@ class PostController extends Controller
             'lsiKeywords' => 'nullable|array',
             'type' => 'nullable|string',
             'url_format' => 'nullable|string',
+            'schema_type' => 'nullable|string',
             'link_url' => 'nullable|string',
             'media_urls' => 'nullable|array',
             'community_id' => 'nullable|exists:communities,id',

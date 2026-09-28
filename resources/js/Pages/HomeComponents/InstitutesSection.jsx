@@ -14,7 +14,7 @@ const InstitutesSection = ({ featuredBusinesses, basePath }) => {
                         <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Top Coaching Institutes in Sikar</h2>
                         <p className="text-slate-500 dark:text-zinc-400 mt-2 text-base md:text-lg">Explore institutes based on courses, reviews, results and available information.</p>
                     </div>
-                    <Link href={`${basePath}/reviews`} className="hidden md:block bg-blue-600 hover:bg-blue-700 text-white text-center font-medium py-2 px-4 rounded-md transition-colors text-sm">
+                    <Link href={`${basePath}/business`} className="hidden md:block bg-blue-600 hover:bg-blue-700 text-white text-center font-medium py-2 px-4 rounded-md transition-colors text-sm">
                         View All
                     </Link>
                 </div>
@@ -22,7 +22,7 @@ const InstitutesSection = ({ featuredBusinesses, basePath }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {businesses.map((biz) => {
                         const categorySlug = biz.category || 'coaching-institutes';
-                        const reviewUrl = `${basePath}/reviews/${categorySlug}/${biz.slug || biz.id}`;
+                        const reviewUrl = `${basePath}/business/${categorySlug}/${biz.slug || biz.id}`;
                         
                         return (
                         <article key={biz.id} className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden border border-slate-200 dark:border-zinc-800 hover:-translate-y-1 transition-all duration-300 flex flex-col group">
@@ -69,3 +69,4 @@ const InstitutesSection = ({ featuredBusinesses, basePath }) => {
 };
 
 export default InstitutesSection;
+

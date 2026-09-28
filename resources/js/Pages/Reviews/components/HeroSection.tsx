@@ -112,7 +112,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                                         {filteredCat.map(cat => (
                                             <Link 
                                                 key={`cat-${cat.id}`} 
-                                                href={`${basePath}/reviews/category/${cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-')}`}
+                                                href={`${basePath}/business/category/${cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-')}`}
                                                 className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors"
                                             >
                                                 <div className="bg-blue-50 p-2 rounded-lg text-blue-600"><TrendingUp size={16} /></div>
@@ -128,7 +128,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                                         {filteredBiz.map(biz => (
                                             <Link 
                                                 key={`biz-${biz.id}`} 
-                                                href={`${basePath}/reviews/${biz.category || 'coaching-institutes'}/${biz.slug}`}
+                                                href={`${basePath}/business/${biz.category || 'coaching-institutes'}/${biz.slug}`}
                                                 className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors"
                                             >
                                                 <div className="w-10 h-10 bg-slate-100 rounded-lg overflow-hidden flex-shrink-0 relative border border-slate-200">
@@ -165,7 +165,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
           {/* Main Action Buttons */}
           <div className="pt-8 flex flex-wrap justify-center gap-3">
-              <Link href={`${typeof window !== 'undefined' && (window as any).BASE_PATH ? (window as any).BASE_PATH : ''}/reviews`} className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-6 py-3 rounded-md transition-colors text-center inline-flex items-center justify-center">
+              <Link href={`${typeof window !== 'undefined' && (window as any).BASE_PATH ? (window as any).BASE_PATH : ''}/business`} className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-6 py-3 rounded-md transition-colors text-center inline-flex items-center justify-center">
                   Explore Institutes
               </Link>
               <Link href={`${typeof window !== 'undefined' && (window as any).BASE_PATH ? (window as any).BASE_PATH : ''}/blog`} className="bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-3 rounded-md transition-colors text-center inline-flex items-center justify-center">
@@ -260,3 +260,4 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     </section>
   );
 };
+

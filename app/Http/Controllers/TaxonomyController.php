@@ -51,13 +51,20 @@ class TaxonomyController extends Controller
         $target = strtolower(str_replace('-', ' ', $slug));
         $categoryName = ucwords(str_replace('-', ' ', $slug));
         
+        $category = \App\Models\Category::where('slug', $slug)->orWhere('name', 'LIKE', $categoryName)->first();
+        
         $posts = Post::where('published', true)
                      ->where('category', 'LIKE', '%' . $target . '%')
                      ->get()
                      ->toArray();
 
-        $title = "{$categoryName} Archives | Coachinginsikar";
-        $description = "Read all articles filed under {$categoryName}.";
+        $title = $category && !empty($category->seo_title) ? $category->seo_title : "{$categoryName} Archives | Coachinginsikar";
+        $description = $category && !empty($category->seo_description) ? $category->seo_description : "Read all articles filed under {$categoryName}.";
+        $keywords = $category && !empty($category->seo_keywords) ? $category->seo_keywords : null;
+        
+        $og_title = $category && !empty($category->og_title) ? $category->og_title : $title;
+        $og_description = $category && !empty($category->og_description) ? $category->og_description : $description;
+        $og_image = $category && !empty($category->og_image) ? $category->og_image : null;
 
         $schemas = [[
             "@context" => "https://schema.org",
@@ -67,16 +74,28 @@ class TaxonomyController extends Controller
             "url" => url("/category/{$slug}")
         ]];
 
+        $meta = [
+            'title' => $title,
+            'description' => $description,
+            'url' => url("/category/{$slug}"),
+            'type' => 'website',
+            'schemas' => $schemas,
+            'og_title' => $og_title,
+            'og_description' => $og_description
+        ];
+
+        if ($og_image) {
+            $meta['og_image'] = $og_image;
+        }
+
+        if ($keywords) {
+            $meta['keywords'] = $keywords;
+        }
+
         return Inertia::render('Category/Show', [
             'categoryName' => $categoryName,
             'posts' => $posts,
-            'meta' => [
-                'title' => $title,
-                'description' => $description,
-                'url' => url("/category/{$slug}"),
-                'type' => 'website',
-                'schemas' => $schemas
-            ]
+            'meta' => $meta
         ]);
     }
 

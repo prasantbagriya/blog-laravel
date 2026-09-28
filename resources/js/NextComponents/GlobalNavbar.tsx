@@ -48,7 +48,7 @@ export default function Navbar() {
   const navLinks = [
     { label: 'Blog', page: 'blog' },
     { label: 'Community', page: 'feed' },
-    { label: 'Explore Institutes', page: 'reviews' },
+    { label: 'Explore Institutes', page: 'business' },
     { label: 'Category', page: 'category' },
     { label: 'About Us', page: 'about' },
     { label: 'Contact Us', page: 'contact' },
@@ -180,3 +180,4 @@ export default function Navbar() {
     </>
   )
 }
+

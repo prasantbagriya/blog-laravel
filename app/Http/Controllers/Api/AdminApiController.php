@@ -148,7 +148,15 @@ class AdminApiController extends Controller
             'slug' => 'nullable|string',
             'description' => 'nullable|string',
             'color' => 'nullable|string',
-            'icon' => 'nullable|string'
+            'icon' => 'nullable|string',
+            'seo_title' => 'nullable|string|max:255',
+            'seo_description' => 'nullable|string',
+            'seo_keywords' => 'nullable|string',
+            'og_title' => 'nullable|string|max:255',
+            'og_description' => 'nullable|string',
+            'og_image' => 'nullable|string',
+            'image' => 'nullable|string',
+            'image_alt' => 'nullable|string'
         ]);
         if (empty($data['id'])) {
             $data['id'] = Str::uuid()->toString();
@@ -158,6 +166,12 @@ class AdminApiController extends Controller
         }
         if (isset($data['description'])) {
             $data['description'] = clean($data['description']);
+        }
+        if (isset($data['seo_description'])) {
+            $data['seo_description'] = clean($data['seo_description']);
+        }
+        if (isset($data['og_description'])) {
+            $data['og_description'] = clean($data['og_description']);
         }
         Category::updateOrCreate(['id' => $data['id']], $data);
         return response()->json(['success' => true]);
@@ -354,6 +368,37 @@ class AdminApiController extends Controller
         return $this->storeMedia($request);
     }
 
+    public function uploadCategoryImage(Request $request)
+    {
+        try {
+            $request->validate(['file' => 'required|file|mimes:jpeg,png,jpg,webp,gif,bmp|max:20480']);
+            $file = $request->file('file');
+            if (!$file) {
+                return response()->json(['success' => false, 'message' => 'Upload failed.'], 422);
+            }
+
+            $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+            $image = $manager->decodePath($file->getRealPath());
+
+            $filename = \Illuminate\Support\Str::uuid()->toString() . '.webp';
+            if ($image->width() > 1200) {
+                $image->scaleDown(width: 1200);
+            }
+            $encoded = $image->encodeUsingFileExtension('webp', 80);
+            
+            $uploadDir = public_path('uploads/categories');
+            if (!\Illuminate\Support\Facades\File::exists($uploadDir)) {
+                \Illuminate\Support\Facades\File::makeDirectory($uploadDir, 0755, true);
+            }
+
+            $encoded->save($uploadDir . '/' . $filename);
+            return response()->json(['success' => true, 'url' => asset('uploads/categories/' . $filename)]);
+            
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
+    }
+
     // --- Sliders ---
     public function getSliders()
     {
@@ -375,7 +420,7 @@ class AdminApiController extends Controller
         }
         
         \App\Models\Slider::updateOrCreate(['id' => $data['id']], $data);
-        \Illuminate\Support\Facades\Cache::forget('homepage_data');
+        \Illuminate\Support\Facades\Cache::forget('homepage_data_v6');
         return response()->json(['success' => true]);
     }
 
@@ -383,7 +428,7 @@ class AdminApiController extends Controller
     {
         if ($request->has('id')) {
             \App\Models\Slider::where('id', $request->input('id'))->delete();
-            \Illuminate\Support\Facades\Cache::forget('homepage_data');
+            \Illuminate\Support\Facades\Cache::forget('homepage_data_v6');
         }
         return response()->json(['success' => true]);
     }
@@ -420,6 +465,57 @@ class AdminApiController extends Controller
         if ($message) {
             $message->status = 'read';
             $message->save();
+        }
+        return response()->json(['success' => true]);
+    }
+
+    // --- Pages ---
+    public function getPages()
+    {
+        try {
+            return response()->json(\App\Models\Page::orderBy('created_at', 'desc')->get());
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'pages_table_missing', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function storePage(Request $request)
+    {
+        $data = $request->validate([
+            'id' => 'nullable|string',
+            'title' => 'required|string|max:255',
+            'slug' => 'required|string|max:255',
+            'type' => 'required|string|in:static,feed',
+            'category_id' => 'nullable|string',
+            'schema_type' => 'nullable|string',
+            'content' => 'nullable|string',
+            'seo_title' => 'nullable|string|max:255',
+            'seo_description' => 'nullable|string',
+            'seo_keywords' => 'nullable|string|max:255',
+            'og_title' => 'nullable|string|max:255',
+            'og_description' => 'nullable|string',
+            'og_image' => 'nullable|string',
+            'faqs' => 'nullable|array',
+            'faqs.*.question' => 'nullable|string',
+            'faqs.*.answer' => 'nullable|string',
+        ]);
+
+        if (empty($data['id'])) {
+            $data['id'] = \Illuminate\Support\Str::uuid()->toString();
+        }
+
+        try {
+            \App\Models\Page::updateOrCreate(['id' => $data['id']], $data);
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function deletePage(Request $request)
+    {
+        if ($request->has('id')) {
+            \App\Models\Page::where('id', $request->input('id'))->delete();
         }
         return response()->json(['success' => true]);
     }

@@ -31,11 +31,12 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
           alt={business.name}
           className="w-20 h-20 rounded-full object-cover border-4 border-white dark:border-zinc-900 shadow-md relative z-10 group-hover:scale-105 transition-transform duration-500"
         />
-        {/* Blurred background effect */}
+        {/* Cover image background effect */}
         <div 
-          className="absolute inset-0 opacity-40 blur-xl scale-110"
-          style={{ backgroundImage: `url(${business.logo})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+          className="absolute inset-0 opacity-80"
+          style={{ backgroundImage: `url(${business.coverImage || business.logo})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
         ></div>
+        <div className="absolute inset-0 bg-slate-900/40 dark:bg-slate-900/60 mix-blend-multiply"></div>
         
         {/* Trust Score Badge Floating */}
         <div className="absolute top-3 right-3 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1.5 border border-white/20 z-20">

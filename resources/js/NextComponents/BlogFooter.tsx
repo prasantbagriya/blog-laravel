@@ -51,7 +51,7 @@ export default function BlogFooter() {
         { label: "Blog", page: "blog" },
         { label: "About Us", page: "about" },
         { label: "Contact Us", page: "contact" },
-        { label: "Explore Institutes", page: "reviews" }
+        { label: "Explore Institutes", page: "business" }
       ]
     },
     {
@@ -192,3 +192,4 @@ export default function BlogFooter() {
     </footer>
   )
 }
+

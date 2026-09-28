@@ -190,6 +190,7 @@ class BusinessController extends Controller
             'website' => 'required|string|max:255',
             'category_name' => 'required|string',
             'description' => 'required|string',
+            'detailed_description' => 'nullable|string',
             'slug' => 'nullable|string|max:255|unique:businesses,slug',
             'phone' => 'nullable|string|max:255',
             'email' => 'nullable|email|max:255',
@@ -325,43 +326,48 @@ class BusinessController extends Controller
             throw $e;
         }
 
-        $updateData = [
-            'name' => $validated['name'],
-            'website' => $validated['website'] ?? $business->website,
-            'category' => \Illuminate\Support\Str::slug($validated['category_name']),
-            'category_name' => $validated['category_name'],
-            'description' => $validated['description'],
-            'detailed_description' => $validated['detailed_description'] ?? $business->detailed_description,
-            'phone' => $validated['phone'] ?? $business->phone,
-            'email' => $validated['email'] ?? $business->email,
-            'address' => $validated['address'] ?? $business->address,
-            'opening_hours' => $validated['opening_hours'] ?? $business->opening_hours,
-            'faqs' => $validated['faqs'] ?? $business->faqs,
-        ];
+        try {
+            $updateData = [
+                'name' => $validated['name'],
+                'website' => $validated['website'] ?? $business->website,
+                'category' => \Illuminate\Support\Str::slug($validated['category_name']),
+                'category_name' => $validated['category_name'],
+                'description' => $validated['description'],
+                'detailed_description' => $validated['detailed_description'] ?? $business->detailed_description,
+                'phone' => $validated['phone'] ?? $business->phone,
+                'email' => $validated['email'] ?? $business->email,
+                'address' => $validated['address'] ?? $business->address,
+                'opening_hours' => $validated['opening_hours'] ?? $business->opening_hours,
+                'faqs' => $validated['faqs'] ?? $business->faqs,
+            ];
 
-        if (!empty($validated['slug'])) {
-            $newSlug = \Illuminate\Support\Str::slug($validated['slug']);
-            // Ensure unique slug if changed
-            if ($newSlug !== $business->slug && !Business::where('slug', $newSlug)->exists()) {
-                $updateData['slug'] = $newSlug;
+            if (!empty($validated['slug'])) {
+                $newSlug = \Illuminate\Support\Str::slug($validated['slug']);
+                // Ensure unique slug if changed
+                if ($newSlug !== $business->slug && !Business::where('slug', $newSlug)->exists()) {
+                    $updateData['slug'] = $newSlug;
+                }
             }
+
+            if (isset($validated['services'])) {
+                $updateData['products'] = $validated['services'];
+            }
+
+            if ($request->hasFile('logo')) {
+                $updateData['logo'] = $this->storeOptimizedImage($request->file('logo'), 'businesses/logos', 672);
+            }
+
+            if ($request->hasFile('cover_image')) {
+                $updateData['cover_image'] = $this->storeOptimizedImage($request->file('cover_image'), 'businesses/covers', 1600);
+            }
+
+            $business->update($updateData);
+
+            return response()->json($business->publicPayload($request->user()));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Business listing update error: ' . $e->getMessage());
+            return response()->json(['errors' => ['general' => 'Server Error: ' . $e->getMessage()]], 500);
         }
-
-        if (isset($validated['services'])) {
-            $updateData['products'] = $validated['services'];
-        }
-
-        if ($request->hasFile('logo')) {
-            $updateData['logo'] = $this->storeOptimizedImage($request->file('logo'), 'businesses/logos', 672);
-        }
-
-        if ($request->hasFile('cover_image')) {
-            $updateData['cover_image'] = $this->storeOptimizedImage($request->file('cover_image'), 'businesses/covers', 1600);
-        }
-
-        $business->update($updateData);
-
-        return response()->json($business->publicPayload($request->user()));
     }
 
     private function storeOptimizedImage(UploadedFile $file, string $directory, int $maxWidth): string

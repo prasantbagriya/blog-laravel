@@ -63,7 +63,7 @@ export default function BusinessesPage() {
                       />
                       <div>
                         <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '15px' }}>{business.name}</div>
-                        <a href={`/reviews/${business.category_name}/${business.slug}`} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#2563eb', textDecoration: 'none' }}>
+                        <a href={`/business/${business.category_name}/${business.slug}`} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#2563eb', textDecoration: 'none' }}>
                           View Live ↗
                         </a>
                       </div>
@@ -116,3 +116,4 @@ export default function BusinessesPage() {
 }
 
 BusinessesPage.layout = page => <AdminLayout>{page}</AdminLayout>;
+

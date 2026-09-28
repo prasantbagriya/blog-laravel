@@ -210,15 +210,15 @@ export default function App({ initialView = 'home', initialCategorySlug = 'all',
   const handleSelectBusiness = (slug: string) => {
     const business = businesses.find((b) => b.slug === slug || b.id === slug);
     const catSlug = business?.category || 'coaching-institutes';
-    router.visit(`/reviews/${catSlug}/${slug}`);
+    router.visit(`/business/${catSlug}/${slug}`);
   };
 
   // Handle selecting a category
   const handleSelectCategory = (slug: string) => {
     if (slug === 'all') {
-      router.visit('/reviews');
+      router.visit('/business');
     } else {
-      router.visit(`/reviews/${slug}`);
+      router.visit(`/business/${slug}`);
     }
   };
 
@@ -374,7 +374,7 @@ export default function App({ initialView = 'home', initialCategorySlug = 'all',
                   </div>
 
                     <Link
-                      href="/reviews"
+                      href="/business"
                       className="inline-flex items-center gap-1 text-sm font-semibold text-slate-600 dark:text-zinc-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
                     >
                       View All Directory ({businesses.length}) →
@@ -394,7 +394,7 @@ export default function App({ initialView = 'home', initialCategorySlug = 'all',
                 
                 <div className="mt-8 pb-8 text-center md:hidden">
                   <Link
-                      href="/reviews"
+                      href="/business"
                       className="inline-flex items-center gap-1 text-sm font-semibold text-slate-600 dark:text-zinc-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
                     >
                       View All Directory ({businesses.length}) →
@@ -523,3 +523,4 @@ export default function App({ initialView = 'home', initialCategorySlug = 'all',
     </>
   );
 }
+

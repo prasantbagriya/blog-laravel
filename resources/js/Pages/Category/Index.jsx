@@ -166,7 +166,7 @@ export default function CategoryIndex({ categories, meta }) {
                                     className="flex flex-col h-full w-full"
                                 >
                                     <Link
-                                        href={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + `/reviews/${category.slug}`}
+                                        href={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + `/business/${category.slug}`}
                                         className="flex flex-col h-full w-full"
                                     >
                                         {/* Cover Image */}
@@ -212,3 +212,4 @@ export default function CategoryIndex({ categories, meta }) {
         </div>
     );
 }
+

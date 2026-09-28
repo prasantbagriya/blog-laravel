@@ -20,21 +20,8 @@ Route::get('/news-sitemap.xml', [\App\Http\Controllers\NewsSitemapController::cl
 Route::get('/blog', [\App\Http\Controllers\BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('blog.show');
 
-Route::get('/news', [\App\Http\Controllers\BlogController::class, 'index'])->name('news.index');
-Route::get('/news/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('news.show');
-
 Route::get('/blog/{category}/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('blog.category.show');
-Route::get('/news/{category}/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('news.category.show');
 
-// Temporary route to run migrations from cPanel browser
-Route::middleware(['auth', 'admin'])->get('/run-migrations-secret', function () {
-    try {
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        return '<pre>Migrations executed successfully. Output:\n\n' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
-    } catch (\Exception $e) {
-        return '<pre>Error executing migrations:\n\n' . $e->getMessage() . '</pre>';
-    }
-});
 
 // Redirect all old /public/... URLs to /blog/...
 Route::get('/public/{any}', function ($any) {
@@ -85,14 +72,7 @@ Route::get('/privacy', [\App\Http\Controllers\PageController::class, 'privacy'])
 Route::get('/terms', [\App\Http\Controllers\PageController::class, 'terms'])->name('page.terms');
 Route::get('/search', [\App\Http\Controllers\SearchController::class, 'index'])->name('search.index');
 
-Route::middleware(['auth', 'admin'])->get('/run-migrations', function () {
-    try {
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        return \Illuminate\Support\Facades\Artisan::output();
-    } catch (\Exception $e) {
-        return $e->getMessage();
-    }
-});
+
 
 // Admin Routes (Protected by Auth and Admin middleware)
 Route::middleware(['auth', 'admin'])->group(function () {
@@ -103,6 +83,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/api/admin/posts', [\App\Http\Controllers\Api\AdminApiController::class, 'getPosts']);
     Route::get('/api/admin/community-posts', [\App\Http\Controllers\Api\AdminApiController::class, 'getCommunityPosts']);
     Route::post('/api/admin/upload', [\App\Http\Controllers\Api\AdminApiController::class, 'uploadMedia']);
+    Route::post('/api/admin/upload-category', [\App\Http\Controllers\Api\AdminApiController::class, 'uploadCategoryImage']);
     Route::delete('/api/admin/posts', [\App\Http\Controllers\Api\AdminApiController::class, 'deletePost']);
     
     Route::get('/api/admin/communities', [\App\Http\Controllers\Api\AdminApiController::class, 'getCommunities']);
@@ -117,6 +98,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/api/admin/categories', [\App\Http\Controllers\Api\AdminApiController::class, 'storeCategory']);
     Route::delete('/api/admin/categories', [\App\Http\Controllers\Api\AdminApiController::class, 'deleteCategory']);
     
+    Route::get('/api/admin/pages', [\App\Http\Controllers\Api\AdminApiController::class, 'getPages']);
+    Route::post('/api/admin/pages', [\App\Http\Controllers\Api\AdminApiController::class, 'storePage']);
+    Route::delete('/api/admin/pages', [\App\Http\Controllers\Api\AdminApiController::class, 'deletePage']);
+
     Route::get('/api/admin/stories', [\App\Http\Controllers\Api\AdminApiController::class, 'getStories']);
     Route::post('/api/admin/stories', [\App\Http\Controllers\Api\AdminApiController::class, 'storeStory']);
     Route::delete('/api/admin/stories', [\App\Http\Controllers\Api\AdminApiController::class, 'deleteStory']);
@@ -151,6 +136,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     })->name('admin.authors.edit');
     
     Route::get('/admin/categories', function () { return \Inertia\Inertia::render('Admin/Categories/Index'); })->name('admin.categories');
+    Route::get('/admin/pages', function () { return \Inertia\Inertia::render('Admin/Pages/Index'); })->name('admin.pages');
     
     Route::get('/admin/stories', function () { return \Inertia\Inertia::render('Admin/Stories/Index'); })->name('admin.stories');
     Route::get('/admin/stories/new', function () { return \Inertia\Inertia::render('Admin/Stories/New'); })->name('admin.stories.new');
@@ -222,9 +208,9 @@ Route::middleware('auth')->group(function () {
 
 
 // Reviews SEO Routes
-Route::get('/reviews', [\App\Http\Controllers\ReviewPageController::class, 'index'])->name('reviews.index');
-Route::get('/reviews/{category}', [\App\Http\Controllers\ReviewPageController::class, 'category'])->name('reviews.category');
-Route::get('/reviews/{category}/{business}', [\App\Http\Controllers\ReviewPageController::class, 'business'])->name('reviews.business');
+Route::get('/business', [\App\Http\Controllers\ReviewPageController::class, 'index'])->name('reviews.index');
+Route::get('/business/{category}', [\App\Http\Controllers\ReviewPageController::class, 'category'])->name('reviews.category');
+Route::get('/business/{category}/{business}', [\App\Http\Controllers\ReviewPageController::class, 'business'])->name('reviews.business');
 
 // Reviews API Routes
 Route::get('/api/businesses', [\App\Http\Controllers\Api\BusinessController::class, 'index']);
@@ -293,6 +279,12 @@ Route::middleware(['auth', 'admin'])->get('/fix-admin-temp', function () {
 });
 Route::fallback(function () {
     $path = request()->path();
+    
+    $page = \App\Models\Page::where('slug', $path)->first();
+    if ($page) {
+        return app(\App\Http\Controllers\BlogController::class)->index(request());
+    }
+
     $segments = explode('/', $path);
     $lastSegment = end($segments);
 

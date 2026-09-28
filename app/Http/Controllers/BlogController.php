@@ -8,69 +8,83 @@ use App\Models\Post;
 
 class BlogController extends Controller
 {
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
+        $slug = $request->path(); // 'blog', 'news', or custom
+        $isNews = $request->is('news*');
+        $pageType = $isNews ? 'News' : 'Blog';
+
+        $dbPage = null;
+        try {
+            $dbPage = \App\Models\Page::where('slug', $slug)->first();
+        } catch (\Exception $e) {
+            // Table doesn't exist yet, fallback
+        }
+
         $allPosts = \Illuminate\Support\Facades\Cache::remember('blog_all_posts', 3600, function () {
             return Post::where('published', true)->whereNull('community_id')->orderBy('date', 'desc')->get()->toArray();
         });
 
-        // Dynamically replace .png/.jpg to .webp for any images from /uploads/ in the posts list
-        // array_walk_recursive($allPosts, function(&$item) {
-        //     if (is_string($item) && str_contains($item, 'uploads/')) {
-        //         $item = preg_replace('/(uploads\/[^"\'\s>]+)\.(png|jpg|jpeg|bmp)/i', '$1.webp', $item);
-        //     }
-        // });
+        if ($dbPage && $dbPage->type === 'feed') {
+            $allPosts = array_filter($allPosts, function($post) use ($slug) {
+                $format = $post['url_format'] ?? 'blog/{slug}';
+                // Only show posts whose url_format starts with this page's slug
+                return str_starts_with($format, $slug . '/');
+            });
+            $allPosts = array_values($allPosts);
+        }
 
-        return Inertia::render('Blog/Index', [
-            'posts' => $allPosts,
-            'meta' => [
-                'title' => 'Blog | Coachinginsikar',
-                'description' => 'Read the newest blog articles from CoachinginSikar across Coachings, Schools, College, Olympiads, Results, News, and Education. Get updates, guides, and insights for students and parents in Sikar.',
-                'keywords' => 'CoachinginSikar blog, Sikar education blog, education articles Sikar, coaching institutes Sikar, schools in Sikar, colleges in Sikar, Sikar results, Olympiads Sikar, education news Sikar, hospitals in Sikar, school information, college guides, exam results, Olympiad updates, healthcare information, student resources',
-                'og_title' => 'CoachingsinSikar Blogs',
-                'og_description' => 'Stay updated with the newest articles on CoachingsinSikar. Explore fresh posts on Coachings, Schools, colleges, Olympiads, Results, news, and Education for students and parents in Sikar.',
-                'twitter_title' => 'CoachinginSikar Latest Education, Coaching, Schools & Blogs',
-                'twitter_description' => 'Follow the latest posts on CoachinginSikar. New articles on coaching, schools, colleges, olympiads, results, news, and education, updated regularly for students and parents in Sikar.',
-                'url' => url('/blog'),
+        if ($dbPage) {
+            $pageType = $dbPage->title;
+            $meta = [
+                'title' => $dbPage->seo_title ?: ($dbPage->title . ' | Coachinginsikar'),
+                'description' => $dbPage->seo_description ?: '',
+                'keywords' => $dbPage->seo_keywords ?: '',
+                'og_title' => $dbPage->og_title ?: ($dbPage->seo_title ?: $dbPage->title),
+                'og_description' => $dbPage->og_description ?: $dbPage->seo_description,
+                'twitter_title' => $dbPage->og_title ?: ($dbPage->seo_title ?: $dbPage->title),
+                'twitter_description' => $dbPage->og_description ?: $dbPage->seo_description,
+                'url' => url('/' . $slug),
                 'type' => 'website',
-                'og_image' => url('/uploads/social-cover.webp'),
+                'og_image' => $dbPage->og_image ?: url('/uploads/social-cover.webp'),
                 'schemas' => [
                     [
                         "@context" => "https://schema.org",
                         "@type" => "CollectionPage",
-                        "headline" => "All Posts | Coachinginsikar Blog",
-                        "description" => "Read the newest blog articles from CoachinginSikar across Coachings, Schools, College, Olympiads, Results, News, and Education.",
-                        "url" => url('/blog')
-                    ],
-                    [
-                        "@context" => "https://schema.org",
-                        "@type" => "BreadcrumbList",
-                        "itemListElement" => [
-                            ["@type" => "ListItem", "position" => 1, "name" => "Home", "item" => url('/')],
-                            ["@type" => "ListItem", "position" => 2, "name" => "Blog", "item" => url('/blog')]
-                        ]
-                    ],
-                    [
-                        "@context" => "https://schema.org",
-                        "@type" => "WebSite",
-                        "name" => "Coachinginsikar",
-                        "url" => url('/'),
-                        "potentialAction" => [
-                            "@type" => "SearchAction",
-                            "target" => [
-                                "@type" => "EntryPoint",
-                                "urlTemplate" => url('/search?q={search_term_string}')
-                            ],
-                            "query-input" => "required name=search_term_string"
-                        ]
+                        "headline" => $dbPage->seo_title ?: $dbPage->title,
+                        "description" => $dbPage->seo_description ?: '',
+                        "url" => url('/' . $slug)
                     ]
                 ]
-            ]
+            ];
+        } else {
+            // If the page doesn't exist in the database, use basic empty metadata
+            $meta = [
+                'title' => ucfirst($slug) . ' | Coachinginsikar',
+                'description' => '',
+                'keywords' => '',
+                'og_title' => ucfirst($slug),
+                'og_description' => '',
+                'twitter_title' => ucfirst($slug),
+                'twitter_description' => '',
+                'url' => url('/' . $slug),
+                'type' => 'website',
+                'og_image' => url('/uploads/social-cover.webp'),
+                'schemas' => []
+            ];
+        }
+
+        return Inertia::render('Blog/Index', [
+            'posts' => $allPosts,
+            'pageType' => $pageType,
+            'meta' => $meta,
+            'faqs' => $dbPage ? ($dbPage->faqs ?? []) : [],
         ]);
     }
 
-    public function show($slug)
+    public function show(\Illuminate\Http\Request $request, $slugOrCategory, $optionalSlug = null)
     {
+        $slug = $optionalSlug ?: $slugOrCategory;
         $post = Post::where('slug', $slug)->first();
 
         if (!$post) {
@@ -95,12 +109,15 @@ class BlogController extends Controller
         $currentUrl = url()->current();
         $finalCanonicalUrl = !empty($post->canonicalUrl) ? $post->canonicalUrl : $currentUrl;
         
+        $isNews = $request->is('news*');
+        $pageType = $isNews ? 'News' : 'Blog';
+
         $schemas = [];
         
         // 1. Breadcrumb Schema
         $breadcrumbItems = [
             ["@type" => "ListItem", "position" => 1, "name" => "Home", "item" => url('/')],
-            ["@type" => "ListItem", "position" => 2, "name" => "Blog", "item" => url('/blog')]
+            ["@type" => "ListItem", "position" => 2, "name" => $pageType, "item" => url('/' . strtolower($pageType))]
         ];
         
         $position = 3;
@@ -212,9 +229,28 @@ class BlogController extends Controller
         // 4. Article Schema Generation
         $wordCount = str_word_count(strip_tags($post->content));
         
+        $schemaType = "Article";
+        if (!empty($post->schema_type)) {
+            $schemaType = $post->schema_type;
+        } elseif (!empty($post->url_format)) {
+            $pageSlug = explode('/', $post->url_format)[0];
+            try {
+                $page = \App\Models\Page::where('slug', $pageSlug)->first();
+                if ($page && !empty($page->schema_type)) {
+                    $schemaType = $page->schema_type;
+                } elseif (str_contains($post->url_format, 'news')) {
+                    $schemaType = "NewsArticle";
+                }
+            } catch (\Exception $e) {
+                if (str_contains($post->url_format, 'news')) {
+                    $schemaType = "NewsArticle";
+                }
+            }
+        }
+
         $articleSchema = [
             "@context" => "https://schema.org",
-            "@type" => (str_contains($post->url_format ?? '', 'news')) ? "NewsArticle" : "Article",
+            "@type" => $schemaType,
             "inLanguage" => app()->getLocale() ?? "en",
             "isAccessibleForFree" => true,
             "wordCount" => $wordCount,
@@ -476,6 +512,7 @@ class BlogController extends Controller
         return Inertia::render('Blog/Show', [
             'post' => $post->toArray(),
             'recentPosts' => $recentPostsArray,
+            'pageType' => $pageType,
             'comments' => $comments,
             'userCommentVotes' => $userCommentVotes,
             'meta' => [

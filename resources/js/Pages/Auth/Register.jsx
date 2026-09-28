@@ -26,14 +26,14 @@ export default function Register() {
                 <div className="max-w-md w-full mx-auto">
                     {/* Logo & Header */}
                     <div className="mb-5 animate-fade-in-down">
-                        <Link href="/" className="inline-flex items-center gap-3 mb-4 group decoration-transparent">
+                        <a href="/" className="inline-flex items-center gap-3 mb-4 group decoration-transparent">
                             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform overflow-hidden">
                                 <img src="/uploads/logo.webp" alt="Coaching Sikar Logo" width="40" height="40" className="w-full h-full object-cover" />
                             </div>
                             <span className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tighter">
                                 Coaching Sikar
                             </span>
-                        </Link>
+                        </a>
                         <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-2">
                             Create an account
                         </h2>

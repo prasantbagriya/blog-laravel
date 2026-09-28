@@ -163,7 +163,7 @@ const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses, fall
                                                                 {suggestions.businesses.map(biz => (
                                                                     <Link 
                                                                         key={`biz-${biz.id}`} 
-                                                                        href={`${basePath || ''}/reviews/${biz.category || 'coaching-institutes'}/${biz.slug || biz.id}`}
+                                                                        href={`${basePath || ''}/business/${biz.category || 'coaching-institutes'}/${biz.slug || biz.id}`}
                                                                         className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors"
                                                                     >
                                                                         <div className="w-10 h-10 bg-slate-100 rounded-lg overflow-hidden flex-shrink-0 relative border border-slate-200">
@@ -235,7 +235,7 @@ const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses, fall
                         </div>
 
                         <div className="flex flex-wrap gap-3">
-                            <Link href={`${basePath}/reviews`} className="btn-amber px-6 py-3 transition-colors text-center inline-flex items-center justify-center">
+                            <Link href={`${basePath}/business`} className="btn-amber px-6 py-3 transition-colors text-center inline-flex items-center justify-center">
                                 Explore Institutes
                             </Link>
                             <a href="#top-institutes" className="bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-3 rounded-md transition-colors text-center inline-flex items-center justify-center">
@@ -449,7 +449,7 @@ const SeoContent = ({ basePath }) => (
                     <span className="text-blue-600 font-bold tracking-widest text-xs mb-3 block">About Us</span>
                     <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-6 leading-tight">CoachinginSikar: Your Complete Education Guide</h2>
                     <div className="text-slate-600 dark:text-zinc-400 text-base md:text-lg leading-relaxed space-y-4">
-                        <p>CoachinginSikar is an education platform helping students and parents find the best CoachinginSikar through top <Link href={`${basePath}/reviews/coaching-institutes`} className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">coaching institutes</Link>, coaching centre lists, fees, rankings, reviews, results, admissions, and other comparisons. We cover NEET coaching, JEE coaching, IAS / RAS / SSC-CGL Coaching, CLAT &amp; CA Coaching, CUET, Olympiads, schools, colleges, and other competitive exam coaching educational information.</p>
+                        <p>CoachinginSikar is an education platform helping students and parents find the best CoachinginSikar through top <Link href={`${basePath}/business/coaching-institutes`} className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">coaching institutes</Link>, coaching centre lists, fees, rankings, reviews, results, admissions, and other comparisons. We cover NEET coaching, JEE coaching, IAS / RAS / SSC-CGL Coaching, CLAT &amp; CA Coaching, CUET, Olympiads, schools, colleges, and other competitive exam coaching educational information.</p>
                         <p>Starting with Sikar, our platform covers more than just top coaching institutes in Sikar, Rajasthan. Yes, we also provide information on the best schools, colleges, education news, results, Olympiads, hospitals, and other useful local information. We aim to make finding top institutions, fees, admissions, results, reviews, and opportunities simple, while expanding our coverage beyond Sikar to more cities, regions, categories, and <Link href={`${basePath}/feed`} className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">communities</Link>.</p>
                     </div>
                     <div className="mt-8 flex flex-wrap items-center gap-6">
@@ -759,3 +759,4 @@ export default function Welcome(props) {
         </div>
     );
 }
+

@@ -127,7 +127,7 @@ export default function SearchIndex({ auth, posts, blogs, businesses, communitie
                                 </div>
                             ) : (
                                 businesses.map(biz => (
-                                    <Link key={biz.id} href={basePath + `/reviews/${biz.category || 'coaching-institutes'}/${biz.slug}`} className="group flex flex-col gap-4 p-5 bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 hover:border-amber-500/50 hover:shadow-md transition-all">
+                                    <Link key={biz.id} href={basePath + `/business/${biz.category || 'coaching-institutes'}/${biz.slug}`} className="group flex flex-col gap-4 p-5 bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 hover:border-amber-500/50 hover:shadow-md transition-all">
                                         <div className="w-full h-32 rounded-xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden flex-shrink-0 group-hover:scale-[1.02] transition-transform">
                                             {biz.logo ? (
                                                 <img loading="lazy" decoding="async" fetchPriority="low" src={biz.logo} width="300" height="128" className="w-full h-full object-contain p-2" />
@@ -282,3 +282,4 @@ export default function SearchIndex({ auth, posts, blogs, businesses, communitie
         </div>
     );
 }
+
