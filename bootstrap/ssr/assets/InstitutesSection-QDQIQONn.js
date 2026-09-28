@@ -90,9 +90,9 @@ var InstitutesSection = ({ featuredBusinesses, basePath }) => {
 											className: "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-semibold px-2 py-0.5 rounded border border-green-200 dark:border-green-800/30 flex items-center gap-1",
 											children: [/* @__PURE__ */ jsx(ShieldCheck, { className: "w-3 h-3" }), " Verified"]
 										}),
-										biz.location && /* @__PURE__ */ jsxs("span", {
+										biz.city && /* @__PURE__ */ jsxs("span", {
 											className: "bg-slate-50 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-semibold px-2 py-0.5 rounded border border-slate-200 dark:border-zinc-700 flex items-center gap-1",
-											children: [/* @__PURE__ */ jsx(MapPin, { size: 12 }), biz.location]
+											children: [/* @__PURE__ */ jsx(MapPin, { size: 12 }), biz.city]
 										})
 									]
 								}),

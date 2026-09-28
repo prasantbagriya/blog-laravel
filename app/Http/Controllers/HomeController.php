@@ -40,7 +40,7 @@ class HomeController extends Controller
 
             $categories = \App\Models\Category::select(['id', 'name', 'slug', 'description'])->get()->toArray();
             $featuredBusinesses = \App\Models\Business::select([
-                    'id', 'name', 'slug', 'logo', 'cover_image', 'location', 'category', 'category_name',
+                    'id', 'name', 'slug', 'logo', 'cover_image', 'city', 'category', 'category_name',
                     'rating', 'review_count', 'trust_score', 'is_verified',
                 ])
                 ->orderBy('rating', 'desc')
