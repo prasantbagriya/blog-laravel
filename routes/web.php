@@ -277,6 +277,26 @@ Route::middleware(['auth', 'admin'])->get('/fix-admin-temp', function () {
     $user->save();
     return 'Admin email and password fixed. You can now login with admin@example.com and password "password".';
 });
+// Newsletter Subscription
+Route::post('/api/inquiries/collect', [\App\Http\Controllers\NewsletterController::class, 'subscribe']);
+
+Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->group(function () {
+    Route::get('/api/admin/newsletters', [\App\Http\Controllers\NewsletterController::class, 'getSubscribers']);
+    Route::delete('/api/admin/newsletters/{id}', [\App\Http\Controllers\NewsletterController::class, 'deleteSubscriber']);
+    Route::get('/admin/newsletters', function () { 
+        return \Inertia\Inertia::render('Admin/Newsletters/Index'); 
+    })->name('admin.newsletters');
+});
+
+Route::get('/run-migrations', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        return 'Migrations executed successfully!<br><pre>' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
+    } catch (\Exception $e) {
+        return 'Error running migrations: ' . $e->getMessage();
+    }
+});
+
 Route::fallback(function () {
     $path = request()->path();
     

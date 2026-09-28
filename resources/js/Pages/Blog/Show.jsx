@@ -273,28 +273,34 @@ export default function Show({ post, recentPosts, meta, comments = [], userComme
                         )}
                     </header>
 
-                    {/* Social Share */}
-                    <div className="flex flex-wrap items-center gap-3 mb-8 border-y border-slate-100 dark:border-zinc-800 py-4">
-                        <span className="font-semibold text-slate-700 dark:text-zinc-300 mr-2">Share this article:</span>
-                        
-                        <a href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(finalCanonicalUrl)}&text=${encodeURIComponent(meta?.title || post.title)}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-zinc-900 hover:bg-sky-50 dark:hover:bg-sky-900/30 text-slate-600 dark:text-zinc-400 hover:text-sky-600 dark:hover:text-sky-400 rounded-full text-sm font-medium transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
-                            Twitter
+                    {/* Floating Social Share */}
+                    <div className="fixed left-0 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2">
+                        <a href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(finalCanonicalUrl)}&text=${encodeURIComponent(meta?.title || post.title)}`} target="_blank" rel="noopener noreferrer" aria-label="Share on Twitter" className="group flex items-center bg-white/90 backdrop-blur-sm dark:bg-zinc-900/90 border border-l-0 border-slate-200 dark:border-zinc-700 shadow-md rounded-r-xl transition-all duration-300 w-[40px] md:w-[48px] h-[40px] md:h-[48px] md:hover:w-[125px] overflow-hidden text-sky-500 dark:text-sky-500 hover:text-sky-600 dark:hover:text-sky-400">
+                            <div className="w-[40px] md:w-[48px] h-full flex-shrink-0 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+                            </div>
+                            <span className="font-semibold text-sm whitespace-nowrap opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 hidden md:block">Twitter</span>
                         </a>
 
-                        <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(finalCanonicalUrl)}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-zinc-900 hover:bg-blue-50 dark:hover:bg-blue-900/30 text-slate-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-full text-sm font-medium transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-                            Facebook
+                        <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(finalCanonicalUrl)}`} target="_blank" rel="noopener noreferrer" aria-label="Share on Facebook" className="group flex items-center bg-white/90 backdrop-blur-sm dark:bg-zinc-900/90 border border-l-0 border-slate-200 dark:border-zinc-700 shadow-md rounded-r-xl transition-all duration-300 w-[40px] md:w-[48px] h-[40px] md:h-[48px] md:hover:w-[135px] overflow-hidden text-[#1877F2] dark:text-[#1877F2] hover:text-blue-700 dark:hover:text-blue-500">
+                            <div className="w-[40px] md:w-[48px] h-full flex-shrink-0 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                            </div>
+                            <span className="font-semibold text-sm whitespace-nowrap opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 hidden md:block">Facebook</span>
                         </a>
 
-                        <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(finalCanonicalUrl)}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-zinc-900 hover:bg-blue-50 dark:hover:bg-blue-900/30 text-slate-600 dark:text-zinc-400 hover:text-blue-700 dark:hover:text-blue-400 rounded-full text-sm font-medium transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
-                            LinkedIn
+                        <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(finalCanonicalUrl)}`} target="_blank" rel="noopener noreferrer" aria-label="Share on LinkedIn" className="group flex items-center bg-white/90 backdrop-blur-sm dark:bg-zinc-900/90 border border-l-0 border-slate-200 dark:border-zinc-700 shadow-md rounded-r-xl transition-all duration-300 w-[40px] md:w-[48px] h-[40px] md:h-[48px] md:hover:w-[130px] overflow-hidden text-[#0A66C2] dark:text-[#0A66C2] hover:text-blue-800 dark:hover:text-blue-500">
+                            <div className="w-[40px] md:w-[48px] h-full flex-shrink-0 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+                            </div>
+                            <span className="font-semibold text-sm whitespace-nowrap opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 hidden md:block">LinkedIn</span>
                         </a>
                         
-                        <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent((meta?.title || post.title) + ' ' + finalCanonicalUrl)}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-zinc-900 hover:bg-green-50 dark:hover:bg-green-900/30 text-slate-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400 rounded-full text-sm font-medium transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-                            WhatsApp
+                        <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent((meta?.title || post.title) + ' ' + finalCanonicalUrl)}`} target="_blank" rel="noopener noreferrer" aria-label="Share on WhatsApp" className="group flex items-center bg-white/90 backdrop-blur-sm dark:bg-zinc-900/90 border border-l-0 border-slate-200 dark:border-zinc-700 shadow-md rounded-r-xl transition-all duration-300 w-[40px] md:w-[48px] h-[40px] md:h-[48px] md:hover:w-[140px] overflow-hidden text-[#25D366] dark:text-[#25D366] hover:text-green-600 dark:hover:text-green-500">
+                            <div className="w-[40px] md:w-[48px] h-full flex-shrink-0 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                            </div>
+                            <span className="font-semibold text-sm whitespace-nowrap opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 hidden md:block">WhatsApp</span>
                         </a>
                     </div>
 

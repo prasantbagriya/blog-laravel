@@ -440,7 +440,19 @@ export default function PostForm({ post }: PostFormProps) {
    const [twitterTitle, setTwitterTitle] = useState(post?.twitterTitle || '');
    const [twitterDescription, setTwitterDescription] = useState(post?.twitterDescription || '');
    const [canonicalUrl, setCanonicalUrl] = useState(post?.canonicalUrl || '');
+   const [isCanonicalManuallyEdited, setIsCanonicalManuallyEdited] = useState(!!post?.canonicalUrl);
    const [keywords, setKeywords] = useState(post?.keywords || '');
+
+   useEffect(() => {
+       if (!isCanonicalManuallyEdited) {
+           let path = urlFormat.replace('{slug}', slug || title.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, ''));
+           if (path.includes('{category}')) {
+               path = path.replace('{category}', category ? category.toLowerCase().replace(/\s+/g, '-') : 'uncategorized');
+           }
+           setCanonicalUrl(`https://coachingsinsikar.com/${path}`);
+       }
+   }, [slug, title, urlFormat, category, isCanonicalManuallyEdited]);
+
 
    const [faqs, setFaqs] = useState<{ question: string; answer: string }[]>(post?.faqs || []);
    const [howToSteps, setHowToSteps] = useState<{ name: string; text: string }[]>(post?.howToSteps || []);
@@ -2006,7 +2018,10 @@ export default function PostForm({ post }: PostFormProps) {
                               <div style={{ height: '15px' }} />
                               <InputGroup label="KEYWORDS (LEGACY)" value={keywords} onChange={setKeywords} placeholder="Comma separated keywords" />
                               <div style={{ height: '15px' }} />
-                              <InputGroup label="CANONICAL URL" value={canonicalUrl} onChange={setCanonicalUrl} placeholder="Avoid duplicate content issues" />
+                              <InputGroup label="CANONICAL URL" value={canonicalUrl} onChange={(val: string) => {
+                                  setCanonicalUrl(val);
+                                  setIsCanonicalManuallyEdited(true);
+                              }} placeholder="Avoid duplicate content issues" />
                            </div>
 
                            <h3 style={sidebarHeadingStyle}>Social Media (Open Graph)</h3>

@@ -50,11 +50,17 @@ const InstitutesSection = ({ featuredBusinesses, basePath }) => {
                                     {biz.location && <span className="bg-slate-50 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-semibold px-2 py-0.5 rounded border border-slate-200 dark:border-zinc-700 flex items-center gap-1"><MapPin size={12}/>{biz.location}</span>}
                                 </div>
                                 
-                                <div className="mt-auto pt-4 border-t border-slate-100 dark:border-zinc-800 space-y-1 text-sm text-slate-600 dark:text-zinc-400">
+                                <div className="mt-auto pt-4 border-t border-slate-100 dark:border-zinc-800 flex gap-2">
                                     <Link 
                                         href={reviewUrl} 
+                                        className="flex-1 flex items-center justify-center gap-1.5 bg-slate-900 dark:bg-white hover:bg-slate-700 dark:hover:bg-slate-100 text-white dark:text-slate-900 border-2 border-slate-900 dark:border-white text-center font-bold py-2 rounded-md transition-all text-sm active:scale-[0.98] shadow-sm"
+                                    >
+                                        View Profile
+                                    </Link>
+                                    <Link 
+                                        href={`${reviewUrl}#reviews`} 
                                         aria-label={`Read Reviews for ${biz.name} (${biz.review_count || biz.reviewCount || 0})`}
-                                        className="block w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-black dark:hover:bg-slate-100 text-center font-bold py-2.5 rounded-xl transition-all shadow-sm active:scale-[0.98] text-sm"
+                                        className="flex-1 flex items-center justify-center gap-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-center font-bold py-2 rounded-md transition-all text-sm active:scale-[0.98]"
                                     >
                                         Read Reviews ({biz.review_count || biz.reviewCount || 0})
                                     </Link>
