@@ -42,7 +42,7 @@ var InstitutesSection = ({ featuredBusinesses, basePath }) => {
 								/* @__PURE__ */ jsx("div", {
 									className: "absolute inset-0 opacity-80",
 									style: {
-										backgroundImage: `url(${biz.cover_image || biz.coverImage || biz.logo || "/uploads/read.webp"})`,
+										backgroundImage: `url(${biz.cover_image || biz.coverImage || "/uploads/read.webp"})`,
 										backgroundSize: "cover",
 										backgroundPosition: "center"
 									}

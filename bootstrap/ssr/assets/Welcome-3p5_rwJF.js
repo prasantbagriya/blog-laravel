@@ -7,7 +7,7 @@ import React, { Suspense, useEffect, useState } from "react";
 import { Award, Backpack, Beaker, BookOpen, CheckCircle2, ChevronDown, GraduationCap, MessageSquare, PlayCircle, Scale, Search, ShieldCheck, Star, Target } from "lucide-react";
 //#region resources/js/Pages/Welcome.jsx
 var TrustMarquee = React.lazy(() => import("./TrustMarquee-CZBLeB9b.js"));
-var InstitutesSection = React.lazy(() => import("./InstitutesSection-Q-QG4N7r.js"));
+var InstitutesSection = React.lazy(() => import("./InstitutesSection-DPVjaxmz.js"));
 var CommunityFeedSection = React.lazy(() => import("./CommunityFeedSection-E6zmeeFR.js"));
 React.lazy(() => import("./ShareModal-2YClwU5E.js"));
 var HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses, fallbackImage }) => {

@@ -4,7 +4,7 @@ import { t as BlogFooter } from "./BlogFooter-Bq7zkt8U.js";
 import { t as INITIAL_CATEGORIES } from "./mockData-Dd33uxjl.js";
 import { HeroSection } from "./HeroSection-CvsJDUVA.js";
 import { CategoryGrid } from "./CategoryGrid-ag_AA1Xa.js";
-import { BusinessCard } from "./BusinessCard-Cqsi5Zb2.js";
+import { BusinessCard } from "./BusinessCard-vYTDEtFc.js";
 import { BusinessProfileView } from "./BusinessProfileView-6ap3LB1c.js";
 import { Link, router } from "@inertiajs/react";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";

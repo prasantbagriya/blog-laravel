@@ -222,7 +222,7 @@
     "/build/assets/CommunityFeedSection-E6zmeeFR.js"
   ],
   "resources/js/Pages/HomeComponents/InstitutesSection.jsx": [
-    "/build/assets/InstitutesSection-Q-QG4N7r.js"
+    "/build/assets/InstitutesSection-DPVjaxmz.js"
   ],
   "resources/js/Pages/HomeComponents/TrustMarquee.jsx": [
     "/build/assets/TrustMarquee-CZBLeB9b.js"
@@ -249,14 +249,14 @@
     "/build/assets/UpdateProfileInformationForm-Dy8I--ud.js"
   ],
   "resources/js/Pages/Reviews/Index.tsx": [
-    "/build/assets/Index-nzjEMFWj.js",
+    "/build/assets/Index-Tdgc-yCB.js",
     "/build/assets/Index-x1XGuNl0.css"
   ],
   "resources/js/Pages/Reviews/components/AiSearchModal.tsx": [
     "/build/assets/AiSearchModal-CIqeFegw.js"
   ],
   "resources/js/Pages/Reviews/components/BusinessCard.tsx": [
-    "/build/assets/BusinessCard-Cqsi5Zb2.js"
+    "/build/assets/BusinessCard-vYTDEtFc.js"
   ],
   "resources/js/Pages/Reviews/components/BusinessProfileView.tsx": [
     "/build/assets/BusinessProfileView-6ap3LB1c.js"
@@ -274,7 +274,7 @@
     "/build/assets/mockData-Dd33uxjl.js"
   ],
   "resources/js/Pages/Reviews/index.css": [
-    "/build/assets/Index-nzjEMFWj.js",
+    "/build/assets/Index-Tdgc-yCB.js",
     "/build/assets/Index-x1XGuNl0.css"
   ],
   "resources/js/Pages/Search/Index.jsx": [
@@ -305,7 +305,7 @@
     "/build/assets/Show-DE9zTaJ9.js"
   ],
   "resources/js/Pages/Welcome.jsx": [
-    "/build/assets/Welcome-BTwHa4oS.js"
+    "/build/assets/Welcome-3p5_rwJF.js"
   ],
   "resources/js/ssr.jsx": []
 }

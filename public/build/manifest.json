@@ -1113,7 +1113,7 @@
     ]
   },
   "resources/js/Pages/HomeComponents/CommunityFeedSection.jsx": {
-    "file": "assets/CommunityFeedSection-C1QxKDAE.js",
+    "file": "assets/CommunityFeedSection-CgMvjCS9.js",
     "name": "CommunityFeedSection",
     "src": "resources/js/Pages/HomeComponents/CommunityFeedSection.jsx",
     "isDynamicEntry": true,
@@ -1131,7 +1131,7 @@
     ]
   },
   "resources/js/Pages/HomeComponents/InstitutesSection.jsx": {
-    "file": "assets/InstitutesSection-eFd_AN3K.js",
+    "file": "assets/InstitutesSection-C8ORqaKQ.js",
     "name": "InstitutesSection",
     "src": "resources/js/Pages/HomeComponents/InstitutesSection.jsx",
     "isDynamicEntry": true,
@@ -1213,7 +1213,7 @@
     ]
   },
   "resources/js/Pages/Reviews/Index.tsx": {
-    "file": "assets/Index-BogwIcVH.js",
+    "file": "assets/Index-UhPeWrrr.js",
     "name": "Index",
     "src": "resources/js/Pages/Reviews/Index.tsx",
     "isDynamicEntry": true,
@@ -1466,7 +1466,7 @@
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-BfgSXUPl.js",
+    "file": "assets/app-BxvYADKv.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,
@@ -1512,7 +1512,7 @@
     ]
   },
   "resources/js/home.jsx": {
-    "file": "assets/home-DOLNWPQJ.js",
+    "file": "assets/home-CnUNB8DZ.js",
     "name": "home",
     "src": "resources/js/home.jsx",
     "isEntry": true,

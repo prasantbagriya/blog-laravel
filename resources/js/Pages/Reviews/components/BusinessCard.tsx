@@ -34,7 +34,7 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
         {/* Cover image background effect */}
         <div 
           className="absolute inset-0 opacity-80"
-          style={{ backgroundImage: `url(${business.coverImage || business.logo})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+          style={{ backgroundImage: `url(${business.coverImage || '/uploads/read.webp'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
         ></div>
         <div className="absolute inset-0 bg-slate-900/40 dark:bg-slate-900/60 mix-blend-multiply"></div>
         

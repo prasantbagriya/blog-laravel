@@ -19,7 +19,7 @@ var BusinessCard = ({ business, onSelectBusiness, onOpenWriteReview }) => {
 				/* @__PURE__ */ jsx("div", {
 					className: "absolute inset-0 opacity-80",
 					style: {
-						backgroundImage: `url(${business.coverImage || business.logo})`,
+						backgroundImage: `url(${business.coverImage || "/uploads/read.webp"})`,
 						backgroundSize: "cover",
 						backgroundPosition: "center"
 					}

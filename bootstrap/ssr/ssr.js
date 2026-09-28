@@ -65,7 +65,7 @@ createServer((page) => createInertiaApp({
 		"./Pages/Community/Show.jsx": () => import("./assets/Show-oZPkkyrw.js"),
 		"./Pages/Dashboard.jsx": () => import("./assets/Dashboard-DJvt1wA-.js"),
 		"./Pages/HomeComponents/CommunityFeedSection.jsx": () => import("./assets/CommunityFeedSection-E6zmeeFR.js"),
-		"./Pages/HomeComponents/InstitutesSection.jsx": () => import("./assets/InstitutesSection-Q-QG4N7r.js"),
+		"./Pages/HomeComponents/InstitutesSection.jsx": () => import("./assets/InstitutesSection-DPVjaxmz.js"),
 		"./Pages/HomeComponents/TrustMarquee.jsx": () => import("./assets/TrustMarquee-CZBLeB9b.js"),
 		"./Pages/HomeComponents/utils.jsx": () => import("./assets/utils-BjQF728w.js"),
 		"./Pages/Post/Create.jsx": () => import("./assets/Create-BlgWAovO.js"),
@@ -74,9 +74,9 @@ createServer((page) => createInertiaApp({
 		"./Pages/Profile/Partials/DeleteUserForm.jsx": () => import("./assets/DeleteUserForm-bgs-02f5.js"),
 		"./Pages/Profile/Partials/UpdatePasswordForm.jsx": () => import("./assets/UpdatePasswordForm-ClTBBcO-.js"),
 		"./Pages/Profile/Partials/UpdateProfileInformationForm.jsx": () => import("./assets/UpdateProfileInformationForm-Dy8I--ud.js"),
-		"./Pages/Reviews/Index.tsx": () => import("./assets/Index-nzjEMFWj.js"),
+		"./Pages/Reviews/Index.tsx": () => import("./assets/Index-Tdgc-yCB.js"),
 		"./Pages/Reviews/components/AiSearchModal.tsx": () => import("./assets/AiSearchModal-CIqeFegw.js"),
-		"./Pages/Reviews/components/BusinessCard.tsx": () => import("./assets/BusinessCard-Cqsi5Zb2.js"),
+		"./Pages/Reviews/components/BusinessCard.tsx": () => import("./assets/BusinessCard-vYTDEtFc.js"),
 		"./Pages/Reviews/components/BusinessProfileView.tsx": () => import("./assets/BusinessProfileView-6ap3LB1c.js"),
 		"./Pages/Reviews/components/CategoryGrid.tsx": () => import("./assets/CategoryGrid-ag_AA1Xa.js"),
 		"./Pages/Reviews/components/HeroSection.tsx": () => import("./assets/HeroSection-CvsJDUVA.js"),
@@ -90,7 +90,7 @@ createServer((page) => createInertiaApp({
 		"./Pages/Static/Terms.jsx": () => import("./assets/Terms-CuJ6P5eT.js"),
 		"./Pages/Story/Index.jsx": () => import("./assets/Index-D0q64wAh.js"),
 		"./Pages/User/Show.jsx": () => import("./assets/Show-DE9zTaJ9.js"),
-		"./Pages/Welcome.jsx": () => import("./assets/Welcome-BTwHa4oS.js")
+		"./Pages/Welcome.jsx": () => import("./assets/Welcome-3p5_rwJF.js")
 	})),
 	setup({ App, props }) {
 		return /* @__PURE__ */ jsx(App, { ...props });
