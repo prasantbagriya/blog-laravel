@@ -27,7 +27,17 @@ const InstitutesSection = ({ featuredBusinesses, basePath }) => {
                         return (
                         <article key={biz.id} className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden border border-slate-200 dark:border-zinc-800 hover:-translate-y-1 transition-all duration-300 flex flex-col group">
                             <Link href={reviewUrl} className="relative aspect-[16/9] w-full block overflow-hidden bg-slate-100 dark:bg-zinc-800 flex items-center justify-center p-4">
-                                <Image src={biz.logo || '/uploads/read.webp'} alt={biz.name} fill width="672" height="378" style={{objectFit: 'contain'}} className="group-hover:scale-105 transition-transform duration-500" />
+                                <img
+                                    src={biz.logo || '/uploads/read.webp'}
+                                    alt={biz.name}
+                                    className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-4 border-white dark:border-zinc-900 shadow-md relative z-10 group-hover:scale-105 transition-transform duration-500"
+                                />
+                                {/* Cover image background effect */}
+                                <div 
+                                    className="absolute inset-0 opacity-80"
+                                    style={{ backgroundImage: `url(${biz.coverImage || biz.logo || '/uploads/read.webp'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+                                ></div>
+                                <div className="absolute inset-0 bg-slate-900/40 dark:bg-slate-900/60 mix-blend-multiply"></div>
                             </Link>
                             
                             <div className="p-4 md:p-5 flex-grow flex flex-col border-t border-slate-100 dark:border-zinc-800">

@@ -4,8 +4,8 @@
   ],
   "node_modules/laravel-vite-plugin/inertia-helpers/index.js": [],
   "resources/css/app.css": [
-    "/build/assets/PostForm-BAXNy8M9.js",
-    "/build/assets/PostForm-DTKKKfg4.css"
+    "/build/assets/PostForm-BbnRgpy-.js",
+    "/build/assets/PostForm-JsTzHdEV.css"
   ],
   "resources/js/Components/AnimatedBorderCard.jsx": [
     "/build/assets/AnimatedBorderCard-B7gc4jxI.js"
@@ -128,14 +128,14 @@
     "/build/assets/Index-DgFBEFgi.js"
   ],
   "resources/js/Pages/Admin/PostForm.tsx": [
-    "/build/assets/PostForm-BAXNy8M9.js",
-    "/build/assets/PostForm-DTKKKfg4.css"
+    "/build/assets/PostForm-BbnRgpy-.js",
+    "/build/assets/PostForm-JsTzHdEV.css"
   ],
   "resources/js/Pages/Admin/Posts/Edit.jsx": [
-    "/build/assets/Edit-C3jymjID.js"
+    "/build/assets/Edit-DWAa1qMS.js"
   ],
   "resources/js/Pages/Admin/Posts/New.jsx": [
-    "/build/assets/New-Cj4RfNyR.js"
+    "/build/assets/New-DXZMSnPO.js"
   ],
   "resources/js/Pages/Admin/SeoAudit/Index.jsx": [
     "/build/assets/Index-C5-2xXZJ.js"
@@ -222,7 +222,7 @@
     "/build/assets/CommunityFeedSection-E6zmeeFR.js"
   ],
   "resources/js/Pages/HomeComponents/InstitutesSection.jsx": [
-    "/build/assets/InstitutesSection-Cg7sHmQS.js"
+    "/build/assets/InstitutesSection-BJHpkWdm.js"
   ],
   "resources/js/Pages/HomeComponents/TrustMarquee.jsx": [
     "/build/assets/TrustMarquee-CZBLeB9b.js"
@@ -305,7 +305,7 @@
     "/build/assets/Show-DE9zTaJ9.js"
   ],
   "resources/js/Pages/Welcome.jsx": [
-    "/build/assets/Welcome-Bcl-LUKH.js"
+    "/build/assets/Welcome-Dl9cNjrU.js"
   ],
   "resources/js/ssr.jsx": []
 }
