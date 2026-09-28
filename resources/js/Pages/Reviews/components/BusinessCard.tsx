@@ -23,18 +23,18 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
       
       {/* Top Banner / Logo Area */}
       <div 
-        className="relative aspect-[21/9] w-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center p-4 cursor-pointer overflow-hidden"
+        className="relative aspect-[16/9] w-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center p-4 cursor-pointer overflow-hidden"
         onClick={() => onSelectBusiness(business.slug)}
       >
         <img
-          src={business.logo}
+          src={business.logo || '/uploads/read.webp'}
           alt={business.name}
-          className="w-20 h-20 rounded-full object-cover border-4 border-white dark:border-zinc-900 shadow-md relative z-10 group-hover:scale-105 transition-transform duration-500"
+          className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-4 border-white dark:border-zinc-900 shadow-md relative z-10 group-hover:scale-105 transition-transform duration-500"
         />
         {/* Cover image background effect */}
         <div 
           className="absolute inset-0 opacity-80"
-          style={{ backgroundImage: `url(${business.coverImage || business.logo})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+          style={{ backgroundImage: `url(${business.cover_image || business.coverImage || business.logo || '/uploads/read.webp'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
         ></div>
         <div className="absolute inset-0 bg-slate-900/40 dark:bg-slate-900/60 mix-blend-multiply"></div>
         
