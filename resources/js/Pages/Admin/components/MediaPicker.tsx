@@ -46,19 +46,29 @@ export default function MediaPicker({ onSelect, onClose, open = true }: MediaPic
     const formData = new FormData();
     formData.append('file', uploadFile);
     try {
-      const res = await fetch('/api/upload', {
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+      const res = await fetch('/api/admin/media', {
         method: 'POST',
-        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '' },
+        headers: { 'X-CSRF-TOKEN': csrfToken },
         body: formData
       });
-      const data = await res.json();
-      if (data.success) {
+      let data: any = {};
+      try { data = await res.json(); } catch { data = {}; }
+
+      if (res.ok && data.success) {
         onSelect(data.url);
+        setUploadFile(null);
+      } else if (res.status === 419) {
+        setUploadError('Session expired. Please refresh the page and try again.');
+      } else if (res.status === 422) {
+        setUploadError(data.message || 'Invalid file. Please upload JPG, PNG, GIF or WebP under 20MB.');
+      } else if (res.status === 413) {
+        setUploadError('File too large. Maximum size is 20MB.');
       } else {
-        setUploadError(data.error || 'Upload failed');
+        setUploadError(data.message || data.error || `Upload failed (${res.status}). Please try again.`);
       }
-    } catch {
-      setUploadError('Upload failed. Please try again.');
+    } catch (err) {
+      setUploadError('Network error. Please check your connection and try again.');
     } finally {
       setUploading(false);
     }

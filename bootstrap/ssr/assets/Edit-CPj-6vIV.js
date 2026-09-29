@@ -1,5 +1,5 @@
 import AdminLayout from "./AdminLayout-Crh_erso.js";
-import AuthorForm from "./AuthorForm-HKnylmaN.js";
+import AuthorForm from "./AuthorForm-dc2SxbtN.js";
 import { jsx } from "react/jsx-runtime";
 import "react";
 //#region resources/js/Pages/Admin/Authors/Edit.jsx

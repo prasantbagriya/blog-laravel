@@ -1,21 +1,21 @@
 import { jsx } from "react/jsx-runtime";
 import React, { Suspense } from "react";
-//#region resources/js/Pages/Admin/Posts/Edit.jsx
-var PostForm = React.lazy(() => import("./PostForm-z_6c1uh0.js"));
+//#region resources/js/Pages/Admin/Stories/Edit.jsx
+var StoryForm = React.lazy(() => import("./StoryForm-DkG7mZeZ.js"));
 var AdminLayout = React.lazy(() => import("./AdminLayout-Crh_erso.js"));
-function EditPostPage({ post }) {
+function EditStoryPage({ story }) {
 	return /* @__PURE__ */ jsx(Suspense, {
 		fallback: /* @__PURE__ */ jsx("div", {
 			style: {
 				padding: "40px",
 				textAlign: "center"
 			},
-			children: "Loading Sovereign Editor..."
+			children: "Loading Editor..."
 		}),
-		children: /* @__PURE__ */ jsx(PostForm, { post })
+		children: /* @__PURE__ */ jsx(StoryForm, { story })
 	});
 }
-EditPostPage.layout = (page) => /* @__PURE__ */ jsx(Suspense, {
+EditStoryPage.layout = (page) => /* @__PURE__ */ jsx(Suspense, {
 	fallback: /* @__PURE__ */ jsx("div", {
 		style: {
 			minHeight: "100vh",
@@ -28,4 +28,4 @@ EditPostPage.layout = (page) => /* @__PURE__ */ jsx(Suspense, {
 	children: /* @__PURE__ */ jsx(AdminLayout, { children: page })
 });
 //#endregion
-export { EditPostPage as default };
+export { EditStoryPage as default };

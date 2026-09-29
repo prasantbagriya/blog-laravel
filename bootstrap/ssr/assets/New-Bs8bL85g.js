@@ -1,7 +1,7 @@
 import { jsx } from "react/jsx-runtime";
 import React, { Suspense } from "react";
 //#region resources/js/Pages/Admin/Stories/New.jsx
-var StoryForm = React.lazy(() => import("./StoryForm-D9slYzl9.js"));
+var StoryForm = React.lazy(() => import("./StoryForm-DkG7mZeZ.js"));
 var AdminLayout = React.lazy(() => import("./AdminLayout-Crh_erso.js"));
 function NewStoryPage() {
 	return /* @__PURE__ */ jsx(Suspense, {
