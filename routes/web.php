@@ -82,8 +82,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/api/admin/posts', [\App\Http\Controllers\Admin\PostController::class, 'store'])->name('admin.posts.store');
     Route::get('/api/admin/posts', [\App\Http\Controllers\Api\AdminApiController::class, 'getPosts']);
     Route::get('/api/admin/community-posts', [\App\Http\Controllers\Api\AdminApiController::class, 'getCommunityPosts']);
-    Route::post('/api/admin/upload', [\App\Http\Controllers\Api\AdminApiController::class, 'uploadMedia']);
-    Route::post('/api/admin/upload-category', [\App\Http\Controllers\Api\AdminApiController::class, 'uploadCategoryImage']);
+    Route::post('/api/admin/upload', [\App\Http\Controllers\Api\Admin\MediaController::class, 'uploadMedia']);
+    Route::post('/api/admin/upload-category', [\App\Http\Controllers\Api\Admin\MediaController::class, 'uploadCategoryImage']);
     Route::delete('/api/admin/posts', [\App\Http\Controllers\Api\AdminApiController::class, 'deletePost']);
     
     Route::get('/api/admin/communities', [\App\Http\Controllers\Api\AdminApiController::class, 'getCommunities']);
@@ -106,9 +106,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/api/admin/stories', [\App\Http\Controllers\Api\AdminApiController::class, 'storeStory']);
     Route::delete('/api/admin/stories', [\App\Http\Controllers\Api\AdminApiController::class, 'deleteStory']);
     
-    Route::get('/api/admin/media', [\App\Http\Controllers\Api\AdminApiController::class, 'getMedia']);
-    Route::post('/api/admin/media', [\App\Http\Controllers\Api\AdminApiController::class, 'storeMedia']);
-    Route::delete('/api/admin/media', [\App\Http\Controllers\Api\AdminApiController::class, 'deleteMedia']);
+    Route::get('/api/admin/media', [\App\Http\Controllers\Api\Admin\MediaController::class, 'getMedia']);
+    Route::post('/api/admin/media', [\App\Http\Controllers\Api\Admin\MediaController::class, 'storeMedia']);
+    Route::delete('/api/admin/media', [\App\Http\Controllers\Api\Admin\MediaController::class, 'deleteMedia']);
     
     Route::get('/api/admin/sliders', [\App\Http\Controllers\Api\AdminApiController::class, 'getSliders']);
     Route::post('/api/admin/sliders', [\App\Http\Controllers\Api\AdminApiController::class, 'storeSlider']);
