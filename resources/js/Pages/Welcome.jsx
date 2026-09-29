@@ -68,7 +68,7 @@ const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses, fall
     };
 
     return (
-        <section className="relative w-full min-h-[500px] md:min-h-[600px] flex items-center overflow-hidden bg-slate-900">
+        <section className="relative w-full min-h-[500px] md:min-h-[600px] flex items-center bg-slate-900">
             {/* Background Image Slider */}
             {validSlides.map((slide, index) => {
                 const imgUrl = typeof slide === 'string' ? slide : (slide.image_url || slide.image || slide.coverImage);

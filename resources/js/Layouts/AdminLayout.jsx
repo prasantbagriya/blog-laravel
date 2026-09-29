@@ -1,6 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
-import { LayoutDashboard, Pin, Users, Folder, PlusCircle, Zap, MessageSquare, Globe, Building2, Image as ImageIcon, LineChart, Sliders, Settings, LogOut, FileText } from 'lucide-react';
+import { LayoutDashboard, Pin, Users, Folder, PlusCircle, Zap, MessageSquare, Globe, Building2, Image as ImageIcon, LineChart, Sliders, Settings, LogOut, FileText, Mail } from 'lucide-react';
 
 export default function AdminLayout({ children }) {
   const { url: pathname } = usePage();
@@ -28,7 +28,7 @@ export default function AdminLayout({ children }) {
     { label: 'All Posts', href: BASE + '/admin', icon: <Pin size={18} /> },
     { label: 'Authors', href: BASE + '/admin/authors', icon: <Users size={18} /> },
     { label: 'Categories', href: BASE + '/admin/categories', icon: <Folder size={18} /> },
-    { label: 'Custom Pages', href: BASE + '/admin/pages', icon: <FileText size={18} /> },
+    { label: 'Pages', href: BASE + '/admin/pages', icon: <FileText size={18} /> },
     { label: 'Add New', href: BASE + '/admin/posts/new', icon: <PlusCircle size={18} /> },
     { label: 'Web Stories', href: BASE + '/admin/stories', icon: <Zap size={18} /> },
     { label: 'Community Posts', href: BASE + '/admin/community-posts', icon: <MessageSquare size={18} /> },
@@ -38,6 +38,7 @@ export default function AdminLayout({ children }) {
     { label: 'SEO Audit', href: BASE + '/admin/seo-audit', icon: <LineChart size={18} /> },
     { label: 'Home Slider', href: BASE + '/admin/slider', icon: <Sliders size={18} /> },
     { label: 'Contact Messages', href: BASE + '/admin/contact-messages', icon: <MessageSquare size={18} /> },
+    { label: 'Newsletters', href: BASE + '/admin/newsletters', icon: <Mail size={18} /> },
     { label: 'Settings', href: '#', icon: <Settings size={18} /> },
   ];
 
@@ -150,7 +151,7 @@ export default function AdminLayout({ children }) {
         {/* Sign Out Button */}
         <div style={{ padding: isCollapsed && !isMobile ? '12px 8px' : '12px 16px', borderTop: '1px solid #f1f5f9' }}>
           <Link
-            href="/logout"
+            href={route('logout')}
             method="post"
             as="button"
             style={{

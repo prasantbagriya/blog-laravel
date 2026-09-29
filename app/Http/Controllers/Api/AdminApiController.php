@@ -409,7 +409,7 @@ class AdminApiController extends Controller
     {
         $data = $request->validate([
             'id' => 'nullable|string',
-            'title' => 'required|string',
+            'title' => 'nullable|string',
             'subtitle' => 'nullable|string',
             'image_url' => 'required|string',
             'link_url' => 'nullable|string',
@@ -418,6 +418,7 @@ class AdminApiController extends Controller
         if (empty($data['id'])) {
             $data['id'] = \Illuminate\Support\Str::uuid()->toString();
         }
+        $data['active'] = true;
         
         \App\Models\Slider::updateOrCreate(['id' => $data['id']], $data);
         \Illuminate\Support\Facades\Cache::forget('homepage_data_v6');
@@ -466,6 +467,35 @@ class AdminApiController extends Controller
             $message->status = 'read';
             $message->save();
         }
+        return response()->json(['success' => true]);
+    }
+
+    // --- Newsletters & Inquiries ---
+    public function getNewsletters()
+    {
+        return response()->json(\App\Models\NewsletterSubscriber::orderBy('created_at', 'desc')->get());
+    }
+
+    public function deleteNewsletter($id)
+    {
+        \App\Models\NewsletterSubscriber::where('id', $id)->delete();
+        return response()->json(['success' => true]);
+    }
+
+    public function collectInquiry(\Illuminate\Http\Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+        
+        if ($request->input('type') === 'newsletter') {
+            \App\Models\NewsletterSubscriber::firstOrCreate(
+                ['email' => $request->input('email')],
+                [
+                    'source' => $request->input('source'),
+                    'type' => $request->input('type'),
+                ]
+            );
+        }
+        
         return response()->json(['success' => true]);
     }
 
