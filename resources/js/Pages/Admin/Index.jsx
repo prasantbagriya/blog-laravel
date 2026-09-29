@@ -282,7 +282,10 @@ export default function AdminPage() {
             boxShadow: activeTab === 'dashboard' ? '0 4px 12px rgba(37, 99, 235, 0.2)' : 'none'
           }}
         >
-          📊 Insights & Analytics
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+            Insights & Analytics
+          </span>
         </button>
         <button
           onClick={() => setActiveTab('posts')}
@@ -299,7 +302,10 @@ export default function AdminPage() {
             boxShadow: activeTab === 'posts' ? '0 4px 12px rgba(37, 99, 235, 0.2)' : 'none'
           }}
         >
-          📌 Manage Posts
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+            Manage Posts
+          </span>
         </button>
         <button
           onClick={() => setActiveTab('auditor')}
@@ -317,7 +323,10 @@ export default function AdminPage() {
             boxShadow: activeTab === 'auditor' ? '0 4px 12px rgba(37, 99, 235, 0.2)' : 'none'
           }}
         >
-          🛡️ E-E-A-T & SEO Auditor
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            E-E-A-T & SEO Auditor
+          </span>
           {seoAlerts.length > 0 && (
             <span style={{
               position: 'absolute',
