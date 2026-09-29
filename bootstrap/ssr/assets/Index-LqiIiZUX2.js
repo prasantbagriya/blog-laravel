@@ -2,7 +2,7 @@ import { t as SeoMeta } from "./SeoMeta-B39nRLIK.js";
 import { t as Navbar } from "./GlobalNavbar-C5iHi7P2.js";
 import { t as BlogFooter } from "./BlogFooter-Bq7zkt8U.js";
 import { Head, Link } from "@inertiajs/react";
-import { jsx, jsxs } from "react/jsx-runtime";
+import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import { useState } from "react";
 import { ChevronDown, MessageSquare, Search } from "lucide-react";
 //#region resources/js/Pages/Blog/Index.jsx
@@ -27,30 +27,9 @@ var Image$1 = ({ src, alt, fill, style, sizes, priority, fetchPriority, ...props
 		...props
 	});
 };
-var FAQSection = () => {
+var FAQSection = ({ faqs = [] }) => {
 	const [openIndex, setOpenIndex] = useState(0);
-	const faqs = [
-		{
-			question: "What kind of topics are covered in the CoachingsinSikar blog?",
-			answer: "The blog section covers topics like best CoachinginSikar, top schools in Sikar, college admissions, Olympiads, exam results, education news, and career guidance for students and parents."
-		},
-		{
-			question: "How can students use Blog section to prepare for JEE and NEET?",
-			answer: "Students can read blog posts on Top JEE CoachinginSikar, Best NEET CoachinginSikar, preparation tips, how to choose, test strategies, and study plans designed for competitive exam aspirants."
-		},
-		{
-			question: "Does blog section help in choosing the right CoachinginSikar?",
-			answer: "Yes, the CoachingsinSikar blog shares comparison articles, ranking lists, and detailed guides on the best coaching institutes in Sikar for JEE, NEET, CA, CLAT, NDA, and other courses."
-		},
-		{
-			question: "Can I find best school information on the Blog Category?",
-			answer: "Yes, the CoachingsinSikar blog school articles cover the best CBSE, RBSE, and ICSE Schools, admissions, fees, facilities, academics, and results."
-		},
-		{
-			question: "Can students compare coaching institutes through blog articles?",
-			answer: "Yes, Best/Top Coaching Schools are compared on the basis of courses, faculty, fees, facilities, study material, results, tests, and doubt support."
-		}
-	];
+	if (!faqs || faqs.length === 0) return null;
 	const faqSchema = {
 		"@context": "https://schema.org",
 		"@type": "FAQPage",
@@ -152,7 +131,7 @@ var FAQSection = () => {
 		]
 	});
 };
-function Index({ posts, meta }) {
+function Index({ posts, meta, faqs = [], pageContent = null }) {
 	const formatDate = (dateString) => {
 		if (!dateString) return "";
 		const date = new Date(dateString);
@@ -167,10 +146,13 @@ function Index({ posts, meta }) {
 		children: [
 			/* @__PURE__ */ jsx(SeoMeta, { meta }),
 			/* @__PURE__ */ jsx(Navbar, {}),
-			/* @__PURE__ */ jsxs("main", {
+			/* @__PURE__ */ jsx("main", {
 				className: "w-full px-[25px] pb-8",
 				style: { paddingTop: "100px" },
-				children: [/* @__PURE__ */ jsx("h1", {
+				children: pageContent ? /* @__PURE__ */ jsx("div", {
+					className: "max-w-7xl mx-auto prose dark:prose-invert",
+					dangerouslySetInnerHTML: { __html: pageContent }
+				}) : /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx("h1", {
 					className: "text-4xl font-bold mb-12 text-slate-900 dark:text-white max-w-7xl mx-auto",
 					children: "All Articles & Insights"
 				}), /* @__PURE__ */ jsx("div", {
@@ -215,9 +197,9 @@ function Index({ posts, meta }) {
 							]
 						})]
 					}, post.id))
-				})]
+				})] })
 			}),
-			/* @__PURE__ */ jsx(FAQSection, {}),
+			/* @__PURE__ */ jsx(FAQSection, { faqs }),
 			/* @__PURE__ */ jsx(BlogFooter, {})
 		]
 	});

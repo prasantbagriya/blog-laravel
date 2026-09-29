@@ -79,6 +79,7 @@ class BlogController extends Controller
             'pageType' => $pageType,
             'meta' => $meta,
             'faqs' => $dbPage ? ($dbPage->faqs ?? []) : [],
+            'pageContent' => $dbPage && $dbPage->type === 'static' ? $dbPage->content : null,
         ]);
     }
 
