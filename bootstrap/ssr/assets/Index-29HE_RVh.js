@@ -1,5 +1,5 @@
 import AdminLayout from "./AdminLayout-Crh_erso.js";
-import { t as MediaPicker } from "./MediaPicker-CY7FDQ0h.js";
+import { t as MediaPicker } from "./MediaPicker-od-D2gGv.js";
 import { Head } from "@inertiajs/react";
 import { jsx, jsxs } from "react/jsx-runtime";
 import { useEffect, useState } from "react";

@@ -1,4 +1,4 @@
-import { t as MediaPicker } from "./MediaPicker-CY7FDQ0h.js";
+import { t as MediaPicker } from "./MediaPicker-od-D2gGv.js";
 import { router } from "@inertiajs/react";
 import { jsx, jsxs } from "react/jsx-runtime";
 import { useState } from "react";
