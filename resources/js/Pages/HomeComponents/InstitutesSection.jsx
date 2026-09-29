@@ -50,20 +50,30 @@ const InstitutesSection = ({ featuredBusinesses, basePath }) => {
                                     {biz.location && <span className="bg-slate-50 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-semibold px-2 py-0.5 rounded border border-slate-200 dark:border-zinc-700 flex items-center gap-1"><MapPin size={12}/>{biz.location}</span>}
                                 </div>
                                 
-                                <div className="mt-auto pt-4 border-t border-slate-100 dark:border-zinc-800 flex gap-2 text-sm text-slate-600 dark:text-zinc-400">
+                                <div className="mt-auto pt-4 border-t border-slate-100 dark:border-zinc-800 flex gap-2.5">
                                     <Link 
                                         href={reviewUrl} 
                                         aria-label={`View Profile of ${biz.name}`}
-                                        className="flex-1 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-zinc-700 text-center font-bold py-2.5 rounded-md transition-all shadow-sm active:scale-[0.98] text-sm"
+                                        className="flex-1 group/btn relative flex items-center justify-center gap-1.5 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-200 hover:border-blue-400 hover:text-blue-600 dark:hover:border-blue-500 dark:hover:text-blue-400 text-center font-semibold py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md text-sm overflow-hidden"
                                     >
-                                        Profile
+                                        <span className="absolute inset-0 bg-blue-50 dark:bg-blue-950/30 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-200 rounded-lg"></span>
+                                        <svg className="relative w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                                        </svg>
+                                        <span className="relative">Profile</span>
                                     </Link>
                                     <Link 
                                         href={reviewUrl + "#reviews"} 
                                         aria-label={`Read Reviews for ${biz.name} (${biz.review_count || biz.reviewCount || 0})`}
-                                        className="flex-1 bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-black dark:hover:bg-slate-100 text-center font-bold py-2.5 rounded-md transition-all shadow-sm active:scale-[0.98] text-sm"
+                                        className="flex-1 group/btn2 relative flex items-center justify-center gap-1.5 bg-gradient-to-br from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-center font-semibold py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-lg hover:shadow-blue-500/25 active:scale-[0.98] text-sm"
                                     >
-                                        Reviews ({biz.review_count || biz.reviewCount || 0})
+                                        <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                        </svg>
+                                        <span>Reviews</span>
+                                        <span className="bg-white/20 text-white text-xs font-bold px-1.5 py-0.5 rounded-full leading-none">
+                                            {biz.review_count || biz.reviewCount || 0}
+                                        </span>
                                     </Link>
                                 </div>
                             </div>
