@@ -1,7 +1,7 @@
 import { jsx } from "react/jsx-runtime";
 import React, { Suspense } from "react";
 //#region resources/js/Pages/Admin/Posts/Edit.jsx
-var PostForm = React.lazy(() => import("./PostForm-BAXNy8M9.js"));
+var PostForm = React.lazy(() => import("./PostForm--BsQxIhk.js"));
 var AdminLayout = React.lazy(() => import("./AdminLayout-BbKBbFCK.js"));
 function EditPostPage({ post }) {
 	return /* @__PURE__ */ jsx(Suspense, {

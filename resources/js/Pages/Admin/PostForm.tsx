@@ -439,17 +439,30 @@ export default function PostForm({ post }: PostFormProps) {
    const [twitterCard, setTwitterCard] = useState(post?.twitterCard || 'summary_large_image');
    const [twitterTitle, setTwitterTitle] = useState(post?.twitterTitle || '');
    const [twitterDescription, setTwitterDescription] = useState(post?.twitterDescription || '');
+   const getAutoCanonicalUrl = (pUrlFormat: string, pSlug: string, pTitle: string, pCategory: string) => {
+       let path = pUrlFormat.replace('{slug}', pSlug || (pTitle || '').toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, ''));
+       if (path.includes('{category}')) {
+           path = path.replace('{category}', pCategory ? pCategory.toLowerCase().replace(/\s+/g, '-') : 'uncategorized');
+       }
+       return `https://coachingsinsikar.com/${path}`;
+   };
+
+   const initialAutoUrl = getAutoCanonicalUrl(
+       post?.url_format || 'blog/{slug}', 
+       post?.slug || '', 
+       post?.title || '', 
+       post?.category || ''
+   );
+
    const [canonicalUrl, setCanonicalUrl] = useState(post?.canonicalUrl || '');
-   const [isCanonicalManuallyEdited, setIsCanonicalManuallyEdited] = useState(!!post?.canonicalUrl);
+   const [isCanonicalManuallyEdited, setIsCanonicalManuallyEdited] = useState(
+       !!(post?.canonicalUrl && post.canonicalUrl !== initialAutoUrl)
+   );
    const [keywords, setKeywords] = useState(post?.keywords || '');
 
    useEffect(() => {
        if (!isCanonicalManuallyEdited) {
-           let path = urlFormat.replace('{slug}', slug || title.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, ''));
-           if (path.includes('{category}')) {
-               path = path.replace('{category}', category ? category.toLowerCase().replace(/\s+/g, '-') : 'uncategorized');
-           }
-           setCanonicalUrl(`https://coachingsinsikar.com/${path}`);
+           setCanonicalUrl(getAutoCanonicalUrl(urlFormat || 'blog/{slug}', slug, title, category));
        }
    }, [slug, title, urlFormat, category, isCanonicalManuallyEdited]);
 
