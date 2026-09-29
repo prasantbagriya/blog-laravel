@@ -1,6 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
-import { LayoutDashboard, Pin, Users, Folder, PlusCircle, Zap, MessageSquare, Globe, Building2, Image as ImageIcon, LineChart, Sliders, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Pin, Users, Folder, PlusCircle, Zap, MessageSquare, Globe, Building2, Image as ImageIcon, LineChart, Sliders, Settings, LogOut, FileText } from 'lucide-react';
 
 export default function AdminLayout({ children }) {
   const { url: pathname } = usePage();
@@ -28,6 +28,7 @@ export default function AdminLayout({ children }) {
     { label: 'All Posts', href: BASE + '/admin', icon: <Pin size={18} /> },
     { label: 'Authors', href: BASE + '/admin/authors', icon: <Users size={18} /> },
     { label: 'Categories', href: BASE + '/admin/categories', icon: <Folder size={18} /> },
+    { label: 'Custom Pages', href: BASE + '/admin/pages', icon: <FileText size={18} /> },
     { label: 'Add New', href: BASE + '/admin/posts/new', icon: <PlusCircle size={18} /> },
     { label: 'Web Stories', href: BASE + '/admin/stories', icon: <Zap size={18} /> },
     { label: 'Community Posts', href: BASE + '/admin/community-posts', icon: <MessageSquare size={18} /> },
