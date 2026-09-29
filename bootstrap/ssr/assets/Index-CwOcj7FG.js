@@ -471,10 +471,36 @@ function PagesIndex() {
 						},
 						children: [/* @__PURE__ */ jsx("div", {
 							style: {
-								fontSize: "36px",
-								marginBottom: "12px"
+								marginBottom: "12px",
+								color: "#94a3b8"
 							},
-							children: "📄"
+							children: /* @__PURE__ */ jsxs("svg", {
+								width: "36",
+								height: "36",
+								viewBox: "0 0 24 24",
+								fill: "none",
+								stroke: "currentColor",
+								strokeWidth: "2",
+								strokeLinecap: "round",
+								strokeLinejoin: "round",
+								children: [
+									/* @__PURE__ */ jsx("path", { d: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" }),
+									/* @__PURE__ */ jsx("polyline", { points: "14 2 14 8 20 8" }),
+									/* @__PURE__ */ jsx("line", {
+										x1: "16",
+										y1: "13",
+										x2: "8",
+										y2: "13"
+									}),
+									/* @__PURE__ */ jsx("line", {
+										x1: "16",
+										y1: "17",
+										x2: "8",
+										y2: "17"
+									}),
+									/* @__PURE__ */ jsx("polyline", { points: "10 9 9 9 8 9" })
+								]
+							})
 						}), "No pages created yet. Click \"Create New Page\" to get started."]
 					}) }) : pages.map((page) => /* @__PURE__ */ jsxs("tr", {
 						style: {
@@ -539,7 +565,55 @@ function PagesIndex() {
 										background: page.type === "feed" ? "#ecfdf5" : "#f0f9ff",
 										color: page.type === "feed" ? "#059669" : "#0284c7"
 									},
-									children: page.type === "feed" ? "📰 Post Feed" : "📄 Static"
+									children: /* @__PURE__ */ jsx("span", {
+										style: {
+											display: "inline-flex",
+											alignItems: "center",
+											gap: "4px"
+										},
+										children: page.type === "feed" ? /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsxs("svg", {
+											width: "12",
+											height: "12",
+											viewBox: "0 0 24 24",
+											fill: "none",
+											stroke: "currentColor",
+											strokeWidth: "2",
+											strokeLinecap: "round",
+											strokeLinejoin: "round",
+											children: [
+												/* @__PURE__ */ jsx("path", { d: "M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2" }),
+												/* @__PURE__ */ jsx("path", { d: "M18 14h-8" }),
+												/* @__PURE__ */ jsx("path", { d: "M15 18h-5" }),
+												/* @__PURE__ */ jsx("path", { d: "M10 6h8v4h-8V6Z" })
+											]
+										}), " Post Feed"] }) : /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsxs("svg", {
+											width: "12",
+											height: "12",
+											viewBox: "0 0 24 24",
+											fill: "none",
+											stroke: "currentColor",
+											strokeWidth: "2",
+											strokeLinecap: "round",
+											strokeLinejoin: "round",
+											children: [
+												/* @__PURE__ */ jsx("path", { d: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" }),
+												/* @__PURE__ */ jsx("polyline", { points: "14 2 14 8 20 8" }),
+												/* @__PURE__ */ jsx("line", {
+													x1: "16",
+													y1: "13",
+													x2: "8",
+													y2: "13"
+												}),
+												/* @__PURE__ */ jsx("line", {
+													x1: "16",
+													y1: "17",
+													x2: "8",
+													y2: "17"
+												}),
+												/* @__PURE__ */ jsx("polyline", { points: "10 9 9 9 8 9" })
+											]
+										}), " Static"] })
+									})
 								})
 							}),
 							/* @__PURE__ */ jsx("td", {
@@ -737,10 +811,10 @@ function PagesIndex() {
 											onChange: (e) => setType(e.target.value),
 											children: [/* @__PURE__ */ jsx("option", {
 												value: "feed",
-												children: "📰 Post Feed (Shows articles)"
+												children: "Post Feed (Shows articles)"
 											}), /* @__PURE__ */ jsx("option", {
 												value: "static",
-												children: "📄 Static Page (Custom content)"
+												children: "Static Page (Custom content)"
 											})]
 										})
 									}), type === "feed" && /* @__PURE__ */ jsx(Field, {

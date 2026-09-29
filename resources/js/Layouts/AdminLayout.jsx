@@ -198,7 +198,7 @@ export default function AdminLayout({ children }) {
         display: 'flex', 
         flexDirection: 'column', 
         minHeight: '100vh', 
-        width: isMobile ? '100vw' : `calc(100% - ${isCollapsed ? '80px' : '260px'})`,
+        width: isMobile ? '100%' : `calc(100% - ${isCollapsed ? '80px' : '260px'})`,
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
       }}>
         {/* Modern Header */}

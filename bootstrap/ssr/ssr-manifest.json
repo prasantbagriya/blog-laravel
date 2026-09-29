@@ -4,7 +4,7 @@
   ],
   "node_modules/laravel-vite-plugin/inertia-helpers/index.js": [],
   "resources/css/app.css": [
-    "/build/assets/PostForm-CrjQYQcU.js",
+    "/build/assets/PostForm-Cn4WqlN7.js",
     "/build/assets/PostForm-Cq02Jajh.css"
   ],
   "resources/js/Components/AnimatedBorderCard.jsx": [
@@ -116,26 +116,26 @@
     "/build/assets/DeleteButton-4pbNZztV.js"
   ],
   "resources/js/Pages/Admin/Index.jsx": [
-    "/build/assets/Index-CdVOM_Rf.js"
+    "/build/assets/Index-PcCXLbwX.js"
   ],
   "resources/js/Pages/Admin/Media/Index.jsx": [
     "/build/assets/Index-DU_jbIgh.js"
   ],
   "resources/js/Pages/Admin/Newsletters/Index.jsx": [
-    "/build/assets/Index-Au_BIUQP.js"
+    "/build/assets/Index-CgqquVRD.js"
   ],
   "resources/js/Pages/Admin/Pages/Index.jsx": [
-    "/build/assets/Index-BBf_1xwW.js"
+    "/build/assets/Index-CwOcj7FG.js"
   ],
   "resources/js/Pages/Admin/PostForm.tsx": [
-    "/build/assets/PostForm-CrjQYQcU.js",
+    "/build/assets/PostForm-Cn4WqlN7.js",
     "/build/assets/PostForm-Cq02Jajh.css"
   ],
   "resources/js/Pages/Admin/Posts/Edit.jsx": [
-    "/build/assets/Edit-C2sxAeXk.js"
+    "/build/assets/Edit-D4Am5B4C.js"
   ],
   "resources/js/Pages/Admin/Posts/New.jsx": [
-    "/build/assets/New-DRHReTl8.js"
+    "/build/assets/New-0YR_kLoV.js"
   ],
   "resources/js/Pages/Admin/SeoAudit/Index.jsx": [
     "/build/assets/Index-DOYjIfWr.js"

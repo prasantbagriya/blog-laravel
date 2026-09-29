@@ -2,7 +2,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { Head } from '@inertiajs/react';
 import axios from 'axios';
 
-const AdminLayout = React.lazy(() => import('../../../Layouts/AdminLayout'));
+import AdminLayout from '../../../Layouts/AdminLayout';
 
 export default function NewslettersPage() {
     const [subscribers, setSubscribers] = useState([]);
@@ -103,8 +103,4 @@ export default function NewslettersPage() {
     );
 }
 
-NewslettersPage.layout = page => (
-    <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading Admin Workspace...</div>}>
-        <AdminLayout>{page}</AdminLayout>
-    </Suspense>
-);
+NewslettersPage.layout = page => <AdminLayout>{page}</AdminLayout>;

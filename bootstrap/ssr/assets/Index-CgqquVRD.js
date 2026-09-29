@@ -1,9 +1,9 @@
+import AdminLayout from "./AdminLayout-DpPtx4TI.js";
 import { Head } from "@inertiajs/react";
 import { jsx, jsxs } from "react/jsx-runtime";
-import React, { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 //#region resources/js/Pages/Admin/Newsletters/Index.jsx
-var AdminLayout = React.lazy(() => import("./AdminLayout-DpPtx4TI.js"));
 function NewslettersPage() {
 	const [subscribers, setSubscribers] = useState([]);
 	const [loading, setLoading] = useState(true);
@@ -228,17 +228,6 @@ function NewslettersPage() {
 		]
 	});
 }
-NewslettersPage.layout = (page) => /* @__PURE__ */ jsx(Suspense, {
-	fallback: /* @__PURE__ */ jsx("div", {
-		style: {
-			minHeight: "100vh",
-			display: "flex",
-			alignItems: "center",
-			justifyContent: "center"
-		},
-		children: "Loading Admin Workspace..."
-	}),
-	children: /* @__PURE__ */ jsx(AdminLayout, { children: page })
-});
+NewslettersPage.layout = (page) => /* @__PURE__ */ jsx(AdminLayout, { children: page });
 //#endregion
 export { NewslettersPage as default };
