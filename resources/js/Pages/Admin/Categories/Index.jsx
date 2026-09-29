@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Head } from '@inertiajs/react';
 import DeleteButton from '../DeleteButton';
 import AdminLayout from '../../../Layouts/AdminLayout';
+import MediaPicker from '../components/MediaPicker';
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [mediaPickerTarget, setMediaPickerTarget] = useState(null);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -20,6 +22,17 @@ export default function CategoriesPage() {
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
   const [description, setDescription] = useState('');
+  
+  // SEO & Image state
+  const [seoTitle, setSeoTitle] = useState('');
+  const [seoDescription, setSeoDescription] = useState('');
+  const [seoKeywords, setSeoKeywords] = useState('');
+  const [ogTitle, setOgTitle] = useState('');
+  const [ogDescription, setOgDescription] = useState('');
+  const [ogImage, setOgImage] = useState('');
+  const [image, setImage] = useState('');
+  const [imageAlt, setImageAlt] = useState('');
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   useEffect(() => {
     fetchCategories();
@@ -42,13 +55,31 @@ export default function CategoriesPage() {
     setName('');
     setSlug('');
     setDescription('');
+    setSeoTitle('');
+    setSeoDescription('');
+    setSeoKeywords('');
+    setOgTitle('');
+    setOgDescription('');
+    setOgImage('');
+    setImage('');
+    setImageAlt('');
+    setShowAdvanced(false);
   };
 
   const handleEdit = (category) => {
     setEditingId(category.id);
-    setName(category.name);
-    setSlug(category.slug);
+    setName(category.name || '');
+    setSlug(category.slug || '');
     setDescription(category.description || '');
+    setSeoTitle(category.seo_title || '');
+    setSeoDescription(category.seo_description || '');
+    setSeoKeywords(category.seo_keywords || '');
+    setOgTitle(category.og_title || '');
+    setOgDescription(category.og_description || '');
+    setOgImage(category.og_image || '');
+    setImage(category.image || '');
+    setImageAlt(category.image_alt || '');
+    setShowAdvanced(true);
   };
 
   const handleSave = async (e) => {
@@ -63,7 +94,15 @@ export default function CategoriesPage() {
           id: editingId || undefined,
           name,
           slug: slug || name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''),
-          description
+          description,
+          seo_title: seoTitle,
+          seo_description: seoDescription,
+          seo_keywords: seoKeywords,
+          og_title: ogTitle,
+          og_description: ogDescription,
+          og_image: ogImage,
+          image,
+          image_alt: imageAlt
         })
       });
       if (res.ok) {
@@ -132,7 +171,7 @@ export default function CategoriesPage() {
         </div>
 
         {/* Create/Edit Form */}
-        <div style={{ width: isMobile ? '100%' : '350px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px', position: isMobile ? 'static' : 'sticky', top: '100px' }}>
+        <div style={{ width: isMobile ? '100%' : '450px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px', position: isMobile ? 'static' : 'sticky', top: '100px', maxHeight: isMobile ? 'none' : 'calc(100vh - 120px)', overflowY: 'auto' }}>
           <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '20px' }}>
             {editingId ? 'Edit Category' : 'Add New Category'}
           </h2>
@@ -168,6 +207,63 @@ export default function CategoriesPage() {
                 placeholder="A short description..."
               />
             </div>
+
+            <button 
+              type="button" 
+              onClick={() => setShowAdvanced(!showAdvanced)} 
+              style={{ background: 'none', border: 'none', color: '#2563eb', fontWeight: 600, fontSize: '13px', textAlign: 'left', cursor: 'pointer', padding: '8px 0' }}
+            >
+              {showAdvanced ? '- Hide' : '+ Show'} Advanced SEO & Images
+            </button>
+
+            {showAdvanced && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '16px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>Search Engine Optimization</h3>
+                
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>SEO Title</label>
+                  <input type="text" value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} style={{ width: '100%', padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px' }} placeholder="Ideal length: 50-60 characters" />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>SEO Description</label>
+                  <textarea value={seoDescription} onChange={(e) => setSeoDescription(e.target.value)} rows={2} style={{ width: '100%', padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px', resize: 'vertical' }} placeholder="Ideal length: 150-160 characters" />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>SEO Keywords (comma separated)</label>
+                  <input type="text" value={seoKeywords} onChange={(e) => setSeoKeywords(e.target.value)} style={{ width: '100%', padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px' }} placeholder="tech, news, review" />
+                </div>
+
+                <h3 style={{ margin: '12px 0 0 0', fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>Social Media (Open Graph)</h3>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>OG Title</label>
+                  <input type="text" value={ogTitle} onChange={(e) => setOgTitle(e.target.value)} style={{ width: '100%', padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>OG Description</label>
+                  <textarea value={ogDescription} onChange={(e) => setOgDescription(e.target.value)} rows={2} style={{ width: '100%', padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px', resize: 'vertical' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>OG Image URL</label>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input type="text" value={ogImage} onChange={(e) => setOgImage(e.target.value)} style={{ flex: 1, padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px' }} placeholder="https://..." />
+                    <button type="button" onClick={() => setMediaPickerTarget('ogImage')} style={{ padding: '0 12px', background: '#e2e8f0', color: '#475569', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>Browse</button>
+                  </div>
+                </div>
+
+                <h3 style={{ margin: '12px 0 0 0', fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>Category Feature Image</h3>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>Image URL</label>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input type="text" value={image} onChange={(e) => setImage(e.target.value)} style={{ flex: 1, padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px' }} placeholder="https://..." />
+                    <button type="button" onClick={() => setMediaPickerTarget('image')} style={{ padding: '0 12px', background: '#e2e8f0', color: '#475569', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>Browse</button>
+                  </div>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>Image Alt Text</label>
+                  <input type="text" value={imageAlt} onChange={(e) => setImageAlt(e.target.value)} style={{ width: '100%', padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px' }} />
+                </div>
+              </div>
+            )}
             <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
               <button 
                 type="submit" 
@@ -188,6 +284,16 @@ export default function CategoriesPage() {
           </form>
         </div>
       </div>
+      
+      <MediaPicker
+        open={!!mediaPickerTarget}
+        onClose={() => setMediaPickerTarget(null)}
+        onSelect={(url) => {
+           if (mediaPickerTarget === 'ogImage') setOgImage(url);
+           if (mediaPickerTarget === 'image') setImage(url);
+           setMediaPickerTarget(null);
+        }}
+      />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Suspense } from 'react';
-import { Head, Link } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import axios from 'axios';
 import { Trash2, CheckCircle, MailOpen, Mail } from 'lucide-react';
 
@@ -52,14 +52,9 @@ export default function ContactMessagesPage() {
                     <h1 style={{ fontSize: '2rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>Contact Messages</h1>
                     <p style={{ color: '#64748b', margin: 0 }}>View and manage inquiries from the Contact Us page</p>
                 </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                    <Link href="/admin/newsletters" style={{ background: '#10b981', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', textDecoration: 'none' }}>
-                        View Newsletter Subscribers
-                    </Link>
-                    <button onClick={fetchMessages} style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>
-                        Refresh
-                    </button>
-                </div>
+                <button onClick={fetchMessages} style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>
+                    Refresh
+                </button>
             </div>
 
             {loading ? (

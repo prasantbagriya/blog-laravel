@@ -417,7 +417,9 @@ export default function PostForm({ post }: PostFormProps) {
    const [title, setTitle] = useState(post?.title || '');
    const [slug, setSlug] = useState(post?.slug || '');
    const [urlFormat, setUrlFormat] = useState(post?.url_format || 'blog/{slug}');
+   const [schemaType, setSchemaType] = useState(post?.schema_type || 'Article');
    const [deployModalOpen, setDeployModalOpen] = useState(false);
+   const [deployStep, setDeployStep] = useState(1);
    const [metaDescription, setMetaDescription] = useState(post?.metaDescription || '');
    const [excerpt, setExcerpt] = useState(post?.excerpt || '');
    const [coverImage, setCoverImage] = useState(post?.coverImage || '');
@@ -426,7 +428,15 @@ export default function PostForm({ post }: PostFormProps) {
    const [author, setAuthor] = useState(post?.author || 'Admin');
    const [availableAuthors, setAvailableAuthors] = useState<any[]>([]);
    const [availableCategories, setAvailableCategories] = useState<any[]>([]);
-  
+   const [availablePages, setAvailablePages] = useState<any[]>([]);
+   
+   const getInitialBasePage = (format: string) => {
+      if (!format) return 'direct';
+      if (format.startsWith('{')) return 'direct';
+      return format.split('/')[0];
+   };
+   const [selectedBasePage, setSelectedBasePage] = useState(getInitialBasePage(post?.url_format || 'blog/{slug}'));
+
    const [focusKeyword, setFocusKeyword] = useState(post?.focusKeyword || '');
    const [category, setCategory] = useState(post?.category || 'General');
    const [tags, setTags] = useState<string[]>(post?.tags || []);
@@ -439,33 +449,8 @@ export default function PostForm({ post }: PostFormProps) {
    const [twitterCard, setTwitterCard] = useState(post?.twitterCard || 'summary_large_image');
    const [twitterTitle, setTwitterTitle] = useState(post?.twitterTitle || '');
    const [twitterDescription, setTwitterDescription] = useState(post?.twitterDescription || '');
-   const getAutoCanonicalUrl = (pUrlFormat: string, pSlug: string, pTitle: string, pCategory: string) => {
-       let path = pUrlFormat.replace('{slug}', pSlug || (pTitle || '').toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, ''));
-       if (path.includes('{category}')) {
-           path = path.replace('{category}', pCategory ? pCategory.toLowerCase().replace(/\s+/g, '-') : 'uncategorized');
-       }
-       return `https://coachingsinsikar.com/${path}`;
-   };
-
-   const initialAutoUrl = getAutoCanonicalUrl(
-       post?.url_format || 'blog/{slug}', 
-       post?.slug || '', 
-       post?.title || '', 
-       post?.category || ''
-   );
-
    const [canonicalUrl, setCanonicalUrl] = useState(post?.canonicalUrl || '');
-   const [isCanonicalManuallyEdited, setIsCanonicalManuallyEdited] = useState(
-       !!(post?.canonicalUrl && post.canonicalUrl !== initialAutoUrl)
-   );
    const [keywords, setKeywords] = useState(post?.keywords || '');
-
-   useEffect(() => {
-       if (!isCanonicalManuallyEdited) {
-           setCanonicalUrl(getAutoCanonicalUrl(urlFormat || 'blog/{slug}', slug, title, category));
-       }
-   }, [slug, title, urlFormat, category, isCanonicalManuallyEdited]);
-
 
    const [faqs, setFaqs] = useState<{ question: string; answer: string }[]>(post?.faqs || []);
    const [howToSteps, setHowToSteps] = useState<{ name: string; text: string }[]>(post?.howToSteps || []);
@@ -612,6 +597,10 @@ export default function PostForm({ post }: PostFormProps) {
 
          fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/categories').then(r => r.json()).then(data => {
             if (Array.isArray(data)) setAvailableCategories(data);
+         }).catch(e => console.error(e));
+
+         fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/pages').then(r => r.json()).then(data => {
+            if (Array.isArray(data)) setAvailablePages(data);
          }).catch(e => console.error(e));
    }, []);
 
@@ -1129,6 +1118,7 @@ export default function PostForm({ post }: PostFormProps) {
             title,
             slug: cleanSlug,
             url_format: urlFormat,
+            schema_type: schemaType,
             content: editor.getHTML(),
             metaDescription,
             excerpt: excerpt || metaDescription || title,
@@ -2031,10 +2021,7 @@ export default function PostForm({ post }: PostFormProps) {
                               <div style={{ height: '15px' }} />
                               <InputGroup label="KEYWORDS (LEGACY)" value={keywords} onChange={setKeywords} placeholder="Comma separated keywords" />
                               <div style={{ height: '15px' }} />
-                              <InputGroup label="CANONICAL URL" value={canonicalUrl} onChange={(val: string) => {
-                                  setCanonicalUrl(val);
-                                  setIsCanonicalManuallyEdited(true);
-                              }} placeholder="Avoid duplicate content issues" />
+                              <InputGroup label="CANONICAL URL" value={canonicalUrl} onChange={setCanonicalUrl} placeholder="Avoid duplicate content issues" />
                            </div>
 
                            <h3 style={sidebarHeadingStyle}>Social Media (Open Graph)</h3>
@@ -2331,31 +2318,94 @@ export default function PostForm({ post }: PostFormProps) {
                      <div style={modalHeaderStyle}>
                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                              <span style={{ fontSize: '24px' }}>🚀</span>
-                             <h2 style={{ fontSize: '16px', fontWeight: 700, margin: 0 }}>Deploy Options</h2>
+                             <h2 style={{ fontSize: '16px', fontWeight: 700, margin: 0 }}>Deploy Step {deployStep} of 2</h2>
                          </div>
-                         <button onClick={() => setDeployModalOpen(false)} style={closeModalBtn}>
+                         <button onClick={() => { setDeployModalOpen(false); setDeployStep(1); }} style={closeModalBtn}>
                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '20px', height: '20px' }}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                          </button>
                      </div>
                      <div style={{ padding: '24px', overflowY: 'auto' }}>
-                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '8px' }}>
-                             <label style={metaLabelStyle}>URL FORMAT</label>
-                             <select value={urlFormat} onChange={e => setUrlFormat(e.target.value)} style={metaInputStyle}>
-                                 <option value="news/{slug}">domain.com/news/article-name</option>
-                                 <option value="{slug}">domain.com/article-name</option>
-                                 <option value="{category}/{slug}">domain.com/category/article-name</option>
-                                 <option value="blog/{slug}">domain.com/blog/article-name</option>
-                                 <option value="blog/{category}/{slug}">domain.com/blog/category/article-name</option>
-                                 <option value="news/{category}/{slug}">domain.com/news/category/article-name</option>
-                             </select>
-                             <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0' }}>Choose the URL structure for this post before publishing.</p>
-                         </div>
+                         {deployStep === 1 && (
+                             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '8px' }}>
+                                 <div>
+                                     <h3 style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>Page Context & Schema</h3>
+                                     <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 12px 0' }}>Define the semantic structure of this page before deploying.</p>
+                                 </div>
+                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                     <label style={metaLabelStyle}>SCHEMA TYPE (SIGMA)</label>
+                                     <select value={schemaType} onChange={e => setSchemaType(e.target.value)} style={metaInputStyle}>
+                                         <option value="Article">Article (Standard)</option>
+                                         <option value="NewsArticle">News Article</option>
+                                         <option value="BlogPosting">Blog Post</option>
+                                         <option value="EducationalArticle">Educational/Course Article</option>
+                                         <option value="Report">Report / Whitepaper</option>
+                                         <option value="WebPage">Static Web Page</option>
+                                         <option value="FAQPage">FAQ Page</option>
+                                     </select>
+                                     <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0' }}>Select the correct schema to ensure rich snippets in Google Search.</p>
+                                 </div>
+                             </div>
+                         )}
+
+                         {deployStep === 2 && (
+                             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '8px' }}>
+                                 <div>
+                                     <h3 style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>URL Structure</h3>
+                                     <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 12px 0' }}>Where should this post be published?</p>
+                                 </div>
+                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                         <label style={metaLabelStyle}>BASE PAGE</label>
+                                         <select value={selectedBasePage} onChange={e => {
+                                             const newBase = e.target.value;
+                                             setSelectedBasePage(newBase);
+                                             if (newBase === 'direct') setUrlFormat('{slug}');
+                                             else setUrlFormat(`${newBase}/{slug}`);
+                                         }} style={metaInputStyle}>
+                                             <option value="direct">Direct (No Base Page)</option>
+                                             {availablePages?.map(p => (
+                                                 <option key={p.id || p.slug} value={p.slug}>{p.title}</option>
+                                             ))}
+                                             {(!availablePages || availablePages.length === 0) && (
+                                                <>
+                                                    <option value="blog">Blog</option>
+                                                    <option value="news">News</option>
+                                                </>
+                                             )}
+                                         </select>
+                                     </div>
+                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                         <label style={metaLabelStyle}>URL FORMAT</label>
+                                         <select value={urlFormat} onChange={e => setUrlFormat(e.target.value)} style={metaInputStyle}>
+                                             {selectedBasePage === 'direct' ? (
+                                                 <>
+                                                     <option value="{slug}">domain.com/article-name</option>
+                                                     <option value="{category}/{slug}">domain.com/category/article-name</option>
+                                                 </>
+                                             ) : (
+                                                 <>
+                                                     <option value={`${selectedBasePage}/{slug}`}>domain.com/{selectedBasePage}/article-name</option>
+                                                     <option value={`${selectedBasePage}/{category}/{slug}`}>domain.com/{selectedBasePage}/category/article-name</option>
+                                                 </>
+                                             )}
+                                         </select>
+                                         <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0' }}>Choose the URL structure for this post before publishing.</p>
+                                     </div>
+                                 </div>
+                             </div>
+                         )}
                      </div>
                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', padding: '16px 24px', borderTop: '1px solid #e2e8f0', background: '#f8fafc', borderBottomLeftRadius: '24px', borderBottomRightRadius: '24px' }}>
-                         <button onClick={() => setDeployModalOpen(false)} style={{ padding: '10px 16px', borderRadius: '10px', background: '#e2e8f0', color: '#475569', fontWeight: 700, border: 'none', cursor: 'pointer' }}>Cancel</button>
-                         <button onClick={() => { setDeployModalOpen(false); handleSave(true, false); }} disabled={isPending} style={{ background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: '#fff', border: 'none', padding: '10px 24px', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)' }}>
-                             {isPending ? 'Publishing...' : 'Publish Now'}
-                         </button>
+                         <button onClick={() => { setDeployModalOpen(false); setDeployStep(1); }} style={{ padding: '10px 16px', borderRadius: '10px', background: '#e2e8f0', color: '#475569', fontWeight: 700, border: 'none', cursor: 'pointer' }}>Cancel</button>
+                         {deployStep === 1 ? (
+                             <button onClick={() => setDeployStep(2)} style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '10px 24px', borderRadius: '10px', fontWeight: 700, cursor: 'pointer' }}>
+                                 Next Step →
+                             </button>
+                         ) : (
+                             <button onClick={() => { setDeployModalOpen(false); setDeployStep(1); handleSave(true, false); }} disabled={isPending} style={{ background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: '#fff', border: 'none', padding: '10px 24px', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)' }}>
+                                 {isPending ? 'Publishing...' : 'Publish Now'}
+                             </button>
+                         )}
                      </div>
                  </div>
              </div>

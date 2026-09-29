@@ -244,6 +244,14 @@ export default function AdminPage() {
     );
   }
 
+  const getDeployBadge = (urlFormat) => {
+    if (!urlFormat) return <span style={{ background: '#f1f5f9', color: '#475569', padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 800, whiteSpace: 'nowrap' }}>UNCATEGORIZED</span>;
+    if (urlFormat.includes('news')) return <span style={{ background: '#fee2e2', color: '#dc2626', padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 800, whiteSpace: 'nowrap' }}>📰 NEWS</span>;
+    if (urlFormat.includes('blog')) return <span style={{ background: '#dbeafe', color: '#2563eb', padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 800, whiteSpace: 'nowrap' }}>📝 BLOG</span>;
+    if (urlFormat.startsWith('{slug}')) return <span style={{ background: '#f3e8ff', color: '#9333ea', padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 800, whiteSpace: 'nowrap' }}>📄 PAGE</span>;
+    return <span style={{ background: '#fef3c7', color: '#d97706', padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 800, whiteSpace: 'nowrap' }}>📁 {urlFormat.toUpperCase()}</span>;
+  };
+
   return (
     <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
       <Head title="Admin Dashboard" />
@@ -505,7 +513,8 @@ export default function AdminPage() {
                       )}
                     </div>
                     
-                    <div style={{ fontSize: '11px', color: '#64748b', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    <div style={{ fontSize: '11px', color: '#64748b', display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+                      {getDeployBadge(post.url_format)}
                       <span>📁 {post.category}</span>
                       <span>📅 {post.date ? new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : ''}</span>
                       <span>✍️ {words} words</span>
@@ -531,7 +540,7 @@ export default function AdminPage() {
                 <table style={{ width: '100%', minWidth: '800px', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-                      <th style={thStyle}>Title & Category</th>
+                      <th style={thStyle}>Deploy / Title & Category</th>
                       <th style={thStyle}>Author Profile</th>
                       <th style={thStyle}>SEO Health</th>
                       <th style={thStyle}>EEAT Signals</th>
@@ -549,7 +558,8 @@ export default function AdminPage() {
                             <Link href={BASE + `/admin/posts/edit/${post.id}`} style={{ fontWeight: 800, color: '#0f172a', textDecoration: 'none' }}>
                               {post.title || 'Untitled Article'}
                             </Link>
-                            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '0.25rem', display: 'flex', gap: '8px' }}>
+                            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '0.4rem', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                              {getDeployBadge(post.url_format)}
                               <span>📁 {post.category}</span>
                               <span>•</span>
                               <span>📅 {post.date ? new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : ''}</span>

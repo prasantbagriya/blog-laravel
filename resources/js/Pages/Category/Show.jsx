@@ -13,7 +13,7 @@ const Image = ({ src, alt, fill, style, sizes, priority, fetchPriority, ...props
     return <img src={src} alt={alt} style={imgStyle} sizes={sizes} fetchPriority={finalFetchPriority} loading={loadingAttr} decoding={priority ? 'sync' : 'async'} {...props} />;
 };
 
-export default function CategoryShow({ categoryName, posts, meta }) {
+export default function CategoryShow({ categoryName, category, posts, meta }) {
     const basePath = typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '';
 
     return (
@@ -22,15 +22,30 @@ export default function CategoryShow({ categoryName, posts, meta }) {
             <GlobalNavbar />
 
             {/* Hero Header */}
-            {/* Hero Header */}
             <PageHero
                 badge="Category"
                 badgeIcon={Tag}
                 title={categoryName}
                 description={
-                    <><span className="font-bold text-slate-700 dark:text-zinc-200">{posts.length}</span> articles in this category</>
+                    <div className="flex flex-col gap-3">
+                        {category?.description && (
+                            <p className="text-slate-600 dark:text-zinc-300 text-lg max-w-2xl">{category.description}</p>
+                        )}
+                        <p className="text-slate-500 dark:text-zinc-400 text-sm">
+                            <span className="font-bold text-slate-700 dark:text-zinc-200">{posts.length}</span> articles in this category
+                        </p>
+                    </div>
                 }
             >
+                {category?.image && (
+                    <div className="mt-8 mb-4 max-w-4xl mx-auto rounded-xl overflow-hidden shadow-sm border border-slate-200 dark:border-zinc-800">
+                        <img 
+                            src={category.image} 
+                            alt={category.image_alt || category.name || categoryName} 
+                            className="w-full h-auto max-h-[400px] object-cover"
+                        />
+                    </div>
+                )}
                 {/* Breadcrumb */}
                 <nav className="flex items-center gap-2 text-xs text-slate-400 dark:text-zinc-500 font-medium mt-6">
                     <Link href={basePath + '/'} className="hover:text-amber-500 transition-colors">Home</Link>

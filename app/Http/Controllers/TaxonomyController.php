@@ -94,6 +94,7 @@ class TaxonomyController extends Controller
 
         return Inertia::render('Category/Show', [
             'categoryName' => $categoryName,
+            'category' => $category ? $category->toArray() : null,
             'posts' => $posts,
             'meta' => $meta
         ]);

@@ -13,10 +13,31 @@ const Image = ({ src, alt, fill, style, sizes, priority, fetchPriority, ...props
     return <img src={src} alt={alt} style={imgStyle} sizes={sizes} fetchPriority={finalFetchPriority} loading={loadingAttr} decoding={priority ? 'sync' : 'async'} {...props} />;
 };
 
-const FAQSection = ({ faqs = [] }) => {
+const FAQSection = () => {
     const [openIndex, setOpenIndex] = useState(0);
 
-    if (!faqs || faqs.length === 0) return null;
+    const faqs = [
+        {
+            question: "What kind of topics are covered in the CoachingsinSikar blog?",
+            answer: "The blog section covers topics like best CoachinginSikar, top schools in Sikar, college admissions, Olympiads, exam results, education news, and career guidance for students and parents."
+        },
+        {
+            question: "How can students use Blog section to prepare for JEE and NEET?",
+            answer: "Students can read blog posts on Top JEE CoachinginSikar, Best NEET CoachinginSikar, preparation tips, how to choose, test strategies, and study plans designed for competitive exam aspirants."
+        },
+        {
+            question: "Does blog section help in choosing the right CoachinginSikar?",
+            answer: "Yes, the CoachingsinSikar blog shares comparison articles, ranking lists, and detailed guides on the best coaching institutes in Sikar for JEE, NEET, CA, CLAT, NDA, and other courses."
+        },
+        {
+            question: "Can I find best school information on the Blog Category?",
+            answer: "Yes, the CoachingsinSikar blog school articles cover the best CBSE, RBSE, and ICSE Schools, admissions, fees, facilities, academics, and results."
+        },
+        {
+            question: "Can students compare coaching institutes through blog articles?",
+            answer: "Yes, Best/Top Coaching Schools are compared on the basis of courses, faculty, fees, facilities, study material, results, tests, and doubt support."
+        }
+    ];
 
     const faqSchema = {
         "@context": "https://schema.org",
@@ -116,7 +137,7 @@ const FAQSection = ({ faqs = [] }) => {
     );
 };
 
-export default function Index({ posts, meta, faqs = [], pageContent = null }) {
+export default function Index({ posts, meta }) {
     const formatDate = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);
@@ -130,14 +151,10 @@ export default function Index({ posts, meta, faqs = [], pageContent = null }) {
             <GlobalNavbar />
             
             <main className="w-full px-[25px] pb-8" style={{ paddingTop: '100px' }}>
-                {pageContent ? (
-                    <div className="max-w-7xl mx-auto prose dark:prose-invert" dangerouslySetInnerHTML={{ __html: pageContent }} />
-                ) : (
-                    <>
-                        <h1 className="text-4xl font-bold mb-12 text-slate-900 dark:text-white max-w-7xl mx-auto">All Articles & Insights</h1>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-16">
-                            {posts.map((post) => (
+                <h1 className="text-4xl font-bold mb-12 text-slate-900 dark:text-white max-w-7xl mx-auto">All Articles & Insights</h1>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-16">
+                    {posts.map((post) => (
                         <article key={post.id} className="border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-xl overflow-hidden hover:shadow-xl dark:hover:shadow-black/40 transition-shadow flex flex-col">
                             <Link href={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + (post.url_path || `/blog/${post.slug}`)} className="relative h-48 block">
                                 <Image src={post.coverImage || '/uploads/read.webp'} alt={post.title} fill style={{ objectFit: 'cover' }} />
@@ -157,12 +174,10 @@ export default function Index({ posts, meta, faqs = [], pageContent = null }) {
                             </div>
                         </article>
                     ))}
-                        </div>
-                    </>
-                )}
+                </div>
             </main>
 
-            <FAQSection faqs={faqs} />
+            <FAQSection />
 
             <BlogFooter />
         </div>

@@ -53,6 +53,7 @@ interface Post {
   twitterDescription?: string;
   coverImageAlt?: string;
   url_format?: string;
+  schema_type?: string;
 }
 
 interface WebStory {

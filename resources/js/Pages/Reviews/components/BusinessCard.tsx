@@ -34,7 +34,7 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
         {/* Cover image background effect */}
         <div 
           className="absolute inset-0 opacity-80"
-          style={{ backgroundImage: `url(${business.coverImage || '/uploads/read.webp'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+          style={{ backgroundImage: `url(${business.coverImage || business.logo})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
         ></div>
         <div className="absolute inset-0 bg-slate-900/40 dark:bg-slate-900/60 mix-blend-multiply"></div>
         
@@ -102,7 +102,7 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
           {/* View Profile — Dark filled button */}
           <button
             onClick={() => onSelectBusiness(business.slug)}
-            className="flex-1 flex items-center justify-center gap-1.5 bg-slate-900 dark:bg-white hover:bg-slate-700 dark:hover:bg-slate-100 text-white dark:text-slate-900 border-2 border-slate-900 dark:border-white text-center font-bold py-2.5 rounded-md transition-all text-sm active:scale-[0.98] shadow-sm"
+            className="flex-1 flex items-center justify-center gap-1.5 bg-slate-900 dark:bg-white hover:bg-slate-700 dark:hover:bg-slate-100 text-white dark:text-slate-900 border-2 border-slate-900 dark:border-white text-center font-bold py-2.5 rounded-xl transition-all text-sm active:scale-[0.98] shadow-sm"
           >
             View Profile
           </button>
@@ -110,7 +110,7 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
           {/* Write Review — Blue pill button (Comments style) */}
           <button
             onClick={() => onOpenWriteReview(business.id)}
-            className="flex-1 flex items-center justify-center gap-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-center font-bold py-2.5 rounded-md transition-all text-sm active:scale-[0.98]"
+            className="flex-1 flex items-center justify-center gap-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-center font-bold py-2.5 rounded-xl transition-all text-sm active:scale-[0.98]"
           >
             Write Review
           </button>

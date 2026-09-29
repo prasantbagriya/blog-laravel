@@ -26,22 +26,9 @@ class BlogController extends Controller
         });
 
         if ($dbPage && $dbPage->type === 'feed') {
-            $pageCategoryName = null;
-            if (!empty($dbPage->category_id)) {
-                $linkedCategory = \App\Models\Category::find($dbPage->category_id);
-                if ($linkedCategory) {
-                    $pageCategoryName = strtolower($linkedCategory->name);
-                }
-            }
-
-            $allPosts = array_filter($allPosts, function($post) use ($slug, $pageCategoryName) {
-                // If the page is linked to a category, show posts from that category
-                if ($pageCategoryName) {
-                    return strtolower($post['category'] ?? '') === $pageCategoryName;
-                }
-                
-                // Fallback to url_format checking
+            $allPosts = array_filter($allPosts, function($post) use ($slug) {
                 $format = $post['url_format'] ?? 'blog/{slug}';
+                // Only show posts whose url_format starts with this page's slug
                 return str_starts_with($format, $slug . '/');
             });
             $allPosts = array_values($allPosts);
@@ -92,7 +79,6 @@ class BlogController extends Controller
             'pageType' => $pageType,
             'meta' => $meta,
             'faqs' => $dbPage ? ($dbPage->faqs ?? []) : [],
-            'pageContent' => $dbPage && $dbPage->type === 'static' ? $dbPage->content : null,
         ]);
     }
 
