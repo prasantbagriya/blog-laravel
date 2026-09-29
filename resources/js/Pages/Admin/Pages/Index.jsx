@@ -43,6 +43,17 @@ const inputStyle = { width: '100%', padding: '10px 12px', border: '1px solid #e2
 const labelStyle = { display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' };
 const sectionBox = { padding: '24px', border: '1px solid #e2e8f0', borderRadius: '12px', background: '#f8fafc', marginBottom: '20px' };
 
+// ─── Field helper ─────────────────────────────────────────────────────────────
+function Field({ label, children }) {
+  return (
+    <div>
+      <label style={labelStyle}>{label}</label>
+      {children}
+    </div>
+  );
+}
+
+
 export default function PagesIndex() {
   const BASE = typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '';
 
@@ -285,12 +296,6 @@ export default function PagesIndex() {
   );
 
   // ── FORM VIEW ──────────────────────────────────────────────────────────────
-  const Field = ({ label, children }) => (
-    <div>
-      <label style={labelStyle}>{label}</label>
-      {children}
-    </div>
-  );
 
   return (
     <div>

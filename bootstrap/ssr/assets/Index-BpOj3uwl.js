@@ -118,6 +118,12 @@ var labelStyle = {
 	textTransform: "uppercase",
 	letterSpacing: "0.5px"
 };
+function Field({ label, children }) {
+	return /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("label", {
+		style: labelStyle,
+		children: label
+	}), children] });
+}
 function PagesIndex() {
 	const BASE = typeof window !== "undefined" && window.BASE_PATH ? window.BASE_PATH : "";
 	const [pages, setPages] = useState([]);
@@ -611,10 +617,6 @@ function PagesIndex() {
 			})
 		})
 	] });
-	const Field = ({ label, children }) => /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("label", {
-		style: labelStyle,
-		children: label
-	}), children] });
 	return /* @__PURE__ */ jsxs("div", { children: [
 		/* @__PURE__ */ jsx(Head, { title: editingId ? "Edit Page | Admin" : "Create Page | Admin" }),
 		/* @__PURE__ */ jsxs("div", {
