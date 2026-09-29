@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /submit
+Disallow: /settings
+Disallow: /modqueue
+Disallow: /dashboard
+Disallow: /profile
+
+Sitemap: https://coachingsinsikar.com/sitemap.xml

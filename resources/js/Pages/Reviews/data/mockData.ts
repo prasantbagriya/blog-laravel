@@ -1,0 +1,78 @@
+import { Category } from '../types';
+
+// Categories are the only static fallback required by the live directory.
+// Businesses, reviews, and campaigns now come only from the server API.
+export const INITIAL_CATEGORIES: Category[] = [
+  {
+    id: 'cat-1',
+    name: 'SaaS & Cloud Platforms',
+    slug: 'saas',
+    iconName: 'Cloud',
+    description: 'Software-as-a-service, productivity tools, enterprise CRM, and cloud infrastructures.',
+    businessCount: 1420,
+    subcategories: ['CRM', 'Project Management', 'Analytics', 'DevOps', 'Security'],
+  },
+  {
+    id: 'cat-2',
+    name: 'AI Tools & Models',
+    slug: 'ai-tools',
+    iconName: 'Sparkles',
+    description: 'Generative AI, code assistants, LLM wrappers, speech synthesis, and image generators.',
+    businessCount: 980,
+    subcategories: ['Text Generation', 'Image AI', 'Voice Synthetic', 'Code Assistants', 'AI Agents'],
+  },
+  {
+    id: 'cat-3',
+    name: 'E-commerce & Retail',
+    slug: 'ecommerce',
+    iconName: 'ShoppingBag',
+    description: 'Online stores, direct-to-consumer brands, fashion hubs, and marketplace merchants.',
+    businessCount: 3410,
+    subcategories: ['Electronics', 'Fashion', 'Home & Living', 'Beauty', 'Subscription Boxes'],
+  },
+  {
+    id: 'cat-4',
+    name: 'Hospitals & Healthcare',
+    slug: 'hospitals',
+    iconName: 'Hospital',
+    description: 'Medical centers, telehealth platforms, dental clinics, and specialized surgery hubs.',
+    businessCount: 840,
+    subcategories: ['Telehealth', 'Dental Clinics', 'Diagnostics', 'Speciality Care', 'Wellness'],
+  },
+  {
+    id: 'cat-5',
+    name: 'Web Hosting & Servers',
+    slug: 'hosting',
+    iconName: 'Server',
+    description: 'VPS providers, managed WordPress hosting, domain registrars, and CDN services.',
+    businessCount: 530,
+    subcategories: ['Cloud VPS', 'Managed WordPress', 'Dedicated Servers'],
+  },
+  {
+    id: 'cat-6',
+    name: 'Coaching & Institutes',
+    slug: 'coaching',
+    iconName: 'GraduationCap',
+    description: 'EdTech platforms, coding bootcamps, executive coaching, and competitive exam hubs.',
+    businessCount: 1150,
+    subcategories: ['Coding Bootcamps', 'Test Prep', 'Executive Coaching', 'Skill Academies'],
+  },
+  {
+    id: 'cat-7',
+    name: 'Hotels & Hospitality',
+    slug: 'hotels',
+    iconName: 'Building',
+    description: 'Boutique hotels, luxury resorts, vacation rentals, and business travel stays.',
+    businessCount: 2190,
+    subcategories: ['Luxury Resorts', 'Boutique Hotels', 'Serviced Apartments', 'Budget Stays'],
+  },
+  {
+    id: 'cat-8',
+    name: 'Fintech & Banking',
+    slug: 'finance',
+    iconName: 'CreditCard',
+    description: 'Digital banks, payment gateways, personal finance, and investment platforms.',
+    businessCount: 1670,
+    subcategories: ['Digital Banking', 'Payment Gateways', 'Investment Apps', 'Lending'],
+  },
+];
