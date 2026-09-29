@@ -50,30 +50,31 @@ const InstitutesSection = ({ featuredBusinesses, basePath }) => {
                                     {biz.location && <span className="bg-slate-50 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-semibold px-2 py-0.5 rounded border border-slate-200 dark:border-zinc-700 flex items-center gap-1"><MapPin size={12}/>{biz.location}</span>}
                                 </div>
                                 
-                                <div className="mt-auto pt-4 border-t border-slate-100 dark:border-zinc-800 flex gap-2.5">
+                                <div className="mt-auto pt-4 flex gap-3">
                                     <Link 
                                         href={reviewUrl} 
                                         aria-label={`View Profile of ${biz.name}`}
-                                        className="flex-1 group/btn relative flex items-center justify-center gap-1.5 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-200 hover:border-blue-400 hover:text-blue-600 dark:hover:border-blue-500 dark:hover:text-blue-400 text-center font-semibold py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md text-sm overflow-hidden"
+                                        className="flex-1 flex items-center justify-center gap-1.5 bg-slate-50 dark:bg-zinc-800/50 hover:bg-blue-50 dark:hover:bg-blue-900/20 border border-slate-200 dark:border-zinc-700 hover:border-blue-300 dark:hover:border-blue-700/50 text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium py-2 rounded-lg transition-colors text-[13px]"
                                     >
-                                        <span className="absolute inset-0 bg-blue-50 dark:bg-blue-950/30 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-200 rounded-lg"></span>
-                                        <svg className="relative w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                        <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
                                         </svg>
-                                        <span className="relative">Profile</span>
+                                        <span>Profile</span>
                                     </Link>
                                     <Link 
                                         href={reviewUrl + "#reviews"} 
                                         aria-label={`Read Reviews for ${biz.name} (${biz.review_count || biz.reviewCount || 0})`}
-                                        className="flex-1 group/btn2 relative flex items-center justify-center gap-1.5 bg-gradient-to-br from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-center font-semibold py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-lg hover:shadow-blue-500/25 active:scale-[0.98] text-sm"
+                                        className="flex-1 flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors text-[13px] shadow-sm hover:shadow"
                                     >
                                         <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                                         </svg>
                                         <span>Reviews</span>
-                                        <span className="bg-white/20 text-white text-xs font-bold px-1.5 py-0.5 rounded-full leading-none">
-                                            {biz.review_count || biz.reviewCount || 0}
-                                        </span>
+                                        {(biz.review_count > 0 || biz.reviewCount > 0) && (
+                                            <span className="bg-white/20 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md leading-none ml-0.5">
+                                                {biz.review_count || biz.reviewCount}
+                                            </span>
+                                        )}
                                     </Link>
                                 </div>
                             </div>
