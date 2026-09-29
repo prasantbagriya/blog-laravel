@@ -27,7 +27,6 @@ import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
 import { Node, Extension, mergeAttributes } from '@tiptap/core';
 import Youtube from '@tiptap/extension-youtube';
-import { X } from 'lucide-react';
 import MediaPicker from './components/MediaPicker';
 
 // Custom FontSize Extension
@@ -2491,7 +2490,7 @@ export default function PostForm({ post }: PostFormProps) {
                            <h2 style={{ fontSize: '18px', fontWeight: 800, margin: 0, color: '#1e293b' }}>Interactive Quiz</h2>
                            <p style={{ fontSize: '13px', color: '#64748b', margin: '4px 0 0 0' }}>Add an engaging quiz to increase dwell time.</p>
                         </div>
-                        <button onClick={() => setQuizModalOpen(false)} style={closeModalBtn}><X size={20} color="#64748b" /></button>
+                        <button onClick={() => setQuizModalOpen(false)} style={closeModalBtn}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
                      </div>
                      <div style={{ padding: '24px', overflowY: 'auto' }}>
                         <div style={{ marginBottom: '20px' }}>
@@ -2534,7 +2533,7 @@ export default function PostForm({ post }: PostFormProps) {
                                        }}
                                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '4px' }}
                                     >
-                                       <X size={14} />
+                                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                                     </button>
                                  </div>
                               ))}
@@ -2570,7 +2569,7 @@ export default function PostForm({ post }: PostFormProps) {
                            <h2 style={{ fontSize: '18px', fontWeight: 800, margin: 0, color: '#1e293b' }}>Interactive Poll</h2>
                            <p style={{ fontSize: '13px', color: '#64748b', margin: '4px 0 0 0' }}>Ask your readers a question to vote on.</p>
                         </div>
-                        <button onClick={() => setPollModalOpen(false)} style={closeModalBtn}><X size={20} color="#64748b" /></button>
+                        <button onClick={() => setPollModalOpen(false)} style={closeModalBtn}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
                      </div>
                      <div style={{ padding: '24px', overflowY: 'auto' }}>
                         <div style={{ marginBottom: '20px' }}>
@@ -2607,7 +2606,7 @@ export default function PostForm({ post }: PostFormProps) {
                                        }}
                                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '4px' }}
                                     >
-                                       <X size={14} />
+                                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                                     </button>
                                  </div>
                               ))}
