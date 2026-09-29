@@ -376,6 +376,107 @@ function CategoriesPage() {
 							},
 							children: [showAdvanced ? "- Hide" : "+ Show", " Advanced SEO & Images"]
 						}),
+						/* @__PURE__ */ jsxs("div", {
+							style: {
+								border: "1px solid #e2e8f0",
+								borderRadius: "8px",
+								padding: "16px",
+								background: "#f8fafc"
+							},
+							children: [
+								/* @__PURE__ */ jsx("h3", {
+									style: {
+										margin: "0 0 12px 0",
+										fontSize: "14px",
+										fontWeight: 700,
+										color: "#0f172a"
+									},
+									children: "Category Feature Image"
+								}),
+								/* @__PURE__ */ jsxs("div", {
+									style: { marginBottom: "12px" },
+									children: [/* @__PURE__ */ jsx("label", {
+										style: {
+											display: "block",
+											fontSize: "12px",
+											fontWeight: 600,
+											color: "#475569",
+											marginBottom: "6px"
+										},
+										children: "Image URL"
+									}), /* @__PURE__ */ jsxs("div", {
+										style: {
+											display: "flex",
+											gap: "8px"
+										},
+										children: [/* @__PURE__ */ jsx("input", {
+											type: "text",
+											value: image,
+											onChange: (e) => setImage(e.target.value),
+											style: {
+												flex: 1,
+												padding: "8px 10px",
+												border: "1px solid #cbd5e1",
+												borderRadius: "6px",
+												fontSize: "13px"
+											},
+											placeholder: "https://..."
+										}), /* @__PURE__ */ jsx("button", {
+											type: "button",
+											onClick: () => setMediaPickerTarget("image"),
+											style: {
+												padding: "8px 16px",
+												background: "#2563eb",
+												color: "#fff",
+												border: "none",
+												borderRadius: "6px",
+												fontSize: "13px",
+												fontWeight: 700,
+												cursor: "pointer",
+												whiteSpace: "nowrap"
+											},
+											children: "📁 Browse"
+										})]
+									})]
+								}),
+								image && /* @__PURE__ */ jsx("div", {
+									style: { marginBottom: "12px" },
+									children: /* @__PURE__ */ jsx("img", {
+										src: image,
+										alt: imageAlt || "Preview",
+										style: {
+											width: "100%",
+											maxHeight: "150px",
+											objectFit: "cover",
+											borderRadius: "6px",
+											border: "1px solid #e2e8f0"
+										}
+									})
+								}),
+								/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("label", {
+									style: {
+										display: "block",
+										fontSize: "12px",
+										fontWeight: 600,
+										color: "#475569",
+										marginBottom: "4px"
+									},
+									children: "Image Alt Text"
+								}), /* @__PURE__ */ jsx("input", {
+									type: "text",
+									value: imageAlt,
+									onChange: (e) => setImageAlt(e.target.value),
+									style: {
+										width: "100%",
+										padding: "8px 10px",
+										border: "1px solid #cbd5e1",
+										borderRadius: "6px",
+										fontSize: "13px"
+									},
+									placeholder: "Image description"
+								})] })
+							]
+						}),
 						showAdvanced && /* @__PURE__ */ jsxs("div", {
 							style: {
 								display: "flex",
@@ -556,78 +657,6 @@ function CategoriesPage() {
 										},
 										children: "Browse"
 									})]
-								})] }),
-								/* @__PURE__ */ jsx("h3", {
-									style: {
-										margin: "12px 0 0 0",
-										fontSize: "14px",
-										fontWeight: 700,
-										color: "#0f172a"
-									},
-									children: "Category Feature Image"
-								}),
-								/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("label", {
-									style: {
-										display: "block",
-										fontSize: "12px",
-										fontWeight: 600,
-										color: "#475569",
-										marginBottom: "4px"
-									},
-									children: "Image URL"
-								}), /* @__PURE__ */ jsxs("div", {
-									style: {
-										display: "flex",
-										gap: "8px"
-									},
-									children: [/* @__PURE__ */ jsx("input", {
-										type: "text",
-										value: image,
-										onChange: (e) => setImage(e.target.value),
-										style: {
-											flex: 1,
-											padding: "8px 10px",
-											border: "1px solid #cbd5e1",
-											borderRadius: "6px",
-											fontSize: "13px"
-										},
-										placeholder: "https://..."
-									}), /* @__PURE__ */ jsx("button", {
-										type: "button",
-										onClick: () => setMediaPickerTarget("image"),
-										style: {
-											padding: "0 12px",
-											background: "#e2e8f0",
-											color: "#475569",
-											border: "none",
-											borderRadius: "6px",
-											fontSize: "12px",
-											fontWeight: 600,
-											cursor: "pointer"
-										},
-										children: "Browse"
-									})]
-								})] }),
-								/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("label", {
-									style: {
-										display: "block",
-										fontSize: "12px",
-										fontWeight: 600,
-										color: "#475569",
-										marginBottom: "4px"
-									},
-									children: "Image Alt Text"
-								}), /* @__PURE__ */ jsx("input", {
-									type: "text",
-									value: imageAlt,
-									onChange: (e) => setImageAlt(e.target.value),
-									style: {
-										width: "100%",
-										padding: "8px 10px",
-										border: "1px solid #cbd5e1",
-										borderRadius: "6px",
-										fontSize: "13px"
-									}
 								})] })
 							]
 						}),
