@@ -884,7 +884,7 @@
     ]
   },
   "resources/js/Pages/HomeComponents/CommunityFeedSection.jsx": {
-    "file": "assets/CommunityFeedSection-BTgD0Eps.js",
+    "file": "assets/CommunityFeedSection-BeLkugV2.js",
     "name": "CommunityFeedSection",
     "src": "resources/js/Pages/HomeComponents/CommunityFeedSection.jsx",
     "isDynamicEntry": true,
@@ -900,7 +900,7 @@
     ]
   },
   "resources/js/Pages/HomeComponents/InstitutesSection.jsx": {
-    "file": "assets/InstitutesSection-CE-TTc5y.js",
+    "file": "assets/InstitutesSection-CMhxU-Dd.js",
     "name": "InstitutesSection",
     "src": "resources/js/Pages/HomeComponents/InstitutesSection.jsx",
     "isDynamicEntry": true,
@@ -1239,7 +1239,7 @@
     ]
   },
   "resources/js/home.jsx": {
-    "file": "assets/home-Dn2QCFgT.js",
+    "file": "assets/home-BSJEgWSy.js",
     "name": "home",
     "src": "resources/js/home.jsx",
     "isEntry": true,
@@ -1259,7 +1259,7 @@
       "resources/js/Pages/HomeComponents/CommunityFeedSection.jsx"
     ],
     "css": [
-      "assets/home-Ylw57CIB.css"
+      "assets/home-oN3s3OZs.css"
     ],
     "assets": [
       "assets/outfit-latin-ext-400-normal-5tcqmc2S.woff2",
