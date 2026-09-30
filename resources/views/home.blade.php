@@ -127,9 +127,22 @@
                 <p style="color:#fbbf24; font-size:0.75rem; font-weight:700; letter-spacing:0.12em; margin-bottom:1rem; text-transform:uppercase;">Coaching and School Discovery Platform</p>
                 <h1 style="color:#ffffff; font-size:clamp(2.25rem, 5vw, 4rem); font-weight:800; line-height:1.1; margin-bottom:1.5rem; letter-spacing:-0.025em; margin-top:0;">Find the Best CoachinginSikar</h1>
                 <p style="color:rgba(255,255,255,0.8); font-size:1.125rem; max-width:36rem; margin-bottom:2rem;">Compare coaching institutes, courses, fees, results and student reviews — all in one place.</p>
-                <div style="max-width:36rem; background:#ffffff; border-radius:9999px; padding:0.5rem; display:flex; align-items:center; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
+                <div style="max-width:36rem; background:#ffffff; border-radius:9999px; padding:0.5rem; display:flex; align-items:center; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom:1.5rem;">
                     <div style="flex:1; padding:0.5rem 1rem; color:#94a3b8;">Search coaching, courses, exams or institutes...</div>
                     <div style="background:#e11d48; color:#ffffff; font-weight:600; padding:0.625rem 1.5rem; border-radius:9999px;">Search</div>
+                </div>
+                <div style="display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem; margin-bottom:2rem; font-size:0.875rem;">
+                    <span style="color:rgba(255,255,255,0.6); margin-right:0.25rem;">Popular Exams:</span>
+                    <span style="padding:0.375rem 1rem; border-radius:9999px; background-color:rgba(255,255,255,0.1); color:#ffffff; font-weight:600;">JEE</span>
+                    <span style="padding:0.375rem 1rem; border-radius:9999px; background-color:rgba(255,255,255,0.1); color:#ffffff; font-weight:600;">NEET</span>
+                    <span style="padding:0.375rem 1rem; border-radius:9999px; background-color:rgba(255,255,255,0.1); color:#ffffff; font-weight:600;">NDA</span>
+                    <span style="padding:0.375rem 1rem; border-radius:9999px; background-color:rgba(255,255,255,0.1); color:#ffffff; font-weight:600;">CLAT</span>
+                    <span style="padding:0.375rem 1rem; border-radius:9999px; background-color:rgba(255,255,255,0.1); color:#ffffff; font-weight:600;">CUET</span>
+                    <span style="padding:0.375rem 1rem; border-radius:9999px; background-color:rgba(255,255,255,0.1); color:#ffffff; font-weight:600;">Foundation</span>
+                </div>
+                <div style="display:flex; flex-wrap:wrap; gap:0.75rem;">
+                    <span style="background-color:#f59e0b; color:#000000; font-weight:700; padding:0.75rem 1.5rem; border-radius:9999px;">Explore Institutes</span>
+                    <span style="background-color:rgba(255,255,255,0.1); color:#ffffff; font-weight:600; padding:0.75rem 1.5rem; border-radius:0.375rem;">Compare Coaching</span>
                 </div>
             </div>
         </section>
