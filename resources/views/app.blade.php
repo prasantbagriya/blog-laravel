@@ -114,11 +114,7 @@
         <link rel="apple-touch-icon" href="/uploads/logo.webp">
 
         <!-- Fonts -->
-        <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-        <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-        
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap">
-        
+        <!-- Fonts hosted locally via NPM -->
 
         <!-- Scripts -->
         {{-- Public pages only need the public route map. Admin routes stay server-side. --}}
