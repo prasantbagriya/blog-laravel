@@ -15,5 +15,14 @@ export default defineConfig({
         // Preload static module dependencies so route and icon chunks can be fetched
         // in parallel instead of creating a request chain after the app bundle runs.
         modulePreload: true,
+        rollupOptions: {
+            output: {
+                manualChunks(id) {
+                    if (id.includes('node_modules/lucide-react')) {
+                        return 'lucide-icons';
+                    }
+                }
+            }
+        }
     }
 });
