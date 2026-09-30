@@ -97,6 +97,15 @@
       "_inertia-helpers-CV03xIkS.js"
     ]
   },
+  "_ShareModal-D1esXltY.js": {
+    "file": "assets/ShareModal-D1esXltY.js",
+    "name": "ShareModal",
+    "imports": [
+      "_jsx-runtime-CdvZGgm7.js",
+      "_link-2-C-nmGg_s.js",
+      "_x-CRh4ES4g.js"
+    ]
+  },
   "_TextInput-Dau_rqgI.js": {
     "file": "assets/TextInput-Dau_rqgI.js",
     "name": "TextInput",
@@ -437,17 +446,6 @@
     "name": "x",
     "imports": [
       "_createLucideIcon-DhQ-2kO0.js"
-    ]
-  },
-  "resources/js/Components/ShareModal.jsx": {
-    "file": "assets/ShareModal-C-EHliJh.js",
-    "name": "ShareModal",
-    "src": "resources/js/Components/ShareModal.jsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "_jsx-runtime-CdvZGgm7.js",
-      "_link-2-C-nmGg_s.js",
-      "_x-CRh4ES4g.js"
     ]
   },
   "resources/js/Components/TipTapEditor.jsx": {
@@ -1072,44 +1070,6 @@
       "_x-CRh4ES4g.js"
     ]
   },
-  "resources/js/Pages/HomeComponents/CommunityFeedSection.jsx": {
-    "file": "assets/CommunityFeedSection-CY4YAMmg.js",
-    "name": "CommunityFeedSection",
-    "src": "resources/js/Pages/HomeComponents/CommunityFeedSection.jsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "_jsx-runtime-CdvZGgm7.js",
-      "_client-Bn-oZImt.js",
-      "_chevron-right-BF12pOwx.js",
-      "_message-square-CkMdqLGG.js",
-      "_share-2-3MbM1hIX.js",
-      "_trending-up-fcsKsr1I.js",
-      "resources/js/home.jsx"
-    ],
-    "dynamicImports": [
-      "resources/js/Components/ShareModal.jsx"
-    ]
-  },
-  "resources/js/Pages/HomeComponents/InstitutesSection.jsx": {
-    "file": "assets/InstitutesSection-JvCzh7jc.js",
-    "name": "InstitutesSection",
-    "src": "resources/js/Pages/HomeComponents/InstitutesSection.jsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "_jsx-runtime-CdvZGgm7.js",
-      "resources/js/home.jsx"
-    ]
-  },
-  "resources/js/Pages/HomeComponents/TrustMarquee.jsx": {
-    "file": "assets/TrustMarquee-DYuaiWo1.js",
-    "name": "TrustMarquee",
-    "src": "resources/js/Pages/HomeComponents/TrustMarquee.jsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "_jsx-runtime-CdvZGgm7.js",
-      "_graduation-cap-BoMs--p9.js"
-    ]
-  },
   "resources/js/Pages/Post/Create.jsx": {
     "file": "assets/Create-CPkTdF0I.js",
     "name": "Create",
@@ -1133,7 +1093,7 @@
     ]
   },
   "resources/js/Pages/Post/Show.jsx": {
-    "file": "assets/Show-BgrsqprK.js",
+    "file": "assets/Show-Cd14odTs.js",
     "name": "Show",
     "src": "resources/js/Pages/Post/Show.jsx",
     "isDynamicEntry": true,
@@ -1152,7 +1112,7 @@
       "_relativeTime-BnrtKTgJ.js"
     ],
     "dynamicImports": [
-      "resources/js/Components/ShareModal.jsx",
+      "_ShareModal-D1esXltY.js",
       "_ReportModal-B5JTLxGb.js"
     ]
   },
@@ -1366,7 +1326,7 @@
     ]
   },
   "resources/js/Pages/User/Show.jsx": {
-    "file": "assets/Show-Cq70KYr2.js",
+    "file": "assets/Show-Cq70KYr22.js",
     "name": "Show",
     "src": "resources/js/Pages/User/Show.jsx",
     "isDynamicEntry": true,
@@ -1421,7 +1381,7 @@
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-CEtuHwfX.js",
+    "file": "assets/app-DSqu9I3U.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,
@@ -1467,7 +1427,7 @@
     ]
   },
   "resources/js/home.jsx": {
-    "file": "assets/home-B5PljTxx.js",
+    "file": "assets/home-CAWa5ERr.js",
     "name": "home",
     "src": "resources/js/home.jsx",
     "isEntry": true,
@@ -1477,22 +1437,23 @@
       "_createLucideIcon-DhQ-2kO0.js",
       "_book-open-BfPkDqfT.js",
       "_chevron-down-VY4GgAki.js",
+      "_chevron-right-BF12pOwx.js",
       "_circle-check-DbqZnjkA.js",
       "_graduation-cap-BoMs--p9.js",
       "_message-square-CkMdqLGG.js",
       "_GlobalNavbar-CBN41f3h.js",
       "_search-CY23itgq.js",
+      "_share-2-3MbM1hIX.js",
       "_shield-check-BtPR3CH7.js",
       "_star-BOh-o0Bl.js",
       "_target-WcGNnWAh.js",
+      "_trending-up-fcsKsr1I.js",
       "_BlogFooter-lUpIjxsT.js",
-      "_AnimatedBorderCard-BEjoCKcF.js"
+      "_AnimatedBorderCard-BEjoCKcF.js",
+      "_ShareModal-D1esXltY.js"
     ],
     "dynamicImports": [
-      "resources/js/Pages/HomeComponents/TrustMarquee.jsx",
-      "resources/js/Pages/HomeComponents/InstitutesSection.jsx",
-      "resources/js/Pages/HomeComponents/CommunityFeedSection.jsx",
-      "resources/js/Components/ShareModal.jsx"
+      "_ShareModal-D1esXltY.js"
     ],
     "css": [
       "assets/home-DUoyMI3i.css"

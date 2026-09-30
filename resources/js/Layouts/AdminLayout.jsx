@@ -74,9 +74,9 @@ export default function AdminLayout({ children }) {
             overflow-x: hidden !important;
           }
 
-          /* Fix tables container width on mobile */
+          /* Keep tables from breaking by letting them use their natural min-width */
           div > table {
-            min-width: 0 !important; /* allow tables to shrink if possible */
+            /* no min-width override, let inline minWidth handle it */
           }
           
           .overflow-x-auto, 
@@ -88,10 +88,10 @@ export default function AdminLayout({ children }) {
             -webkit-overflow-scrolling: touch;
           }
 
-          /* Ensure buttons and flex containers wrap properly */
+          /* Ensure buttons remain legible without breaking words into single letters */
           button, a[style*="padding"] {
-            white-space: normal !important;
-            word-break: break-word !important;
+            white-space: nowrap !important;
+            flex-shrink: 0;
           }
           
           /* Fix header and row layouts */

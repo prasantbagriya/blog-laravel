@@ -1,15 +1,15 @@
+import "./ShareModal-2YClwU5E.js";
 import { t as Navbar } from "./GlobalNavbar-C5iHi7P2.js";
 import { t as BlogFooter } from "./BlogFooter-Bq7zkt8U.js";
 import { t as AnimatedBorderCard } from "./AnimatedBorderCard-B7gc4jxI.js";
 import { Image as Image$1, Link as Link$1, navigate } from "./utils-BjQF728w.js";
+import CommunityFeedSection from "./CommunityFeedSection-E6zmeeFR.js";
+import InstitutesSection from "./InstitutesSection-WAg94c3S.js";
+import TrustMarquee from "./TrustMarquee-CZBLeB9b.js";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
-import React, { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Award, Backpack, Beaker, BookOpen, CheckCircle2, ChevronDown, GraduationCap, MessageSquare, PlayCircle, Scale, Search, ShieldCheck, Star, Target } from "lucide-react";
 //#region resources/js/Pages/Welcome.jsx
-var TrustMarquee = React.lazy(() => import("./TrustMarquee-CZBLeB9b.js"));
-var InstitutesSection = React.lazy(() => import("./InstitutesSection-WAg94c3S.js"));
-var CommunityFeedSection = React.lazy(() => import("./CommunityFeedSection-E6zmeeFR.js"));
-React.lazy(() => import("./ShareModal-2YClwU5E.js"));
 var HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses, fallbackImage }) => {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [showSuggestions, setShowSuggestions] = useState(false);
