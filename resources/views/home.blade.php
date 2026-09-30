@@ -81,6 +81,13 @@
             script.src = 'https://www.googletagmanager.com/gtag/js?id=G-NRXEX23V4X';
             script.fetchPriority = 'low';
             document.head.appendChild(script);
+
+            const swgScript = document.createElement('script');
+            swgScript.async = true;
+            swgScript.src = 'https://news.google.com/swg/js/v1/swg-basic.js';
+            swgScript.fetchPriority = 'low';
+            document.head.appendChild(swgScript);
+
             gtag('js', new Date());
             gtag('config', 'G-NRXEX23V4X');
         };
@@ -104,7 +111,6 @@
     </script>
 
     <!-- Google Publisher SWG -->
-    <script async type="application/javascript" src="https://news.google.com/swg/js/v1/swg-basic.js"></script>
     <script>
     (self.SWG_BASIC = self.SWG_BASIC || []).push( basicSubscriptions => {
         basicSubscriptions.init({
