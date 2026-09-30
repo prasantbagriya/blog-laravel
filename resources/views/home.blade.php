@@ -107,7 +107,13 @@
     </script>
 </head>
 <body class="font-sans antialiased">
-    <div id="home-app"></div>
+    <div id="home-app">
+        <div style="display:flex;flex-direction:column;min-height:100vh;background:#f8fafc;align-items:center;justify-content:center;">
+            <div style="width:48px;height:48px;border:4px solid #e2e8f0;border-top-color:#3b82f6;border-radius:50%;animation:spin 1s linear infinite;"></div>
+            <div style="margin-top:16px;color:#64748b;font-weight:600;font-family:sans-serif;">Loading CoachinginSikar...</div>
+            <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+        </div>
+    </div>
     <script id="home-props" type="application/json">{!! json_encode([
         'morePosts' => $morePosts,
         'publishedStories' => $publishedStories,

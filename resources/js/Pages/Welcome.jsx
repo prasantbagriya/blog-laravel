@@ -2,12 +2,12 @@ import GlobalNavbar from '../NextComponents/GlobalNavbar';
 import BlogFooter from '../NextComponents/BlogFooter';
 import React, { useState, useEffect, Suspense } from 'react';
 import { Link, navigate, postHomeAction, Image } from './HomeComponents/utils';
-const TrustMarquee = React.lazy(() => import('./HomeComponents/TrustMarquee'));
-const InstitutesSection = React.lazy(() => import('./HomeComponents/InstitutesSection'));
-const CommunityFeedSection = React.lazy(() => import('./HomeComponents/CommunityFeedSection'));
+import TrustMarquee from './HomeComponents/TrustMarquee';
+import InstitutesSection from './HomeComponents/InstitutesSection';
+import CommunityFeedSection from './HomeComponents/CommunityFeedSection';
 
 import AnimatedBorderCard from '../Components/AnimatedBorderCard';
-const ShareModal = React.lazy(() => import('../Components/ShareModal'));
+import ShareModal from '../Components/ShareModal';
 import { Search, ChevronRight, GraduationCap, Award, Star, ArrowRight, ShieldCheck, PlayCircle, Library, MapPin, CheckCircle2, MessageSquare, ThumbsUp, TrendingUp, ChevronDown, BookOpen, TestTube, Target, Scale, Beaker, Backpack, Share2, Bookmark } from 'lucide-react';
 
 // The home page is served as a small standalone React application. These are
