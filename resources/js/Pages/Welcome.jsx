@@ -234,11 +234,11 @@ const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses, fall
                             <Link href={`${basePath}/search?q=Foundation`} className="px-4 py-1.5 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors font-semibold">Foundation</Link>
                         </div>
 
-                        <div className="flex flex-wrap gap-3">
-                            <Link href={`${basePath}/business`} className="btn-amber px-6 py-3 transition-colors text-center inline-flex items-center justify-center">
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <Link href={`${basePath}/business`} className="btn-amber px-6 py-3 transition-colors text-center flex items-center justify-center w-full sm:w-auto">
                                 Explore Institutes
                             </Link>
-                            <a href="#top-institutes" className="bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-3 rounded-md transition-colors text-center inline-flex items-center justify-center">
+                            <a href="#top-institutes" className="bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-3 rounded-md transition-colors text-center flex items-center justify-center w-full sm:w-auto">
                                 Compare Coaching
                             </a>
                         </div>

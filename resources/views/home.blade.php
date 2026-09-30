@@ -121,6 +121,14 @@
         <style>
             .hero-skeleton { position:relative; width:100%; min-height:500px; display:flex; align-items:center; background-color:#0f172a; overflow:hidden; }
             .hero-content { position:relative; z-index:10; width:100%; max-width:1280px; margin:0 auto; padding:6rem 1rem 2.5rem; text-align:left; }
+            .hero-buttons { display:flex; flex-direction:column; gap:0.75rem; }
+            .hero-btn { display:flex; align-items:center; justify-content:center; padding:0.75rem 1.5rem; text-align:center; width:100%; }
+            .hero-btn-primary { background-color:#f59e0b; color:#000000; font-weight:700; border-radius:9999px; }
+            .hero-btn-secondary { background-color:rgba(255,255,255,0.1); color:#ffffff; font-weight:600; border-radius:0.375rem; }
+            @media (min-width: 640px) {
+                .hero-buttons { flex-direction:row; }
+                .hero-btn { width:auto; }
+            }
             @media (min-width: 768px) {
                 .hero-skeleton { min-height: 600px; }
                 .hero-content { padding: 8rem 2rem 3.5rem; }
@@ -148,9 +156,9 @@
                     <span style="padding:0.375rem 1rem; border-radius:9999px; background-color:rgba(255,255,255,0.1); color:#ffffff; font-weight:600;">CUET</span>
                     <span style="padding:0.375rem 1rem; border-radius:9999px; background-color:rgba(255,255,255,0.1); color:#ffffff; font-weight:600;">Foundation</span>
                 </div>
-                <div style="display:flex; flex-wrap:wrap; gap:0.75rem;">
-                    <span style="background-color:#f59e0b; color:#000000; font-weight:700; padding:0.75rem 1.5rem; border-radius:9999px;">Explore Institutes</span>
-                    <span style="background-color:rgba(255,255,255,0.1); color:#ffffff; font-weight:600; padding:0.75rem 1.5rem; border-radius:0.375rem;">Compare Coaching</span>
+                <div class="hero-buttons">
+                    <span class="hero-btn hero-btn-primary">Explore Institutes</span>
+                    <span class="hero-btn hero-btn-secondary">Compare Coaching</span>
                 </div>
             </div>
         </section>
