@@ -54,13 +54,6 @@
             document.documentElement.classList.add('dark');
         }
     </script>
-    @viteReactRefresh
-    @php
-        Vite::useStyleTagAttributes([
-            'media' => 'print',
-            'onload' => "this.media='all'",
-        ]);
-    @endphp
     @vite('resources/js/home.jsx')
 
     {{-- Load analytics after an interaction or an extended quiet period. --}}
