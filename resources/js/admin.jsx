@@ -20,6 +20,7 @@ createInertiaApp({
                 './Pages/Admin/CommunityPosts/Index.jsx',
                 './Pages/Admin/ContactMessages/Index.jsx',
                 './Pages/Admin/Media/Index.jsx',
+                './Pages/Admin/Newsletters/Index.jsx',
                 './Pages/Admin/Pages/Index.jsx',
                 './Pages/Admin/Posts/{Edit,New}.jsx',
                 './Pages/Admin/SeoAudit/Index.jsx',

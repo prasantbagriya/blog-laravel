@@ -139,7 +139,6 @@ export default function CategoriesPage() {
                   <tr key={cat.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
                     <td style={{ padding: '16px 24px' }}>
                       <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '15px' }}>{cat.name}</div>
-                      {cat.description && <div style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>{cat.description}</div>}
                     </td>
                     <td style={{ padding: '16px 24px', fontSize: '14px', color: '#475569' }}>/{cat.slug}</td>
                     <td style={{ padding: '16px 24px', textAlign: 'right' }}>
