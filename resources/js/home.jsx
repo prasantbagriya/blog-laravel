@@ -11,7 +11,20 @@ import Welcome from './Pages/Welcome';
 
 const mount = document.getElementById('home-app');
 const source = document.getElementById('home-props');
+const skeleton = document.getElementById('skeleton');
 
 if (mount && source) {
-    createRoot(mount).render(<Welcome {...JSON.parse(source.textContent || '{}')} />);
+    const root = createRoot(mount);
+    root.render(<Welcome {...JSON.parse(source.textContent || '{}')} />);
+    
+    // Remove skeleton after React has had a chance to mount and paint
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                if (skeleton) {
+                    skeleton.remove();
+                }
+            }, 100);
+        });
+    });
 }
