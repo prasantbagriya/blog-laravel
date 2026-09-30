@@ -124,11 +124,21 @@
 </head>
 <body class="font-sans antialiased">
     <div id="home-app">
-        <div style="display:flex;flex-direction:column;min-height:100vh;background:#f8fafc;align-items:center;justify-content:center;">
-            <div style="width:48px;height:48px;border:4px solid #e2e8f0;border-top-color:#3b82f6;border-radius:50%;animation:spin 1s linear infinite;"></div>
-            <div style="margin-top:16px;color:#64748b;font-weight:600;font-family:sans-serif;">Loading CoachinginSikar...</div>
-            <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
-        </div>
+        <section style="position:relative; width:100%; min-height:500px; display:flex; align-items:center; background-color:#0f172a; overflow:hidden; font-family: sans-serif;">
+            @if(!empty($meta['preload_image']))
+                <img src="{{ $meta['preload_image'] }}" style="position:absolute; inset:0; z-index:0; height:100%; width:100%; object-fit:cover;" alt="" aria-hidden="true" fetchpriority="high" />
+            @endif
+            <div style="position:absolute; inset:0; z-index:0; background-color:rgba(15,23,42,0.8);"></div>
+            <div style="position:relative; z-index:10; width:100%; max-width:1280px; margin:0 auto; padding:6rem 1rem 2.5rem; text-align:left;">
+                <p style="color:#fbbf24; font-size:0.75rem; font-weight:700; letter-spacing:0.12em; margin-bottom:1rem; text-transform:uppercase;">Coaching and School Discovery Platform</p>
+                <h1 style="color:#ffffff; font-size:clamp(2.25rem, 5vw, 4rem); font-weight:800; line-height:1.1; margin-bottom:1.5rem; letter-spacing:-0.025em; margin-top:0;">Find the Best CoachinginSikar</h1>
+                <p style="color:rgba(255,255,255,0.8); font-size:1.125rem; max-width:36rem; margin-bottom:2rem;">Compare coaching institutes, courses, fees, results and student reviews — all in one place.</p>
+                <div style="max-width:36rem; background:#ffffff; border-radius:9999px; padding:0.5rem; display:flex; align-items:center; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
+                    <div style="flex:1; padding:0.5rem 1rem; color:#94a3b8;">Search coaching, courses, exams or institutes...</div>
+                    <div style="background:#e11d48; color:#ffffff; font-weight:600; padding:0.625rem 1.5rem; border-radius:9999px;">Search</div>
+                </div>
+            </div>
+        </section>
     </div>
     <script id="home-props" type="application/json">{!! json_encode([
         'morePosts' => $morePosts,
