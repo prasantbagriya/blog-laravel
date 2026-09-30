@@ -56,6 +56,56 @@ export default function AdminLayout({ children }) {
           transform: translateX(4px);
         }
       `}</style>
+      <style>{`
+        /* Global Mobile Responsiveness for Admin Panel */
+        @media (max-width: 768px) {
+          *, *::before, *::after {
+            box-sizing: border-box !important;
+          }
+          
+          /* Prevent main container overflow */
+          body {
+            overflow-x: hidden !important;
+            width: 100% !important;
+          }
+          main {
+            padding: 12px !important;
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+          }
+
+          /* Fix tables container width on mobile */
+          div > table {
+            min-width: 0 !important; /* allow tables to shrink if possible */
+          }
+          
+          .overflow-x-auto, 
+          div[style*="overflowX"], 
+          div[style*="overflow-x"] {
+            width: 100% !important;
+            max-width: calc(100vw - 24px) !important;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch;
+          }
+
+          /* Ensure buttons and flex containers wrap properly */
+          button, a[style*="padding"] {
+            white-space: normal !important;
+            word-break: break-word !important;
+          }
+          
+          /* Fix header and row layouts */
+          .flex-row-mobile-column {
+            flex-direction: column !important;
+            align-items: stretch !important;
+          }
+          
+          /* Reduce font size for headers */
+          h1 {
+            font-size: 1.5rem !important;
+          }
+        }
+      `}</style>
       <div style={{ 
         display: 'flex', 
         background: '#f8fafc', 
