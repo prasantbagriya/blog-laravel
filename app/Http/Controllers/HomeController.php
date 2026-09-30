@@ -238,10 +238,15 @@ class HomeController extends Controller
 
     private function responsiveImageUrl(?string $imageUrl, int $width): ?string
     {
-        if (! $imageUrl || ! str_starts_with($imageUrl, '/uploads/')) {
+        if (! $imageUrl) {
+            return $imageUrl;
+        }
+        
+        $path = parse_url($imageUrl, PHP_URL_PATH);
+        if (! $path || ! \Illuminate\Support\Str::startsWith($path, '/uploads/')) {
             return $imageUrl;
         }
 
-        return '/images/' . $width . '/' . ltrim(substr($imageUrl, strlen('/uploads/')), '/');
+        return '/images/' . $width . '/' . ltrim(substr($path, strlen('/uploads/')), '/');
     }
 }

@@ -118,12 +118,20 @@
 </head>
 <body class="font-sans antialiased">
     <div id="home-app">
-        <section style="position:relative; width:100%; min-height:500px; display:flex; align-items:center; background-color:#0f172a; overflow:hidden;">
+        <style>
+            .hero-skeleton { position:relative; width:100%; min-height:500px; display:flex; align-items:center; background-color:#0f172a; overflow:hidden; }
+            .hero-content { position:relative; z-index:10; width:100%; max-width:1280px; margin:0 auto; padding:6rem 1rem 2.5rem; text-align:left; }
+            @media (min-width: 768px) {
+                .hero-skeleton { min-height: 600px; }
+                .hero-content { padding: 8rem 2rem 3.5rem; }
+            }
+        </style>
+        <section class="hero-skeleton">
             @if(!empty($meta['preload_image']))
                 <img src="{{ $meta['preload_image'] }}" style="position:absolute; inset:0; z-index:0; height:100%; width:100%; object-fit:cover;" alt="" aria-hidden="true" fetchpriority="high" />
             @endif
             <div style="position:absolute; inset:0; z-index:0; background-color:rgba(15,23,42,0.8);"></div>
-            <div style="position:relative; z-index:10; width:100%; max-width:1280px; margin:0 auto; padding:6rem 1rem 2.5rem; text-align:left;">
+            <div class="hero-content">
                 <p style="color:#fbbf24; font-size:0.75rem; font-weight:700; letter-spacing:0.12em; margin-bottom:1rem; text-transform:uppercase;">Coaching and School Discovery Platform</p>
                 <h1 style="color:#ffffff; font-size:clamp(2.25rem, 5vw, 4rem); font-weight:800; line-height:1.1; margin-bottom:1.5rem; letter-spacing:-0.025em; margin-top:0;">Find the Best CoachinginSikar</h1>
                 <p style="color:rgba(255,255,255,0.8); font-size:1.125rem; max-width:36rem; margin-bottom:2rem;">Compare coaching institutes, courses, fees, results and student reviews — all in one place.</p>
