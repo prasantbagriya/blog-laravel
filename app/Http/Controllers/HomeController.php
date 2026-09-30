@@ -182,6 +182,9 @@ class HomeController extends Controller
             'sliders' => $homeData['sliders'] ?? [],
             'categories' => $homeData['categories'] ?? [],
             'meta' => $homeData['meta'] ?? [],
+            'featuredBusinesses' => $homeData['featuredBusinesses'] ?? [],
+            'feedPosts' => $homeData['feedPosts'] ?? [],
+            'topCommunities' => $homeData['topCommunities'] ?? [],
         ];
 
         return view('home', $viewData);
