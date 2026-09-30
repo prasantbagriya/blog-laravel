@@ -518,7 +518,7 @@
     ]
   },
   "resources/js/Pages/Admin/Categories/Index.jsx": {
-    "file": "assets/Index-CwU1wpwk.js",
+    "file": "assets/Index-C959rSxc.js",
     "name": "Index",
     "src": "resources/js/Pages/Admin/Categories/Index.jsx",
     "isDynamicEntry": true,
@@ -604,6 +604,17 @@
       "_client-Bn-oZImt.js"
     ],
     "dynamicImports": [
+      "resources/js/Layouts/AdminLayout.jsx"
+    ]
+  },
+  "resources/js/Pages/Admin/Newsletters/Index.jsx": {
+    "file": "assets/Index-wrO5F9vj.js",
+    "name": "Index",
+    "src": "resources/js/Pages/Admin/Newsletters/Index.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_jsx-runtime-CdvZGgm7.js",
+      "_inertia-helpers-DxGwkFIm.js",
       "resources/js/Layouts/AdminLayout.jsx"
     ]
   },
@@ -1349,7 +1360,7 @@
     ]
   },
   "resources/js/admin.jsx": {
-    "file": "assets/admin-cNaZz-k1.js",
+    "file": "assets/admin-PpWRDPEs.js",
     "name": "admin",
     "src": "resources/js/admin.jsx",
     "isEntry": true,
@@ -1370,6 +1381,7 @@
       "resources/js/Pages/Admin/ContactMessages/Index.jsx",
       "resources/js/Pages/Admin/Index.jsx",
       "resources/js/Pages/Admin/Media/Index.jsx",
+      "resources/js/Pages/Admin/Newsletters/Index.jsx",
       "resources/js/Pages/Admin/Pages/Index.jsx",
       "resources/js/Pages/Admin/Posts/Edit.jsx",
       "resources/js/Pages/Admin/Posts/New.jsx",

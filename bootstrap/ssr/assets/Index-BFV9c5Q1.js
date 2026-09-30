@@ -196,23 +196,16 @@ function CategoriesPage() {
 						}) }), /* @__PURE__ */ jsxs("tbody", { children: [categories.map((cat) => /* @__PURE__ */ jsxs("tr", {
 							style: { borderBottom: "1px solid #e2e8f0" },
 							children: [
-								/* @__PURE__ */ jsxs("td", {
+								/* @__PURE__ */ jsx("td", {
 									style: { padding: "16px 24px" },
-									children: [/* @__PURE__ */ jsx("div", {
+									children: /* @__PURE__ */ jsx("div", {
 										style: {
 											fontWeight: 600,
 											color: "#0f172a",
 											fontSize: "15px"
 										},
 										children: cat.name
-									}), cat.description && /* @__PURE__ */ jsx("div", {
-										style: {
-											fontSize: "13px",
-											color: "#64748b",
-											marginTop: "4px"
-										},
-										children: cat.description
-									})]
+									})
 								}),
 								/* @__PURE__ */ jsxs("td", {
 									style: {

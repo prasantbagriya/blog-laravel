@@ -45,9 +45,13 @@
     <link rel="icon" type="image/webp" sizes="48x48" href="/uploads/logo.webp">
     <link rel="apple-touch-icon" href="/uploads/logo.webp">
 
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap">
+    </noscript>
 
     <script>
         window.BASE_PATH = "{{ url('') }}";
@@ -57,6 +61,12 @@
         }
     </script>
     @viteReactRefresh
+    @php
+        Vite::useStyleTagAttributes([
+            'media' => 'print',
+            'onload' => "this.media='all'",
+        ]);
+    @endphp
     @vite('resources/js/home.jsx')
 
     {{-- Load analytics after an interaction or an extended quiet period. --}}
