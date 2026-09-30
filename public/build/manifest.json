@@ -201,14 +201,6 @@
     "file": "assets/rolldown-runtime-QTnfLwEv.js",
     "name": "rolldown-runtime"
   },
-  "node_modules/@fontsource/outfit/files/outfit-latin-300-normal.woff": {
-    "file": "assets/outfit-latin-300-normal-AWLfuCom.woff",
-    "src": "node_modules/@fontsource/outfit/files/outfit-latin-300-normal.woff"
-  },
-  "node_modules/@fontsource/outfit/files/outfit-latin-300-normal.woff2": {
-    "file": "assets/outfit-latin-300-normal-CRYTwY6m.woff2",
-    "src": "node_modules/@fontsource/outfit/files/outfit-latin-300-normal.woff2"
-  },
   "node_modules/@fontsource/outfit/files/outfit-latin-400-normal.woff": {
     "file": "assets/outfit-latin-400-normal-DMwTpYkH.woff",
     "src": "node_modules/@fontsource/outfit/files/outfit-latin-400-normal.woff"
@@ -216,14 +208,6 @@
   "node_modules/@fontsource/outfit/files/outfit-latin-400-normal.woff2": {
     "file": "assets/outfit-latin-400-normal-BGsTXAXT.woff2",
     "src": "node_modules/@fontsource/outfit/files/outfit-latin-400-normal.woff2"
-  },
-  "node_modules/@fontsource/outfit/files/outfit-latin-500-normal.woff": {
-    "file": "assets/outfit-latin-500-normal-ClnHRwRh.woff",
-    "src": "node_modules/@fontsource/outfit/files/outfit-latin-500-normal.woff"
-  },
-  "node_modules/@fontsource/outfit/files/outfit-latin-500-normal.woff2": {
-    "file": "assets/outfit-latin-500-normal-DKnIMDSk.woff2",
-    "src": "node_modules/@fontsource/outfit/files/outfit-latin-500-normal.woff2"
   },
   "node_modules/@fontsource/outfit/files/outfit-latin-600-normal.woff": {
     "file": "assets/outfit-latin-600-normal-BEfTtDA7.woff",
@@ -241,30 +225,6 @@
     "file": "assets/outfit-latin-700-normal-Cu9v6i1X.woff2",
     "src": "node_modules/@fontsource/outfit/files/outfit-latin-700-normal.woff2"
   },
-  "node_modules/@fontsource/outfit/files/outfit-latin-800-normal.woff": {
-    "file": "assets/outfit-latin-800-normal-BRHLSPcU.woff",
-    "src": "node_modules/@fontsource/outfit/files/outfit-latin-800-normal.woff"
-  },
-  "node_modules/@fontsource/outfit/files/outfit-latin-800-normal.woff2": {
-    "file": "assets/outfit-latin-800-normal-CQna6-G7.woff2",
-    "src": "node_modules/@fontsource/outfit/files/outfit-latin-800-normal.woff2"
-  },
-  "node_modules/@fontsource/outfit/files/outfit-latin-900-normal.woff": {
-    "file": "assets/outfit-latin-900-normal-DBTzQ72N.woff",
-    "src": "node_modules/@fontsource/outfit/files/outfit-latin-900-normal.woff"
-  },
-  "node_modules/@fontsource/outfit/files/outfit-latin-900-normal.woff2": {
-    "file": "assets/outfit-latin-900-normal-D7VxKg29.woff2",
-    "src": "node_modules/@fontsource/outfit/files/outfit-latin-900-normal.woff2"
-  },
-  "node_modules/@fontsource/outfit/files/outfit-latin-ext-300-normal.woff": {
-    "file": "assets/outfit-latin-ext-300-normal-CMIMshEd.woff",
-    "src": "node_modules/@fontsource/outfit/files/outfit-latin-ext-300-normal.woff"
-  },
-  "node_modules/@fontsource/outfit/files/outfit-latin-ext-300-normal.woff2": {
-    "file": "assets/outfit-latin-ext-300-normal-BYS6Dpvq.woff2",
-    "src": "node_modules/@fontsource/outfit/files/outfit-latin-ext-300-normal.woff2"
-  },
   "node_modules/@fontsource/outfit/files/outfit-latin-ext-400-normal.woff": {
     "file": "assets/outfit-latin-ext-400-normal-DHm7mdGe.woff",
     "src": "node_modules/@fontsource/outfit/files/outfit-latin-ext-400-normal.woff"
@@ -272,14 +232,6 @@
   "node_modules/@fontsource/outfit/files/outfit-latin-ext-400-normal.woff2": {
     "file": "assets/outfit-latin-ext-400-normal-5tcqmc2S.woff2",
     "src": "node_modules/@fontsource/outfit/files/outfit-latin-ext-400-normal.woff2"
-  },
-  "node_modules/@fontsource/outfit/files/outfit-latin-ext-500-normal.woff": {
-    "file": "assets/outfit-latin-ext-500-normal-DrCvqoFD.woff",
-    "src": "node_modules/@fontsource/outfit/files/outfit-latin-ext-500-normal.woff"
-  },
-  "node_modules/@fontsource/outfit/files/outfit-latin-ext-500-normal.woff2": {
-    "file": "assets/outfit-latin-ext-500-normal-zeox_O30.woff2",
-    "src": "node_modules/@fontsource/outfit/files/outfit-latin-ext-500-normal.woff2"
   },
   "node_modules/@fontsource/outfit/files/outfit-latin-ext-600-normal.woff": {
     "file": "assets/outfit-latin-ext-600-normal-CWJcPgd7.woff",
@@ -296,22 +248,6 @@
   "node_modules/@fontsource/outfit/files/outfit-latin-ext-700-normal.woff2": {
     "file": "assets/outfit-latin-ext-700-normal-CI4iH74K.woff2",
     "src": "node_modules/@fontsource/outfit/files/outfit-latin-ext-700-normal.woff2"
-  },
-  "node_modules/@fontsource/outfit/files/outfit-latin-ext-800-normal.woff": {
-    "file": "assets/outfit-latin-ext-800-normal-DyhPHUt-.woff",
-    "src": "node_modules/@fontsource/outfit/files/outfit-latin-ext-800-normal.woff"
-  },
-  "node_modules/@fontsource/outfit/files/outfit-latin-ext-800-normal.woff2": {
-    "file": "assets/outfit-latin-ext-800-normal-DRv2ic_2.woff2",
-    "src": "node_modules/@fontsource/outfit/files/outfit-latin-ext-800-normal.woff2"
-  },
-  "node_modules/@fontsource/outfit/files/outfit-latin-ext-900-normal.woff": {
-    "file": "assets/outfit-latin-ext-900-normal-P1LUQYP8.woff",
-    "src": "node_modules/@fontsource/outfit/files/outfit-latin-ext-900-normal.woff"
-  },
-  "node_modules/@fontsource/outfit/files/outfit-latin-ext-900-normal.woff2": {
-    "file": "assets/outfit-latin-ext-900-normal-D2Agn9b_.woff2",
-    "src": "node_modules/@fontsource/outfit/files/outfit-latin-ext-900-normal.woff2"
   },
   "resources/js/Components/TipTapEditor.jsx": {
     "file": "assets/TipTapEditor-D3CFSXyT.js",
@@ -947,6 +883,45 @@
       "_jsx-runtime-DkNEdggw.js"
     ]
   },
+  "resources/js/Pages/HomeComponents/CommunityFeedSection.jsx": {
+    "file": "assets/CommunityFeedSection-BTgD0Eps.js",
+    "name": "CommunityFeedSection",
+    "src": "resources/js/Pages/HomeComponents/CommunityFeedSection.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-QTnfLwEv.js",
+      "_client-IbbH8Tuh.js",
+      "_lucide-icons-CKjZhhZP.js",
+      "_jsx-runtime-DkNEdggw.js",
+      "resources/js/home.jsx"
+    ],
+    "dynamicImports": [
+      "_ShareModal-BoGViJDh.js"
+    ]
+  },
+  "resources/js/Pages/HomeComponents/InstitutesSection.jsx": {
+    "file": "assets/InstitutesSection-CE-TTc5y.js",
+    "name": "InstitutesSection",
+    "src": "resources/js/Pages/HomeComponents/InstitutesSection.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-QTnfLwEv.js",
+      "_lucide-icons-CKjZhhZP.js",
+      "_jsx-runtime-DkNEdggw.js",
+      "resources/js/home.jsx"
+    ]
+  },
+  "resources/js/Pages/HomeComponents/TrustMarquee.jsx": {
+    "file": "assets/TrustMarquee-SRS07hED.js",
+    "name": "TrustMarquee",
+    "src": "resources/js/Pages/HomeComponents/TrustMarquee.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-QTnfLwEv.js",
+      "_lucide-icons-CKjZhhZP.js",
+      "_jsx-runtime-DkNEdggw.js"
+    ]
+  },
   "resources/js/Pages/Post/Create.jsx": {
     "file": "assets/Create-mZZKC8Xy.js",
     "name": "Create",
@@ -1264,7 +1239,7 @@
     ]
   },
   "resources/js/home.jsx": {
-    "file": "assets/home-CCAVnQIi.js",
+    "file": "assets/home-Dn2QCFgT.js",
     "name": "home",
     "src": "resources/js/home.jsx",
     "isEntry": true,
@@ -1279,24 +1254,18 @@
       "_ShareModal-BoGViJDh.js"
     ],
     "dynamicImports": [
-      "_ShareModal-BoGViJDh.js"
+      "resources/js/Pages/HomeComponents/TrustMarquee.jsx",
+      "resources/js/Pages/HomeComponents/InstitutesSection.jsx",
+      "resources/js/Pages/HomeComponents/CommunityFeedSection.jsx"
     ],
     "css": [
-      "assets/home-B85rBxki.css"
+      "assets/home-Ylw57CIB.css"
     ],
     "assets": [
-      "assets/outfit-latin-ext-300-normal-BYS6Dpvq.woff2",
-      "assets/outfit-latin-ext-300-normal-CMIMshEd.woff",
-      "assets/outfit-latin-300-normal-CRYTwY6m.woff2",
-      "assets/outfit-latin-300-normal-AWLfuCom.woff",
       "assets/outfit-latin-ext-400-normal-5tcqmc2S.woff2",
       "assets/outfit-latin-ext-400-normal-DHm7mdGe.woff",
       "assets/outfit-latin-400-normal-BGsTXAXT.woff2",
       "assets/outfit-latin-400-normal-DMwTpYkH.woff",
-      "assets/outfit-latin-ext-500-normal-zeox_O30.woff2",
-      "assets/outfit-latin-ext-500-normal-DrCvqoFD.woff",
-      "assets/outfit-latin-500-normal-DKnIMDSk.woff2",
-      "assets/outfit-latin-500-normal-ClnHRwRh.woff",
       "assets/outfit-latin-ext-600-normal-B85nYjL1.woff2",
       "assets/outfit-latin-ext-600-normal-CWJcPgd7.woff",
       "assets/outfit-latin-600-normal-B7SfZ07L.woff2",
@@ -1304,15 +1273,7 @@
       "assets/outfit-latin-ext-700-normal-CI4iH74K.woff2",
       "assets/outfit-latin-ext-700-normal-fjS8-Gm7.woff",
       "assets/outfit-latin-700-normal-Cu9v6i1X.woff2",
-      "assets/outfit-latin-700-normal-D4itBLBr.woff",
-      "assets/outfit-latin-ext-800-normal-DRv2ic_2.woff2",
-      "assets/outfit-latin-ext-800-normal-DyhPHUt-.woff",
-      "assets/outfit-latin-800-normal-CQna6-G7.woff2",
-      "assets/outfit-latin-800-normal-BRHLSPcU.woff",
-      "assets/outfit-latin-ext-900-normal-D2Agn9b_.woff2",
-      "assets/outfit-latin-ext-900-normal-P1LUQYP8.woff",
-      "assets/outfit-latin-900-normal-D7VxKg29.woff2",
-      "assets/outfit-latin-900-normal-DBTzQ72N.woff"
+      "assets/outfit-latin-700-normal-D4itBLBr.woff"
     ]
   }
 }

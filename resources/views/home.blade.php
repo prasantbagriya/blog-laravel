@@ -120,7 +120,7 @@
     <div id="home-app">
         <section style="position:relative; width:100%; min-height:500px; display:flex; align-items:center; background-color:#0f172a; overflow:hidden;">
             @if(!empty($meta['preload_image']))
-                <img src="{{ $meta['preload_image'] }}" style="position:absolute; inset:0; z-index:0; height:100%; width:100%; object-fit:cover;" alt="" aria-hidden="true" fetchpriority="high" />
+                <img src="{{ $meta['preload_image'] }}" width="1280" height="500" style="position:absolute; inset:0; z-index:0; height:100%; width:100%; object-fit:cover;" alt="Top coaching institutes and schools in Sikar, Rajasthan" fetchpriority="high" />
             @endif
             <div style="position:absolute; inset:0; z-index:0; background-color:rgba(15,23,42,0.8);"></div>
             <div style="position:relative; z-index:10; width:100%; max-width:1280px; margin:0 auto; padding:6rem 1rem 2.5rem; text-align:left;">

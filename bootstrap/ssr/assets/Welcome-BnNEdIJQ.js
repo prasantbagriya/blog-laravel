@@ -3,13 +3,13 @@ import { t as Navbar } from "./GlobalNavbar-C5iHi7P2.js";
 import { t as BlogFooter } from "./BlogFooter-Bq7zkt8U.js";
 import { t as AnimatedBorderCard } from "./AnimatedBorderCard-B7gc4jxI.js";
 import { Image as Image$1, Link as Link$1, navigate } from "./utils-BjQF728w.js";
-import CommunityFeedSection from "./CommunityFeedSection-E6zmeeFR.js";
-import InstitutesSection from "./InstitutesSection-WAg94c3S.js";
-import TrustMarquee from "./TrustMarquee-CZBLeB9b.js";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import { Award, Backpack, Beaker, BookOpen, CheckCircle2, ChevronDown, GraduationCap, MessageSquare, PlayCircle, Scale, Search, ShieldCheck, Star, Target } from "lucide-react";
 //#region resources/js/Pages/Welcome.jsx
+var TrustMarquee = lazy(() => import("./TrustMarquee-CZBLeB9b.js"));
+var InstitutesSection = lazy(() => import("./InstitutesSection-WAg94c3S.js"));
+var CommunityFeedSection = lazy(() => import("./CommunityFeedSection-E6zmeeFR.js"));
 var HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses, fallbackImage }) => {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [showSuggestions, setShowSuggestions] = useState(false);
@@ -94,144 +94,160 @@ var HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses, fallba
 								className: "relative max-w-xl mb-6",
 								children: /* @__PURE__ */ jsxs("form", {
 									onSubmit: handleSearch,
-									children: [/* @__PURE__ */ jsx(AnimatedBorderCard, {
-										containerClassName: "rounded-full",
-										className: "rounded-full",
-										children: /* @__PURE__ */ jsxs("div", {
-											className: "flex items-center gap-2 bg-white px-2 py-2 group",
-											children: [
-												/* @__PURE__ */ jsx(Search, { className: "w-5 h-5 text-slate-400 ml-3 flex-shrink-0 group-focus-within:text-blue-500 transition-colors" }),
-												/* @__PURE__ */ jsx("input", {
-													type: "text",
-													name: "q",
-													className: "flex-1 border-0 outline-none focus:ring-0 text-slate-900 text-sm md:text-base py-2.5 bg-transparent placeholder-slate-400",
-													placeholder: "Search coaching, courses, exams or institutes...",
-													value: searchQuery,
-													onChange: (e) => {
-														setSearchQuery(e.target.value);
-														setShowSuggestions(true);
-													},
-													onFocus: () => setShowSuggestions(true),
-													onBlur: () => setTimeout(() => setShowSuggestions(false), 200),
-													autoComplete: "off"
-												}),
-												/* @__PURE__ */ jsx("button", {
-													type: "submit",
-													className: "bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-full px-6 py-2.5 transition-colors shrink-0 border-none outline-none focus:outline-none ring-0 focus:ring-0",
-													children: "Search"
-												})
-											]
-										})
-									}), showSuggestions && searchQuery.trim().length > 0 && /* @__PURE__ */ jsx("div", {
-										className: "absolute top-full left-0 right-0 mt-3 bg-white rounded-2xl shadow-2xl overflow-hidden z-50 border border-slate-100 max-h-[400px] overflow-y-auto",
-										children: isLoading ? /* @__PURE__ */ jsx("div", {
-											className: "p-6 text-center",
-											children: /* @__PURE__ */ jsx("div", { className: "inline-block w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" })
-										}) : (() => {
-											if (!(suggestions.businesses?.length > 0 || suggestions.categories?.length > 0 || suggestions.blogs?.length > 0 || suggestions.communities?.length > 0) && searchQuery.trim().length > 1) return /* @__PURE__ */ jsxs("div", {
-												className: "p-4 text-center text-slate-500 text-sm",
+									role: "search",
+									"aria-label": "Search coaching institutes",
+									children: [
+										/* @__PURE__ */ jsx("label", {
+											htmlFor: "home-search",
+											className: "sr-only",
+											children: "Search coaching, courses, exams or institutes"
+										}),
+										/* @__PURE__ */ jsx(AnimatedBorderCard, {
+											containerClassName: "rounded-full",
+											className: "rounded-full",
+											children: /* @__PURE__ */ jsxs("div", {
+												className: "flex items-center gap-2 bg-white px-2 py-2 group",
 												children: [
-													"No results found for \"",
-													searchQuery,
-													"\""
-												]
-											});
-											return /* @__PURE__ */ jsxs("div", {
-												className: "py-2",
-												children: [
-													suggestions.categories?.length > 0 && /* @__PURE__ */ jsxs("div", {
-														className: "mb-2",
-														children: [/* @__PURE__ */ jsx("div", {
-															className: "px-4 py-1.5 text-xs font-bold text-slate-400 tracking-wider uppercase",
-															children: "Categories"
-														}), suggestions.categories.map((cat) => /* @__PURE__ */ jsxs(Link$1, {
-															href: `${basePath || ""}/category/${cat.slug || cat.name.toLowerCase().replace(/\s+/g, "-")}`,
-															className: "flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors",
-															children: [/* @__PURE__ */ jsx("div", {
-																className: "bg-blue-50 p-2 rounded-lg text-blue-600",
-																children: /* @__PURE__ */ jsx(GraduationCap, { size: 16 })
-															}), /* @__PURE__ */ jsx("span", {
-																className: "font-medium text-slate-800",
-																children: cat.name
-															})]
-														}, `cat-${cat.id}`))]
+													/* @__PURE__ */ jsx(Search, {
+														className: "w-5 h-5 text-slate-400 ml-3 flex-shrink-0 group-focus-within:text-blue-500 transition-colors",
+														"aria-hidden": "true"
 													}),
-													suggestions.businesses?.length > 0 && /* @__PURE__ */ jsxs("div", {
-														className: "mb-2",
-														children: [/* @__PURE__ */ jsx("div", {
-															className: "px-4 py-1.5 text-xs font-bold text-slate-400 tracking-wider uppercase",
-															children: "Institutes"
-														}), suggestions.businesses.map((biz) => /* @__PURE__ */ jsxs(Link$1, {
-															href: `${basePath || ""}/business/${biz.category || "coaching-institutes"}/${biz.slug || biz.id}`,
-															className: "flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors",
-															children: [/* @__PURE__ */ jsx("div", {
-																className: "w-10 h-10 bg-slate-100 rounded-lg overflow-hidden flex-shrink-0 relative border border-slate-200",
-																children: /* @__PURE__ */ jsx("img", {
-																	src: biz.logo || "/uploads/read.webp",
-																	alt: biz.name,
-																	width: "40",
-																	height: "40",
-																	className: "w-full h-full object-cover"
-																})
-															}), /* @__PURE__ */ jsxs("div", {
-																className: "flex flex-col",
-																children: [/* @__PURE__ */ jsx("span", {
-																	className: "font-medium text-slate-800",
-																	children: biz.name
-																}), /* @__PURE__ */ jsx("span", {
-																	className: "text-xs text-slate-500",
-																	children: biz.category || "Institute"
-																})]
-															})]
-														}, `biz-${biz.id}`))]
+													/* @__PURE__ */ jsx("input", {
+														id: "home-search",
+														type: "search",
+														name: "q",
+														className: "flex-1 border-0 outline-none focus:ring-0 text-slate-900 text-sm md:text-base py-2.5 bg-transparent placeholder-slate-400",
+														placeholder: "Search coaching, courses, exams or institutes...",
+														value: searchQuery,
+														"aria-label": "Search coaching, courses, exams or institutes",
+														onChange: (e) => {
+															setSearchQuery(e.target.value);
+															setShowSuggestions(true);
+														},
+														onFocus: () => setShowSuggestions(true),
+														onBlur: () => setTimeout(() => setShowSuggestions(false), 200),
+														autoComplete: "off"
 													}),
-													suggestions.blogs?.length > 0 && /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("div", {
-														className: "px-4 py-1.5 text-xs font-bold text-slate-400 tracking-wider uppercase",
-														children: "Blog Posts"
-													}), suggestions.blogs.map((blog) => /* @__PURE__ */ jsxs(Link$1, {
-														href: (basePath || "") + (blog.url_path || `/blog/${blog.slug}`),
-														className: "flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors",
-														children: [/* @__PURE__ */ jsx("div", {
-															className: "bg-amber-50 p-2 rounded-lg text-amber-600",
-															children: /* @__PURE__ */ jsx(BookOpen, { size: 16 })
-														}), /* @__PURE__ */ jsxs("div", {
-															className: "flex flex-col flex-1 min-w-0",
-															children: [/* @__PURE__ */ jsx("span", {
-																className: "font-medium text-slate-800 line-clamp-1",
-																children: blog.title
-															}), blog.excerpt && /* @__PURE__ */ jsx("span", {
-																className: "text-xs text-slate-500 line-clamp-1 mt-0.5",
-																children: blog.excerpt
-															})]
-														})]
-													}, `blog-${blog.id}`))] }),
-													suggestions.communities?.length > 0 && /* @__PURE__ */ jsxs("div", {
-														className: "mb-2",
-														children: [/* @__PURE__ */ jsx("div", {
-															className: "px-4 py-1.5 text-xs font-bold text-slate-400 tracking-wider uppercase",
-															children: "Communities"
-														}), suggestions.communities.map((community) => /* @__PURE__ */ jsxs(Link$1, {
-															href: `${basePath || ""}/community/${community.name}`,
-															className: "flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors",
-															children: [/* @__PURE__ */ jsx("div", {
-																className: "bg-emerald-50 p-2 rounded-lg text-emerald-600",
-																children: /* @__PURE__ */ jsx(MessageSquare, { size: 16 })
-															}), /* @__PURE__ */ jsxs("div", {
-																className: "flex flex-col",
-																children: [/* @__PURE__ */ jsxs("span", {
-																	className: "font-medium text-slate-800",
-																	children: ["r/", community.name]
-																}), /* @__PURE__ */ jsxs("span", {
-																	className: "text-xs text-slate-500",
-																	children: [community.members || 0, " members"]
-																})]
-															})]
-														}, `comm-${community.id}`))]
+													/* @__PURE__ */ jsx("button", {
+														type: "submit",
+														"aria-label": "Search",
+														className: "bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-full px-6 py-2.5 transition-colors shrink-0 border-none outline-none focus:outline-none ring-0 focus:ring-0",
+														children: "Search"
 													})
 												]
-											});
-										})()
-									})]
+											})
+										}),
+										showSuggestions && searchQuery.trim().length > 0 && /* @__PURE__ */ jsx("div", {
+											className: "absolute top-full left-0 right-0 mt-3 bg-white rounded-2xl shadow-2xl overflow-hidden z-50 border border-slate-100 max-h-[400px] overflow-y-auto",
+											children: isLoading ? /* @__PURE__ */ jsx("div", {
+												className: "p-6 text-center",
+												children: /* @__PURE__ */ jsx("div", { className: "inline-block w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" })
+											}) : (() => {
+												if (!(suggestions.businesses?.length > 0 || suggestions.categories?.length > 0 || suggestions.blogs?.length > 0 || suggestions.communities?.length > 0) && searchQuery.trim().length > 1) return /* @__PURE__ */ jsxs("div", {
+													className: "p-4 text-center text-slate-500 text-sm",
+													children: [
+														"No results found for \"",
+														searchQuery,
+														"\""
+													]
+												});
+												return /* @__PURE__ */ jsxs("div", {
+													className: "py-2",
+													children: [
+														suggestions.categories?.length > 0 && /* @__PURE__ */ jsxs("div", {
+															className: "mb-2",
+															children: [/* @__PURE__ */ jsx("div", {
+																className: "px-4 py-1.5 text-xs font-bold text-slate-400 tracking-wider uppercase",
+																children: "Categories"
+															}), suggestions.categories.map((cat) => /* @__PURE__ */ jsxs(Link$1, {
+																href: `${basePath || ""}/category/${cat.slug || cat.name.toLowerCase().replace(/\s+/g, "-")}`,
+																className: "flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors",
+																children: [/* @__PURE__ */ jsx("div", {
+																	className: "bg-blue-50 p-2 rounded-lg text-blue-600",
+																	children: /* @__PURE__ */ jsx(GraduationCap, { size: 16 })
+																}), /* @__PURE__ */ jsx("span", {
+																	className: "font-medium text-slate-800",
+																	children: cat.name
+																})]
+															}, `cat-${cat.id}`))]
+														}),
+														suggestions.businesses?.length > 0 && /* @__PURE__ */ jsxs("div", {
+															className: "mb-2",
+															children: [/* @__PURE__ */ jsx("div", {
+																className: "px-4 py-1.5 text-xs font-bold text-slate-400 tracking-wider uppercase",
+																children: "Institutes"
+															}), suggestions.businesses.map((biz) => /* @__PURE__ */ jsxs(Link$1, {
+																href: `${basePath || ""}/business/${biz.category || "coaching-institutes"}/${biz.slug || biz.id}`,
+																className: "flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors",
+																children: [/* @__PURE__ */ jsx("div", {
+																	className: "w-10 h-10 bg-slate-100 rounded-lg overflow-hidden flex-shrink-0 relative border border-slate-200",
+																	children: /* @__PURE__ */ jsx("img", {
+																		src: biz.logo || "/uploads/read.webp",
+																		alt: biz.name,
+																		width: "40",
+																		height: "40",
+																		className: "w-full h-full object-cover"
+																	})
+																}), /* @__PURE__ */ jsxs("div", {
+																	className: "flex flex-col",
+																	children: [/* @__PURE__ */ jsx("span", {
+																		className: "font-medium text-slate-800",
+																		children: biz.name
+																	}), /* @__PURE__ */ jsx("span", {
+																		className: "text-xs text-slate-500",
+																		children: biz.category || "Institute"
+																	})]
+																})]
+															}, `biz-${biz.id}`))]
+														}),
+														suggestions.blogs?.length > 0 && /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("div", {
+															className: "px-4 py-1.5 text-xs font-bold text-slate-400 tracking-wider uppercase",
+															children: "Blog Posts"
+														}), suggestions.blogs.map((blog) => /* @__PURE__ */ jsxs(Link$1, {
+															href: (basePath || "") + (blog.url_path || `/blog/${blog.slug}`),
+															className: "flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors",
+															children: [/* @__PURE__ */ jsx("div", {
+																className: "bg-amber-50 p-2 rounded-lg text-amber-600",
+																children: /* @__PURE__ */ jsx(BookOpen, { size: 16 })
+															}), /* @__PURE__ */ jsxs("div", {
+																className: "flex flex-col flex-1 min-w-0",
+																children: [/* @__PURE__ */ jsx("span", {
+																	className: "font-medium text-slate-800 line-clamp-1",
+																	children: blog.title
+																}), blog.excerpt && /* @__PURE__ */ jsx("span", {
+																	className: "text-xs text-slate-500 line-clamp-1 mt-0.5",
+																	children: blog.excerpt
+																})]
+															})]
+														}, `blog-${blog.id}`))] }),
+														suggestions.communities?.length > 0 && /* @__PURE__ */ jsxs("div", {
+															className: "mb-2",
+															children: [/* @__PURE__ */ jsx("div", {
+																className: "px-4 py-1.5 text-xs font-bold text-slate-400 tracking-wider uppercase",
+																children: "Communities"
+															}), suggestions.communities.map((community) => /* @__PURE__ */ jsxs(Link$1, {
+																href: `${basePath || ""}/community/${community.name}`,
+																className: "flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors",
+																children: [/* @__PURE__ */ jsx("div", {
+																	className: "bg-emerald-50 p-2 rounded-lg text-emerald-600",
+																	children: /* @__PURE__ */ jsx(MessageSquare, { size: 16 })
+																}), /* @__PURE__ */ jsxs("div", {
+																	className: "flex flex-col",
+																	children: [/* @__PURE__ */ jsxs("span", {
+																		className: "font-medium text-slate-800",
+																		children: ["r/", community.name]
+																	}), /* @__PURE__ */ jsxs("span", {
+																		className: "text-xs text-slate-500",
+																		children: [community.members || 0, " members"]
+																	})]
+																})]
+															}, `comm-${community.id}`))]
+														})
+													]
+												});
+											})()
+										})
+									]
 								})
 							}),
 							/* @__PURE__ */ jsxs("div", {
@@ -915,11 +931,17 @@ function Welcome(props) {
 					fallbackImage: meta?.preload_image
 				}),
 				/* @__PURE__ */ jsx(Suspense, {
-					fallback: /* @__PURE__ */ jsx("div", { className: "h-20 bg-slate-50 dark:bg-zinc-900 animate-pulse" }),
+					fallback: /* @__PURE__ */ jsx("div", { style: {
+						minHeight: "80px",
+						background: "#f8fafc"
+					} }),
 					children: /* @__PURE__ */ jsx(TrustMarquee, { categories: categories || [] })
 				}),
 				/* @__PURE__ */ jsx(Suspense, {
-					fallback: /* @__PURE__ */ jsx("div", { className: "h-96 bg-white dark:bg-zinc-950 animate-pulse" }),
+					fallback: /* @__PURE__ */ jsx("div", { style: {
+						minHeight: "384px",
+						background: "#ffffff"
+					} }),
 					children: /* @__PURE__ */ jsx(InstitutesSection, {
 						featuredBusinesses: featuredBusinesses || [],
 						basePath,
@@ -927,7 +949,10 @@ function Welcome(props) {
 					})
 				}),
 				/* @__PURE__ */ jsx(Suspense, {
-					fallback: /* @__PURE__ */ jsx("div", { className: "h-96 bg-slate-50 dark:bg-zinc-950 animate-pulse" }),
+					fallback: /* @__PURE__ */ jsx("div", { style: {
+						minHeight: "384px",
+						background: "#f8fafc"
+					} }),
 					children: /* @__PURE__ */ jsx(CommunityFeedSection, {
 						basePath,
 						feedPosts,
@@ -935,63 +960,34 @@ function Welcome(props) {
 					})
 				}),
 				/* @__PURE__ */ jsx(SeoContent, { basePath }),
-				/* @__PURE__ */ jsx(BlogSection, {
-					morePosts: morePosts || [],
-					basePath,
-					formatDate
+				/* @__PURE__ */ jsx(Suspense, {
+					fallback: /* @__PURE__ */ jsx("div", { style: { minHeight: "400px" } }),
+					children: /* @__PURE__ */ jsx(BlogSection, {
+						morePosts: morePosts || [],
+						basePath,
+						formatDate
+					})
 				}),
-				/* @__PURE__ */ jsx(CategorySection, {
-					categories: categories || [],
-					basePath
+				/* @__PURE__ */ jsx(Suspense, {
+					fallback: /* @__PURE__ */ jsx("div", { style: { minHeight: "400px" } }),
+					children: /* @__PURE__ */ jsx(CategorySection, {
+						categories: categories || [],
+						basePath
+					})
 				}),
-				/* @__PURE__ */ jsx(StoriesSection, {
-					stories: publishedStories || [],
-					basePath
+				/* @__PURE__ */ jsx(Suspense, {
+					fallback: /* @__PURE__ */ jsx("div", { style: { minHeight: "300px" } }),
+					children: /* @__PURE__ */ jsx(StoriesSection, {
+						stories: publishedStories || [],
+						basePath
+					})
 				}),
-				/* @__PURE__ */ jsx(FAQSection, {})
+				/* @__PURE__ */ jsx(Suspense, {
+					fallback: /* @__PURE__ */ jsx("div", { style: { minHeight: "300px" } }),
+					children: /* @__PURE__ */ jsx(FAQSection, {})
+				})
 			] }),
-			/* @__PURE__ */ jsx(BlogFooter, {}),
-			/* @__PURE__ */ jsx("style", {
-				jsx: true,
-				global: true,
-				children: `
-                .hide-scrollbar::-webkit-scrollbar {
-                    display: none;
-                }
-                .hide-scrollbar {
-                    -ms-overflow-style: none;
-                    scrollbar-width: none;
-                }
-                
-                @keyframes float {
-                    0% { transform: translateY(0px); }
-                    50% { transform: translateY(-10px); }
-                    100% { transform: translateY(0px); }
-                }
-                @keyframes float-delayed {
-                    0% { transform: translateY(0px); }
-                    50% { transform: translateY(10px); }
-                    100% { transform: translateY(0px); }
-                }
-                .animate-float {
-                    animation: float 6s ease-in-out infinite;
-                }
-                .animate-float-delayed {
-                    animation: float-delayed 7s ease-in-out infinite;
-                }
-                
-                @keyframes marquee {
-                    0% { transform: translateX(0); }
-                    100% { transform: translateX(-33.333333%); }
-                }
-                .animate-marquee {
-                    animation: marquee 30s linear infinite;
-                }
-                .animate-marquee-fast {
-                    animation: marquee 25s linear infinite;
-                }
-            `
-			})
+			/* @__PURE__ */ jsx(BlogFooter, {})
 		]
 	});
 }
