@@ -4,8 +4,8 @@
   ],
   "node_modules/laravel-vite-plugin/inertia-helpers/index.js": [],
   "resources/css/app.css": [
-    "/build/assets/PostForm-Cn4WqlN7.js",
-    "/build/assets/PostForm-Cq02Jajh.css"
+    "/build/assets/PostForm-mKvGgIgf.js",
+    "/build/assets/PostForm-CIIlGfgp.css"
   ],
   "resources/js/Components/AnimatedBorderCard.jsx": [
     "/build/assets/AnimatedBorderCard-B7gc4jxI.js"
@@ -128,14 +128,14 @@
     "/build/assets/Index-DdN58P1t.js"
   ],
   "resources/js/Pages/Admin/PostForm.tsx": [
-    "/build/assets/PostForm-Cn4WqlN7.js",
-    "/build/assets/PostForm-Cq02Jajh.css"
+    "/build/assets/PostForm-mKvGgIgf.js",
+    "/build/assets/PostForm-CIIlGfgp.css"
   ],
   "resources/js/Pages/Admin/Posts/Edit.jsx": [
-    "/build/assets/Edit-SJtvHr_B.js"
+    "/build/assets/Edit-DygFI1a1.js"
   ],
   "resources/js/Pages/Admin/Posts/New.jsx": [
-    "/build/assets/New-BJSnMHdt.js"
+    "/build/assets/New-DiVwCtDQ.js"
   ],
   "resources/js/Pages/Admin/SeoAudit/Index.jsx": [
     "/build/assets/Index-CB1bZ86T.js"
@@ -305,7 +305,7 @@
     "/build/assets/Show-DE9zTaJ9.js"
   ],
   "resources/js/Pages/Welcome.jsx": [
-    "/build/assets/Welcome-CNzTMEq9.js"
+    "/build/assets/Welcome-CPRYDWWR.js"
   ],
   "resources/js/ssr.jsx": []
 }

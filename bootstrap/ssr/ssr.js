@@ -34,9 +34,9 @@ createServer((page) => createInertiaApp({
 		"./Pages/Admin/Media/Index.jsx": () => import("./assets/Index-AgjNrepi.js"),
 		"./Pages/Admin/Newsletters/Index.jsx": () => import("./assets/Index-C34G7WJq.js"),
 		"./Pages/Admin/Pages/Index.jsx": () => import("./assets/Index-DdN58P1t.js"),
-		"./Pages/Admin/PostForm.tsx": () => import("./assets/PostForm-Cn4WqlN7.js"),
-		"./Pages/Admin/Posts/Edit.jsx": () => import("./assets/Edit-SJtvHr_B.js"),
-		"./Pages/Admin/Posts/New.jsx": () => import("./assets/New-BJSnMHdt.js"),
+		"./Pages/Admin/PostForm.tsx": () => import("./assets/PostForm-mKvGgIgf.js"),
+		"./Pages/Admin/Posts/Edit.jsx": () => import("./assets/Edit-DygFI1a1.js"),
+		"./Pages/Admin/Posts/New.jsx": () => import("./assets/New-DiVwCtDQ.js"),
 		"./Pages/Admin/SeoAudit/Index.jsx": () => import("./assets/Index-CB1bZ86T.js"),
 		"./Pages/Admin/Settings/Slider.jsx": () => import("./assets/Slider-COe4Fg7f.js"),
 		"./Pages/Admin/Stories/Edit.jsx": () => import("./assets/Edit-BTKlRiKK.js"),
@@ -90,7 +90,7 @@ createServer((page) => createInertiaApp({
 		"./Pages/Static/Terms.jsx": () => import("./assets/Terms-CuJ6P5eT.js"),
 		"./Pages/Story/Index.jsx": () => import("./assets/Index-D0q64wAh.js"),
 		"./Pages/User/Show.jsx": () => import("./assets/Show-DE9zTaJ9.js"),
-		"./Pages/Welcome.jsx": () => import("./assets/Welcome-CNzTMEq9.js")
+		"./Pages/Welcome.jsx": () => import("./assets/Welcome-CPRYDWWR.js")
 	})),
 	setup({ App, props }) {
 		return /* @__PURE__ */ jsx(App, { ...props });

@@ -115,6 +115,20 @@
         });
     });
     </script>
+    @php
+        $font400 = glob(public_path('build/assets/outfit-latin-400-*.woff2'))[0] ?? null;
+        $font700 = glob(public_path('build/assets/outfit-latin-700-*.woff2'))[0] ?? null;
+        $font800 = glob(public_path('build/assets/outfit-latin-800-*.woff2'))[0] ?? null;
+    @endphp
+    @if($font400)
+        <link rel="preload" href="{{ str_replace('\\', '/', str_replace(public_path(), '', $font400)) }}" as="font" type="font/woff2" crossorigin>
+    @endif
+    @if($font700)
+        <link rel="preload" href="{{ str_replace('\\', '/', str_replace(public_path(), '', $font700)) }}" as="font" type="font/woff2" crossorigin>
+    @endif
+    @if($font800)
+        <link rel="preload" href="{{ str_replace('\\', '/', str_replace(public_path(), '', $font800)) }}" as="font" type="font/woff2" crossorigin>
+    @endif
 </head>
 <body class="font-sans antialiased">
     <div id="home-app">
