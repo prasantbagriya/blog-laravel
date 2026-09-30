@@ -118,7 +118,7 @@
 </head>
 <body class="font-sans antialiased">
     <div id="home-app">
-        <section style="position:relative; width:100%; min-height:500px; display:flex; align-items:center; background-color:#0f172a; overflow:hidden; font-family: sans-serif;">
+        <section style="position:relative; width:100%; min-height:500px; display:flex; align-items:center; background-color:#0f172a; overflow:hidden;">
             @if(!empty($meta['preload_image']))
                 <img src="{{ $meta['preload_image'] }}" style="position:absolute; inset:0; z-index:0; height:100%; width:100%; object-fit:cover;" alt="" aria-hidden="true" fetchpriority="high" />
             @endif
