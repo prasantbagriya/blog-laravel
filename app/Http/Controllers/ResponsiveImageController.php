@@ -21,10 +21,7 @@ class ResponsiveImageController extends Controller
         $relativePath = ltrim(str_replace('\\', '/', $path), '/');
         abort_if(Str::contains($relativePath, '..'), 404);
         abort_unless(
-            Str::startsWith($relativePath, 'businesses/logos/') || 
-            Str::startsWith($relativePath, 'sliders/') ||
-            strpos($relativePath, '/') === false ||
-            in_array($relativePath, ['background.webp', 'logo.webp'], true),
+            Str::startsWith($relativePath, 'businesses/logos/') || in_array($relativePath, ['background.webp', 'logo.webp'], true),
             404,
         );
 

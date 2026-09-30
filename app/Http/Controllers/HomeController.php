@@ -182,9 +182,6 @@ class HomeController extends Controller
             'sliders' => $homeData['sliders'] ?? [],
             'categories' => $homeData['categories'] ?? [],
             'meta' => $homeData['meta'] ?? [],
-            'featuredBusinesses' => $homeData['featuredBusinesses'] ?? [],
-            'feedPosts' => $homeData['feedPosts'] ?? [],
-            'topCommunities' => $homeData['topCommunities'] ?? [],
         ];
 
         return view('home', $viewData);
@@ -238,15 +235,10 @@ class HomeController extends Controller
 
     private function responsiveImageUrl(?string $imageUrl, int $width): ?string
     {
-        if (! $imageUrl) {
-            return $imageUrl;
-        }
-        
-        $path = parse_url($imageUrl, PHP_URL_PATH);
-        if (! $path || ! \Illuminate\Support\Str::startsWith($path, '/uploads/')) {
+        if (! $imageUrl || ! str_starts_with($imageUrl, '/uploads/')) {
             return $imageUrl;
         }
 
-        return '/images/' . $width . '/' . ltrim(substr($path, strlen('/uploads/')), '/');
+        return '/images/' . $width . '/' . ltrim(substr($imageUrl, strlen('/uploads/')), '/');
     }
 }

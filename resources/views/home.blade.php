@@ -115,70 +115,24 @@
         });
     });
     </script>
-    @php
-        $font400 = glob(public_path('build/assets/outfit-latin-400-*.woff2'))[0] ?? null;
-        $font700 = glob(public_path('build/assets/outfit-latin-700-*.woff2'))[0] ?? null;
-        $font800 = glob(public_path('build/assets/outfit-latin-800-*.woff2'))[0] ?? null;
-    @endphp
-    @if($font400)
-        <link rel="preload" href="{{ str_replace('\\', '/', str_replace(public_path(), '', $font400)) }}" as="font" type="font/woff2" crossorigin>
-    @endif
-    @if($font700)
-        <link rel="preload" href="{{ str_replace('\\', '/', str_replace(public_path(), '', $font700)) }}" as="font" type="font/woff2" crossorigin>
-    @endif
-    @if($font800)
-        <link rel="preload" href="{{ str_replace('\\', '/', str_replace(public_path(), '', $font800)) }}" as="font" type="font/woff2" crossorigin>
-    @endif
 </head>
 <body class="font-sans antialiased">
-    <div style="display: grid; width: 100%;">
-        <div id="skeleton" style="grid-area: 1 / 1; z-index: 2; pointer-events: none; width: 100%;">
-            <style>
-                .hero-skeleton { position:relative; width:100%; min-height:500px; display:flex; align-items:center; background-color:#0f172a; overflow:hidden; }
-                .hero-content { position:relative; z-index:10; width:100%; max-width:1280px; margin:0 auto; padding:6rem 1rem 2.5rem; text-align:left; }
-                .hero-buttons { display:flex; flex-direction:column; gap:0.75rem; }
-                .hero-btn { display:flex; align-items:center; justify-content:center; padding:0.75rem 1.5rem; text-align:center; width:100%; }
-                .hero-btn-primary { background-color:#f59e0b; color:#000000; font-weight:700; border-radius:9999px; }
-                .hero-btn-secondary { background-color:rgba(255,255,255,0.1); color:#ffffff; font-weight:600; border-radius:0.375rem; }
-                @media (min-width: 640px) {
-                    .hero-buttons { flex-direction:row; }
-                    .hero-btn { width:auto; }
-                }
-                @media (min-width: 768px) {
-                    .hero-skeleton { min-height: 600px; }
-                    .hero-content { padding: 8rem 2rem 3.5rem; }
-                }
-            </style>
-            <section class="hero-skeleton">
-                @if(!empty($meta['preload_image']))
-                    <img src="{{ $meta['preload_image'] }}" style="position:absolute; inset:0; z-index:0; height:100%; width:100%; object-fit:cover;" alt="" aria-hidden="true" fetchpriority="high" />
-                @endif
-                <div style="position:absolute; inset:0; z-index:0; background-color:rgba(15,23,42,0.8);"></div>
-                <div class="hero-content">
-                    <p style="color:#fbbf24; font-size:0.75rem; font-weight:700; letter-spacing:0.12em; margin-bottom:1rem; text-transform:uppercase;">Coaching and School Discovery Platform</p>
-                    <h1 style="color:#ffffff; font-size:clamp(2.25rem, 5vw, 4rem); font-weight:800; line-height:1.1; margin-bottom:1.5rem; letter-spacing:-0.025em; margin-top:0;">Find the Best CoachinginSikar</h1>
-                    <p style="color:rgba(255,255,255,0.8); font-size:1.125rem; max-width:36rem; margin-bottom:2rem;">Compare coaching institutes, courses, fees, results and student reviews — all in one place.</p>
-                    <div style="max-width:36rem; background:#ffffff; border-radius:9999px; padding:0.5rem; display:flex; align-items:center; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom:1.5rem;">
-                        <div style="flex:1; padding:0.5rem 1rem; color:#94a3b8;">Search coaching, courses, exams or institutes...</div>
-                        <div style="background:#e11d48; color:#ffffff; font-weight:600; padding:0.625rem 1.5rem; border-radius:9999px;">Search</div>
-                    </div>
-                    <div style="display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem; margin-bottom:2rem; font-size:0.875rem;">
-                        <span style="color:rgba(255,255,255,0.6); margin-right:0.25rem;">Popular Exams:</span>
-                        <span style="padding:0.375rem 1rem; border-radius:9999px; background-color:rgba(255,255,255,0.1); color:#ffffff; font-weight:600;">JEE</span>
-                        <span style="padding:0.375rem 1rem; border-radius:9999px; background-color:rgba(255,255,255,0.1); color:#ffffff; font-weight:600;">NEET</span>
-                        <span style="padding:0.375rem 1rem; border-radius:9999px; background-color:rgba(255,255,255,0.1); color:#ffffff; font-weight:600;">NDA</span>
-                        <span style="padding:0.375rem 1rem; border-radius:9999px; background-color:rgba(255,255,255,0.1); color:#ffffff; font-weight:600;">CLAT</span>
-                        <span style="padding:0.375rem 1rem; border-radius:9999px; background-color:rgba(255,255,255,0.1); color:#ffffff; font-weight:600;">CUET</span>
-                        <span style="padding:0.375rem 1rem; border-radius:9999px; background-color:rgba(255,255,255,0.1); color:#ffffff; font-weight:600;">Foundation</span>
-                    </div>
-                    <div class="hero-buttons">
-                        <span class="hero-btn hero-btn-primary">Explore Institutes</span>
-                        <span class="hero-btn hero-btn-secondary">Compare Coaching</span>
-                    </div>
+    <div id="home-app">
+        <section style="position:relative; width:100%; min-height:500px; display:flex; align-items:center; background-color:#0f172a; overflow:hidden;">
+            @if(!empty($meta['preload_image']))
+                <img src="{{ $meta['preload_image'] }}" style="position:absolute; inset:0; z-index:0; height:100%; width:100%; object-fit:cover;" alt="" aria-hidden="true" fetchpriority="high" />
+            @endif
+            <div style="position:absolute; inset:0; z-index:0; background-color:rgba(15,23,42,0.8);"></div>
+            <div style="position:relative; z-index:10; width:100%; max-width:1280px; margin:0 auto; padding:6rem 1rem 2.5rem; text-align:left;">
+                <p style="color:#fbbf24; font-size:0.75rem; font-weight:700; letter-spacing:0.12em; margin-bottom:1rem; text-transform:uppercase;">Coaching and School Discovery Platform</p>
+                <h1 style="color:#ffffff; font-size:clamp(2.25rem, 5vw, 4rem); font-weight:800; line-height:1.1; margin-bottom:1.5rem; letter-spacing:-0.025em; margin-top:0;">Find the Best CoachinginSikar</h1>
+                <p style="color:rgba(255,255,255,0.8); font-size:1.125rem; max-width:36rem; margin-bottom:2rem;">Compare coaching institutes, courses, fees, results and student reviews — all in one place.</p>
+                <div style="max-width:36rem; background:#ffffff; border-radius:9999px; padding:0.5rem; display:flex; align-items:center; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
+                    <div style="flex:1; padding:0.5rem 1rem; color:#94a3b8;">Search coaching, courses, exams or institutes...</div>
+                    <div style="background:#e11d48; color:#ffffff; font-weight:600; padding:0.625rem 1.5rem; border-radius:9999px;">Search</div>
                 </div>
-            </section>
-        </div>
-        <div id="home-app" style="grid-area: 1 / 1; z-index: 1; width: 100%;"></div>
+            </div>
+        </section>
     </div>
     <script id="home-props" type="application/json">{!! json_encode([
         'morePosts' => $morePosts,

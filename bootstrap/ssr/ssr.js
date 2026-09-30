@@ -90,7 +90,7 @@ createServer((page) => createInertiaApp({
 		"./Pages/Static/Terms.jsx": () => import("./assets/Terms-CuJ6P5eT.js"),
 		"./Pages/Story/Index.jsx": () => import("./assets/Index-D0q64wAh.js"),
 		"./Pages/User/Show.jsx": () => import("./assets/Show-DE9zTaJ9.js"),
-		"./Pages/Welcome.jsx": () => import("./assets/Welcome-CPRYDWWR.js")
+		"./Pages/Welcome.jsx": () => import("./assets/Welcome-CNzTMEq9.js")
 	})),
 	setup({ App, props }) {
 		return /* @__PURE__ */ jsx(App, { ...props });
