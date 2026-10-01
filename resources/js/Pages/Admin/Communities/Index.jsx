@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Head, Link } from '@inertiajs/react';
-import { Edit, Trash2, Loader2, FolderSearch } from 'lucide-react';
 import AdminLayout from '@/Layouts/AdminLayout';
 
 export default function Index() {
@@ -49,14 +48,14 @@ export default function Index() {
         <div style={{ background: '#fff', borderRadius: '16px', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)', overflow: 'hidden' }}>
           {loading ? (
             <div style={{ padding: '64px 20px', textAlign: 'center', color: '#64748b', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-              <Loader2 size={32} style={{ color: '#cbd5e1', animation: 'spin 1s linear infinite' }} />
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#cbd5e1', animation: 'spin 1s linear infinite' }}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
               <div style={{ fontSize: '15px', fontWeight: 500 }}>Loading communities...</div>
               <style>{`@keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
             </div>
           ) : communities.length === 0 ? (
             <div style={{ padding: '80px 20px', textAlign: 'center', color: '#64748b', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
               <div style={{ background: '#f1f5f9', padding: '16px', borderRadius: '50%' }}>
-                <FolderSearch size={40} style={{ color: '#94a3b8' }} />
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#94a3b8' }}><circle cx="17" cy="17" r="3"/><path d="m21 21-1.5-1.5"/><path d="M19 11V6a2 2 0 0 0-2-2H9l-2 3H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h8"/></svg>
               </div>
               <div>
                 <div style={{ fontSize: '16px', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>No communities found</div>
@@ -98,10 +97,10 @@ export default function Index() {
                       <td style={tdStyle}>
                         <div style={{ display: 'flex', gap: '8px' }}>
                           <Link href={`${typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : ''}/admin/communities/edit/${community.id}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: '#f8fafc', color: '#475569', borderRadius: '6px', fontSize: '13px', fontWeight: 600, textDecoration: 'none', border: '1px solid #e2e8f0', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }} onMouseEnter={e => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.transform = 'scale(1.02)'; }} onMouseLeave={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.transform = 'scale(1)'; }}>
-                            <Edit size={14} /> Edit
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit
                           </Link>
                           <button onClick={() => handleDelete(community.id)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: '#fff', color: '#ef4444', borderRadius: '6px', fontSize: '13px', fontWeight: 600, border: '1px solid #fecaca', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }} onMouseEnter={e => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.transform = 'scale(1.02)'; }} onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.transform = 'scale(1)'; }}>
-                            <Trash2 size={14} /> Delete
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg> Delete
                           </button>
                         </div>
                       </td>

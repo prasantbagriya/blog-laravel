@@ -137,7 +137,7 @@ export default function Edit({ auth, business }) {
                     submitData.append(key, formData[key]);
                 }
             });
-            submitData.append('user_id', user.id);
+            submitData.append('user_id', business.userId || business.user_id || user.id);
             submitData.append('_encoded_payloads', 'true');
 
             submitData.append('_method', 'PUT'); // Laravel requires this for multipart/form-data PUT requests

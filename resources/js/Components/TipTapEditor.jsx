@@ -25,7 +25,7 @@ const ToolbarButton = ({ onClick, disabled, isActive, title, children }) => (
         type="button"
         onClick={onClick}
         disabled={disabled}
-        className={`p-1.5 rounded transition-colors flex items-center justify-center border-0 outline-none focus:outline-none focus:ring-0 ${
+        className={`flex-shrink-0 p-1.5 rounded transition-colors flex items-center justify-center border-0 outline-none focus:outline-none focus:ring-0 ${
             isActive 
             ? 'bg-[#E2E2E2] dark:bg-zinc-700 text-[#1C1C1C] dark:text-zinc-100' 
             : 'bg-transparent text-[#878A8C] dark:text-zinc-400 hover:bg-[#E2E2E2] dark:hover:bg-zinc-700 hover:text-[#1C1C1C] dark:hover:text-zinc-100'
@@ -57,10 +57,10 @@ const MenuBar = ({ editor, onOpenImageModal, onOpenVideoModal, onOpenLinkModal }
         onOpenLinkModal(previousUrl || '');
     }, [editor, onOpenLinkModal]);
 
-    const Divider = () => <div className="w-[1px] h-6 bg-gray-200 dark:bg-zinc-700 mx-1.5 hidden sm:block"></div>;
+    const Divider = () => <div className="flex-shrink-0 w-[1px] h-6 bg-gray-200 dark:bg-zinc-700 mx-1.5"></div>;
 
     return (
-        <div className="flex flex-wrap items-center gap-0.5 p-1.5 bg-[#F6F7F8] dark:bg-zinc-800 border-b border-[#EDEFF1] dark:border-zinc-700">
+        <div className="flex flex-nowrap overflow-x-auto items-center gap-0.5 p-1.5 bg-[#F6F7F8] dark:bg-zinc-800 border-b border-[#EDEFF1] dark:border-zinc-700 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
             <ToolbarButton
                 onClick={() => editor.chain().focus().toggleBold().run()}
                 disabled={!editor.can().chain().focus().toggleBold().run()}

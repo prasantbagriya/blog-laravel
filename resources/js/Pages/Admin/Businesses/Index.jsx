@@ -83,12 +83,12 @@ export default function BusinessesPage() {
                   </td>
                   <td style={{ padding: '16px 24px', textAlign: 'right' }}>
                     <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', alignItems: 'center' }}>
-                      <Link 
-                        href={`/businesses/${business.slug || business.id}/edit`}
+                      <a 
+                        href={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + `/businesses/${business.slug || business.id}/edit`}
                         style={{ padding: '6px 12px', background: '#e2e8f0', color: '#475569', borderRadius: '6px', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}
                       >
                         Edit
-                      </Link>
+                      </a>
                       <DeleteButton 
                         endpoint="/api/admin/businesses"
                         id={business.id}

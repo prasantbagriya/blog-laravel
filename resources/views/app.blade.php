@@ -114,11 +114,7 @@
         <link rel="apple-touch-icon" href="/uploads/logo.webp">
 
         <!-- Fonts -->
-        <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-        <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-        
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap">
-        
+        <!-- Fonts hosted locally via NPM -->
 
         <!-- Scripts -->
         {{-- Public pages only need the public route map. Admin routes stay server-side. --}}
@@ -158,6 +154,15 @@
             </div>
         @endif
         
+        {{-- SEO H1 for crawlers: rendered in server HTML before JS hydrates.
+             Visually hidden but fully readable by Bingbot / Googlebot. --}}
+        @php
+            $crawlerH1 = $page['props']['meta']['h1']
+                ?? $page['props']['meta']['title']
+                ?? config('app.name', 'CoachinginSikar');
+        @endphp
+        <h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0;" aria-hidden="true">{{ $crawlerH1 }}</h1>
+
         @inertia
 
     </body>

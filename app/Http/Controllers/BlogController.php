@@ -37,40 +37,42 @@ class BlogController extends Controller
         if ($dbPage) {
             $pageType = $dbPage->title;
             $meta = [
-                'title' => $dbPage->seo_title ?: ($dbPage->title . ' | Coachinginsikar'),
-                'description' => $dbPage->seo_description ?: '',
-                'keywords' => $dbPage->seo_keywords ?: '',
-                'og_title' => $dbPage->og_title ?: ($dbPage->seo_title ?: $dbPage->title),
-                'og_description' => $dbPage->og_description ?: $dbPage->seo_description,
-                'twitter_title' => $dbPage->og_title ?: ($dbPage->seo_title ?: $dbPage->title),
+                'title'               => $dbPage->seo_title ?: ($dbPage->title . ' | Coachinginsikar'),
+                'h1'                  => $dbPage->h1 ?? ($dbPage->title . ' — Coaching Guides & Articles | CoachingsinSikar'),
+                'description'         => $dbPage->seo_description ?: '',
+                'keywords'            => $dbPage->seo_keywords ?: '',
+                'og_title'            => $dbPage->og_title ?: ($dbPage->seo_title ?: $dbPage->title),
+                'og_description'      => $dbPage->og_description ?: $dbPage->seo_description,
+                'twitter_title'       => $dbPage->og_title ?: ($dbPage->seo_title ?: $dbPage->title),
                 'twitter_description' => $dbPage->og_description ?: $dbPage->seo_description,
-                'url' => url('/' . $slug),
-                'type' => 'website',
-                'og_image' => $dbPage->og_image ?: url('/uploads/social-cover.webp'),
-                'schemas' => [
+                'url'                 => url('/' . $slug),
+                'type'                => 'website',
+                'og_image'            => $dbPage->og_image ?: url('/uploads/social-cover.webp'),
+                'schemas'             => [
                     [
-                        "@context" => "https://schema.org",
-                        "@type" => "CollectionPage",
-                        "headline" => $dbPage->seo_title ?: $dbPage->title,
+                        "@context"    => "https://schema.org",
+                        "@type"       => "CollectionPage",
+                        "headline"    => $dbPage->seo_title ?: $dbPage->title,
                         "description" => $dbPage->seo_description ?: '',
-                        "url" => url('/' . $slug)
+                        "url"         => url('/' . $slug)
                     ]
                 ]
             ];
         } else {
             // If the page doesn't exist in the database, use basic empty metadata
             $meta = [
-                'title' => ucfirst($slug) . ' | Coachinginsikar',
-                'description' => '',
-                'keywords' => '',
-                'og_title' => ucfirst($slug),
-                'og_description' => '',
-                'twitter_title' => ucfirst($slug),
+                'title'               => ucfirst($slug) . ' | Coachinginsikar',
+                'h1'                  => ucfirst($slug) . ' — Latest Coaching & Education Articles | CoachingsinSikar',
+                'description'         => '',
+                'keywords'            => '',
+                'og_title'            => ucfirst($slug),
+                'og_description'      => '',
+                'twitter_title'       => ucfirst($slug),
                 'twitter_description' => '',
-                'url' => url('/' . $slug),
-                'type' => 'website',
-                'og_image' => url('/uploads/social-cover.webp'),
-                'schemas' => []
+                'url'                 => url('/' . $slug),
+                'type'                => 'website',
+                'og_image'            => url('/uploads/social-cover.webp'),
+                'schemas'             => []
             ];
         }
 

@@ -45,9 +45,7 @@
     <link rel="icon" type="image/webp" sizes="48x48" href="/uploads/logo.webp">
     <link rel="apple-touch-icon" href="/uploads/logo.webp">
 
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap">
+
 
     <script>
         window.BASE_PATH = "{{ url('') }}";
@@ -56,8 +54,44 @@
             document.documentElement.classList.add('dark');
         }
     </script>
-    @viteReactRefresh
+    {{-- Critical CSS: only the minimum needed to paint the above-the-fold hero skeleton
+         without any render-blocking external request. --}}
+    <style>
+        *,*::before,*::after{box-sizing:border-box;padding:0;margin:0}
+        html{overflow-x:clip;overflow-y:scroll;font-size:16px;-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-behavior:smooth}
+        body{max-width:100vw;overflow-x:clip;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:#fff;color:#0f172a;line-height:1.6;-webkit-font-smoothing:antialiased}
+        img,video{max-width:100%;height:auto;display:block}
+        h1,h2,h3,h4,h5,h6{font-weight:700;line-height:1.2;margin-bottom:1rem}
+        a{color:inherit;text-decoration:none}
+        .btn-amber{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1.5rem;border-radius:9999px;background:#f59e0b;color:#000;font-weight:800;font-size:.875rem;box-shadow:0 10px 15px -3px rgba(245,158,11,.2);transition:all .15s;border:none;cursor:pointer}
+    </style>
+
+    {{-- Non-blocking CSS: load the full home stylesheet without blocking rendering.
+         The media="print" trick causes browsers to fetch at low priority;
+         onload swaps it to media="all" so all styles apply after first paint. --}}
+    @php
+        $homeCssHref = null;
+        try {
+            $manifestPath = public_path('build/manifest.json');
+            if (file_exists($manifestPath)) {
+                $manifest = json_decode(file_get_contents($manifestPath), true);
+                // home.pcss is a top-level Vite entry; 'file' is the hashed CSS filename
+                $pcssEntry = $manifest['resources/css/home.pcss'] ?? null;
+                if ($pcssEntry && !empty($pcssEntry['file'])) {
+                    $homeCssHref = asset('build/' . $pcssEntry['file']);
+                }
+            }
+        } catch (\Throwable $e) {}
+    @endphp
+    @if($homeCssHref)
+    <link rel="preload" href="{{ $homeCssHref }}" as="style" fetchpriority="low">
+    <link rel="stylesheet" href="{{ $homeCssHref }}" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="{{ $homeCssHref }}"></noscript>
+    @endif
+
+    {{-- Vite JS entry only (CSS is handled above; Vite emits the <script type="module"> tag which is non-blocking by spec) --}}
     @vite('resources/js/home.jsx')
+
 
     {{-- Load analytics after an interaction or an extended quiet period. --}}
     <script>
@@ -71,6 +105,13 @@
             script.src = 'https://www.googletagmanager.com/gtag/js?id=G-NRXEX23V4X';
             script.fetchPriority = 'low';
             document.head.appendChild(script);
+
+            const swgScript = document.createElement('script');
+            swgScript.async = true;
+            swgScript.src = 'https://news.google.com/swg/js/v1/swg-basic.js';
+            swgScript.fetchPriority = 'low';
+            document.head.appendChild(swgScript);
+
             gtag('js', new Date());
             gtag('config', 'G-NRXEX23V4X');
         };
@@ -94,7 +135,6 @@
     </script>
 
     <!-- Google Publisher SWG -->
-    <script async type="application/javascript" src="https://news.google.com/swg/js/v1/swg-basic.js"></script>
     <script>
     (self.SWG_BASIC = self.SWG_BASIC || []).push( basicSubscriptions => {
         basicSubscriptions.init({
@@ -107,16 +147,32 @@
     </script>
 </head>
 <body class="font-sans antialiased">
-    <div id="home-app"></div>
+    <div id="home-app">
+        <section style="position:relative; width:100%; min-height:500px; display:flex; align-items:center; background-color:#0f172a; overflow:hidden;">
+            @if(!empty($meta['preload_image']))
+                <img src="{{ $meta['preload_image'] }}" width="1280" height="500" style="position:absolute; inset:0; z-index:0; height:100%; width:100%; object-fit:cover;" alt="Top coaching institutes and schools in Sikar, Rajasthan" fetchpriority="high" />
+            @endif
+            <div style="position:absolute; inset:0; z-index:0; background-color:rgba(15,23,42,0.8);"></div>
+            <div style="position:relative; z-index:10; width:100%; max-width:1280px; margin:0 auto; padding:6rem 1rem 2.5rem; text-align:left;">
+                <p style="color:#fbbf24; font-size:0.75rem; font-weight:700; letter-spacing:0.12em; margin-bottom:1rem; text-transform:uppercase;">Coaching and School Discovery Platform</p>
+                <h1 style="color:#ffffff; font-size:clamp(2.25rem, 5vw, 4rem); font-weight:800; line-height:1.1; margin-bottom:1.5rem; letter-spacing:-0.025em; margin-top:0;">Find the Best CoachinginSikar</h1>
+                <p style="color:rgba(255,255,255,0.8); font-size:1.125rem; max-width:36rem; margin-bottom:2rem;">Compare coaching institutes, courses, fees, results and student reviews — all in one place.</p>
+                <div style="max-width:36rem; background:#ffffff; border-radius:9999px; padding:0.5rem; display:flex; align-items:center; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
+                    <div style="flex:1; padding:0.5rem 1rem; color:#94a3b8;">Search coaching, courses, exams or institutes...</div>
+                    <div style="background:#e11d48; color:#ffffff; font-weight:600; padding:0.625rem 1.5rem; border-radius:9999px;">Search</div>
+                </div>
+            </div>
+        </section>
+    </div>
     <script id="home-props" type="application/json">{!! json_encode([
         'morePosts' => $morePosts,
         'publishedStories' => $publishedStories,
         'sliders' => $sliders,
         'categories' => $categories,
         'meta' => $meta,
-        'featuredBusinesses' => $featuredBusinesses,
-        'feedPosts' => $feedPosts,
-        'topCommunities' => $topCommunities,
+        'featuredBusinesses' => $featuredBusinesses ?? [],
+        'feedPosts' => $feedPosts ?? [],
+        'topCommunities' => $topCommunities ?? [],
     ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>
 </body>
 </html>

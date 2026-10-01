@@ -50,6 +50,7 @@ button {
 html {
   scroll-behavior: smooth;
   overflow-x: clip;
+  overflow-y: scroll;
   font-size: 16px;
   /* ✅ CLS: font-size-adjust prevents layout shift on webfont load */
   font-size-adjust: from-font;

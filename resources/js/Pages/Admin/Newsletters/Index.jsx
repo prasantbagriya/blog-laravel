@@ -1,9 +1,8 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { Head } from '@inertiajs/react';
 import axios from 'axios';
-import { Trash2, Users } from 'lucide-react';
 
-const AdminLayout = React.lazy(() => import('../../../Layouts/AdminLayout'));
+import AdminLayout from '../../../Layouts/AdminLayout';
 
 export default function NewslettersPage() {
     const [subscribers, setSubscribers] = useState([]);
@@ -71,7 +70,10 @@ export default function NewslettersPage() {
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                                 <div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                                        <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}><Users size={18}/> {sub.email}</h3>
+                                        <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                            {sub.email}
+                                        </h3>
                                     </div>
                                     <div style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>
                                         Source: <span style={{ color: '#0f172a', fontWeight: 700 }}>{sub.source || 'N/A'}</span>
@@ -88,7 +90,8 @@ export default function NewslettersPage() {
                                         onClick={() => deleteSubscriber(sub.id)}
                                         style={{ background: '#fef2f2', color: '#ef4444', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
                                     >
-                                        <Trash2 size={16} /> Delete
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                                        Delete
                                     </button>
                                 </div>
                             </div>
@@ -100,8 +103,4 @@ export default function NewslettersPage() {
     );
 }
 
-NewslettersPage.layout = page => (
-    <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading Admin Workspace...</div>}>
-        <AdminLayout>{page}</AdminLayout>
-    </Suspense>
-);
+NewslettersPage.layout = page => <AdminLayout>{page}</AdminLayout>;

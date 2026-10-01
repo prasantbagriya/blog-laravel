@@ -1,14 +1,16 @@
 import GlobalNavbar from '../NextComponents/GlobalNavbar';
 import BlogFooter from '../NextComponents/BlogFooter';
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Link, navigate, postHomeAction, Image } from './HomeComponents/utils';
-const TrustMarquee = React.lazy(() => import('./HomeComponents/TrustMarquee'));
-const InstitutesSection = React.lazy(() => import('./HomeComponents/InstitutesSection'));
-const CommunityFeedSection = React.lazy(() => import('./HomeComponents/CommunityFeedSection'));
 
+// Critical above-fold: load immediately
 import AnimatedBorderCard from '../Components/AnimatedBorderCard';
-const ShareModal = React.lazy(() => import('../Components/ShareModal'));
+import ShareModal from '../Components/ShareModal';
 import { Search, ChevronRight, GraduationCap, Award, Star, ArrowRight, ShieldCheck, PlayCircle, Library, MapPin, CheckCircle2, MessageSquare, ThumbsUp, TrendingUp, ChevronDown, BookOpen, TestTube, Target, Scale, Beaker, Backpack, Share2, Bookmark } from 'lucide-react';
+
+import TrustMarquee from './HomeComponents/TrustMarquee';
+import InstitutesSection from './HomeComponents/InstitutesSection';
+import CommunityFeedSection from './HomeComponents/CommunityFeedSection';
 
 // The home page is served as a small standalone React application. These are
 // intentionally regular links and fetch requests so it does not download the
@@ -100,16 +102,19 @@ const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses, fall
                         </p>
 
                         <div className="relative max-w-xl mb-6">
-                            <form onSubmit={handleSearch}>
+                            <form onSubmit={handleSearch} role="search" aria-label="Search coaching institutes">
+                                <label htmlFor="home-search" className="sr-only">Search coaching, courses, exams or institutes</label>
                                 <AnimatedBorderCard containerClassName="rounded-full" className="rounded-full">
                                     <div className="flex items-center gap-2 bg-white px-2 py-2 group">
-                                        <Search className="w-5 h-5 text-slate-400 ml-3 flex-shrink-0 group-focus-within:text-blue-500 transition-colors" />
+                                        <Search className="w-5 h-5 text-slate-400 ml-3 flex-shrink-0 group-focus-within:text-blue-500 transition-colors" aria-hidden="true" />
                                         <input 
-                                            type="text" 
+                                            id="home-search"
+                                            type="search" 
                                             name="q" 
                                             className="flex-1 border-0 outline-none focus:ring-0 text-slate-900 text-sm md:text-base py-2.5 bg-transparent placeholder-slate-400" 
                                             placeholder="Search coaching, courses, exams or institutes..." 
                                             value={searchQuery} 
+                                            aria-label="Search coaching, courses, exams or institutes"
                                             onChange={(e) => {
                                                 setSearchQuery(e.target.value);
                                                 setShowSuggestions(true);
@@ -118,7 +123,7 @@ const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses, fall
                                             onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                                             autoComplete="off"
                                         />
-                                        <button type="submit" className="bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-full px-6 py-2.5 transition-colors shrink-0 border-none outline-none focus:outline-none ring-0 focus:ring-0">
+                                        <button type="submit" aria-label="Search" className="bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-full px-6 py-2.5 transition-colors shrink-0 border-none outline-none focus:outline-none ring-0 focus:ring-0">
                                             Search
                                         </button>
                                     </div>
@@ -255,7 +260,7 @@ const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses, fall
                                     <img 
                                         key={`side-${index}`}
                                         src={imgUrl} 
-                                        alt="Slide" 
+                                        alt={`Coaching institute in Sikar — slide ${index + 1}`}
                                         fetchPriority={index === 0 ? 'high' : 'low'}
                                         loading={index === 0 ? 'eager' : 'lazy'}
                                         decoding={index === 0 ? 'sync' : 'async'}
@@ -701,61 +706,33 @@ export default function Welcome(props) {
             
             <main>
                 <HomeHero activeSlides={sliders || []} basePath={basePath} categories={categories || []} featuredBusinesses={featuredBusinesses || []} fallbackImage={meta?.preload_image} />
-                <Suspense fallback={<div className="h-20 bg-slate-50 dark:bg-zinc-900 animate-pulse"></div>}>
+                <Suspense fallback={<div style={{minHeight:'80px', background:'#f8fafc'}}></div>}>
                     <TrustMarquee categories={categories || []} />
                 </Suspense>
-                <Suspense fallback={<div className="h-96 bg-white dark:bg-zinc-950 animate-pulse"></div>}>
+                <Suspense fallback={<div style={{minHeight:'384px', background:'#ffffff'}}></div>}>
                     <InstitutesSection featuredBusinesses={featuredBusinesses || []} basePath={basePath} formatDate={formatDate} />
                 </Suspense>
-                <Suspense fallback={<div className="h-96 bg-slate-50 dark:bg-zinc-950 animate-pulse"></div>}>
+                <Suspense fallback={<div style={{minHeight:'384px', background:'#f8fafc'}}></div>}>
                     <CommunityFeedSection basePath={basePath} feedPosts={feedPosts} topCommunities={topCommunities} />
                 </Suspense>
                 <SeoContent basePath={basePath} />
-                <BlogSection morePosts={morePosts || []} basePath={basePath} formatDate={formatDate} />
-                <CategorySection categories={categories || []} basePath={basePath} />
-                <StoriesSection stories={publishedStories || []} basePath={basePath} />
-                <FAQSection />
+                <Suspense fallback={<div style={{minHeight:'400px'}}></div>}>
+                    <BlogSection morePosts={morePosts || []} basePath={basePath} formatDate={formatDate} />
+                </Suspense>
+                <Suspense fallback={<div style={{minHeight:'400px'}}></div>}>
+                    <CategorySection categories={categories || []} basePath={basePath} />
+                </Suspense>
+                <Suspense fallback={<div style={{minHeight:'300px'}}></div>}>
+                    <StoriesSection stories={publishedStories || []} basePath={basePath} />
+                </Suspense>
+                <Suspense fallback={<div style={{minHeight:'300px'}}></div>}>
+                    <FAQSection />
+                </Suspense>
             </main>
 
             <BlogFooter />
             
-            <style jsx global>{`
-                .hide-scrollbar::-webkit-scrollbar {
-                    display: none;
-                }
-                .hide-scrollbar {
-                    -ms-overflow-style: none;
-                    scrollbar-width: none;
-                }
-                
-                @keyframes float {
-                    0% { transform: translateY(0px); }
-                    50% { transform: translateY(-10px); }
-                    100% { transform: translateY(0px); }
-                }
-                @keyframes float-delayed {
-                    0% { transform: translateY(0px); }
-                    50% { transform: translateY(10px); }
-                    100% { transform: translateY(0px); }
-                }
-                .animate-float {
-                    animation: float 6s ease-in-out infinite;
-                }
-                .animate-float-delayed {
-                    animation: float-delayed 7s ease-in-out infinite;
-                }
-                
-                @keyframes marquee {
-                    0% { transform: translateX(0); }
-                    100% { transform: translateX(-33.333333%); }
-                }
-                .animate-marquee {
-                    animation: marquee 30s linear infinite;
-                }
-                .animate-marquee-fast {
-                    animation: marquee 25s linear infinite;
-                }
-            `}</style>
+
         </div>
     );
 }

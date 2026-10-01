@@ -215,6 +215,11 @@ export default function Feed({ auth, posts, currentSort = 'new', currentFilter =
                         </div>
                     </Link>
 
+                    {/* Page H1 — required for SEO / accessibility */}
+                    <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-5">
+                        CoachingsinSikar Community Feed
+                    </h1>
+
                     {/* Sort Bar */}
                     <div className="flex gap-2 items-center mb-6 pb-4 border-b border-slate-200 dark:border-zinc-800 overflow-x-auto scrollbar-hide">
                         <button 

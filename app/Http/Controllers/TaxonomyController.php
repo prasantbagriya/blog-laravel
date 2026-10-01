@@ -32,6 +32,7 @@ class TaxonomyController extends Controller
             'categories' => $categories,
             'meta' => [
                 'title' => $title,
+                'h1' => 'Explore All Categories | CoachingsinSikar',
                 'description' => $description,
                 'keywords' => $keywords,
                 'og_title' => $og_title,
@@ -76,6 +77,7 @@ class TaxonomyController extends Controller
 
         $meta = [
             'title' => $title,
+            'h1' => $categoryName . ' — Coaching Guides & Articles | CoachingsinSikar',
             'description' => $description,
             'url' => url("/category/{$slug}"),
             'type' => 'website',
@@ -118,6 +120,7 @@ class TaxonomyController extends Controller
             'authors' => $authors,
             'meta' => [
                 'title' => $title,
+                'h1' => 'Meet Our Authors | CoachingsinSikar',
                 'description' => $description,
                 'url' => url('/author'),
                 'type' => 'website',
@@ -198,6 +201,7 @@ class TaxonomyController extends Controller
             'posts' => $posts,
             'meta' => [
                 'title' => $title,
+                'h1' => $author->name . ' — Author at CoachingsinSikar',
                 'description' => $description,
                 'url' => url("/author/{$slug}"),
                 'type' => 'profile',

@@ -246,10 +246,10 @@ export default function AdminPage() {
 
   const getDeployBadge = (urlFormat) => {
     if (!urlFormat) return <span style={{ background: '#f1f5f9', color: '#475569', padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 800, whiteSpace: 'nowrap' }}>UNCATEGORIZED</span>;
-    if (urlFormat.includes('news')) return <span style={{ background: '#fee2e2', color: '#dc2626', padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 800, whiteSpace: 'nowrap' }}>📰 NEWS</span>;
-    if (urlFormat.includes('blog')) return <span style={{ background: '#dbeafe', color: '#2563eb', padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 800, whiteSpace: 'nowrap' }}>📝 BLOG</span>;
-    if (urlFormat.startsWith('{slug}')) return <span style={{ background: '#f3e8ff', color: '#9333ea', padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 800, whiteSpace: 'nowrap' }}>📄 PAGE</span>;
-    return <span style={{ background: '#fef3c7', color: '#d97706', padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 800, whiteSpace: 'nowrap' }}>📁 {urlFormat.toUpperCase()}</span>;
+    if (urlFormat.includes('news')) return <span style={{ background: '#fee2e2', color: '#dc2626', padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 800, whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '4px' }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg> NEWS</span>;
+    if (urlFormat.includes('blog')) return <span style={{ background: '#dbeafe', color: '#2563eb', padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 800, whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '4px' }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg> BLOG</span>;
+    if (urlFormat.startsWith('{slug}')) return <span style={{ background: '#f3e8ff', color: '#9333ea', padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 800, whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '4px' }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> PAGE</span>;
+    return <span style={{ background: '#fef3c7', color: '#d97706', padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 800, whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '4px' }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg> {urlFormat.toUpperCase()}</span>;
   };
 
   return (
@@ -282,7 +282,10 @@ export default function AdminPage() {
             boxShadow: activeTab === 'dashboard' ? '0 4px 12px rgba(37, 99, 235, 0.2)' : 'none'
           }}
         >
-          📊 Insights & Analytics
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+            Insights & Analytics
+          </span>
         </button>
         <button
           onClick={() => setActiveTab('posts')}
@@ -299,7 +302,10 @@ export default function AdminPage() {
             boxShadow: activeTab === 'posts' ? '0 4px 12px rgba(37, 99, 235, 0.2)' : 'none'
           }}
         >
-          📌 Manage Posts
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+            Manage Posts
+          </span>
         </button>
         <button
           onClick={() => setActiveTab('auditor')}
@@ -317,7 +323,10 @@ export default function AdminPage() {
             boxShadow: activeTab === 'auditor' ? '0 4px 12px rgba(37, 99, 235, 0.2)' : 'none'
           }}
         >
-          🛡️ E-E-A-T & SEO Auditor
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            E-E-A-T & SEO Auditor
+          </span>
           {seoAlerts.length > 0 && (
             <span style={{
               position: 'absolute',
@@ -515,10 +524,10 @@ export default function AdminPage() {
                     
                     <div style={{ fontSize: '11px', color: '#64748b', display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
                       {getDeployBadge(post.url_format)}
-                      <span>📁 {post.category}</span>
-                      <span>📅 {post.date ? new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : ''}</span>
-                      <span>✍️ {words} words</span>
-                      <span style={{ color: (post.seoScore || 0) >= 80 ? '#059669' : '#d97706', fontWeight: 700 }}>📈 {post.seoScore || 0}% SEO</span>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg> {post.category}</span>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg> {post.date ? new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : ''}</span>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg> {words} words</span>
+                      <span style={{ color: (post.seoScore || 0) >= 80 ? '#059669' : '#d97706', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg> {post.seoScore || 0}% SEO</span>
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid #f1f5f9' }}>
@@ -560,11 +569,11 @@ export default function AdminPage() {
                             </Link>
                             <div style={{ fontSize: '11px', color: '#64748b', marginTop: '0.4rem', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                               {getDeployBadge(post.url_format)}
-                              <span>📁 {post.category}</span>
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg> {post.category}</span>
                               <span>•</span>
-                              <span>📅 {post.date ? new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : ''}</span>
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg> {post.date ? new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : ''}</span>
                               <span>•</span>
-                              <span>✍️ {words} words</span>
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg> {words} words</span>
                             </div>
                           </td>
                           <td style={tdStyle}>

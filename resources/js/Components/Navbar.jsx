@@ -108,7 +108,7 @@ export default function Navbar({ auth, searchQuery = '' }) {
                                                     >
                                                         <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden bg-gray-200">
                                                             {notif.data.profile_picture ? (
-                                                                <img loading="lazy" decoding="async" fetchPriority="low" src={notif.data.profile_picture} className="w-full h-full object-cover" />
+                                                                <img loading="lazy" decoding="async" fetchPriority="low" src={notif.data.profile_picture} alt={`${notif.data.username || 'User'} profile picture`} className="w-full h-full object-cover" />
                                                             ) : (
                                                                 <div className="w-full h-full bg-gradient-to-tr from-[#0079D3] to-[#4F46E5]"></div>
                                                             )}
@@ -135,7 +135,7 @@ export default function Navbar({ auth, searchQuery = '' }) {
                             <Link href="/dashboard" className="flex items-center gap-2 hover:bg-[#F6F7F8] px-2 py-1.5 rounded-full transition-colors">
                                 <div className="w-8 h-8 rounded-full bg-blue-100 overflow-hidden">
                                     {auth.user.profile_picture ? (
-                                        <img loading="lazy" decoding="async" fetchPriority="low" src={auth.user.profile_picture} className="w-full h-full object-cover" />
+                                        <img loading="lazy" decoding="async" fetchPriority="low" src={auth.user.profile_picture} alt={`${auth.user.name || 'User'} profile picture`} className="w-full h-full object-cover" />
                                     ) : (
                                         <div className="w-full h-full bg-gradient-to-tr from-[#0079D3] to-[#4F46E5]"></div>
                                     )}

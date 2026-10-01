@@ -378,12 +378,30 @@ class BusinessController extends Controller
         }
 
         $image = (new ImageManager(new Driver()))->decodePath($file->getRealPath());
-        $image->scaleDown(width: $maxWidth);
+        
+        if ($image->width() > $maxWidth) {
+            $image->scaleDown(width: $maxWidth);
+        }
+
+        $quality = 85;
+        $encoded = $image->encodeUsingFileExtension('webp', $quality);
+        
+        // Iteratively reduce quality if file is > 100KB, but keep visual quality high (min 65)
+        while (strlen((string) $encoded) > 102400 && $quality > 65) {
+            $quality -= 5;
+            $encoded = $image->encodeUsingFileExtension('webp', $quality);
+        }
+
+        // If still > 100KB, shrink dimensions instead of ruining quality
+        while (strlen((string) $encoded) > 102400 && $image->width() > 400) {
+            $image->scaleDown(width: (int)($image->width() * 0.85));
+            $encoded = $image->encodeUsingFileExtension('webp', $quality);
+        }
 
         $filename = Str::uuid() . '.webp';
         Storage::disk('uploads')->put(
             $directory . '/' . $filename,
-            (string) $image->encodeUsingFileExtension('webp', 78),
+            (string) $encoded
         );
 
         return '/uploads/' . $directory . '/' . $filename;

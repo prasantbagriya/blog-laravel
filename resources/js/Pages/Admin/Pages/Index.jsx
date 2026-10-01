@@ -43,6 +43,17 @@ const inputStyle = { width: '100%', padding: '10px 12px', border: '1px solid #e2
 const labelStyle = { display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' };
 const sectionBox = { padding: '24px', border: '1px solid #e2e8f0', borderRadius: '12px', background: '#f8fafc', marginBottom: '20px' };
 
+// ─── Field helper ─────────────────────────────────────────────────────────────
+function Field({ label, children }) {
+  return (
+    <div>
+      <label style={labelStyle}>{label}</label>
+      {children}
+    </div>
+  );
+}
+
+
 export default function PagesIndex() {
   const BASE = typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '';
 
@@ -223,7 +234,9 @@ export default function PagesIndex() {
               {pages.length === 0 ? (
                 <tr>
                   <td colSpan={5} style={{ padding: '48px', textAlign: 'center', color: '#94a3b8' }}>
-                    <div style={{ fontSize: '36px', marginBottom: '12px' }}>📄</div>
+                    <div style={{ marginBottom: '12px', color: '#94a3b8' }}>
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    </div>
                     No pages created yet. Click "Create New Page" to get started.
                   </td>
                 </tr>
@@ -249,7 +262,13 @@ export default function PagesIndex() {
                       background: page.type === 'feed' ? '#ecfdf5' : '#f0f9ff',
                       color: page.type === 'feed' ? '#059669' : '#0284c7'
                     }}>
-                      {page.type === 'feed' ? '📰 Post Feed' : '📄 Static'}
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        {page.type === 'feed' ? (
+                            <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg> Post Feed</>
+                        ) : (
+                            <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> Static</>
+                        )}
+                      </span>
                     </span>
                   </td>
                   <td style={{ padding: '16px 20px', fontSize: '13px', color: '#64748b' }}>
@@ -285,12 +304,6 @@ export default function PagesIndex() {
   );
 
   // ── FORM VIEW ──────────────────────────────────────────────────────────────
-  const Field = ({ label, children }) => (
-    <div>
-      <label style={labelStyle}>{label}</label>
-      {children}
-    </div>
-  );
 
   return (
     <div>
@@ -327,8 +340,8 @@ export default function PagesIndex() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px' }}>
                 <Field label="Page Type">
                   <select style={inputStyle} value={type} onChange={e => setType(e.target.value)}>
-                    <option value="feed">📰 Post Feed (Shows articles)</option>
-                    <option value="static">📄 Static Page (Custom content)</option>
+                    <option value="feed">Post Feed (Shows articles)</option>
+                    <option value="static">Static Page (Custom content)</option>
                   </select>
                 </Field>
                 {type === 'feed' && (
@@ -373,11 +386,17 @@ export default function PagesIndex() {
                 <label style={labelStyle}>Open Graph Cover Image</label>
                 <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                   <button type="button" onClick={() => setMediaPickerTarget('ogImage')}
-                    style={{ padding: '8px 16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', fontWeight: 600, fontSize: '13px', color: '#475569', cursor: 'pointer' }}>
-                    📁 Media Library
+                    style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', fontWeight: 600, fontSize: '13px', color: '#475569', cursor: 'pointer' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    Media Library
                   </button>
-                  <label style={{ padding: '8px 16px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}>
-                    {isUploading ? 'Uploading...' : '☁️ Upload Image'}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}>
+                    {isUploading ? 'Uploading...' : (
+                        <>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            Upload Image
+                        </>
+                    )}
                     <input type="file" accept="image/*" onChange={handleFileUpload} style={{ display: 'none' }} />
                   </label>
                 </div>

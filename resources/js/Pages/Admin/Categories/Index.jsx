@@ -139,7 +139,6 @@ export default function CategoriesPage() {
                   <tr key={cat.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
                     <td style={{ padding: '16px 24px' }}>
                       <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '15px' }}>{cat.name}</div>
-                      {cat.description && <div style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>{cat.description}</div>}
                     </td>
                     <td style={{ padding: '16px 24px', fontSize: '14px', color: '#475569' }}>/{cat.slug}</td>
                     <td style={{ padding: '16px 24px', textAlign: 'right' }}>
@@ -216,6 +215,33 @@ export default function CategoriesPage() {
               {showAdvanced ? '- Hide' : '+ Show'} Advanced SEO & Images
             </button>
 
+            {/* Category Feature Image - Always Visible */}
+            <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', background: '#f8fafc' }}>
+              <h3 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>Category Feature Image</h3>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '6px' }}>Image URL</label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input type="text" value={image} onChange={(e) => setImage(e.target.value)} style={{ flex: 1, padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px' }} placeholder="https://..." />
+                  <button
+                    type="button"
+                    onClick={() => setMediaPickerTarget('image')}
+                    style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Browse
+                  </button>
+                </div>
+              </div>
+              {image && (
+                <div style={{ marginBottom: '12px' }}>
+                  <img src={image} alt={imageAlt || 'Preview'} style={{ width: '100%', maxHeight: '150px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e2e8f0' }} />
+                </div>
+              )}
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>Image Alt Text</label>
+                <input type="text" value={imageAlt} onChange={(e) => setImageAlt(e.target.value)} style={{ width: '100%', padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px' }} placeholder="Image description" />
+              </div>
+            </div>
+
             {showAdvanced && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '16px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                 <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>Search Engine Optimization</h3>
@@ -249,21 +275,9 @@ export default function CategoriesPage() {
                     <button type="button" onClick={() => setMediaPickerTarget('ogImage')} style={{ padding: '0 12px', background: '#e2e8f0', color: '#475569', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>Browse</button>
                   </div>
                 </div>
-
-                <h3 style={{ margin: '12px 0 0 0', fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>Category Feature Image</h3>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>Image URL</label>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <input type="text" value={image} onChange={(e) => setImage(e.target.value)} style={{ flex: 1, padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px' }} placeholder="https://..." />
-                    <button type="button" onClick={() => setMediaPickerTarget('image')} style={{ padding: '0 12px', background: '#e2e8f0', color: '#475569', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>Browse</button>
-                  </div>
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>Image Alt Text</label>
-                  <input type="text" value={imageAlt} onChange={(e) => setImageAlt(e.target.value)} style={{ width: '100%', padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px' }} />
-                </div>
               </div>
             )}
+
             <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
               <button 
                 type="submit" 
