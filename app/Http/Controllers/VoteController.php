@@ -33,17 +33,8 @@ class VoteController extends Controller
                 ->first();
 
             if ($existingVote) {
-                if ($existingVote->value === $value) {
-                    // Removing the vote
-                    DB::table('votes')->where('id', $existingVote->id)->delete();
-                    $model->decrement('score', $value);
-                } else {
-                    // Changing the vote
-                    DB::table('votes')->where('id', $existingVote->id)->update(['value' => $value]);
-                    // If it was -1 and is now 1, difference is +2
-                    $diff = $value - $existingVote->value;
-                    $model->increment('score', $diff);
-                }
+                // The user has already voted. Do not allow them to change or remove it.
+                return;
             } else {
                 // New vote
                 DB::table('votes')->insert([
