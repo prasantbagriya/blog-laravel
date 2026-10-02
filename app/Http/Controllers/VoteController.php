@@ -33,8 +33,18 @@ class VoteController extends Controller
                 ->first();
 
             if ($existingVote) {
-                // The user has already voted. Do not allow them to change or remove it.
-                return;
+                if ($existingVote->value === $value) {
+                    // The user clicked the same vote button they already have active. Do nothing.
+                    return;
+                } else {
+                    // Changing the vote (e.g., from up to down, or down to up)
+                    DB::table('votes')->where('id', $existingVote->id)->update([
+                        'value' => $value,
+                        'updated_at' => now()
+                    ]);
+                    $diff = $value - $existingVote->value;
+                    $model->increment('score', $diff);
+                }
             } else {
                 // New vote
                 DB::table('votes')->insert([
