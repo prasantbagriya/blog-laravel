@@ -61,17 +61,10 @@ export default function UpdateProfileInformation({
 
                     <TextInput
                         id="username"
-                        className={`mt-1 block w-full bg-white dark:bg-black border-[#E5E5E1] dark:border-[#2A2A28] text-[#1A1A1A] dark:text-white focus:border-[#0052FF] focus:ring-[#0052FF] ${user.username ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        className="mt-1 block w-full bg-white dark:bg-black border-[#E5E5E1] dark:border-[#2A2A28] text-[#1A1A1A] dark:text-white focus:border-[#0052FF] focus:ring-[#0052FF]"
                         value={data.username}
                         onChange={(e) => setData('username', e.target.value)}
-                        disabled={!!user.username}
                     />
-                    
-                    {user.username && (
-                        <p className="mt-1 text-xs text-[#555555] dark:text-[#A0A09C]">
-                            Username can only be set once and cannot be changed.
-                        </p>
-                    )}
 
                     <InputError className="mt-2" message={errors.username} />
                 </div>

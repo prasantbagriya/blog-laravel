@@ -23,11 +23,6 @@ class ProfileUpdateRequest extends FormRequest
                 'string',
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
-                function ($attribute, $value, $fail) {
-                    if ($this->user()->username && $this->user()->username !== $value) {
-                        $fail('Username can only be set once and cannot be changed.');
-                    }
-                }
             ],
             'bio' => ['nullable', 'string', 'max:1000'],
             'email' => [
