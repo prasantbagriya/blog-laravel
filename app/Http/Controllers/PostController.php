@@ -258,7 +258,11 @@ class PostController extends Controller
 
         $comment->load('author', 'replies');
 
-        broadcast(new \App\Events\CommentPosted($comment))->toOthers();
+        try {
+            broadcast(new \App\Events\CommentPosted($comment))->toOthers();
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Broadcasting failed: ' . $e->getMessage());
+        }
 
         return back();
     }
