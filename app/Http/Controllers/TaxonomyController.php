@@ -59,7 +59,7 @@ class TaxonomyController extends Controller
                      ->get()
                      ->toArray();
 
-        $title = $category && !empty($category->seo_title) ? $category->seo_title : "{$categoryName} Archives | Coachinginsikar";
+        $title = $category && !empty($category->seo_title) ? $category->seo_title : $categoryName;
         $description = $category && !empty($category->seo_description) ? $category->seo_description : "Read all articles filed under {$categoryName}.";
         $keywords = $category && !empty($category->seo_keywords) ? $category->seo_keywords : null;
         
@@ -77,7 +77,7 @@ class TaxonomyController extends Controller
 
         $meta = [
             'title' => $title,
-            'h1' => $categoryName . ' — Coaching Guides & Articles | CoachingsinSikar',
+            'h1' => $categoryName,
             'description' => $description,
             'url' => url("/category/{$slug}"),
             'type' => 'website',
@@ -143,7 +143,7 @@ class TaxonomyController extends Controller
                      ->toArray();
                      
         $cleanBio = $author->bio ? substr(strip_tags($author->bio), 0, 160) : "Articles by {$author->name}";
-        $title = "{$author->name} - Author at Coachinginsikar";
+        $title = $author->name;
         $description = $cleanBio;
 
         $sameAsLinks = [];
@@ -201,7 +201,7 @@ class TaxonomyController extends Controller
             'posts' => $posts,
             'meta' => [
                 'title' => $title,
-                'h1' => $author->name . ' — Author at CoachingsinSikar',
+                'h1' => $author->name,
                 'description' => $description,
                 'url' => url("/author/{$slug}"),
                 'type' => 'profile',
