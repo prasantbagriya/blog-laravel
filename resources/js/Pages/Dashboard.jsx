@@ -210,10 +210,10 @@ export default function Dashboard({ auth, userBusinesses = [], userCommunities =
                                     <input
                                         type="email"
                                         value={data.email}
-                                        className="block w-full px-4 sm:px-5 py-3 sm:py-3.5 bg-slate-200 dark:bg-zinc-800 border border-transparent rounded-full text-sm font-medium text-slate-500 dark:text-zinc-500 cursor-not-allowed"
-                                        disabled
+                                        onChange={(e) => setData('email', e.target.value)}
+                                        className="block w-full px-4 sm:px-5 py-3 sm:py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
+                                        required
                                     />
-                                    <p className="text-xs text-slate-400 font-medium mt-1.5">Email cannot be changed directly.</p>
                                     {errors.email && <p className="text-rose-500 text-xs font-semibold mt-1.5">{errors.email}</p>}
                                 </div>
 
