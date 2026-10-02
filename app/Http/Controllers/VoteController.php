@@ -13,7 +13,7 @@ class VoteController extends Controller
     {
         $validated = $request->validate([
             'votable_type' => 'required|in:post,comment',
-            'votable_id' => 'required|string',
+            'votable_id' => 'required',
             'value' => 'required|in:1,-1',
         ]);
 
