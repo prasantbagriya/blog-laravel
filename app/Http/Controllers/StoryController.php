@@ -15,8 +15,8 @@ class StoryController extends Controller
         return Inertia::render('Story/Index', [
             'stories' => $stories,
             'meta'    => [
-                'title'       => 'Visual Web Stories',
-                'h1'          => 'Visual Web Stories',
+                'title'       => 'Visual Web Stories | CoachingsinSikar',
+                'h1'          => 'Visual Web Stories — Coaching & Education in Sikar',
                 'description' => 'Explore bite-sized visual web stories on JEE, NEET, CA, CLAT, schools, and top coaching institutes in Sikar from CoachingsinSikar.',
                 'url'         => url('/stories'),
                 'type'        => 'website',

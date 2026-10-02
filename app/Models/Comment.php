@@ -27,7 +27,10 @@ class Comment extends Model
     {
         return $this->hasMany(Comment::class, 'parent_id')
             ->where('is_spam', false)
-            ->with('author', 'replies');
+            ->with('author', 'replies')
+            ->orderBy('is_pinned', 'desc')
+            ->orderByRaw('CASE WHEN author_id = (SELECT author_id FROM posts WHERE posts.id = comments.post_id) THEN 1 ELSE 0 END DESC')
+            ->orderBy('created_at', 'asc');
     }
 
     public function reports()

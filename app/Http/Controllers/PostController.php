@@ -169,6 +169,8 @@ class PostController extends Controller
             ->where('post_id', $post->id)
             ->whereNull('parent_id')
             ->where('is_spam', false)
+            ->orderBy('is_pinned', 'desc')
+            ->orderByRaw('CASE WHEN author_id = ? THEN 1 ELSE 0 END DESC', [$post->author_id])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -198,6 +200,7 @@ class PostController extends Controller
                 'link_url' => $post->link_url,
                 'media_urls' => is_string($post->media_urls) ? json_decode($post->media_urls) : $post->media_urls,
                 'author' => ['username' => $post->getRelation('author') ? $post->getRelation('author')->username : 'deleted'],
+                'author_id' => $post->author_id,
                 'score' => $post->score,
                 'comments_count' => $post->comments()->count(),
                 'created_at' => $post->created_at->diffForHumans(),
@@ -329,5 +332,22 @@ class PostController extends Controller
         }
 
         return response()->json(['success' => false, 'error' => 'No file uploaded'], 400);
+    }
+
+    public function togglePin(Request $request, $id)
+    {
+        $comment = \App\Models\Comment::findOrFail($id);
+        $post = $comment->post;
+        $user = $request->user();
+
+        // Allow if user is the post author or an admin
+        if ($post->author_id !== $user->id && $user->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $comment->is_pinned = !$comment->is_pinned;
+        $comment->save();
+
+        return back();
     }
 }

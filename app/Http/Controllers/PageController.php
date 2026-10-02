@@ -11,8 +11,8 @@ class PageController extends Controller
     {
         return Inertia::render('Static/About', [
             'meta' => [
-                'title'       => 'About Us',
-                'h1'          => 'About Us',
+                'title'       => 'About Us | CoachingsinSikar',
+                'h1'          => 'About CoachingsinSikar — Your Education Guide for Sikar',
                 'description' => 'Learn about CoachingsinSikar — India\'s trusted platform for finding and comparing coaching institutes, schools, and colleges in Sikar, Rajasthan.',
                 'url'         => url('/about'),
             ],
@@ -23,8 +23,8 @@ class PageController extends Controller
     {
         return Inertia::render('Static/Contact', [
             'meta' => [
-                'title'       => 'Contact Us',
-                'h1'          => 'Contact Us',
+                'title'       => 'Contact Us | CoachingsinSikar',
+                'h1'          => 'Contact CoachingsinSikar — Get in Touch With Our Team',
                 'description' => 'Have a question about coaching or schools in Sikar? Reach out to the CoachingsinSikar team with suggestions, corrections, or topics you want us to cover next.',
                 'url'         => url('/contact'),
             ],
@@ -57,7 +57,7 @@ class PageController extends Controller
     {
         return Inertia::render('Static/EditorialPolicy', [
             'meta' => [
-                'title'       => 'Editorial Policy',
+                'title'       => 'Editorial Policy | CoachingsinSikar',
                 'h1'          => 'Editorial Policy — How We Create and Review Content',
                 'description' => 'Read about CoachingsinSikar\'s editorial standards, fact-checking process, and commitment to accurate, unbiased education content.',
                 'url'         => url('/editorial-policy'),
@@ -69,7 +69,7 @@ class PageController extends Controller
     {
         return Inertia::render('Static/FactCheckingPolicy', [
             'meta' => [
-                'title'       => 'Fact-Checking Policy',
+                'title'       => 'Fact-Checking Policy | CoachingsinSikar',
                 'h1'          => 'Fact-Checking Policy — Our Commitment to Accuracy',
                 'description' => 'CoachingsinSikar\'s fact-checking policy explains how we verify data, fees, results, and rankings of coaching institutes and schools in Sikar.',
                 'url'         => url('/fact-checking-policy'),
@@ -81,7 +81,7 @@ class PageController extends Controller
     {
         return Inertia::render('Static/Privacy', [
             'meta' => [
-                'title'       => 'Privacy Policy',
+                'title'       => 'Privacy Policy | CoachingsinSikar',
                 'h1'          => 'Privacy Policy — How We Handle Your Data',
                 'description' => 'Read CoachingsinSikar\'s privacy policy to understand how we collect, use, and protect your personal information.',
                 'url'         => url('/privacy'),
@@ -93,8 +93,8 @@ class PageController extends Controller
     {
         return Inertia::render('Static/Terms', [
             'meta' => [
-                'title'       => 'Terms of Service',
-                'h1'          => 'Terms of Service',
+                'title'       => 'Terms of Service | CoachingsinSikar',
+                'h1'          => 'Terms of Service — Rules for Using CoachingsinSikar',
                 'description' => 'Review the terms and conditions governing your use of the CoachingsinSikar platform, including content, listings, and user responsibilities.',
                 'url'         => url('/terms'),
             ],

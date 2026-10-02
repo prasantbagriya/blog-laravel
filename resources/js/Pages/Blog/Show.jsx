@@ -41,7 +41,7 @@ const ShareWidget = ({ url, title, summary }) => {
 };
 
 // Recursive Comment Component
-const CommentThread = ({ comment, postId, auth, userCommentVotes }) => {
+const CommentThread = ({ comment, postId, postAuthorId, auth, userCommentVotes }) => {
     const userVote = userCommentVotes?.[comment.id] || 0;
     const [showReplyForm, setShowReplyForm] = useState(false);
     
@@ -72,6 +72,15 @@ const CommentThread = ({ comment, postId, auth, userCommentVotes }) => {
                     <div className="flex items-center gap-2 mb-1.5">
                         <span className="font-bold text-[13px] text-slate-900 dark:text-white">{comment.author?.username || comment.author?.name || 'deleted'}</span>
                         <span className="text-slate-500 dark:text-zinc-500 text-[12px]">{dayjs(comment.created_at).fromNow()}</span>
+                        {comment.is_pinned == 1 && (
+                            <span className="flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-50 dark:bg-amber-900/30 px-1.5 py-0.5 rounded ml-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"></path></svg>
+                                Pinned
+                            </span>
+                        )}
+                        {comment.author_id === postAuthorId && (
+                            <span className="text-[10px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded ml-1">Author</span>
+                        )}
                     </div>
                     
                     <div className="text-[14px] text-slate-800 dark:text-zinc-300 mb-3 leading-relaxed">
@@ -102,6 +111,16 @@ const CommentThread = ({ comment, postId, auth, userCommentVotes }) => {
                             <MessageSquare size={16} />
                             <span className="text-[12px] font-bold">Reply</span>
                         </button>
+
+                        {auth?.user && (auth.user.id === postAuthorId || auth.user.role === 'admin' || auth.user.role === 'super_admin' || auth.user.is_admin) && (
+                            <button 
+                                onClick={(e) => { e.preventDefault(); router.post(route('comment.pin', comment.id), {}, { preserveScroll: true }); }}
+                                className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-100 dark:bg-zinc-800 rounded-full transition-colors border-0 outline-none focus:outline-none focus:ring-0 text-amber-600"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill={comment.is_pinned ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"></path></svg>
+                                <span className="text-[12px] font-bold">{comment.is_pinned ? 'Unpin' : 'Pin'}</span>
+                            </button>
+                        )}
                     </div>
 
                     {/* Reply Form */}
@@ -138,7 +157,7 @@ const CommentThread = ({ comment, postId, auth, userCommentVotes }) => {
                     {comment.replies && comment.replies.length > 0 && (
                         <div className="pl-4">
                             {comment.replies.map(reply => (
-                                <CommentThread key={reply.id} comment={reply} postId={postId} auth={auth} userCommentVotes={userCommentVotes} />
+                                <CommentThread key={reply.id} comment={reply} postId={postId} postAuthorId={postAuthorId} auth={auth} userCommentVotes={userCommentVotes} />
                             ))}
                         </div>
                     )}
@@ -497,7 +516,7 @@ export default function Show({ post, recentPosts, meta, comments = [], userComme
                         <div className="pt-2">
                             {comments.length > 0 ? (
                                 comments.map(comment => (
-                                    <CommentThread key={comment.id} comment={comment} postId={post.id} auth={auth} userCommentVotes={userCommentVotes} />
+                                    <CommentThread key={comment.id} comment={comment} postId={post.id} postAuthorId={post.author_id} auth={auth} userCommentVotes={userCommentVotes} />
                                 ))
                             ) : (
                                 <div className="text-center py-12 border-t border-slate-100 dark:border-zinc-800/50 mt-4">

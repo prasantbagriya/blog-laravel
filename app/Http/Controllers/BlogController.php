@@ -495,6 +495,8 @@ class BlogController extends Controller
             ->where('post_id', $post->id)
             ->whereNull('parent_id')
             ->where('is_spam', false)
+            ->orderBy('is_pinned', 'desc')
+            ->orderByRaw('CASE WHEN author_id = ? THEN 1 ELSE 0 END DESC', [$post->author_id])
             ->orderBy('created_at', 'desc')
             ->get();
 

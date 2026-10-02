@@ -204,6 +204,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/posts/{post}/save', [\App\Http\Controllers\PostController::class, 'toggleSave'])->name('post.save');
     Route::post('/vote', [\App\Http\Controllers\VoteController::class, 'vote'])->name('vote');
     Route::post('/posts/{post}/comments', [\App\Http\Controllers\PostController::class, 'storeComment'])->name('post.comment.store');
+    Route::post('/comments/{id}/pin', [\App\Http\Controllers\PostController::class, 'togglePin'])->name('comment.pin');
     Route::post('/api/upload', [\App\Http\Controllers\PostController::class, 'uploadImage'])->name('api.upload');
 });
 
