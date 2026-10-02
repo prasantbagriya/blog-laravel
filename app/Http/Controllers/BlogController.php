@@ -21,9 +21,7 @@ class BlogController extends Controller
             // Table doesn't exist yet, fallback
         }
 
-        $allPosts = \Illuminate\Support\Facades\Cache::remember('blog_all_posts', 3600, function () {
-            return Post::where('published', true)->whereNull('community_id')->orderBy('date', 'desc')->get()->toArray();
-        });
+        $allPosts = Post::where('published', true)->whereNull('community_id')->orderBy('date', 'desc')->get()->toArray();
 
         if ($dbPage && $dbPage->type === 'feed') {
             $allPosts = array_filter($allPosts, function($post) use ($slug) {
@@ -480,14 +478,12 @@ class BlogController extends Controller
         $keywordArray = array_unique($keywordArray);
         $cleanKeywords = !empty($keywordArray) ? implode(', ', $keywordArray) : null;
 
-        $recentPostsCache = \Illuminate\Support\Facades\Cache::remember('blog_recent_posts_5', 3600, function () {
-            return Post::where('published', true)
+        $recentPostsCache = Post::where('published', true)
                 ->whereNull('community_id')
                 ->orderBy('date', 'desc')
                 ->limit(6)
                 ->get()
                 ->toArray();
-        });
 
         $recentPostsArray = collect($recentPostsCache)
             ->where('id', '!=', $post->id)
