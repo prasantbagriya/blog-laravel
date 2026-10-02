@@ -27,9 +27,9 @@ var Image$1 = ({ src, alt, fill, style, sizes, priority, fetchPriority, ...props
 		...props
 	});
 };
-var FAQSection = () => {
+var FAQSection = ({ customFaqs }) => {
 	const [openIndex, setOpenIndex] = useState(0);
-	const faqs = [
+	const faqs = customFaqs && customFaqs.length > 0 ? customFaqs : [
 		{
 			question: "What kind of topics are covered in the CoachingsinSikar blog?",
 			answer: "The blog section covers topics like best CoachinginSikar, top schools in Sikar, college admissions, Olympiads, exam results, education news, and career guidance for students and parents."
@@ -51,6 +51,7 @@ var FAQSection = () => {
 			answer: "Yes, Best/Top Coaching Schools are compared on the basis of courses, faculty, fees, facilities, study material, results, tests, and doubt support."
 		}
 	];
+	if (!faqs || faqs.length === 0) return null;
 	const faqSchema = {
 		"@context": "https://schema.org",
 		"@type": "FAQPage",
@@ -152,7 +153,7 @@ var FAQSection = () => {
 		]
 	});
 };
-function Index({ posts, meta }) {
+function Index({ posts, meta, faqs = [] }) {
 	const formatDate = (dateString) => {
 		if (!dateString) return "";
 		const date = new Date(dateString);
@@ -172,7 +173,7 @@ function Index({ posts, meta }) {
 				style: { paddingTop: "100px" },
 				children: [/* @__PURE__ */ jsx("h1", {
 					className: "text-4xl font-bold mb-12 text-slate-900 dark:text-white max-w-7xl mx-auto",
-					children: "All Articles & Insights"
+					children: meta?.h1 || "All Articles & Insights"
 				}), /* @__PURE__ */ jsx("div", {
 					className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-16",
 					children: posts.map((post) => /* @__PURE__ */ jsxs("article", {
@@ -207,7 +208,7 @@ function Index({ posts, meta }) {
 								/* @__PURE__ */ jsxs("div", {
 									className: "flex justify-between items-center text-sm text-slate-500 dark:text-zinc-500 pt-4 border-t border-slate-100 dark:border-zinc-800",
 									children: [/* @__PURE__ */ jsx("span", { children: formatDate(post.date) }), /* @__PURE__ */ jsx(Link, {
-										href: window.BASE_PATH + "/author/" + (post.author ? post.author.toLowerCase().replace(/[^a-z0-9]+/g, "-") : ""),
+										href: (typeof window !== "undefined" && window.BASE_PATH ? window.BASE_PATH : "") + "/author/" + (post.author ? post.author.toLowerCase().replace(/[^a-z0-9]+/g, "-") : ""),
 										className: "font-semibold hover:text-blue-600 dark:hover:text-blue-400 hover:underline",
 										children: post.author
 									})]
@@ -217,7 +218,7 @@ function Index({ posts, meta }) {
 					}, post.id))
 				})]
 			}),
-			/* @__PURE__ */ jsx(FAQSection, {}),
+			/* @__PURE__ */ jsx(FAQSection, { customFaqs: faqs }),
 			/* @__PURE__ */ jsx(BlogFooter, {})
 		]
 	});

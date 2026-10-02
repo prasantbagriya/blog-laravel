@@ -13,10 +13,10 @@ const Image = ({ src, alt, fill, style, sizes, priority, fetchPriority, ...props
     return <img src={src} alt={alt} style={imgStyle} sizes={sizes} fetchPriority={finalFetchPriority} loading={loadingAttr} decoding={priority ? 'sync' : 'async'} {...props} />;
 };
 
-const FAQSection = () => {
+const FAQSection = ({ customFaqs }) => {
     const [openIndex, setOpenIndex] = useState(0);
 
-    const faqs = [
+    const faqs = customFaqs && customFaqs.length > 0 ? customFaqs : [
         {
             question: "What kind of topics are covered in the CoachingsinSikar blog?",
             answer: "The blog section covers topics like best CoachinginSikar, top schools in Sikar, college admissions, Olympiads, exam results, education news, and career guidance for students and parents."
@@ -38,6 +38,8 @@ const FAQSection = () => {
             answer: "Yes, Best/Top Coaching Schools are compared on the basis of courses, faculty, fees, facilities, study material, results, tests, and doubt support."
         }
     ];
+
+    if (!faqs || faqs.length === 0) return null;
 
     const faqSchema = {
         "@context": "https://schema.org",
@@ -137,7 +139,7 @@ const FAQSection = () => {
     );
 };
 
-export default function Index({ posts, meta }) {
+export default function Index({ posts, meta, faqs = [] }) {
     const formatDate = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);
@@ -151,7 +153,7 @@ export default function Index({ posts, meta }) {
             <GlobalNavbar />
             
             <main className="w-full px-[25px] pb-8" style={{ paddingTop: '100px' }}>
-                <h1 className="text-4xl font-bold mb-12 text-slate-900 dark:text-white max-w-7xl mx-auto">All Articles & Insights</h1>
+                <h1 className="text-4xl font-bold mb-12 text-slate-900 dark:text-white max-w-7xl mx-auto">{meta?.h1 || 'All Articles & Insights'}</h1>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-16">
                     {posts.map((post) => (
@@ -167,7 +169,7 @@ export default function Index({ posts, meta }) {
                                 <p className="text-slate-600 dark:text-zinc-400 mb-4 flex-grow">{post.excerpt}</p>
                                 <div className="flex justify-between items-center text-sm text-slate-500 dark:text-zinc-500 pt-4 border-t border-slate-100 dark:border-zinc-800">
                                     <span>{formatDate(post.date)}</span>
-                                    <Link href={window.BASE_PATH + '/author/' + (post.author ? post.author.toLowerCase().replace(/[^a-z0-9]+/g, '-') : '')} className="font-semibold hover:text-blue-600 dark:hover:text-blue-400 hover:underline">
+                                    <Link href={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/author/' + (post.author ? post.author.toLowerCase().replace(/[^a-z0-9]+/g, '-') : '')} className="font-semibold hover:text-blue-600 dark:hover:text-blue-400 hover:underline">
                                         {post.author}
                                     </Link>
                                 </div>
@@ -177,7 +179,7 @@ export default function Index({ posts, meta }) {
                 </div>
             </main>
 
-            <FAQSection />
+            <FAQSection customFaqs={faqs} />
 
             <BlogFooter />
         </div>
