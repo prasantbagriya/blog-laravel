@@ -80,8 +80,8 @@ class CommunityController extends Controller
             'currentSort'   => $sort,
             'currentFilter' => $filter,
             'meta'          => [
-                'title'       => 'Community Feed | CoachingsinSikar',
-                'h1'          => 'CoachingsinSikar Community Feed',
+                'title'       => 'Community Feed',
+                'h1'          => 'Community Feed',
                 'description' => 'Stay updated with new guides, comparisons, and discussions on coaching institutes and schools in Sikar through the CoachingsinSikar community feed.',
                 'url'         => url('/feed'),
             ],
@@ -167,8 +167,8 @@ class CommunityController extends Controller
             'posts'       => $posts,
             'currentSort' => $sort,
             'meta'        => [
-                'title'       => $displayName . ' Community | CoachingsinSikar',
-                'h1'          => $displayName . ' — Community on CoachingsinSikar',
+                'title'       => $displayName . ' Community',
+                'h1'          => $displayName . ' Community',
                 'description' => $community->description
                     ? substr(strip_tags($community->description), 0, 160)
                     : 'Join the ' . $displayName . ' community on CoachingsinSikar to discuss coaching, exams, and education in Sikar.',

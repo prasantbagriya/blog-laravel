@@ -37,7 +37,7 @@ class BlogController extends Controller
         if ($dbPage) {
             $pageType = $dbPage->title;
             $meta = [
-                'title'               => $dbPage->seo_title ?: ($dbPage->title . ' | Coachinginsikar'),
+                'title'               => $dbPage->seo_title ?: $dbPage->title,
                 'h1'                  => $dbPage->h1 ?? $dbPage->title,
                 'description'         => $dbPage->seo_description ?: '',
                 'keywords'            => $dbPage->seo_keywords ?: '',
@@ -61,7 +61,7 @@ class BlogController extends Controller
         } else {
             // If the page doesn't exist in the database, use basic empty metadata
             $meta = [
-                'title'               => ucfirst($slug) . ' | Coachinginsikar',
+                'title'               => ucfirst($slug),
                 'h1'                  => ucfirst($slug),
                 'description'         => '',
                 'keywords'            => '',
@@ -104,7 +104,7 @@ class BlogController extends Controller
 
         $plainTextExcerpt = $post->excerpt ? strip_tags($post->excerpt) : \Illuminate\Support\Str::limit(strip_tags($post->content), 160);
         
-        $seoTitle = !empty($post->seoTitle) ? $post->seoTitle : $post->title . ' | Coachinginsikar';
+        $seoTitle = !empty($post->seoTitle) ? $post->seoTitle : $post->title;
         $seoDescription = !empty($post->metaDescription) ? $post->metaDescription : $plainTextExcerpt;
 
         // Schemas Generation (Server-Side for Pure Static HTML)

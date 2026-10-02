@@ -12,7 +12,7 @@ class TaxonomyController extends Controller
     public function categoryIndex()
     {
         $categories = \App\Models\Category::all()->toArray();
-        $title = "Categories | Coachinginsikar";
+        $title = "Categories";
         $description = "Browse all Blog Categories and Institute Categories on CoachingsinSikar. Find articles and verified coaching institutes for JEE, NEET, CA, NDA, CLAT, and schools in Sikar by topic.";
         $keywords = "Coaching Sikar Categories, blog categories Sikar coaching, institute categories Sikar, verified coaching institutes Sikar, expert guidance coaching Sikar, topic-wise coaching guides Sikar";
         $og_title = "CoachingsinSikar Explore Categories";
@@ -32,7 +32,7 @@ class TaxonomyController extends Controller
             'categories' => $categories,
             'meta' => [
                 'title' => $title,
-                'h1' => 'Explore All Categories | CoachingsinSikar',
+                'h1' => 'Explore All Categories',
                 'description' => $description,
                 'keywords' => $keywords,
                 'og_title' => $og_title,
@@ -105,7 +105,7 @@ class TaxonomyController extends Controller
     public function authorIndex()
     {
         $authors = Author::all()->toArray();
-        $title = "Authors | Coachinginsikar";
+        $title = "Authors";
         $description = "Meet the authors contributing to Coachinginsikar.";
         
         $schemas = [[
@@ -120,7 +120,7 @@ class TaxonomyController extends Controller
             'authors' => $authors,
             'meta' => [
                 'title' => $title,
-                'h1' => 'Meet Our Authors | CoachingsinSikar',
+                'h1' => 'Meet Our Authors',
                 'description' => $description,
                 'url' => url('/author'),
                 'type' => 'website',
