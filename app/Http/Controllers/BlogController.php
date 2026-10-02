@@ -38,7 +38,7 @@ class BlogController extends Controller
             $pageType = $dbPage->title;
             $meta = [
                 'title'               => $dbPage->seo_title ?: ($dbPage->title . ' | Coachinginsikar'),
-                'h1'                  => $dbPage->h1 ?? ($dbPage->title . ' — Coaching Guides & Articles | CoachingsinSikar'),
+                'h1'                  => $dbPage->h1 ?? $dbPage->title,
                 'description'         => $dbPage->seo_description ?: '',
                 'keywords'            => $dbPage->seo_keywords ?: '',
                 'og_title'            => $dbPage->og_title ?: ($dbPage->seo_title ?: $dbPage->title),
@@ -62,7 +62,7 @@ class BlogController extends Controller
             // If the page doesn't exist in the database, use basic empty metadata
             $meta = [
                 'title'               => ucfirst($slug) . ' | Coachinginsikar',
-                'h1'                  => ucfirst($slug) . ' — Latest Coaching & Education Articles | CoachingsinSikar',
+                'h1'                  => ucfirst($slug),
                 'description'         => '',
                 'keywords'            => '',
                 'og_title'            => ucfirst($slug),
