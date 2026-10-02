@@ -214,6 +214,7 @@ export default function Dashboard({ auth, userBusinesses = [], userCommunities =
                                         disabled
                                     />
                                     <p className="text-xs text-slate-400 font-medium mt-1.5">Email cannot be changed directly.</p>
+                                    {errors.email && <p className="text-rose-500 text-xs font-semibold mt-1.5">{errors.email}</p>}
                                 </div>
 
                                 <div>
