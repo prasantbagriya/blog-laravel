@@ -100,13 +100,13 @@ const CommentThread = ({ comment, postId, auth, userCommentVotes }) => {
         <div className="mt-5">
             <div className="flex gap-3">
                 <div className="flex flex-col items-center group">
-                    <img src={`https://ui-avatars.com/api/?name=${comment.author?.username}&background=random`} width="32" height="32" className="w-8 h-8 rounded-full shadow-sm" />
+                    <img src={`https://ui-avatars.com/api/?name=${comment.author?.username || comment.author?.name || 'User'}&background=random`} width="32" height="32" className="w-8 h-8 rounded-full shadow-sm" />
                     <div className="w-0.5 h-full bg-slate-200 dark:bg-zinc-800 mt-2 group-hover:bg-blue-400 dark:group-hover:bg-blue-500 transition-colors cursor-pointer rounded-full"></div>
                 </div>
                 
                 <div className="flex-1 pb-3">
                     <div className="flex items-center gap-2 mb-1.5">
-                        <span className="font-bold text-[13px] text-slate-900 dark:text-white">u/{comment.author?.username || 'deleted'}</span>
+                        <span className="font-bold text-[13px] text-slate-900 dark:text-white">{comment.author?.username || comment.author?.name || 'deleted'}</span>
                         <span className="text-slate-500 dark:text-zinc-500 text-[12px]">{dayjs(comment.created_at).fromNow()}</span>
                     </div>
                     
