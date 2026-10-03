@@ -89,6 +89,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/api/admin/communities', [\App\Http\Controllers\Api\AdminApiController::class, 'getCommunities']);
     Route::post('/api/admin/communities', [\App\Http\Controllers\Api\AdminApiController::class, 'storeCommunity']);
     Route::delete('/api/admin/communities', [\App\Http\Controllers\Api\AdminApiController::class, 'deleteCommunity']);
+    Route::get('/api/admin/users', [\App\Http\Controllers\Api\AdminApiController::class, 'getUsers']);
+    Route::delete('/api/admin/users', [\App\Http\Controllers\Api\AdminApiController::class, 'deleteUser']);
     
     Route::get('/api/admin/authors', [\App\Http\Controllers\Api\AdminApiController::class, 'getAuthors']);
     Route::post('/api/admin/authors', [\App\Http\Controllers\Api\AdminApiController::class, 'storeAuthor']);
@@ -126,6 +128,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
         if (!$community) abort(404, 'Community not found');
         return \Inertia\Inertia::render('Admin/Communities/Edit', ['community' => $community]);
     })->name('admin.communities.edit');
+
+    Route::get('/admin/users', function () { return \Inertia\Inertia::render('Admin/Users/Index'); })->name('admin.users');
 
     Route::get('/admin/authors', function () { return \Inertia\Inertia::render('Admin/Authors/Index'); })->name('admin.authors');
     Route::get('/admin/authors/new', function () { return \Inertia\Inertia::render('Admin/Authors/New'); })->name('admin.authors.new');

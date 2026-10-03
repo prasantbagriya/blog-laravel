@@ -12,6 +12,7 @@ use App\Models\Post;
 use App\Models\Author;
 use App\Models\Category;
 use App\Models\Story;
+use App\Models\User;
 
 class AdminApiController extends Controller
 {
@@ -73,6 +74,19 @@ class AdminApiController extends Controller
         $id = $request->query('id');
         \App\Models\Community::where('id', $id)->delete();
         Cache::forget('home_data_v2');
+        return response()->json(['success' => true]);
+    }
+
+    // --- Users ---
+    public function getUsers()
+    {
+        return response()->json(User::orderBy('created_at', 'desc')->get());
+    }
+
+    public function deleteUser(Request $request)
+    {
+        $id = $request->query('id');
+        User::where('id', $id)->delete();
         return response()->json(['success' => true]);
     }
 
