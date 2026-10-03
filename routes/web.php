@@ -299,7 +299,7 @@ Route::fallback(function () {
 
     $post = \App\Models\Post::where('slug', $lastSegment)->first();
     if ($post) {
-        return app(\App\Http\Controllers\BlogController::class)->show($lastSegment);
+        return app(\App\Http\Controllers\BlogController::class)->show(request(), $lastSegment);
     }
 
     return redirect('/');
