@@ -108,9 +108,7 @@
         <link rel="alternate" type="application/rss+xml" title="Blog RSS Feed" href="{{ url('/blog/feed.xml') }}" />
 
         <!-- Favicons -->
-        <link rel="icon" type="image/webp" sizes="192x192" href="/uploads/logo.webp">
-        <link rel="icon" type="image/webp" sizes="96x96" href="/uploads/logo.webp">
-        <link rel="icon" type="image/webp" sizes="48x48" href="/uploads/logo.webp">
+        <link rel="icon" type="image/webp" href="/uploads/logo.webp">
         <link rel="apple-touch-icon" href="/uploads/logo.webp">
 
         <!-- Fonts -->

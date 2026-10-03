@@ -40,9 +40,7 @@
     <meta name="google-site-verification" content="HcrL5h0jDeKpvNkKKIjIAUm-bR_AY0bu07aJsU4qLuQ">
     <meta name="msvalidate.01" content="FB8652B2A23AAD6CEE2AF8CACF4580A9" />
     <link rel="alternate" type="application/rss+xml" title="Blog RSS Feed" href="{{ url('/blog/feed.xml') }}">
-    <link rel="icon" type="image/webp" sizes="192x192" href="/uploads/logo.webp">
-    <link rel="icon" type="image/webp" sizes="96x96" href="/uploads/logo.webp">
-    <link rel="icon" type="image/webp" sizes="48x48" href="/uploads/logo.webp">
+    <link rel="icon" type="image/webp" href="/uploads/logo.webp">
     <link rel="apple-touch-icon" href="/uploads/logo.webp">
 
 
