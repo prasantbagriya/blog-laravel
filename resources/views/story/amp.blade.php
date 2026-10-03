@@ -54,7 +54,7 @@
         "name": "Coachinginsikar",
         "logo": {
           "@@type": "ImageObject",
-          "url": "{{ url('/images/logo.webp') }}"
+          "url": "{{ url('/uploads/logo.webp') }}"
         }
       }
     }
@@ -70,7 +70,7 @@
 
   </head>
   <body>
-    <amp-story standalone title="{{ $story->title }}" publisher="Coachinginsikar" publisher-logo-src="{{ url('/images/logo.webp') }}" poster-portrait-src="{{ $seo_image }}">
+    <amp-story standalone title="{{ $story->title }}" publisher="Coachinginsikar" publisher-logo-src="{{ url('/uploads/logo.webp') }}" poster-portrait-src="{{ $seo_image }}">
         @if(!empty($story->pages))
           @foreach($story->pages as $index => $page)
           @php
