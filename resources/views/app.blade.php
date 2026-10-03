@@ -64,6 +64,22 @@
 
                 gtag('js', new Date());
                 gtag('config', 'G-NRXEX23V4X');
+                
+                // Defer Subscribe with Google
+                const swgScript = document.createElement('script');
+                swgScript.async = true;
+                swgScript.src = 'https://news.google.com/swg/js/v1/swg-basic.js';
+                swgScript.fetchPriority = 'low';
+                document.head.appendChild(swgScript);
+
+                (self.SWG_BASIC = self.SWG_BASIC || []).push( basicSubscriptions => {
+                    basicSubscriptions.init({
+                        type: "NewsArticle",
+                        isPartOfType: ["Product"],
+                        isPartOfProductId: "CAowxuXhCw:openaccess",
+                        clientOptions: { theme: "light", lang: "en" },
+                    });
+                });
             };
 
             const scheduleAnalytics = () => {
@@ -131,18 +147,6 @@
                 document.documentElement.classList.remove('dark')
             }
         </script>
-    <!-- Google Publisher SWG -->
-    <script async type="application/javascript" src="https://news.google.com/swg/js/v1/swg-basic.js"></script>
-    <script>
-    (self.SWG_BASIC = self.SWG_BASIC || []).push( basicSubscriptions => {
-        basicSubscriptions.init({
-        type: "NewsArticle",
-        isPartOfType: ["Product"],
-        isPartOfProductId: "CAowxuXhCw:openaccess",
-        clientOptions: { theme: "light", lang: "en" },
-        });
-    });
-    </script>
 </head>
     <body class="font-sans antialiased">
         {{-- SEO Fallback for Crawlers when SSR is off --}}
