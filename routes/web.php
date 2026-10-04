@@ -313,6 +313,22 @@ Route::fallback(function () {
 
     $post = \App\Models\Post::where('slug', $lastSegment)->first();
     if ($post) {
+        // Construct the canonical URL for the post
+        $canonicalPath = '/blog/' . $post->slug;
+        
+        if (!empty($post->url_format)) {
+            $canonicalPath = '/' . str_replace('{slug}', $post->slug, ltrim($post->url_format, '/'));
+        } elseif (!empty($post->category)) {
+            $catSlug = strtolower(str_replace(' ', '-', $post->category));
+            $canonicalPath = '/blog/' . $catSlug . '/' . $post->slug;
+        }
+
+        // If accessed via a duplicate URL (e.g. /my-post instead of /blog/my-post)
+        // 301 Redirect to the correct canonical URL to prevent SEO penalties
+        if ('/' . ltrim(request()->path(), '/') !== $canonicalPath) {
+            return redirect($canonicalPath, 301);
+        }
+
         return app(\App\Http\Controllers\BlogController::class)->show(request(), $lastSegment);
     }
 
