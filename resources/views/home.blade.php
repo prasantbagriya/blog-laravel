@@ -143,28 +143,18 @@
         });
     });
     </script>
-    <style>
-        /* Preload the Hero Image natively using CSS so it loads immediately at TTFB */
-        @if(!empty($meta['preload_image']))
-        body::before {
-            content: "";
-            background-image: url('{{ $meta['preload_image'] }}');
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 600px;
-            z-index: -1;
-            background-size: cover;
-            background-position: center;
-        }
-        @endif
-    </style>
+
 </head>
 <body class="font-sans antialiased">
+    <!-- Static Background Image for LCP - Placed outside React root so it survives hydration -->
+    @if(!empty($meta['preload_image']))
+    <div style="position:fixed; top:0; left:0; width:100vw; height:600px; z-index:-1; overflow:hidden;">
+        <img src="{{ $meta['preload_image'] }}" width="1280" height="600" style="width:100%; height:100%; object-fit:cover;" fetchpriority="high" loading="eager" alt="Top coaching institutes and schools in Sikar, Rajasthan" />
+        <div style="position:absolute; inset:0; background-color:rgba(15,23,42,0.8);"></div>
+    </div>
+    @endif
     <div id="home-app">
         <section style="position:relative; width:100%; min-height:500px; display:flex; align-items:center; background-color:transparent; overflow:hidden;">
-            <div style="position:absolute; inset:0; z-index:0; background-color:rgba(15,23,42,0.8);"></div>
             <div style="position:relative; z-index:10; width:100%; max-width:1280px; margin:0 auto; padding:6rem 1rem 2.5rem; text-align:left;">
                 <p style="color:#fbbf24; font-size:0.75rem; font-weight:700; letter-spacing:0.12em; margin-bottom:1rem; text-transform:uppercase;">Coaching and School Discovery Platform</p>
                 <h1 style="color:#ffffff; font-size:clamp(2.25rem, 5vw, 4rem); font-weight:800; line-height:1.1; margin-bottom:1.5rem; letter-spacing:-0.025em; margin-top:0;">Find the Best CoachinginSikar</h1>
