@@ -313,6 +313,13 @@ Route::fallback(function () {
 
     $post = \App\Models\Post::where('slug', $lastSegment)->where('published', true)->first();
     if ($post) {
+        $canonicalPath = $post->url_path;
+        
+        // Block duplicate URLs: If the current URL doesn't match the post's official url_path, redirect to it.
+        if ('/' . ltrim(request()->path(), '/') !== $canonicalPath) {
+            return redirect($canonicalPath, 301);
+        }
+
         return app(\App\Http\Controllers\BlogController::class)->show(request(), $lastSegment);
     }
 
