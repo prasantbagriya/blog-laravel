@@ -311,7 +311,7 @@ Route::fallback(function () {
     $segments = explode('/', $path);
     $lastSegment = end($segments);
 
-    $post = \App\Models\Post::where('slug', $lastSegment)->first();
+    $post = \App\Models\Post::where('slug', $lastSegment)->where('published', true)->first();
     if ($post) {
         // Construct the canonical URL for the post
         $canonicalPath = '/blog/' . $post->slug;
