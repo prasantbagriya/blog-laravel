@@ -184,7 +184,71 @@
         @endphp
         <h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0;" aria-hidden="true">{{ $crawlerH1 }}</h1>
 
-        @inertia
+        @php
+            $inertiaSsr = app(\Inertia\Ssr\Gateway::class)->dispatch($page);
+        @endphp
+
+        @if ($inertiaSsr)
+            {!! $inertiaSsr->body !!}
+        @else
+            @php
+                $pageData = json_encode($page);
+            @endphp
+            <div id="app" data-page="{{ $pageData }}">
+                
+                @if (($page['component'] ?? '') === 'Blog/Show' && isset($page['props']['post']))
+                    @php
+                        $post = $page['props']['post'];
+                        $coverImage = !empty($post['coverImage']) ? (str_starts_with($post['coverImage'], 'http') ? $post['coverImage'] : url($post['coverImage'])) : '';
+                        $date = !empty($post['date']) ? \Carbon\Carbon::parse($post['date'])->format('M d, Y') : '';
+                        $contentSnippet = !empty($post['content']) ? \Illuminate\Support\Str::limit(strip_tags($post['content']), 600) : '';
+                    @endphp
+                    <!-- Lite Blog HTML for Instant FCP & LCP before React Hydrates -->
+                    <div class="lite-blog-container" style="max-width: 900px; margin: 0 auto; padding: 20px; padding-top: 100px; font-family: system-ui, sans-serif;">
+                        <h1 style="font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; line-height: 1.2; margin-bottom: 20px; color: #0f172a;">{{ $post['title'] ?? '' }}</h1>
+                        
+                        <div style="color: #64748b; font-size: 1rem; margin-bottom: 30px;">
+                            By <span style="font-weight: 600;">{{ $post['author'] ?? 'CoachinginSikar' }}</span> • {{ $date }}
+                        </div>
+
+                        @if($coverImage)
+                            <img src="{{ $coverImage }}" alt="{{ $post['title'] ?? 'Blog Image' }}" style="width: 100%; border-radius: 12px; margin-bottom: 40px; aspect-ratio: 16/9; object-fit: cover; background: #e2e8f0;" fetchpriority="high">
+                        @endif
+
+                        <div style="font-size: 1.125rem; line-height: 1.8; color: #334155;">
+                            {!! $contentSnippet !!}
+                        </div>
+                    </div>
+                @else
+                    <!-- Skeleton Loader for FCP Boost (Fallback when SSR is offline) -->
+                    <div class="skeleton-loader" style="padding: 20px; max-width: 900px; margin: 0 auto; margin-top: 100px;">
+                        <style>
+                            @keyframes skeleton-pulse {
+                                0%, 100% { opacity: 1; }
+                                50% { opacity: 0.4; }
+                            }
+                            .skeleton-item {
+                                background: #e2e8f0;
+                                border-radius: 8px;
+                                animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+                            }
+                            .dark .skeleton-item { background: #27272a; }
+                        </style>
+                        <!-- Title -->
+                        <div class="skeleton-item" style="height: 48px; width: 80%; margin-bottom: 24px;"></div>
+                        <!-- Meta Data -->
+                        <div class="skeleton-item" style="height: 20px; width: 40%; margin-bottom: 40px; border-radius: 4px;"></div>
+                        <!-- Featured Image -->
+                        <div class="skeleton-item" style="height: 400px; width: 100%; border-radius: 12px; margin-bottom: 40px;"></div>
+                        <!-- Paragraphs -->
+                        <div class="skeleton-item" style="height: 20px; width: 100%; margin-bottom: 12px; border-radius: 4px;"></div>
+                        <div class="skeleton-item" style="height: 20px; width: 95%; margin-bottom: 12px; border-radius: 4px;"></div>
+                        <div class="skeleton-item" style="height: 20px; width: 90%; margin-bottom: 40px; border-radius: 4px;"></div>
+                    </div>
+                @endif
+                
+            </div>
+        @endif
 
     </body>
 </html>
