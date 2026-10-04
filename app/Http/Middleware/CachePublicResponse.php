@@ -23,7 +23,7 @@ class CachePublicResponse
 
         // Differentiate between full HTML page load and Inertia XHR requests
         $isInertia = $request->header('X-Inertia') ? '1' : '0';
-        $key = 'public_page_cache_' . md5($request->fullUrl() . '_' . $isInertia);
+        $key = 'public_page_cache_v2_' . md5($request->fullUrl() . '_' . $isInertia);
 
         if (Cache::has($key)) {
             $cached = Cache::get($key);
