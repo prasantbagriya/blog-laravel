@@ -8,9 +8,9 @@ import AnimatedBorderCard from '../Components/AnimatedBorderCard';
 import ShareModal from '../Components/ShareModal';
 import { Search, ChevronRight, Star, ArrowRight, Library, MapPin, CheckCircle2, MessageSquare, ThumbsUp, TrendingUp, Share2, Bookmark } from 'lucide-react';
 
-const TrustMarquee = lazy(() => import('./HomeComponents/TrustMarquee'));
-const InstitutesSection = lazy(() => import('./HomeComponents/InstitutesSection'));
-const CommunityFeedSection = lazy(() => import('./HomeComponents/CommunityFeedSection'));
+import TrustMarquee from './HomeComponents/TrustMarquee';
+import InstitutesSection from './HomeComponents/InstitutesSection';
+import CommunityFeedSection from './HomeComponents/CommunityFeedSection';
 const BlogSection = lazy(() => import('./HomeComponents/BlogSection'));
 const CategorySection = lazy(() => import('./HomeComponents/CategorySection'));
 const StoriesSection = lazy(() => import('./HomeComponents/StoriesSection'));
@@ -337,19 +337,13 @@ export default function Welcome(props) {
             <main>
                 <HomeHero activeSlides={sliders || []} basePath={basePath} categories={categories || []} featuredBusinesses={featuredBusinesses || []} fallbackImage={meta?.preload_image} />
                 <LazySection minHeight="80px">
-                    <Suspense fallback={<div style={{minHeight:'80px', background:'#f8fafc'}}></div>}>
-                        <TrustMarquee categories={categories || []} />
-                    </Suspense>
+                    <TrustMarquee categories={categories || []} />
                 </LazySection>
                 <LazySection minHeight="384px">
-                    <Suspense fallback={<div style={{minHeight:'384px', background:'#ffffff'}}></div>}>
-                        <InstitutesSection featuredBusinesses={featuredBusinesses || []} basePath={basePath} formatDate={formatDate} />
-                    </Suspense>
+                    <InstitutesSection featuredBusinesses={featuredBusinesses || []} basePath={basePath} formatDate={formatDate} />
                 </LazySection>
                 <LazySection minHeight="384px">
-                    <Suspense fallback={<div style={{minHeight:'384px', background:'#f8fafc'}}></div>}>
-                        <CommunityFeedSection basePath={basePath} feedPosts={feedPosts} topCommunities={topCommunities} />
-                    </Suspense>
+                    <CommunityFeedSection basePath={basePath} feedPosts={feedPosts} topCommunities={topCommunities} />
                 </LazySection>
                 <LazySection minHeight="400px">
                     <Suspense fallback={<div style={{minHeight:'400px'}}></div>}>

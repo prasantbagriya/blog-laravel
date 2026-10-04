@@ -785,7 +785,7 @@
     ]
   },
   "resources/js/Pages/Blog/Show.jsx": {
-    "file": "assets/Show-lqwtgUIC.js",
+    "file": "assets/Show-DKaFp3M9.js",
     "name": "Show",
     "src": "resources/js/Pages/Blog/Show.jsx",
     "isDynamicEntry": true,
@@ -948,7 +948,7 @@
     ]
   },
   "resources/js/Pages/HomeComponents/BlogSection.jsx": {
-    "file": "assets/BlogSection-CoWnf6Ju.js",
+    "file": "assets/BlogSection-DV5UNI52.js",
     "name": "BlogSection",
     "src": "resources/js/Pages/HomeComponents/BlogSection.jsx",
     "isDynamicEntry": true,
@@ -961,7 +961,7 @@
     ]
   },
   "resources/js/Pages/HomeComponents/CategorySection.jsx": {
-    "file": "assets/CategorySection-CZysRl7a.js",
+    "file": "assets/CategorySection-0NXXpiMk.js",
     "name": "CategorySection",
     "src": "resources/js/Pages/HomeComponents/CategorySection.jsx",
     "isDynamicEntry": true,
@@ -972,24 +972,8 @@
       "resources/js/home.jsx"
     ]
   },
-  "resources/js/Pages/HomeComponents/CommunityFeedSection.jsx": {
-    "file": "assets/CommunityFeedSection-B7LCSEgD.js",
-    "name": "CommunityFeedSection",
-    "src": "resources/js/Pages/HomeComponents/CommunityFeedSection.jsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "_rolldown-runtime-QTnfLwEv.js",
-      "_client-BhJpX0J4.js",
-      "_lucide-icons-BZJewvIa.js",
-      "_jsx-runtime-p5Ub-Wmy.js",
-      "resources/js/home.jsx"
-    ],
-    "dynamicImports": [
-      "_ShareModal-BBLjwRqR.js"
-    ]
-  },
   "resources/js/Pages/HomeComponents/FAQSection.jsx": {
-    "file": "assets/FAQSection-BtvvqDuY.js",
+    "file": "assets/FAQSection-BA5QJGLy.js",
     "name": "FAQSection",
     "src": "resources/js/Pages/HomeComponents/FAQSection.jsx",
     "isDynamicEntry": true,
@@ -1000,20 +984,8 @@
       "resources/js/home.jsx"
     ]
   },
-  "resources/js/Pages/HomeComponents/InstitutesSection.jsx": {
-    "file": "assets/InstitutesSection-bLRXPNXe.js",
-    "name": "InstitutesSection",
-    "src": "resources/js/Pages/HomeComponents/InstitutesSection.jsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "_rolldown-runtime-QTnfLwEv.js",
-      "_lucide-icons-BZJewvIa.js",
-      "_jsx-runtime-p5Ub-Wmy.js",
-      "resources/js/home.jsx"
-    ]
-  },
   "resources/js/Pages/HomeComponents/SeoContent.jsx": {
-    "file": "assets/SeoContent-C_tcrLBH.js",
+    "file": "assets/SeoContent-BTl60gRO.js",
     "name": "SeoContent",
     "src": "resources/js/Pages/HomeComponents/SeoContent.jsx",
     "isDynamicEntry": true,
@@ -1025,7 +997,7 @@
     ]
   },
   "resources/js/Pages/HomeComponents/StoriesSection.jsx": {
-    "file": "assets/StoriesSection-RIBFSt5v.js",
+    "file": "assets/StoriesSection--VvvCvVm.js",
     "name": "StoriesSection",
     "src": "resources/js/Pages/HomeComponents/StoriesSection.jsx",
     "isDynamicEntry": true,
@@ -1034,17 +1006,6 @@
       "_lucide-icons-BZJewvIa.js",
       "_jsx-runtime-p5Ub-Wmy.js",
       "resources/js/home.jsx"
-    ]
-  },
-  "resources/js/Pages/HomeComponents/TrustMarquee.jsx": {
-    "file": "assets/TrustMarquee-Cw78F-Rw.js",
-    "name": "TrustMarquee",
-    "src": "resources/js/Pages/HomeComponents/TrustMarquee.jsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "_rolldown-runtime-QTnfLwEv.js",
-      "_lucide-icons-BZJewvIa.js",
-      "_jsx-runtime-p5Ub-Wmy.js"
     ]
   },
   "resources/js/Pages/Post/Create.jsx": {
@@ -1321,7 +1282,7 @@
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-BfN5Zuk0.js",
+    "file": "assets/app-C5gsmmC6.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,
@@ -1367,7 +1328,7 @@
     ]
   },
   "resources/js/home.jsx": {
-    "file": "assets/home-BFehTfi1.js",
+    "file": "assets/home-BbqikCaW.js",
     "name": "home",
     "src": "resources/js/home.jsx",
     "isEntry": true,
@@ -1381,9 +1342,7 @@
       "_ShareModal-BBLjwRqR.js"
     ],
     "dynamicImports": [
-      "resources/js/Pages/HomeComponents/TrustMarquee.jsx",
-      "resources/js/Pages/HomeComponents/InstitutesSection.jsx",
-      "resources/js/Pages/HomeComponents/CommunityFeedSection.jsx",
+      "_ShareModal-BBLjwRqR.js",
       "resources/js/Pages/HomeComponents/BlogSection.jsx",
       "resources/js/Pages/HomeComponents/CategorySection.jsx",
       "resources/js/Pages/HomeComponents/StoriesSection.jsx",

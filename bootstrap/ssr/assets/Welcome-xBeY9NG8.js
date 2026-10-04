@@ -1,15 +1,15 @@
 import "./ShareModal-2YClwU5E.js";
 import { t as AnimatedBorderCard } from "./AnimatedBorderCard-B7gc4jxI.js";
 import { Link as Link$1, navigate } from "./utils-BjQF728w.js";
+import CommunityFeedSection from "./CommunityFeedSection-E6zmeeFR.js";
 import BlogFooter from "./HomeFooter-BTwiScys.js";
 import Navbar from "./HomeNavbar-CkJsOpAT.js";
+import InstitutesSection from "./InstitutesSection-WAg94c3S.js";
+import TrustMarquee from "./TrustMarquee-CfkZIMCI.js";
 import { jsx, jsxs } from "react/jsx-runtime";
 import React, { Suspense, lazy, useEffect, useState } from "react";
 import { CheckCircle2, MessageSquare, Search, Star } from "lucide-react";
 //#region resources/js/Pages/Welcome.jsx
-var TrustMarquee = lazy(() => import("./TrustMarquee-CfkZIMCI.js"));
-var InstitutesSection = lazy(() => import("./InstitutesSection-WAg94c3S.js"));
-var CommunityFeedSection = lazy(() => import("./CommunityFeedSection-E6zmeeFR.js"));
 var BlogSection = lazy(() => import("./BlogSection-yrQVerIc.js"));
 var CategorySection = lazy(() => import("./CategorySection-Cm4V2bak.js"));
 var StoriesSection = lazy(() => import("./StoriesSection-B9Xh0Bgz.js"));
@@ -404,40 +404,22 @@ function Welcome(props) {
 				}),
 				/* @__PURE__ */ jsx(LazySection, {
 					minHeight: "80px",
-					children: /* @__PURE__ */ jsx(Suspense, {
-						fallback: /* @__PURE__ */ jsx("div", { style: {
-							minHeight: "80px",
-							background: "#f8fafc"
-						} }),
-						children: /* @__PURE__ */ jsx(TrustMarquee, { categories: categories || [] })
+					children: /* @__PURE__ */ jsx(TrustMarquee, { categories: categories || [] })
+				}),
+				/* @__PURE__ */ jsx(LazySection, {
+					minHeight: "384px",
+					children: /* @__PURE__ */ jsx(InstitutesSection, {
+						featuredBusinesses: featuredBusinesses || [],
+						basePath,
+						formatDate
 					})
 				}),
 				/* @__PURE__ */ jsx(LazySection, {
 					minHeight: "384px",
-					children: /* @__PURE__ */ jsx(Suspense, {
-						fallback: /* @__PURE__ */ jsx("div", { style: {
-							minHeight: "384px",
-							background: "#ffffff"
-						} }),
-						children: /* @__PURE__ */ jsx(InstitutesSection, {
-							featuredBusinesses: featuredBusinesses || [],
-							basePath,
-							formatDate
-						})
-					})
-				}),
-				/* @__PURE__ */ jsx(LazySection, {
-					minHeight: "384px",
-					children: /* @__PURE__ */ jsx(Suspense, {
-						fallback: /* @__PURE__ */ jsx("div", { style: {
-							minHeight: "384px",
-							background: "#f8fafc"
-						} }),
-						children: /* @__PURE__ */ jsx(CommunityFeedSection, {
-							basePath,
-							feedPosts,
-							topCommunities
-						})
+					children: /* @__PURE__ */ jsx(CommunityFeedSection, {
+						basePath,
+						feedPosts,
+						topCommunities
 					})
 				}),
 				/* @__PURE__ */ jsx(LazySection, {

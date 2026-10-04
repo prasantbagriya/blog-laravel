@@ -18,9 +18,9 @@ Route::get('/sitemap/stories.xml', [\App\Http\Controllers\SitemapController::cla
 Route::get('/news-sitemap.xml', [\App\Http\Controllers\NewsSitemapController::class, 'index'])->name('sitemap.news');
 
 Route::get('/blog', [\App\Http\Controllers\BlogController::class, 'index'])->name('blog.index');
-Route::get('/blog/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('blog.show');
+Route::get('/blog/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('blog.show')->middleware('cacheResponse:86400');
 
-Route::get('/blog/{category}/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('blog.category.show');
+Route::get('/blog/{category}/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('blog.category.show')->middleware('cacheResponse:86400');
 
 
 // Redirect all old /public/... URLs to /blog/...
@@ -317,4 +317,4 @@ Route::fallback(function () {
     }
 
     return redirect('/');
-});
+})->middleware('cacheResponse:86400');

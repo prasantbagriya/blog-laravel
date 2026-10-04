@@ -55,7 +55,7 @@ createServer((page) => createInertiaApp({
 		"./Pages/Author/Index.jsx": () => import("./assets/Index-D_6vPohl2.js"),
 		"./Pages/Author/Show.jsx": () => import("./assets/Show-BBrTC4tJ.js"),
 		"./Pages/Blog/Index.jsx": () => import("./assets/Index-C6vwBKRi.js"),
-		"./Pages/Blog/Show.jsx": () => import("./assets/Show--Ury62ci.js"),
+		"./Pages/Blog/Show.jsx": () => import("./assets/Show-AyfKT8KF.js"),
 		"./Pages/Business/Create.jsx": () => import("./assets/Create-DQtZNGC7.js"),
 		"./Pages/Business/Edit.jsx": () => import("./assets/Edit-CYl7l2cY.js"),
 		"./Pages/Category/Index.jsx": () => import("./assets/Index-hlejYK1Z2.js"),
@@ -99,7 +99,7 @@ createServer((page) => createInertiaApp({
 		"./Pages/Static/Terms.jsx": () => import("./assets/Terms-C3QbxFVf.js"),
 		"./Pages/Story/Index.jsx": () => import("./assets/Index-zC88a1-e.js"),
 		"./Pages/User/Show.jsx": () => import("./assets/Show-Cg6bJ_ip.js"),
-		"./Pages/Welcome.jsx": () => import("./assets/Welcome-qknH-qom.js")
+		"./Pages/Welcome.jsx": () => import("./assets/Welcome-xBeY9NG8.js")
 	})),
 	setup({ App, props }) {
 		return /* @__PURE__ */ jsx(App, { ...props });

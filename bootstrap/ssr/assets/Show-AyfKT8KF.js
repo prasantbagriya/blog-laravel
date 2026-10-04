@@ -127,6 +127,7 @@ var CommentThread = ({ comment, postId, postAuthorId, auth, userCommentVotes }) 
 				className: "flex flex-col items-center group",
 				children: [/* @__PURE__ */ jsx("img", {
 					src: `https://ui-avatars.com/api/?name=${comment.author?.username || comment.author?.name || "User"}&background=random`,
+					alt: `${comment.author?.username || comment.author?.name || "User"} avatar`,
 					width: "32",
 					height: "32",
 					className: "w-8 h-8 rounded-full shadow-sm"
@@ -146,7 +147,7 @@ var CommentThread = ({ comment, postId, postAuthorId, auth, userCommentVotes }) 
 								children: dayjs(comment.created_at).fromNow()
 							}),
 							comment.is_pinned == 1 && /* @__PURE__ */ jsxs("span", {
-								className: "flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-50 dark:bg-amber-900/30 px-1.5 py-0.5 rounded ml-1",
+								className: "flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 dark:bg-amber-900/30 px-1.5 py-0.5 rounded ml-1",
 								children: [/* @__PURE__ */ jsxs("svg", {
 									xmlns: "http://www.w3.org/2000/svg",
 									width: "10",
@@ -182,6 +183,7 @@ var CommentThread = ({ comment, postId, postAuthorId, auth, userCommentVotes }) 
 								className: "flex items-center gap-1 bg-slate-100 dark:bg-zinc-800 rounded-full px-1 py-0.5",
 								children: [
 									/* @__PURE__ */ jsx("button", {
+										"aria-label": "Upvote comment",
 										onClick: (e) => {
 											e.preventDefault();
 											router.post("/vote", {
@@ -190,17 +192,18 @@ var CommentThread = ({ comment, postId, postAuthorId, auth, userCommentVotes }) 
 												value: 1
 											}, { preserveScroll: true });
 										},
-										className: `flex items-center justify-center w-7 h-7 rounded-full transition-all border-0 outline-none focus:outline-none focus:ring-0 ${userVote === 1 ? "text-rose-600 bg-rose-100 dark:bg-rose-900/30" : "text-slate-500 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700 hover:text-rose-500"}`,
+										className: `flex items-center justify-center w-7 h-7 rounded-full transition-all border-0 outline-none focus:outline-none focus:ring-0 ${userVote === 1 ? "text-rose-700 bg-rose-100 dark:bg-rose-900/30" : "text-slate-500 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700 hover:text-rose-600"}`,
 										children: /* @__PURE__ */ jsx(ArrowBigUp, {
 											size: 18,
 											className: userVote === 1 ? "fill-current" : ""
 										})
 									}),
 									/* @__PURE__ */ jsx("span", {
-										className: `text-[12px] font-extrabold px-1 ${userVote === 1 ? "text-rose-600" : userVote === -1 ? "text-blue-600" : "text-slate-700 dark:text-zinc-300"}`,
+										className: `text-[12px] font-extrabold px-1 ${userVote === 1 ? "text-rose-700" : userVote === -1 ? "text-blue-700" : "text-slate-700 dark:text-zinc-300"}`,
 										children: comment.score
 									}),
 									/* @__PURE__ */ jsx("button", {
+										"aria-label": "Downvote comment",
 										onClick: (e) => {
 											e.preventDefault();
 											router.post("/vote", {
@@ -209,7 +212,7 @@ var CommentThread = ({ comment, postId, postAuthorId, auth, userCommentVotes }) 
 												value: -1
 											}, { preserveScroll: true });
 										},
-										className: `flex items-center justify-center w-7 h-7 rounded-full transition-all border-0 outline-none focus:outline-none focus:ring-0 ${userVote === -1 ? "text-blue-600 bg-blue-100 dark:bg-blue-900/30" : "text-slate-500 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700 hover:text-blue-500"}`,
+										className: `flex items-center justify-center w-7 h-7 rounded-full transition-all border-0 outline-none focus:outline-none focus:ring-0 ${userVote === -1 ? "text-blue-700 bg-blue-100 dark:bg-blue-900/30" : "text-slate-500 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700 hover:text-blue-600"}`,
 										children: /* @__PURE__ */ jsx(ArrowBigDown, {
 											size: 18,
 											className: userVote === -1 ? "fill-current" : ""
@@ -259,6 +262,7 @@ var CommentThread = ({ comment, postId, postAuthorId, auth, userCommentVotes }) 
 						children: /* @__PURE__ */ jsxs("form", {
 							onSubmit: submitReply,
 							children: [/* @__PURE__ */ jsx("textarea", {
+								"aria-label": "Your reply",
 								value: data.content,
 								onChange: (e) => setData("content", e.target.value),
 								placeholder: "What are your thoughts?",
@@ -323,7 +327,7 @@ function Show({ post, recentPosts, meta, comments = [], userCommentVotes = {} })
 			heading.id = id;
 			tocItems.push({
 				id,
-				text: heading.innerText
+				text: heading.textContent
 			});
 		});
 		setToc(tocItems);
@@ -538,7 +542,7 @@ function Show({ post, recentPosts, meta, comments = [], userCommentVotes = {} })
 						}),
 						toc.length > 0 && /* @__PURE__ */ jsxs("div", {
 							className: "bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl p-6 mb-8 max-w-md",
-							children: [/* @__PURE__ */ jsx("h3", {
+							children: [/* @__PURE__ */ jsx("h2", {
 								className: "text-xl font-bold mb-4 text-slate-800 dark:text-white",
 								children: "Table of Contents"
 							}), /* @__PURE__ */ jsx("ul", {
@@ -555,7 +559,7 @@ function Show({ post, recentPosts, meta, comments = [], userCommentVotes = {} })
 						}),
 						post.keyTakeaways && post.keyTakeaways.length > 0 && /* @__PURE__ */ jsxs("div", {
 							className: "bg-amber-50 border border-amber-200 rounded-xl p-6 mb-10 shadow-sm",
-							children: [/* @__PURE__ */ jsxs("h3", {
+							children: [/* @__PURE__ */ jsxs("h2", {
 								className: "text-xl font-bold mb-4 text-amber-900 flex items-center gap-2",
 								children: [/* @__PURE__ */ jsxs("svg", {
 									xmlns: "http://www.w3.org/2000/svg",
@@ -584,7 +588,7 @@ function Show({ post, recentPosts, meta, comments = [], userCommentVotes = {} })
 						}),
 						post.sources && post.sources.length > 0 && /* @__PURE__ */ jsxs("div", {
 							className: "mt-12 pt-8 border-t border-slate-200 dark:border-zinc-800",
-							children: [/* @__PURE__ */ jsx("h4", {
+							children: [/* @__PURE__ */ jsx("h3", {
 								className: "text-lg font-bold text-slate-800 dark:text-white mb-4",
 								children: "Sources & References"
 							}), /* @__PURE__ */ jsx("ul", {
@@ -607,7 +611,7 @@ function Show({ post, recentPosts, meta, comments = [], userCommentVotes = {} })
 						}),
 						post.corrections && post.corrections.length > 0 && /* @__PURE__ */ jsxs("div", {
 							className: "mt-8 p-6 bg-slate-50 border border-slate-200 rounded-xl",
-							children: [/* @__PURE__ */ jsx("h4", {
+							children: [/* @__PURE__ */ jsx("h3", {
 								className: "text-md font-bold text-slate-700 mb-3",
 								children: "Corrections & Updates"
 							}), /* @__PURE__ */ jsx("ul", {
@@ -645,7 +649,7 @@ function Show({ post, recentPosts, meta, comments = [], userCommentVotes = {} })
 								}), /* @__PURE__ */ jsxs("div", {
 									className: "flex-1",
 									children: [
-										/* @__PURE__ */ jsx("h3", {
+										/* @__PURE__ */ jsx("h2", {
 											className: "text-xl font-bold text-slate-800 dark:text-white mb-1",
 											children: displayAuthor
 										}),
@@ -707,6 +711,7 @@ function Show({ post, recentPosts, meta, comments = [], userCommentVotes = {} })
 											className: "flex gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-zinc-800/50",
 											children: [
 												post.authorSocials.twitter && /* @__PURE__ */ jsx("a", {
+													"aria-label": "Twitter Profile",
 													href: post.authorSocials.twitter,
 													target: "_blank",
 													rel: "nofollow noreferrer",
@@ -725,6 +730,7 @@ function Show({ post, recentPosts, meta, comments = [], userCommentVotes = {} })
 													})
 												}),
 												post.authorSocials.linkedin && /* @__PURE__ */ jsx("a", {
+													"aria-label": "LinkedIn Profile",
 													href: post.authorSocials.linkedin,
 													target: "_blank",
 													rel: "nofollow noreferrer",
@@ -756,6 +762,7 @@ function Show({ post, recentPosts, meta, comments = [], userCommentVotes = {} })
 													})
 												}),
 												post.authorSocials.website && /* @__PURE__ */ jsx("a", {
+													"aria-label": "Author Website",
 													href: post.authorSocials.website,
 													target: "_blank",
 													rel: "nofollow noreferrer",
@@ -795,7 +802,7 @@ function Show({ post, recentPosts, meta, comments = [], userCommentVotes = {} })
 						/* @__PURE__ */ jsxs("div", {
 							className: "mt-12 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-4 sm:p-8 shadow-sm",
 							children: [
-								/* @__PURE__ */ jsxs("h3", {
+								/* @__PURE__ */ jsxs("h2", {
 									className: "text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2",
 									children: [
 										/* @__PURE__ */ jsx(MessageSquare, {
@@ -818,6 +825,7 @@ function Show({ post, recentPosts, meta, comments = [], userCommentVotes = {} })
 									}), /* @__PURE__ */ jsxs("form", {
 										onSubmit: submitComment,
 										children: [/* @__PURE__ */ jsx("textarea", {
+											"aria-label": "Your comment",
 											value: data.content,
 											onChange: (e) => setData("content", e.target.value),
 											placeholder: "What are your thoughts?",
@@ -881,7 +889,7 @@ function Show({ post, recentPosts, meta, comments = [], userCommentVotes = {} })
 						/* @__PURE__ */ jsxs("div", {
 							className: "mt-12 p-8 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl border border-blue-100 dark:border-blue-900/30 shadow-sm text-center",
 							children: [
-								/* @__PURE__ */ jsx("h3", {
+								/* @__PURE__ */ jsx("h2", {
 									className: "text-2xl font-bold text-slate-800 dark:text-white mb-3",
 									children: "Join the Conversation!"
 								}),
@@ -908,7 +916,7 @@ function Show({ post, recentPosts, meta, comments = [], userCommentVotes = {} })
 							scrollbarWidth: "none",
 							msOverflowStyle: "none"
 						},
-						children: [/* @__PURE__ */ jsx("h3", {
+						children: [/* @__PURE__ */ jsx("h2", {
 							className: "text-xl font-bold mb-6 pb-2 border-b-2 border-blue-600 inline-block text-slate-900 dark:text-white",
 							children: "Recent Articles"
 						}), /* @__PURE__ */ jsx("div", {
@@ -930,7 +938,7 @@ function Show({ post, recentPosts, meta, comments = [], userCommentVotes = {} })
 									children: [/* @__PURE__ */ jsx("span", {
 										className: "text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider",
 										children: rp.category
-									}), /* @__PURE__ */ jsx("h4", {
+									}), /* @__PURE__ */ jsx("h3", {
 										className: "font-bold text-sm leading-tight text-slate-800 dark:text-zinc-200 group-hover:text-blue-600 mt-1 line-clamp-3",
 										children: rp.title
 									})]
