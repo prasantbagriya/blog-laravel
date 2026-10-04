@@ -143,13 +143,27 @@
         });
     });
     </script>
+    <style>
+        /* Preload the Hero Image natively using CSS so it loads immediately at TTFB */
+        @if(!empty($meta['preload_image']))
+        body::before {
+            content: "";
+            background-image: url('{{ $meta['preload_image'] }}');
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 600px;
+            z-index: -1;
+            background-size: cover;
+            background-position: center;
+        }
+        @endif
+    </style>
 </head>
 <body class="font-sans antialiased">
     <div id="home-app">
-        <section style="position:relative; width:100%; min-height:500px; display:flex; align-items:center; background-color:#0f172a; overflow:hidden;">
-            @if(!empty($meta['preload_image']))
-                <img src="{{ $meta['preload_image'] }}" width="1280" height="500" style="position:absolute; inset:0; z-index:0; height:100%; width:100%; object-fit:cover;" alt="Top coaching institutes and schools in Sikar, Rajasthan" fetchpriority="high" />
-            @endif
+        <section style="position:relative; width:100%; min-height:500px; display:flex; align-items:center; background-color:transparent; overflow:hidden;">
             <div style="position:absolute; inset:0; z-index:0; background-color:rgba(15,23,42,0.8);"></div>
             <div style="position:relative; z-index:10; width:100%; max-width:1280px; margin:0 auto; padding:6rem 1rem 2.5rem; text-align:left;">
                 <p style="color:#fbbf24; font-size:0.75rem; font-weight:700; letter-spacing:0.12em; margin-bottom:1rem; text-transform:uppercase;">Coaching and School Discovery Platform</p>
