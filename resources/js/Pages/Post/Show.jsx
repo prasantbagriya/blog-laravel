@@ -142,7 +142,7 @@ const CommentThread = ({ comment, postId, postAuthorId, auth, userCommentVotes }
                         
                         <button 
                             onClick={() => setShowReplyForm(!showReplyForm)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-100 dark:bg-zinc-800 rounded-full transition-colors border-0 outline-none focus:outline-none focus:ring-0 text-slate-500 dark:text-zinc-400"
+                            className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-100 dark:bg-zinc-800 rounded-full transition-colors border-0 outline-none focus:outline-none focus:ring-0 text-slate-600 dark:text-zinc-300"
                         >
                             <MessageSquare size={16} />
                             <span className="text-[12px] font-bold">Reply</span>

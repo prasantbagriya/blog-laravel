@@ -192,7 +192,7 @@ var CommentThread = ({ comment, postId, postAuthorId, auth, userCommentVotes }) 
 												value: 1
 											}, { preserveScroll: true });
 										},
-										className: `flex items-center justify-center w-7 h-7 rounded-full transition-all border-0 outline-none focus:outline-none focus:ring-0 ${userVote === 1 ? "text-rose-700 bg-rose-100 dark:bg-rose-900/30" : "text-slate-500 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700 hover:text-rose-600"}`,
+										className: `flex items-center justify-center w-7 h-7 rounded-full transition-all border-0 outline-none focus:outline-none focus:ring-0 ${userVote === 1 ? "text-rose-700 bg-rose-100 dark:bg-rose-900/30" : "text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 hover:text-rose-600"}`,
 										children: /* @__PURE__ */ jsx(ArrowBigUp, {
 											size: 18,
 											className: userVote === 1 ? "fill-current" : ""
@@ -212,7 +212,7 @@ var CommentThread = ({ comment, postId, postAuthorId, auth, userCommentVotes }) 
 												value: -1
 											}, { preserveScroll: true });
 										},
-										className: `flex items-center justify-center w-7 h-7 rounded-full transition-all border-0 outline-none focus:outline-none focus:ring-0 ${userVote === -1 ? "text-blue-700 bg-blue-100 dark:bg-blue-900/30" : "text-slate-500 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700 hover:text-blue-600"}`,
+										className: `flex items-center justify-center w-7 h-7 rounded-full transition-all border-0 outline-none focus:outline-none focus:ring-0 ${userVote === -1 ? "text-blue-700 bg-blue-100 dark:bg-blue-900/30" : "text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 hover:text-blue-600"}`,
 										children: /* @__PURE__ */ jsx(ArrowBigDown, {
 											size: 18,
 											className: userVote === -1 ? "fill-current" : ""
@@ -222,7 +222,7 @@ var CommentThread = ({ comment, postId, postAuthorId, auth, userCommentVotes }) 
 							}),
 							/* @__PURE__ */ jsxs("button", {
 								onClick: () => setShowReplyForm(!showReplyForm),
-								className: "flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-100 dark:bg-zinc-800 rounded-full transition-colors border-0 outline-none focus:outline-none focus:ring-0 text-slate-500 dark:text-zinc-400",
+								className: "flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-100 dark:bg-zinc-800 rounded-full transition-colors border-0 outline-none focus:outline-none focus:ring-0 text-slate-600 dark:text-zinc-300",
 								children: [/* @__PURE__ */ jsx(MessageSquare, { size: 16 }), /* @__PURE__ */ jsx("span", {
 									className: "text-[12px] font-bold",
 									children: "Reply"

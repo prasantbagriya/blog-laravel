@@ -182,7 +182,7 @@ var CommentThread = ({ comment, postId, postAuthorId, auth, userCommentVotes }) 
 							}),
 							/* @__PURE__ */ jsxs("button", {
 								onClick: () => setShowReplyForm(!showReplyForm),
-								className: "flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-100 dark:bg-zinc-800 rounded-full transition-colors border-0 outline-none focus:outline-none focus:ring-0 text-slate-500 dark:text-zinc-400",
+								className: "flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-100 dark:bg-zinc-800 rounded-full transition-colors border-0 outline-none focus:outline-none focus:ring-0 text-slate-600 dark:text-zinc-300",
 								children: [/* @__PURE__ */ jsx(MessageSquare, { size: 16 }), /* @__PURE__ */ jsx("span", {
 									className: "text-[12px] font-bold",
 									children: "Reply"
