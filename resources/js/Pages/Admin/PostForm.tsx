@@ -513,6 +513,12 @@ export default function PostForm({ post }: PostFormProps) {
    const [aiSuggestions, setAiSuggestions] = useState<any>(null);
    const [appliedAiSuggestions, setAppliedAiSuggestions] = useState<Record<string, boolean>>({});
 
+   const [isPublished, setIsPublished] = useState(post?.published || false);
+   const isPublishedRef = useRef(isPublished);
+   useEffect(() => {
+      isPublishedRef.current = isPublished;
+   }, [isPublished]);
+
    const handleSaveRef = useRef<any>(null);
    useEffect(() => {
       handleSaveRef.current = handleSave;
@@ -521,7 +527,7 @@ export default function PostForm({ post }: PostFormProps) {
    useEffect(() => {
       const timer = setInterval(() => {
          if (handleSaveRef.current && title.trim() !== '') {
-             handleSaveRef.current(false, true);
+             handleSaveRef.current(isPublishedRef.current, true);
          }
       }, 5000);
       return () => clearInterval(timer);
@@ -1103,6 +1109,7 @@ export default function PostForm({ post }: PostFormProps) {
    }, [entities.length]);
 
    const handleSave = async (published: boolean = true, isAutoSave: boolean = false) => {
+      if (!isAutoSave) setIsPublished(published);
       if (!editor) return;
       startTransition(async () => {
          const cleanSlug = (slug || title)

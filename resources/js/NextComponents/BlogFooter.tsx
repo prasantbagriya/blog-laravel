@@ -2,57 +2,52 @@
 "use client"
 
 import React, { useState } from "react"
-import { Zap } from "lucide-react"
+
 import { Instagram, Twitter, Linkedin, Youtube, Facebook, Pinterest, Tumblr } from "./BrandIcons"
 
-export default function BlogFooter() {
+import { usePage } from '@inertiajs/react';
+
+export default function BlogFooter({ global_nav: passedNav }) {
   const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
   const [email, setEmail] = useState("");
+
+  let global_nav = passedNav;
+  if (!global_nav) {
+    try {
+      global_nav = usePage().props.global_nav;
+    } catch (e) {
+      global_nav = [];
+    }
+  }
 
   // Don't render the public footer in the admin panel
   if (pathname?.startsWith('/blog/admin')) {
     return null;
   }
 
-  const handleNavClick = (page: string) => {
+  const getLinkHref = (page) => {
+    if (!page) return '#';
+    if (page.startsWith('http://') || page.startsWith('https://')) return page;
+    if (page.startsWith('/')) return page;
     const basePath = typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '';
-    if (page === 'blog') {
-      window.location.href = basePath + '/blog';
-      return;
-    }
-    if (page === 'portal') {
-      window.location.href = basePath + '/portal/';
-      return;
-    }
-    if (page === 'youtubevideodownload') {
-      window.location.href = basePath + '/youtubevideodownload';
-      return;
-    }
-    if (page === 'playbook') {
-      window.location.href = basePath + '/playbook/';
-      return;
-    }
-    const toolPages = [
-      'prop-firm', 'sip-calculator', 'compound-interest',
-      'whatsapp-link-generator', 'whatsapp-direct-message', 'whatsapp-form-generator'
-    ];
-    if (toolPages.includes(page)) {
-      window.location.href = basePath + `/tool/${page}`;
-      return;
-    }
-    window.location.href = basePath + `/${page === 'landing' ? '' : page}`;
-  }
+    if (page === 'landing') return basePath + '/';
+    return basePath + '/' + page;
+  };
 
-  const footerSections = [
-    {
-      title: "Navigation",
-      links: [
+  const dynamicLinks = (global_nav && global_nav.length > 0)
+    ? global_nav.filter(n => n.is_active).map(n => ({ label: n.name, page: n.url }))
+    : [
         { label: "Home", page: "landing" },
         { label: "Blog", page: "blog" },
         { label: "About Us", page: "about" },
         { label: "Contact Us", page: "contact" },
         { label: "Explore Institutes", page: "business" }
-      ]
+      ];
+
+  const footerSections = [
+    {
+      title: "Navigation",
+      links: dynamicLinks
     },
     {
       title: "Legal & Policies",
@@ -75,12 +70,12 @@ export default function BlogFooter() {
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-y-10 gap-x-6 lg:gap-12 mb-16">
 
           <div className="col-span-2 md:col-span-2 lg:col-span-2 space-y-8">
-            <div className="flex items-center space-x-3 group cursor-pointer" onClick={() => handleNavClick('landing')}>
+            <a href={getLinkHref('landing')} className="flex items-center space-x-3 group cursor-pointer no-underline">
               <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform overflow-hidden p-1">
                 <img loading="lazy" decoding="async" fetchPriority="low" src={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + "/uploads/logo.webp"} alt="Coaching Sikar Logo" width="32" height="32" className="w-full h-full object-contain" />
               </div>
               <span className="text-3xl font-extrabold text-white tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">Coaching Sikar</span>
-            </div>
+            </a>
 
             <p className="text-slate-300 text-sm leading-relaxed max-w-sm">
               Your ultimate guide to finding the best coaching institutes. Explore, compare, and make the right choice for your future.
@@ -112,13 +107,13 @@ export default function BlogFooter() {
                   {section.links.map((link) => {
                     return (
                       <li key={link.label} className="m-0 p-0 flex">
-                        <button
-                          onClick={() => handleNavClick(link.page)}
-                          className="text-sm text-slate-200 hover:text-white hover:translate-x-2 transition-all duration-300 text-left bg-transparent border-none p-0 cursor-pointer flex items-center group outline-none focus:outline-none ring-0"
+                        <a
+                          href={getLinkHref(link.page)}
+                          className="text-sm text-slate-200 hover:text-white hover:translate-x-2 transition-all duration-300 text-left bg-transparent border-none p-0 cursor-pointer flex items-center group outline-none focus:outline-none ring-0 no-underline"
                         >
                           <span className="opacity-0 group-hover:opacity-100 text-blue-500 mr-2 transition-opacity">›</span>
                           {link.label}
-                        </button>
+                        </a>
                       </li>
                     )
                   })}
@@ -163,6 +158,7 @@ export default function BlogFooter() {
                 <div className="flex items-center bg-slate-800/50 border border-slate-700 rounded-xl p-1.5 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
                   <input
                     type="email"
+                    aria-label="Email address for newsletter"
                     placeholder="Enter your email"
                     className="flex-1 bg-transparent border-none outline-none focus:outline-none focus:ring-0 text-sm text-white px-3 py-2 placeholder:text-slate-500 w-full"
                     value={email}

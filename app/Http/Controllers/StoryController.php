@@ -28,7 +28,7 @@ class StoryController extends Controller
     {
         $story = Story::where('slug', $slug)->first();
 
-        if (!$story) {
+        if (!$story || (!$story->published && (!auth()->check() || (!auth()->user()->isSuperAdmin() && !auth()->user()->isModerator())))) {
             abort(404);
         }
 

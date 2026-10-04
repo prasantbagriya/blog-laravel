@@ -24,8 +24,9 @@ createInertiaApp({
                 './Pages/Admin/Pages/Index.jsx',
                 './Pages/Admin/Posts/{Edit,New}.jsx',
                 './Pages/Admin/SeoAudit/Index.jsx',
-                './Pages/Admin/Settings/Slider.jsx',
+                './Pages/Admin/Settings/{Slider,Navigation}.jsx',
                 './Pages/Admin/Stories/{Edit,Index,New}.jsx',
+                './Pages/Admin/Users/Index.jsx',
             ]),
         ),
     setup({ el, App, props }) {

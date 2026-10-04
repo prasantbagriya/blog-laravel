@@ -47,16 +47,24 @@ class HandleInertiaRequests extends Middleware
             }
         }
 
+        $global_nav = [];
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('navigations')) {
+                $global_nav = \App\Models\Navigation::where('is_active', true)->orderBy('order', 'asc')->get();
+            }
+        } catch (\Exception $e) {}
+
         return [
             ...parent::share($request),
             'auth' => [
                 // Send only the fields public, authenticated UI elements require.
                 // Admin records and dashboard data are never shared with public pages.
-                'user' => $user?->only(['id', 'name', 'username', 'profile_picture', 'role']),
+                'user' => $user?->only(['id', 'name', 'username', 'profile_picture']),
                 'joined_communities' => $joined_communities,
                 'notifications' => $notifications,
                 'unread_notifications_count' => $unread_notifications_count,
             ],
+            'global_nav' => $global_nav,
         ];
     }
 }

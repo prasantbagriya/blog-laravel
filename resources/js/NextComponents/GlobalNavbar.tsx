@@ -1,11 +1,21 @@
 // @ts-nocheck
-"use client"
 import React, { useState, useEffect } from "react"
 import { Menu, X, Sun, Moon } from "lucide-react"
+import { usePage } from '@inertiajs/react';
 
-export default function Navbar() {
+export default function Navbar({ global_nav: passedNav }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isDark, setIsDark] = useState(false)
+  
+  let global_nav = passedNav;
+  if (!global_nav) {
+    try {
+      global_nav = usePage().props.global_nav;
+    } catch (e) {
+      // Not in Inertia context
+      global_nav = [];
+    }
+  }
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -30,29 +40,27 @@ export default function Navbar() {
   const getHref = (page) => {
     const basePath = typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '';
     
+    if (page === 'landing') return basePath + "/";
+    if (page.startsWith('/') || page.startsWith('http')) return page.startsWith('http') ? page : basePath + page;
+    
     if (page === 'blog') return basePath + '/blog';
     if (page === 'feed') return basePath + '/feed';
     if (page === 'category') return basePath + '/category';
     
-    return page === 'landing' ? basePath + "/" : basePath + `/${page}`;
+    return basePath + `/${page}`;
   }
 
-  const handleNavClick = (e, page) => {
-    const targetPage = typeof e === 'string' ? e : page;
-    const event = typeof e === 'object' ? e : null;
-    
-    if (event) event.preventDefault();
-    window.location.href = getHref(targetPage);
-  }
 
-  const navLinks = [
-    { label: 'Blog', page: 'blog' },
-    { label: 'Community', page: 'feed' },
-    { label: 'Explore Institutes', page: 'business' },
-    { label: 'Category', page: 'category' },
-    { label: 'About Us', page: 'about' },
-    { label: 'Contact Us', page: 'contact' },
-  ]
+  const navLinks = global_nav && global_nav.length > 0 
+    ? global_nav.filter(n => n.is_active).map(n => ({ label: n.name, page: n.url || '/' }))
+    : [
+        { label: 'Blog', page: 'blog' },
+        { label: 'Community', page: 'feed' },
+        { label: 'Explore Institutes', page: 'business' },
+        { label: 'Category', page: 'category' },
+        { label: 'About Us', page: 'about' },
+        { label: 'Contact Us', page: 'contact' },
+      ];
 
   return (
     <>
@@ -100,7 +108,7 @@ export default function Navbar() {
           <div className="px-4">
             <div className="flex items-center justify-between h-16">
               {/* Logo */}
-              <a href={getHref('landing')} onClick={(e) => handleNavClick(e, 'landing')} className="flex items-center space-x-2 group shrink-0 decoration-transparent">
+              <a href={getHref('landing')} className="flex items-center space-x-2 group shrink-0 decoration-transparent">
                 <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform overflow-hidden">
                   <img loading="lazy" decoding="async" fetchPriority="low" src={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + "/uploads/logo.webp"} alt="Coaching Sikar Logo" className="w-full h-full object-cover" width="32" height="32" />
                 </div>
@@ -113,7 +121,7 @@ export default function Navbar() {
                   <a
                     key={link.page}
                     href={getHref(link.page)}
-                    onClick={(e) => handleNavClick(e, link.page)}
+                   
                     className="text-sm font-medium text-gray-200 hover:text-white transition-colors cursor-pointer decoration-transparent"
                   >
                     {link.label}
@@ -166,7 +174,7 @@ export default function Navbar() {
             >
               <div className="grid grid-cols-2 gap-4">
                 {navLinks.map(link => (
-                  <a key={link.page} href={getHref(link.page)} onClick={(e) => handleNavClick(e, link.page)} className="text-left text-gray-200 hover:text-white font-bold text-sm py-2 block decoration-transparent">{link.label}</a>
+                  <a key={link.page} href={getHref(link.page)} className="text-left text-gray-200 hover:text-white font-bold text-sm py-2 block decoration-transparent">{link.label}</a>
                 ))}
               </div>
               <div className="mt-2 mb-4 pt-4 border-t border-white/10 flex justify-center">

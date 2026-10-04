@@ -421,4 +421,52 @@ class AdminApiController extends Controller
         }
         return response()->json(['success' => true]);
     }
+    public function getNavigations()
+    {
+        return response()->json(\App\Models\Navigation::orderBy('order', 'asc')->get());
+    }
+
+    public function storeNavigation(Request $request)
+    {
+        $data = $request->validate([
+            'id' => 'nullable',
+            'name' => 'required|string|max:255',
+            'url' => 'nullable|string',
+            'order' => 'nullable|integer',
+            'is_active' => 'nullable|boolean',
+            'parent_id' => 'nullable|integer',
+        ]);
+        
+        $data['order'] = $data['order'] ?? 0;
+        $data['is_active'] = $data['is_active'] ?? true;
+
+        if (!empty($data['id']) && $data['id'] !== 'new') {
+            \App\Models\Navigation::where('id', $data['id'])->update([
+                'name' => $data['name'],
+                'url' => $data['url'],
+                'order' => $data['order'],
+                'is_active' => $data['is_active'],
+                'parent_id' => $data['parent_id'],
+            ]);
+            $nav = \App\Models\Navigation::find($data['id']);
+        } else {
+            $nav = \App\Models\Navigation::create([
+                'name' => $data['name'],
+                'url' => $data['url'],
+                'order' => $data['order'],
+                'is_active' => $data['is_active'],
+                'parent_id' => $data['parent_id'],
+            ]);
+        }
+        
+        return response()->json($nav);
+    }
+
+    public function deleteNavigation(Request $request)
+    {
+        if ($request->has('id')) {
+            \App\Models\Navigation::where('id', $request->input('id'))->delete();
+        }
+        return response()->json(['success' => true]);
+    }
 }

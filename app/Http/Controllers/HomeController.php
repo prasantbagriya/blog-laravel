@@ -176,6 +176,13 @@ class HomeController extends Controller
         //     }
         // });
 
+        $global_nav = [];
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('navigations')) {
+                $global_nav = \App\Models\Navigation::where('is_active', true)->orderBy('order', 'asc')->get()->toArray();
+            }
+        } catch (\Exception $e) {}
+
         $viewData = [
             'morePosts' => $homeData['morePosts'] ?? [],
             'publishedStories' => $homeData['publishedStories'] ?? [],
@@ -185,6 +192,7 @@ class HomeController extends Controller
             'featuredBusinesses' => $homeData['featuredBusinesses'] ?? [],
             'feedPosts' => $homeData['feedPosts'] ?? [],
             'topCommunities' => $homeData['topCommunities'] ?? [],
+            'global_nav' => $global_nav,
         ];
 
         return view('home', $viewData);

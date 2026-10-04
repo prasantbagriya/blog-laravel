@@ -1,1 +1,0 @@
-<?php require __DIR__.'/vendor/autoload.php'; \ = require_once __DIR__.'/bootstrap/app.php'; \ = \->make(Illuminate\Contracts\Console\Kernel::class); \->bootstrap(); \ = \App\Models\User::first(); \->fill(['bio' => 'tested bio 123', 'name' => 'Test Name']); \->save(); echo json_encode(\->only(['name', 'bio']));

@@ -115,6 +115,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/api/admin/sliders', [\App\Http\Controllers\Api\AdminApiController::class, 'getSliders']);
     Route::post('/api/admin/sliders', [\App\Http\Controllers\Api\AdminApiController::class, 'storeSlider']);
     Route::delete('/api/admin/sliders', [\App\Http\Controllers\Api\AdminApiController::class, 'deleteSlider']);
+
+    Route::get('/api/admin/navigations', [\App\Http\Controllers\Api\AdminApiController::class, 'getNavigations']);
+    Route::post('/api/admin/navigations', [\App\Http\Controllers\Api\AdminApiController::class, 'storeNavigation']);
+    Route::delete('/api/admin/navigations', [\App\Http\Controllers\Api\AdminApiController::class, 'deleteNavigation']);
     
     Route::get('/api/admin/businesses', [\App\Http\Controllers\Api\AdminApiController::class, 'getBusinesses']);
     Route::delete('/api/admin/businesses', [\App\Http\Controllers\Api\AdminApiController::class, 'deleteBusiness']);
@@ -144,10 +148,16 @@ Route::middleware(['auth', 'admin'])->group(function () {
     
     Route::get('/admin/stories', function () { return \Inertia\Inertia::render('Admin/Stories/Index'); })->name('admin.stories');
     Route::get('/admin/stories/new', function () { return \Inertia\Inertia::render('Admin/Stories/New'); })->name('admin.stories.new');
+    Route::get('/admin/stories/edit/{id}', function ($id) {
+        $story = \App\Models\Story::find($id);
+        if (!$story) abort(404, 'Story not found');
+        return \Inertia\Inertia::render('Admin/Stories/Edit', ['story' => $story]);
+    })->name('admin.stories.edit');
     
     Route::get('/admin/media', function () { return \Inertia\Inertia::render('Admin/Media/Index'); })->name('admin.media');
     Route::get('/admin/seo-audit', function () { return \Inertia\Inertia::render('Admin/SeoAudit/Index'); })->name('admin.seo');
     Route::get('/admin/slider', function () { return \Inertia\Inertia::render('Admin/Settings/Slider'); })->name('admin.slider');
+    Route::get('/admin/navigation', function () { return \Inertia\Inertia::render('Admin/Settings/Navigation'); })->name('admin.navigation');
 
     // Contact Messages
     Route::get('/api/admin/contact-messages', [\App\Http\Controllers\Api\AdminApiController::class, 'getContactMessages']);
@@ -307,13 +317,4 @@ Route::fallback(function () {
     }
 
     return redirect('/');
-});
-
-Route::get('/run-migrations', function () {
-    try {
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        return 'Migrations completed successfully. Output: ' . \Illuminate\Support\Facades\Artisan::output();
-    } catch (\Exception $e) {
-        return 'Error running migrations: ' . $e->getMessage();
-    }
 });

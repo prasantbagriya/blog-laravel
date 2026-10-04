@@ -171,6 +171,7 @@
         'featuredBusinesses' => $featuredBusinesses ?? [],
         'feedPosts' => $feedPosts ?? [],
         'topCommunities' => $topCommunities ?? [],
+        'global_nav' => $global_nav ?? [],
     ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>
 </body>
 </html>

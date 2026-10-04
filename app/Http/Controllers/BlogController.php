@@ -87,7 +87,7 @@ class BlogController extends Controller
         $slug = $optionalSlug ?: $slugOrCategory;
         $post = Post::where('slug', $slug)->first();
 
-        if (!$post) {
+        if (!$post || (!$post->published && (!auth()->check() || (!auth()->user()->isSuperAdmin() && !auth()->user()->isModerator())))) {
             abort(404);
         }
 

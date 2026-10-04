@@ -11,12 +11,12 @@ const TrustMarquee = ({ categories }) => {
     return (
         <section className="py-6 bg-white dark:bg-zinc-900 border-b border-slate-100 dark:border-zinc-800 overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-4">
-                <p className="text-xs font-bold text-slate-600 dark:text-zinc-400 tracking-wider">Trusted Categories &amp; Streams</p>
+                <p className="text-xs font-bold text-slate-700 dark:text-zinc-400 tracking-wider">Trusted Categories &amp; Streams</p>
             </div>
             <div className="relative flex w-full flex-nowrap overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
                 <div className="flex animate-marquee items-center justify-center space-x-8 md:space-x-16 whitespace-nowrap">
                     {[...items, ...items, ...items].map((item, idx) => (
-                        <div key={`${item.id}-${idx}`} className="text-slate-400 dark:text-zinc-500 font-bold text-xl md:text-2xl opacity-60 hover:opacity-100 transition-opacity flex items-center gap-2">
+                        <div key={`${item.id}-${idx}`} className="text-slate-700 dark:text-zinc-300 font-bold text-xl md:text-2xl hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
                             <GraduationCap className="w-6 h-6" /> {item.name}
                         </div>
                     ))}
