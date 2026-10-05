@@ -197,9 +197,14 @@ export default function Show({ post, recentPosts, meta, comments = [], userComme
     useEffect(() => {
         if (!contentRef.current) return;
 
-        // Lazy load images for Web Vitals optimization
+        // Optimize Web Vitals: Skip lazy loading for the first image as it might be LCP
         const images = contentRef.current.querySelectorAll('img');
-        images.forEach(img => {
+        images.forEach((img, index) => {
+            if (index === 0) {
+                img.removeAttribute('loading');
+                img.setAttribute('fetchpriority', 'high');
+                return;
+            }
             if (!img.getAttribute('loading')) {
                 img.setAttribute('loading', 'lazy');
             }

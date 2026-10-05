@@ -200,6 +200,7 @@
                     @php
                         $post = $page['props']['post'];
                         $coverImage = !empty($post['coverImage']) ? (str_starts_with($post['coverImage'], 'http') ? $post['coverImage'] : url($post['coverImage'])) : '';
+                        $preloadImage = $page['props']['meta']['preload_image'] ?? null;
                         $date = !empty($post['date']) ? \Carbon\Carbon::parse($post['date'])->format('M d, Y') : '';
                         $contentSnippet = !empty($post['content']) ? \Illuminate\Support\Str::limit(strip_tags($post['content']), 600) : '';
                     @endphp
@@ -213,6 +214,8 @@
 
                         @if($coverImage)
                             <img src="{{ $coverImage }}" alt="{{ $post['title'] ?? 'Blog Image' }}" style="width: 100%; border-radius: 12px; margin-bottom: 40px; aspect-ratio: 16/9; object-fit: cover; background: #e2e8f0;" fetchpriority="high">
+                        @elseif($preloadImage)
+                            <img src="{{ $preloadImage }}" alt="Content Image" style="width: 100%; border-radius: 12px; margin-bottom: 40px; max-height: 500px; object-fit: cover; background: #e2e8f0;" fetchpriority="high">
                         @endif
 
                         <div style="font-size: 1.125rem; line-height: 1.8; color: #334155;">

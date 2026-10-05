@@ -509,6 +509,16 @@ class BlogController extends Controller
                 ->toArray();
         }
 
+        $preloadImage = null;
+        if (!empty($post->coverImage)) {
+            $preloadImage = str_starts_with($post->coverImage, 'http') ? $post->coverImage : url($post->coverImage);
+        } else if (preg_match('/<img[^>]+src=["\']([^"\']+)["\']/i', $post->content, $matches)) {
+            $preloadImage = $matches[1];
+            if (!str_starts_with($preloadImage, 'http') && !str_starts_with($preloadImage, 'data:')) {
+                $preloadImage = url($preloadImage);
+            }
+        }
+
         return Inertia::render('Blog/Show', [
             'post' => $post->toArray(),
             'recentPosts' => $recentPostsArray,
@@ -524,7 +534,7 @@ class BlogController extends Controller
                 'is_ai_assisted' => $post->isAiAssisted ?? false,
                 'og_image' => !empty($post->coverImage) ? (str_starts_with($post->coverImage, 'http') ? $post->coverImage : url($post->coverImage)) : url('/images/default-blog.jpg'),
                 'og_image_alt' => $post->coverImageAlt ?? $seoTitle,
-                'preload_image' => !empty($post->coverImage) ? (str_starts_with($post->coverImage, 'http') ? $post->coverImage : url($post->coverImage)) : null,
+                'preload_image' => $preloadImage,
                 'twitter_card' => $post->twitterCard ?? 'summary_large_image',
                 'twitter_title' => $post->twitterTitle ?? $seoTitle,
                 'twitter_description' => $post->twitterDescription ?? $seoDescription,

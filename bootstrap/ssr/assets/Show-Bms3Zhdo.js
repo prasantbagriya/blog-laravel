@@ -317,7 +317,12 @@ function Show({ post, recentPosts, meta, comments = [], userCommentVotes = {} })
 	} catch (e) {}
 	useEffect(() => {
 		if (!contentRef.current) return;
-		contentRef.current.querySelectorAll("img").forEach((img) => {
+		contentRef.current.querySelectorAll("img").forEach((img, index) => {
+			if (index === 0) {
+				img.removeAttribute("loading");
+				img.setAttribute("fetchpriority", "high");
+				return;
+			}
 			if (!img.getAttribute("loading")) img.setAttribute("loading", "lazy");
 		});
 		const headings = contentRef.current.querySelectorAll("h2");

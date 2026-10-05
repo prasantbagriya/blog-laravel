@@ -84,11 +84,7 @@ class PostController extends Controller
                 $quality = 80;
                 $encoded = $image->encodeUsingFileExtension('webp', $quality);
                 
-                // Iteratively reduce quality if file is > 100KB
-                while (strlen((string) $encoded) > 102400 && $quality > 10) {
-                    $quality -= 10;
-                    $encoded = $image->encodeUsingFileExtension('webp', $quality);
-                }
+                // Removed CPU-heavy while loop. Single pass is safer.
                 
                 \Illuminate\Support\Facades\Storage::disk('public')->put('uploads/' . $filename, (string) $encoded);
                 $mediaUrls = json_encode(['/storage/uploads/' . $filename]);
@@ -121,7 +117,7 @@ class PostController extends Controller
 
     public function update(Request $request, Post $post)
     {
-        if (auth()->id() !== $post->author_id) {
+        if (auth()->id() !== $post->author_id && auth()->user()->role !== 'admin') {
             abort(403);
         }
 
@@ -165,7 +161,7 @@ class PostController extends Controller
         $post = Post::with(['author', 'community'])->findOrFail($id);
         $community = $post->community;
 
-        $comments = \App\Models\Comment::with(['author', 'replies'])
+        $comments = \App\Models\Comment::with(['author', 'replies', 'replies.author'])
             ->where('post_id', $post->id)
             ->whereNull('parent_id')
             ->where('is_spam', false)
@@ -272,7 +268,7 @@ class PostController extends Controller
 
     public function destroy(Post $post)
     {
-        if (auth()->id() !== $post->author_id) {
+        if (auth()->id() !== $post->author_id && auth()->user()->role !== 'admin') {
             abort(403);
         }
 
@@ -303,17 +299,7 @@ class PostController extends Controller
                 $quality = 85;
                 $encoded = $image->encodeUsingFileExtension('webp', $quality);
                 
-                // Iteratively reduce quality if file is > 100KB, but keep visual quality high (min 65)
-                while (strlen((string) $encoded) > 102400 && $quality > 65) {
-                    $quality -= 5;
-                    $encoded = $image->encodeUsingFileExtension('webp', $quality);
-                }
-                
-                // If still > 100KB, shrink dimensions instead of ruining quality
-                while (strlen((string) $encoded) > 102400 && $image->width() > 400) {
-                    $image->scaleDown(width: (int)($image->width() * 0.85));
-                    $encoded = $image->encodeUsingFileExtension('webp', $quality);
-                }
+                // Removed CPU-heavy while loops to prevent server hanging.
                 
                 $uploadDir = public_path('uploads');
                 if (!\Illuminate\Support\Facades\File::exists($uploadDir)) {
