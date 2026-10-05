@@ -253,6 +253,9 @@
             </div>
         @endif
 
+    <!-- ChatWizs Widget -->
+    <script src="https://chatwizs.com/sdk/widget.js" data-id="1b4b3546-32f3-456d-9f97-ed657d5db994" async></script>
+    <!-- End ChatWizs Widget -->
     </body>
 </html>
 
