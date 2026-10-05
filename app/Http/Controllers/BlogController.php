@@ -512,11 +512,23 @@ class BlogController extends Controller
         $preloadImage = null;
         if (!empty($post->coverImage)) {
             $preloadImage = str_starts_with($post->coverImage, 'http') ? $post->coverImage : url($post->coverImage);
-        } else if (preg_match('/<img[^>]+src=["\']([^"\']+)["\']/i', $post->content, $matches)) {
-            $preloadImage = $matches[1];
-            if (!str_starts_with($preloadImage, 'http') && !str_starts_with($preloadImage, 'data:')) {
-                $preloadImage = url($preloadImage);
+        }
+        
+        // Always optimize the first image in the content for LCP (SSR HTML)
+        if (preg_match('/<img[^>]+src=["\']([^"\']+)["\']/i', $post->content, $matches)) {
+            if (empty($preloadImage)) {
+                $preloadImage = $matches[1];
+                if (!str_starts_with($preloadImage, 'http') && !str_starts_with($preloadImage, 'data:')) {
+                    $preloadImage = url($preloadImage);
+                }
             }
+            
+            // Fix initial SSR HTML: Remove lazy loading and add high fetch priority for the first image
+            $post->content = preg_replace_callback('/(<img[^>]+)(>)/i', function($m) {
+                $imgTag = preg_replace('/\s+loading=["\']lazy["\']/i', '', $m[1]);
+                $imgTag = preg_replace('/\s+fetchpriority=["\'][a-z]+["\']/i', '', $imgTag);
+                return $imgTag . ' fetchpriority="high" loading="eager"' . $m[2];
+            }, $post->content, 1);
         }
 
         return Inertia::render('Blog/Show', [
