@@ -156,10 +156,10 @@ export default function Index({ posts, meta, faqs = [] }) {
                 <h1 className="text-4xl font-bold mb-12 text-slate-900 dark:text-white max-w-7xl mx-auto">{meta?.h1 || 'All Articles & Insights'}</h1>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-16">
-                    {posts.map((post) => (
+                    {posts.map((post, index) => (
                         <article key={post.id} className="border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-xl overflow-hidden hover:shadow-xl dark:hover:shadow-black/40 transition-shadow flex flex-col">
                             <Link href={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + (post.url_path || `/blog/${post.slug}`)} className="relative h-48 block">
-                                <Image src={post.coverImage || '/uploads/read.webp'} alt={post.title} fill style={{ objectFit: 'cover' }} />
+                                <Image src={post.coverImage || '/uploads/read.webp'} alt={post.title} fill style={{ objectFit: 'cover' }} priority={index === 0} />
                             </Link>
                             <div className="p-6 flex flex-col flex-grow">
                                 <span className="text-sm text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider mb-2">{post.category}</span>
