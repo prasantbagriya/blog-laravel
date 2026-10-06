@@ -699,6 +699,13 @@ div[data-image-slider="true"] {
   table-layout: fixed !important;
   border-collapse: collapse !important;
   margin: 1.5em 0 !important;
+  border: none !important;
+}
+
+.prose table tr,
+.prose table thead,
+.prose table tbody {
+  border: none !important;
 }
 
 .prose th,
