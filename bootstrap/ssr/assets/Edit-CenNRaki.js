@@ -1,4 +1,4 @@
-import TipTapEditor from "./TipTapEditor-DJbv7H-D.js";
+import TipTapEditor from "./TipTapEditor-DtWAcuh0.js";
 import { Head, Link } from "@inertiajs/react";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import { useEffect, useState } from "react";

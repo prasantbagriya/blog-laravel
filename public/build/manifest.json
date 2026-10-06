@@ -285,7 +285,7 @@
     ]
   },
   "resources/js/Components/TipTapEditor.jsx": {
-    "file": "assets/TipTapEditor-B3wW55HH.js",
+    "file": "assets/TipTapEditor-SfWEUPR8.js",
     "name": "TipTapEditor",
     "src": "resources/js/Components/TipTapEditor.jsx",
     "isDynamicEntry": true,
@@ -802,7 +802,7 @@
     ]
   },
   "resources/js/Pages/Business/Create.jsx": {
-    "file": "assets/Create-QcMsHmDZ.js",
+    "file": "assets/Create-D9k7DvQQ.js",
     "name": "Create",
     "src": "resources/js/Pages/Business/Create.jsx",
     "isDynamicEntry": true,
@@ -815,7 +815,7 @@
     ]
   },
   "resources/js/Pages/Business/Edit.jsx": {
-    "file": "assets/Edit-EIt1A3li.js",
+    "file": "assets/Edit-BjPznmff.js",
     "name": "Edit",
     "src": "resources/js/Pages/Business/Edit.jsx",
     "isDynamicEntry": true,
@@ -1009,7 +1009,7 @@
     ]
   },
   "resources/js/Pages/Post/Create.jsx": {
-    "file": "assets/Create-BTR821Wu.js",
+    "file": "assets/Create-CUX_2wdK.js",
     "name": "Create",
     "src": "resources/js/Pages/Post/Create.jsx",
     "isDynamicEntry": true,
@@ -1282,7 +1282,7 @@
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-BG5ib28c.js",
+    "file": "assets/app-PctwwxxC.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,

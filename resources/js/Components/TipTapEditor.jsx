@@ -214,6 +214,12 @@ const MenuBar = ({ editor, onOpenImageModal, onOpenVideoModal, onOpenLinkModal }
                     <ToolbarButton onClick={() => editor.chain().focus().deleteRow().run()} title="Delete Row">
                         <span className="text-xs font-bold px-1 text-rose-500">-Row</span>
                     </ToolbarButton>
+                    <ToolbarButton onClick={() => editor.chain().focus().mergeCells().run()} title="Merge Cells">
+                        <span className="text-xs font-bold px-1 text-blue-500">Merge</span>
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => editor.chain().focus().splitCell().run()} title="Split Cell">
+                        <span className="text-xs font-bold px-1 text-blue-500">Split</span>
+                    </ToolbarButton>
                     <ToolbarButton onClick={() => editor.chain().focus().deleteTable().run()} title="Delete Table">
                         <span className="text-xs font-bold px-1 text-rose-600">Del Tbl</span>
                     </ToolbarButton>

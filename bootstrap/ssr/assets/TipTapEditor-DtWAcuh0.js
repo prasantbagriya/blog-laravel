@@ -208,6 +208,22 @@ var MenuBar = ({ editor, onOpenImageModal, onOpenVideoModal, onOpenLinkModal }) 
 					})
 				}),
 				/* @__PURE__ */ jsx(ToolbarButton, {
+					onClick: () => editor.chain().focus().mergeCells().run(),
+					title: "Merge Cells",
+					children: /* @__PURE__ */ jsx("span", {
+						className: "text-xs font-bold px-1 text-blue-500",
+						children: "Merge"
+					})
+				}),
+				/* @__PURE__ */ jsx(ToolbarButton, {
+					onClick: () => editor.chain().focus().splitCell().run(),
+					title: "Split Cell",
+					children: /* @__PURE__ */ jsx("span", {
+						className: "text-xs font-bold px-1 text-blue-500",
+						children: "Split"
+					})
+				}),
+				/* @__PURE__ */ jsx(ToolbarButton, {
 					onClick: () => editor.chain().focus().deleteTable().run(),
 					title: "Delete Table",
 					children: /* @__PURE__ */ jsx("span", {
