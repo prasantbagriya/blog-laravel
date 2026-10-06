@@ -4,8 +4,8 @@
   ],
   "node_modules/laravel-vite-plugin/inertia-helpers/index.js": [],
   "resources/css/app.css": [
-    "/build/assets/PostForm-BhERWJYx.js",
-    "/build/assets/PostForm-CGsqosaz.css"
+    "/build/assets/PostForm-CbGmZaeM.js",
+    "/build/assets/PostForm-CHjstPIB.css"
   ],
   "resources/js/Components/AnimatedBorderCard.jsx": [
     "/build/assets/AnimatedBorderCard-B7gc4jxI.js"
@@ -125,14 +125,14 @@
     "/build/assets/Index-CycPYtre.js"
   ],
   "resources/js/Pages/Admin/PostForm.tsx": [
-    "/build/assets/PostForm-BhERWJYx.js",
-    "/build/assets/PostForm-CGsqosaz.css"
+    "/build/assets/PostForm-CbGmZaeM.js",
+    "/build/assets/PostForm-CHjstPIB.css"
   ],
   "resources/js/Pages/Admin/Posts/Edit.jsx": [
-    "/build/assets/Edit-jeZr_eMy.js"
+    "/build/assets/Edit-BrgNiVWf.js"
   ],
   "resources/js/Pages/Admin/Posts/New.jsx": [
-    "/build/assets/New-CewmABvk.js"
+    "/build/assets/New-CJP1_x41.js"
   ],
   "resources/js/Pages/Admin/SeoAudit/Index.jsx": [
     "/build/assets/Index-HNRIdFiC.js"

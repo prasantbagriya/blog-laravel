@@ -698,8 +698,7 @@ div[data-image-slider="true"] {
 .prose table {
   table-layout: fixed !important;
   border-collapse: collapse !important;
-  border: 1px solid #f1ecec !important;
-  width: 100% !important;
+  margin: 1.5em 0 !important;
 }
 
 .prose th,
