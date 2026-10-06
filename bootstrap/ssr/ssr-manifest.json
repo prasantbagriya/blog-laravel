@@ -4,8 +4,8 @@
   ],
   "node_modules/laravel-vite-plugin/inertia-helpers/index.js": [],
   "resources/css/app.css": [
-    "/build/assets/PostForm-17cZI3v9.js",
-    "/build/assets/PostForm-B_W96gPy.css"
+    "/build/assets/PostForm-B6wMztM5.js",
+    "/build/assets/PostForm-CRM8wBtk.css"
   ],
   "resources/js/Components/AnimatedBorderCard.jsx": [
     "/build/assets/AnimatedBorderCard-B7gc4jxI.js"
@@ -125,14 +125,14 @@
     "/build/assets/Index-CycPYtre.js"
   ],
   "resources/js/Pages/Admin/PostForm.tsx": [
-    "/build/assets/PostForm-17cZI3v9.js",
-    "/build/assets/PostForm-B_W96gPy.css"
+    "/build/assets/PostForm-B6wMztM5.js",
+    "/build/assets/PostForm-CRM8wBtk.css"
   ],
   "resources/js/Pages/Admin/Posts/Edit.jsx": [
-    "/build/assets/Edit-mqdoYPA8.js"
+    "/build/assets/Edit-DfINsJGt.js"
   ],
   "resources/js/Pages/Admin/Posts/New.jsx": [
-    "/build/assets/New-cOZpaV1T.js"
+    "/build/assets/New-DizlyCK3.js"
   ],
   "resources/js/Pages/Admin/SeoAudit/Index.jsx": [
     "/build/assets/Index-HNRIdFiC.js"
@@ -180,10 +180,10 @@
     "/build/assets/VerifyEmail-BZ8zw0zU.js"
   ],
   "resources/js/Pages/Author/Index.jsx": [
-    "/build/assets/Index-D_6vPohl2.js"
+    "/build/assets/Index-CrtpUTNo.js"
   ],
   "resources/js/Pages/Author/Show.jsx": [
-    "/build/assets/Show-BBrTC4tJ.js"
+    "/build/assets/Show-DwP6ys56.js"
   ],
   "resources/js/Pages/Blog/Index.jsx": [
     "/build/assets/Index-WqAqt81i.js"

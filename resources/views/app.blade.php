@@ -6,13 +6,13 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta http-equiv="content-language" content="{{ str_replace('_', '-', app()->getLocale()) ?? 'en' }}">
         
-        <title inertia>{{ $page['props']['meta']['title'] ?? config('app.name', 'Coachinginsikar') }}</title>
+        <title inertia>{{ $page['props']['meta']['title'] ?? config('app.name', 'CoachingsinSikar') }}</title>
         <meta inertia head-key="description" name="description" content="{{ $page['props']['meta']['description'] ?? 'Latest education news, exam results, and coaching updates from Sikar.' }}">
         <meta inertia head-key="robots" name="robots" content="{{ $page['props']['meta']['robots'] ?? 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' }}" />
         <link inertia head-key="canonical" rel="canonical" href="{{ $page['props']['meta']['url'] ?? url()->current() }}" />
 
         <meta inertia head-key="og:locale" property="og:locale" content="{{ str_replace('-', '_', app()->getLocale()) ?? 'en_US' }}" />
-        <meta inertia head-key="og:title" property="og:title" content="{{ $page['props']['meta']['og_title'] ?? $page['props']['meta']['title'] ?? config('app.name', 'Coachinginsikar') }}" />
+        <meta inertia head-key="og:title" property="og:title" content="{{ $page['props']['meta']['og_title'] ?? $page['props']['meta']['title'] ?? config('app.name', 'CoachingsinSikar') }}" />
         <meta inertia head-key="og:description" property="og:description" content="{{ $page['props']['meta']['og_description'] ?? $page['props']['meta']['description'] ?? 'Latest education news, exam results, and coaching updates from Sikar.' }}" />
         <meta inertia head-key="og:url" property="og:url" content="{{ $page['props']['meta']['url'] ?? url()->current() }}" />
         <meta inertia head-key="og:type" property="og:type" content="{{ $page['props']['meta']['type'] ?? 'website' }}" />
@@ -28,7 +28,7 @@
         <meta inertia head-key="twitter:card" name="twitter:card" content="{{ $page['props']['meta']['twitter_card'] ?? 'summary_large_image' }}" />
         <meta inertia head-key="twitter:site" name="twitter:site" content="@coachinginsikar" />
         <meta inertia head-key="twitter:creator" name="twitter:creator" content="@coachinginsikar" />
-        <meta inertia head-key="twitter:title" name="twitter:title" content="{{ $page['props']['meta']['twitter_title'] ?? $page['props']['meta']['title'] ?? config('app.name', 'Coachinginsikar') }}" />
+        <meta inertia head-key="twitter:title" name="twitter:title" content="{{ $page['props']['meta']['twitter_title'] ?? $page['props']['meta']['title'] ?? config('app.name', 'CoachingsinSikar') }}" />
         <meta inertia head-key="twitter:description" name="twitter:description" content="{{ $page['props']['meta']['twitter_description'] ?? $page['props']['meta']['description'] ?? 'Latest education news, exam results, and coaching updates from Sikar.' }}" />
         @if(!empty($page['props']['meta']['keywords']))
         <meta inertia head-key="keywords" name="keywords" content="{{ $page['props']['meta']['keywords'] }}" />
@@ -175,14 +175,6 @@
             </div>
         @endif
         
-        {{-- SEO H1 for crawlers: rendered in server HTML before JS hydrates.
-             Visually hidden but fully readable by Bingbot / Googlebot. --}}
-        @php
-            $crawlerH1 = $page['props']['meta']['h1']
-                ?? $page['props']['meta']['title']
-                ?? config('app.name', 'CoachinginSikar');
-        @endphp
-        <h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0;" aria-hidden="true">{{ $crawlerH1 }}</h1>
 
         @php
             $inertiaSsr = app(\Inertia\Ssr\Gateway::class)->dispatch($page);

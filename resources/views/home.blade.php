@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="content-language" content="{{ str_replace('_', '-', app()->getLocale()) }}">
 
-    <title>{{ $meta['title'] ?? config('app.name', 'Coachinginsikar') }}</title>
+    <title>{{ $meta['title'] ?? config('app.name', 'CoachingsinSikar') }}</title>
     <meta name="description" content="{{ $meta['description'] ?? '' }}">
     <meta name="robots" content="{{ $meta['robots'] ?? 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' }}">
     <link rel="canonical" href="{{ $meta['url'] ?? url()->current() }}">
