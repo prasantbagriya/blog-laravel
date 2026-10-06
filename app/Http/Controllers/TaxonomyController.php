@@ -105,8 +105,9 @@ class TaxonomyController extends Controller
     public function authorIndex()
     {
         $authors = Author::all()->toArray();
-        $title = "Authors";
-        $description = "Meet the authors contributing to Coachinginsikar.";
+        $title = "Our Authors & Education Experts | CoachingsinSikar";
+        $description = "Meet the experienced authors and education experts contributing to CoachingsinSikar. Read their articles on coaching institutes, school admissions, and competitive exams like JEE, NEET, and CA.";
+        $keywords = "CoachingsinSikar authors, education experts Sikar, blog writers, coaching guides, Sikar education writers, JEE NEET advisors";
         
         $schemas = [[
             "@context" => "https://schema.org",
@@ -120,8 +121,9 @@ class TaxonomyController extends Controller
             'authors' => $authors,
             'meta' => [
                 'title' => $title,
-                'h1' => 'Meet Our Authors',
+                'h1' => 'Meet Our Authors & Experts',
                 'description' => $description,
+                'keywords' => $keywords,
                 'url' => url('/author'),
                 'type' => 'website',
                 'schemas' => $schemas
@@ -142,9 +144,13 @@ class TaxonomyController extends Controller
                      ->get()
                      ->toArray();
                      
-        $cleanBio = $author->bio ? substr(strip_tags($author->bio), 0, 160) : "Articles by {$author->name}";
-        $title = $author->name;
-        $description = $cleanBio;
+        $cleanBio = $author->bio ? substr(strip_tags($author->bio), 0, 160) : "Articles and education guides written by {$author->name} on CoachingsinSikar.";
+        $jobTitle = $author->jobTitle ? " - " . $author->jobTitle : "";
+        
+        // Improved SEO strings
+        $title = "{$author->name}{$jobTitle} | CoachingsinSikar";
+        $description = "Read all articles, coaching reviews, and education guides by {$author->name}. {$cleanBio}";
+        $keywords = "{$author->name}, {$author->name} author, CoachingsinSikar {$author->name}, education expert Sikar, coaching guide writer";
 
         $sameAsLinks = [];
         if (!empty($author->socials) && is_array($author->socials)) {
@@ -195,18 +201,25 @@ class TaxonomyController extends Controller
             "@type" => "ProfilePage",
             "mainEntity" => $personSchema
         ]];
+        
+        $meta = [
+            'title' => $title,
+            'h1' => $author->name,
+            'description' => $description,
+            'keywords' => $keywords,
+            'url' => url("/author/{$slug}"),
+            'type' => 'profile',
+            'schemas' => $schemas
+        ];
+        
+        if (!empty($author->image)) {
+            $meta['og_image'] = url(str_starts_with($author->image, '/') ? $author->image : '/' . $author->image);
+        }
 
         return Inertia::render('Author/Show', [
             'author' => $author->toArray(),
             'posts' => $posts,
-            'meta' => [
-                'title' => $title,
-                'h1' => $author->name,
-                'description' => $description,
-                'url' => url("/author/{$slug}"),
-                'type' => 'profile',
-                'schemas' => $schemas
-            ]
+            'meta' => $meta
         ]);
     }
 }
