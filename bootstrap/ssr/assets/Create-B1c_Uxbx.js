@@ -4,7 +4,7 @@ import { jsx, jsxs } from "react/jsx-runtime";
 import React, { Suspense } from "react";
 import { CheckCircle2, ChevronDown, Image, Link as Link$1, ListOrdered, PencilLine, Sparkles } from "lucide-react";
 //#region resources/js/Pages/Post/Create.jsx
-var TipTapEditor = React.lazy(() => import("./TipTapEditor-IJsLOYlU.js"));
+var TipTapEditor = React.lazy(() => import("./TipTapEditor-YDaWrmJR.js"));
 function CreatePost({ auth, communities, default_community_id, editPost }) {
 	const { data, setData, post, put, processing, errors } = useForm({
 		community_id: editPost?.community_id || default_community_id || "",
