@@ -16,7 +16,7 @@ import {
     Bold, Italic, Underline as UnderlineIcon, Strikethrough,
     AlignLeft, AlignCenter, AlignRight,
     List, ListOrdered, Link as LinkIcon, Image as ImageIcon, Video,
-    Heading1, Heading2, Quote, Table as TableIcon
+    Heading1, Heading2, Quote, Table as TableIcon, Maximize, Minimize
 } from 'lucide-react';
 
 
@@ -36,7 +36,7 @@ const ToolbarButton = ({ onClick, disabled, isActive, title, children }) => (
     </button>
 );
 
-const MenuBar = ({ editor, onOpenImageModal, onOpenVideoModal, onOpenLinkModal }) => {
+const MenuBar = ({ editor, onOpenImageModal, onOpenVideoModal, onOpenLinkModal, isFullscreen, onToggleFullscreen }) => {
     if (!editor) {
         return null;
     }
@@ -60,7 +60,11 @@ const MenuBar = ({ editor, onOpenImageModal, onOpenVideoModal, onOpenLinkModal }
     const Divider = () => <div className="flex-shrink-0 w-[1px] h-6 bg-gray-200 dark:bg-zinc-700 mx-1.5"></div>;
 
     return (
-        <div className="flex flex-nowrap overflow-x-auto items-center gap-0.5 p-1.5 bg-[#F6F7F8] dark:bg-zinc-800 border-b border-[#EDEFF1] dark:border-zinc-700 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+        <div className="flex flex-wrap items-center gap-1 p-1.5 bg-[#F6F7F8] dark:bg-zinc-800 border-b border-[#EDEFF1] dark:border-zinc-700">
+            <ToolbarButton onClick={onToggleFullscreen} title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}>
+                {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
+            </ToolbarButton>
+            <Divider />
             <ToolbarButton
                 onClick={() => editor.chain().focus().toggleBold().run()}
                 disabled={!editor.can().chain().focus().toggleBold().run()}
@@ -230,6 +234,7 @@ const MenuBar = ({ editor, onOpenImageModal, onOpenVideoModal, onOpenLinkModal }
 };
 
 export default function TipTapEditor({ value, onChange }) {
+    const [isFullscreen, setIsFullscreen] = React.useState(false);
     const editor = useEditor({
         extensions: [
             StarterKit,
@@ -363,14 +368,18 @@ export default function TipTapEditor({ value, onChange }) {
     };
 
     return (
-        <div className="border border-[#EDEFF1] dark:border-zinc-700 focus-within:border-[#1C1C1C] dark:focus-within:border-zinc-500 rounded-md overflow-hidden bg-white dark:bg-zinc-900 transition-colors relative">
+        <div className={`border border-[#EDEFF1] dark:border-zinc-700 focus-within:border-[#1C1C1C] dark:focus-within:border-zinc-500 bg-white dark:bg-zinc-900 transition-colors relative flex flex-col ${isFullscreen ? 'fixed inset-0 z-[100] w-screen h-[100dvh] rounded-none border-none editor-fullscreen' : 'rounded-md overflow-hidden'}`}>
             <MenuBar 
                 editor={editor} 
                 onOpenImageModal={() => setIsImageModalOpen(true)} 
                 onOpenVideoModal={() => setIsVideoModalOpen(true)}
                 onOpenLinkModal={(prevUrl) => { setLinkUrl(prevUrl); setIsLinkModalOpen(true); }}
+                isFullscreen={isFullscreen}
+                onToggleFullscreen={() => setIsFullscreen(!isFullscreen)}
             />
-            <EditorContent editor={editor} />
+            <div className={isFullscreen ? "flex-1 overflow-y-auto bg-slate-50 dark:bg-zinc-950" : ""}>
+                <EditorContent editor={editor} />
+            </div>
             
             {/* Video Modal */}
             {isVideoModalOpen && (
@@ -536,6 +545,21 @@ export default function TipTapEditor({ value, onChange }) {
             )}
             
             <style jsx global>{`
+                .editor-fullscreen .ProseMirror {
+                    min-height: calc(100vh - 60px);
+                    max-width: 800px;
+                    margin: 0 auto;
+                    background: white;
+                    padding: 2rem 4rem;
+                }
+                .dark .editor-fullscreen .ProseMirror {
+                    background: #18181b;
+                }
+                @media (max-width: 640px) {
+                    .editor-fullscreen .ProseMirror {
+                        padding: 1rem;
+                    }
+                }
                 .ProseMirror p.is-editor-empty:first-child::before {
                     color: #878A8C;
                     content: attr(data-placeholder);
