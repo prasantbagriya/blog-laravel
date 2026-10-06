@@ -948,7 +948,7 @@
     ]
   },
   "resources/js/Pages/HomeComponents/BlogSection.jsx": {
-    "file": "assets/BlogSection-CdgbSk4V.js",
+    "file": "assets/BlogSection-ClefaTJT.js",
     "name": "BlogSection",
     "src": "resources/js/Pages/HomeComponents/BlogSection.jsx",
     "isDynamicEntry": true,
@@ -961,7 +961,7 @@
     ]
   },
   "resources/js/Pages/HomeComponents/CategorySection.jsx": {
-    "file": "assets/CategorySection-BELkh8T5.js",
+    "file": "assets/CategorySection-yW2OgeBW.js",
     "name": "CategorySection",
     "src": "resources/js/Pages/HomeComponents/CategorySection.jsx",
     "isDynamicEntry": true,
@@ -973,7 +973,7 @@
     ]
   },
   "resources/js/Pages/HomeComponents/FAQSection.jsx": {
-    "file": "assets/FAQSection-Kcdwr8ov.js",
+    "file": "assets/FAQSection-CnHL_nw2.js",
     "name": "FAQSection",
     "src": "resources/js/Pages/HomeComponents/FAQSection.jsx",
     "isDynamicEntry": true,
@@ -985,7 +985,7 @@
     ]
   },
   "resources/js/Pages/HomeComponents/SeoContent.jsx": {
-    "file": "assets/SeoContent-DeIu325Q.js",
+    "file": "assets/SeoContent-DKfBsml1.js",
     "name": "SeoContent",
     "src": "resources/js/Pages/HomeComponents/SeoContent.jsx",
     "isDynamicEntry": true,
@@ -997,7 +997,7 @@
     ]
   },
   "resources/js/Pages/HomeComponents/StoriesSection.jsx": {
-    "file": "assets/StoriesSection-DIEymxdh.js",
+    "file": "assets/StoriesSection-C0eBlpS6.js",
     "name": "StoriesSection",
     "src": "resources/js/Pages/HomeComponents/StoriesSection.jsx",
     "isDynamicEntry": true,
@@ -1328,7 +1328,7 @@
     ]
   },
   "resources/js/home.jsx": {
-    "file": "assets/home-DeOCeJ2b.js",
+    "file": "assets/home-DHARBpxy.js",
     "name": "home",
     "src": "resources/js/home.jsx",
     "isEntry": true,

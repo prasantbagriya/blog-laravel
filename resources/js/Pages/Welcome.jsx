@@ -6,7 +6,7 @@ import { Link, navigate, Image } from './HomeComponents/utils';
 // Critical above-fold: load immediately
 import AnimatedBorderCard from '../Components/AnimatedBorderCard';
 import ShareModal from '../Components/ShareModal';
-import { Search, ChevronRight, Star, ArrowRight, Library, MapPin, CheckCircle2, MessageSquare, ThumbsUp, TrendingUp, Share2, Bookmark } from 'lucide-react';
+import { Search, ChevronRight, Star, ArrowRight, Library, MapPin, CheckCircle2, MessageSquare, ThumbsUp, TrendingUp, Share2, Bookmark, GraduationCap, BookOpen } from 'lucide-react';
 
 import TrustMarquee from './HomeComponents/TrustMarquee';
 import InstitutesSection from './HomeComponents/InstitutesSection';

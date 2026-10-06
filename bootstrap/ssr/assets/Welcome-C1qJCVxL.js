@@ -8,7 +8,7 @@ import InstitutesSection from "./InstitutesSection-WAg94c3S.js";
 import TrustMarquee from "./TrustMarquee-CfkZIMCI.js";
 import { jsx, jsxs } from "react/jsx-runtime";
 import React, { Suspense, lazy, useEffect, useState } from "react";
-import { CheckCircle2, MessageSquare, Search, Star } from "lucide-react";
+import { BookOpen, CheckCircle2, GraduationCap, MessageSquare, Search, Star } from "lucide-react";
 //#region resources/js/Pages/Welcome.jsx
 var BlogSection = lazy(() => import("./BlogSection-yrQVerIc.js"));
 var CategorySection = lazy(() => import("./CategorySection-Cm4V2bak.js"));
