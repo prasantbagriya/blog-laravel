@@ -54,6 +54,11 @@ class TaxonomyController extends Controller
         
         $category = \App\Models\Category::where('slug', $slug)->orWhere('name', 'LIKE', $categoryName)->first();
         
+        // Return 404 if category is not found in database
+        if (!$category) {
+            abort(404);
+        }
+        
         $posts = Post::where('published', true)
                      ->where('category', 'LIKE', '%' . $target . '%')
                      ->get()
