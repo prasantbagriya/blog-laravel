@@ -700,6 +700,7 @@ div[data-image-slider="true"] {
   border-collapse: collapse !important;
   margin: 1.5em 0 !important;
   border: none !important;
+  width: auto !important;
 }
 
 .prose table tr,
