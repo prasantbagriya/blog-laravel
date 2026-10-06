@@ -703,11 +703,12 @@ div[data-image-slider="true"] {
   border-collapse: collapse !important;
   border: 1px solid #f1ecec !important;
   width: 100% !important;
+  white-space: nowrap !important;
 }
 
 .prose th,
 .prose td {
-  min-width: 1em !important;
+  min-width: 120px !important;
   position: relative !important;
   box-sizing: border-box !important;
   border: 1px solid #f1ecec !important;

@@ -192,6 +192,33 @@ const MenuBar = ({ editor, onOpenImageModal, onOpenVideoModal, onOpenLinkModal }
             >
                 <TableIcon size={18} />
             </ToolbarButton>
+
+            {editor.isActive('table') && (
+                <>
+                    <Divider />
+                    <ToolbarButton onClick={() => editor.chain().focus().addColumnBefore().run()} title="Add Col Left">
+                        <span className="text-xs font-bold px-1">+Col</span>
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => editor.chain().focus().addColumnAfter().run()} title="Add Col Right">
+                        <span className="text-xs font-bold px-1">Col+</span>
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => editor.chain().focus().deleteColumn().run()} title="Delete Col">
+                        <span className="text-xs font-bold px-1 text-rose-500">-Col</span>
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => editor.chain().focus().addRowBefore().run()} title="Add Row Above">
+                        <span className="text-xs font-bold px-1">+Row</span>
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => editor.chain().focus().addRowAfter().run()} title="Add Row Below">
+                        <span className="text-xs font-bold px-1">Row+</span>
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => editor.chain().focus().deleteRow().run()} title="Delete Row">
+                        <span className="text-xs font-bold px-1 text-rose-500">-Row</span>
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => editor.chain().focus().deleteTable().run()} title="Delete Table">
+                        <span className="text-xs font-bold px-1 text-rose-600">Del Tbl</span>
+                    </ToolbarButton>
+                </>
+            )}
         </div>
     );
 };
@@ -525,9 +552,9 @@ export default function TipTapEditor({ value, onChange }) {
                 .editor-content ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 0.5em; }
                 .editor-content ol { list-style-type: decimal; padding-left: 1.5em; margin-bottom: 0.5em; }
                 .editor-content blockquote { border-left: 3px solid #EDEFF1; padding-left: 1em; margin-left: 0; color: #878A8C; font-style: italic; }
-                .editor-content table { border-collapse: collapse; margin: 0 0 1em 0; overflow: hidden; table-layout: fixed; width: 100%; }
-                .editor-content table td, .editor-content table th { border: 1px solid #ced4da; box-sizing: border-box; min-width: 1em; padding: 6px 8px; position: relative; vertical-align: top; }
-                .editor-content table th { background-color: #f1f3f5; font-weight: bold; text-align: left; }
+                .editor-content table { border-collapse: collapse; margin: 0 0 1.5em 0; table-layout: fixed; width: 100%; display: block; overflow-x: auto; white-space: nowrap; }
+                .editor-content table td, .editor-content table th { border: 1px solid #ced4da; box-sizing: border-box; min-width: 120px; padding: 8px 12px; position: relative; vertical-align: top; }
+                .editor-content table th { background-color: #f8f9fa; font-weight: bold; text-align: left; }
                 .dark .editor-content table td, .dark .editor-content table th { border-color: #4b5563; }
                 .dark .editor-content table th { background-color: #374151; }
             `}</style>
