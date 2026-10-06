@@ -275,7 +275,7 @@ export default function Show({ post, recentPosts, meta, comments = [], userComme
                                     <img loading="lazy" decoding="async" fetchPriority="low" src={post.authorImage.startsWith('http') || post.authorImage.startsWith('/') ? post.authorImage : '/' + post.authorImage} alt={displayAuthor} width="48" height="48" className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover shrink-0" />
                                 )}
                                 <div className="truncate">
-                                    <Link href={window.BASE_PATH + '/author/' + (displayAuthor ? displayAuthor.toLowerCase().replace(/[^a-z0-9]+/g, '-') : '')} className="font-semibold text-base sm:text-lg text-slate-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 hover:underline truncate block">
+                                    <Link href={window.BASE_PATH + '/author/' + (post.author ? post.author.toLowerCase().replace(/[^a-z0-9]+/g, '-') : '')} className="font-semibold text-base sm:text-lg text-slate-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 hover:underline truncate block">
                                         {displayAuthor}
                                     </Link>
                                     {post.authorJobTitle && (

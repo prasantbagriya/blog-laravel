@@ -398,7 +398,7 @@ function Show({ post, recentPosts, meta, comments = [], userCommentVotes = {} })
 											className: "truncate",
 											children: [
 												/* @__PURE__ */ jsx(Link, {
-													href: window.BASE_PATH + "/author/" + (displayAuthor ? displayAuthor.toLowerCase().replace(/[^a-z0-9]+/g, "-") : ""),
+													href: window.BASE_PATH + "/author/" + (post.author ? post.author.toLowerCase().replace(/[^a-z0-9]+/g, "-") : ""),
 													className: "font-semibold text-base sm:text-lg text-slate-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 hover:underline truncate block",
 													children: displayAuthor
 												}),
