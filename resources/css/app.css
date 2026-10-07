@@ -5,6 +5,10 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
+@import '@fontsource/outfit/400.css';
+@import '@fontsource/outfit/600.css';
+@import '@fontsource/outfit/700.css';
+
 :root {
   --primary: #2563eb;
   --primary-hover: #1d4ed8;
@@ -16,11 +20,11 @@
   --accent: #f1f5ff;
   --border: #e2e8f0;
   --radius: 1rem;
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Outfit', system-ui, -apple-system, sans-serif;
   --glass: rgba(255, 255, 255, 0.8);
   --glass-border: rgba(255, 255, 255, 0.4);
   --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --header-height: 72px;
+  --header-height: 60px;
 }
 
 ::selection {
@@ -45,6 +49,7 @@
 button {
   outline: none !important;
   border: none;
+  background-color: transparent;
 }
 
 html {
@@ -224,8 +229,8 @@ section:not(:first-of-type):not(.lcp-section):not(.hero-skeleton) {
 
 /* ✅ Article body typography — maximizes dwell time & readability score */
 .tiptap-content {
-  font-size: 1.25rem;
-  line-height: 1.9;
+  font-size: 1.1rem;
+  line-height: 1.8;
   color: var(--foreground);
 }
 
@@ -354,7 +359,7 @@ section:not(:first-of-type):not(.lcp-section):not(.hero-skeleton) {
 
 .tiptap-content img {
   border-radius: var(--radius);
-  margin: 1.5rem auto;
+  margin: 0.5rem auto;
   box-shadow: var(--shadow);
 }
 
@@ -742,3 +747,16 @@ div[data-image-slider="true"] {
 .dark .prose a {
   color: #f1ecec !important;
 }
+/* Navigation & Global Animations */
+@keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulseGlow { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.6; } }
+@keyframes slideDown { from { opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0; } to { opacity: 1; max-height: 500px; padding-top: 1.5rem; padding-bottom: 1.5rem; } }
+@keyframes shimmer-nav { 100% { transform: translateX(100%); } }
+
+.animate-fade-in-down { animation: fadeInDown 0.5s ease-out forwards; }
+.animate-pulse-glow { animation: pulseGlow 4s infinite ease-in-out; }
+.animate-slide-down { animation: slideDown 0.3s ease-out forwards; overflow: hidden; }
+
+/* Signup / Brand Button Theme (Semrush Style) */
+.btn-amber, a.btn-amber, button.btn-amber { background: #ff642d !important; color: white !important; border-color: #ff642d !important; border-radius: 4px !important; font-weight: 600 !important; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; transition: background-color 0.2s ease, border-color 0.2s ease; padding: 0.5rem 1.25rem; }
+.btn-amber:hover, a.btn-amber:hover, button.btn-amber:hover { background: #e85522 !important; border-color: #e85522 !important; }

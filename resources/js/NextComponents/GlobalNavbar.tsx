@@ -1,26 +1,35 @@
 // @ts-nocheck
 import React, { useState, useEffect } from "react"
 import { Menu, X, Sun, Moon } from "lucide-react"
-import { usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react'
 
 export default function Navbar({ global_nav: passedNav }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isDark, setIsDark] = useState(false)
+  const [isVisible, setIsVisible] = useState(true)
+  const [lastScrollY, setLastScrollY] = useState(0)
   
-  let global_nav = passedNav;
-  if (!global_nav) {
-    try {
-      global_nav = usePage().props.global_nav;
-    } catch (e) {
-      // Not in Inertia context
-      global_nav = [];
-    }
-  }
+  const { props } = usePage()
+  let global_nav = passedNav || props.global_nav || [];
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const isDarkMode = document.documentElement.classList.contains('dark')
       setIsDark(isDarkMode)
+      
+      let lastScrollYValue = window.scrollY;
+      const handleScroll = () => {
+        const currentScrollY = window.scrollY;
+        if (currentScrollY > 60 && currentScrollY > lastScrollYValue) {
+          setIsVisible(false);
+        } else {
+          setIsVisible(true);
+        }
+        lastScrollYValue = currentScrollY;
+      };
+
+      window.addEventListener('scroll', handleScroll, { passive: true });
+      return () => window.removeEventListener('scroll', handleScroll);
     }
   }, [])
 
@@ -51,138 +60,206 @@ export default function Navbar({ global_nav: passedNav }) {
   }
 
 
-  const navLinks = global_nav && global_nav.length > 0 
-    ? global_nav.filter(n => n.is_active).map(n => ({ label: n.name, page: n.url || '/' }))
+  const allLinks = global_nav && global_nav.length > 0 
+    ? global_nav.filter(n => n.is_active).map(n => ({ id: n.id, parent_id: n.parent_id, label: n.name, page: n.url || '/' }))
     : [
-        { label: 'Blog', page: 'blog' },
-        { label: 'Community', page: 'feed' },
-        { label: 'Explore Institutes', page: 'business' },
-        { label: 'Category', page: 'category' },
-        { label: 'About Us', page: 'about' },
-        { label: 'Contact Us', page: 'contact' },
+        { id: 1, parent_id: null, label: 'Blog', page: 'blog' },
+        { id: 2, parent_id: null, label: 'Community', page: 'feed' },
+        { id: 3, parent_id: null, label: 'Explore Institutes', page: 'business' },
+        { id: 4, parent_id: null, label: 'Category', page: 'category' },
+        { id: 5, parent_id: null, label: 'About Us', page: 'about' },
+        { id: 6, parent_id: null, label: 'Contact Us', page: 'contact' },
       ];
+
+  const topLevelLinks = allLinks.filter(link => !link.parent_id);
+  const getChildren = (parentId) => allLinks.filter(link => link.parent_id === parentId);
 
   return (
     <>
-    <style>{`
-      @keyframes fadeInDown {
-        from { opacity: 0; transform: translateY(-20px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-      @keyframes pulseGlow {
-        0%, 100% { opacity: 0.3; }
-        50% { opacity: 0.6; }
-      }
-      @keyframes slideDown {
-        from { opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0; }
-        to { opacity: 1; max-height: 500px; padding-top: 1.5rem; padding-bottom: 1.5rem; }
-      }
-      .animate-fade-in-down { animation: fadeInDown 0.5s ease-out forwards; }
-      .animate-pulse-glow { animation: pulseGlow 4s infinite ease-in-out; }
-      .animate-slide-down { animation: slideDown 0.3s ease-out forwards; overflow: hidden; }
-      .btn-amber, a.btn-amber, button.btn-amber {
-        background: var(--amber, #f59e0b) !important;
-        color: #000000ff !important;
-        border-color: var(--amber, #f59e0b) !important;
-        border-radius: 999px !important;
-        font-weight: 700 !important;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-      }
-      @keyframes shimmer-nav {
-        100% { transform: translateX(100%); }
-      }
-    `}</style>
-    <header className="fixed top-6 left-0 right-0 z-50 w-full px-4 pointer-events-none">
-      <div className="w-full max-w-7xl mx-auto pointer-events-auto">
-        <nav
-          className="relative bg-slate-950/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl animate-fade-in-down"
-        >
-          {/* Animated border glow */}
-          <div
-            className="absolute inset-0 rounded-2xl pointer-events-none border border-blue-500/20 animate-pulse-glow"
-          />
+    {/* Spacer to prevent content from going under the fixed navbar on inner pages */}
+    <div className="h-[54px] w-full shrink-0 block"></div>
+    <header className={`fixed top-0 left-0 right-0 z-50 w-full bg-white dark:bg-[#111111] border-b border-slate-200 dark:border-zinc-800 pointer-events-auto transition-transform duration-300 font-sans ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
+      <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+        <nav className="flex items-center justify-between h-[54px]">
+          {/* Logo Section */}
+          <a href={getHref('landing')} className="flex items-center gap-2 group decoration-transparent">
+            <img loading="lazy" decoding="async" src={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + "/uploads/logo.webp"} alt="Coaching Sikar Logo" className="w-8 h-8 object-contain" width="32" height="32" />
+            <span className="text-[20px] font-bold text-[#1c1c1c] dark:text-white leading-none">
+              Coachings <span className="text-[#e11d48]">Sikar</span>
+            </span>
+          </a>
 
-          <div className="px-4">
-            <div className="flex items-center justify-between h-16">
-              {/* Logo */}
-              <a href={getHref('landing')} className="flex items-center space-x-2 group shrink-0 decoration-transparent">
-                <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform overflow-hidden">
-                  <img loading="lazy" decoding="async" fetchPriority="low" src={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + "/uploads/logo.webp"} alt="Coaching Sikar Logo" className="w-full h-full object-cover" width="32" height="32" />
-                </div>
-                <span className="text-xl font-bold text-white tracking-tighter">Coaching Sikar</span>
-              </a>
-
-              {/* Desktop Nav */}
-              <div className="hidden md:flex flex-1 justify-center items-center space-x-8">
-                {navLinks.map(link => (
-                  <a
-                    key={link.page}
-                    href={getHref(link.page)}
-                   
-                    className="text-sm font-medium text-gray-200 hover:text-white transition-colors cursor-pointer decoration-transparent"
-                  >
-                    {link.label}
-                  </a>
-                ))}
-
-
-              </div>
-
-              {/* Desktop Actions */}
-              <div className="hidden md:flex items-center gap-4">
-                <button 
-                  onClick={toggleDarkMode}
-                  className="bg-slate-800/60 hover:bg-slate-700/80 border border-slate-700/50 transition-colors p-2 rounded-full shadow-inner flex items-center justify-center"
-                  aria-label="Toggle dark mode"
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center space-x-6 ml-10 h-full">
+            {topLevelLinks.map((link) => {
+              const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+              const linkPath = getHref(link.page);
+              const isActive = currentPath === linkPath || (link.page !== 'landing' && link.page !== '/' && currentPath.includes(link.page));
+              const children = getChildren(link.id);
+              const hasChildren = children.length > 0;
+              
+              if (hasChildren) {
+                return (
+                  <div key={link.id || link.label} className="relative group h-full flex items-center">
+                    <button className={`flex items-center gap-1 text-[15px] font-medium transition-colors decoration-transparent ${isActive ? 'text-[#ff642d] dark:text-[#ff8a5c]' : 'text-[#424242] dark:text-gray-300 hover:text-[#ff642d] dark:hover:text-[#ff8a5c]'}`}>
+                      {link.label}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-70 group-hover:rotate-180 transition-transform duration-200"><path d="m6 9 6 6 6-6"/></svg>
+                    </button>
+                    {isActive && <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#ff642d] rounded-t-md"></div>}
+                    
+                    {/* Dropdown Menu */}
+                    <div className="absolute top-[54px] left-0 min-w-[200px] bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-zinc-800 rounded-b-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 z-50 flex flex-col py-2">
+                      {children.map(child => {
+                        const grandChildren = getChildren(child.id);
+                        const hasGrandChildren = grandChildren.length > 0;
+                        if (hasGrandChildren) {
+                          return (
+                            <div key={child.id || child.label} className="relative group/sub w-full">
+                              <button className="w-full text-left px-4 py-2 text-[14px] text-[#424242] dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-[#ff642d] dark:hover:text-[#ff8a5c] transition-colors decoration-transparent flex items-center justify-between">
+                                <span>{child.label}</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="-rotate-90 opacity-70"><path d="m6 9 6 6 6-6"/></svg>
+                              </button>
+                              {/* Sub Dropdown Menu */}
+                              <div className="absolute top-0 left-full min-w-[200px] bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-zinc-800 rounded-lg shadow-xl opacity-0 invisible group-hover/sub:opacity-100 group-hover/sub:visible transition-all duration-200 transform translate-x-2 group-hover/sub:translate-x-0 z-50 flex flex-col py-2 -mt-2">
+                                {grandChildren.map(gc => (
+                                  <a key={gc.id || gc.label} href={getHref(gc.page)} className="px-4 py-2 text-[14px] text-[#424242] dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-[#ff642d] dark:hover:text-[#ff8a5c] transition-colors decoration-transparent whitespace-nowrap block w-full">
+                                    {gc.label}
+                                  </a>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        }
+                        return (
+                          <a key={child.id || child.label} href={getHref(child.page)} className="px-4 py-2 text-[14px] text-[#424242] dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-[#ff642d] dark:hover:text-[#ff8a5c] transition-colors decoration-transparent whitespace-nowrap block w-full">
+                            {child.label}
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              }
+              
+              return (
+                <a
+                  key={link.id || link.label}
+                  href={linkPath}
+                  className={`relative flex items-center text-[15px] font-medium transition-colors decoration-transparent h-full ${
+                    isActive 
+                      ? 'text-[#ff642d] dark:text-[#ff8a5c]' 
+                      : 'text-[#424242] dark:text-gray-300 hover:text-[#ff642d] dark:hover:text-[#ff8a5c]'
+                  }`}
                 >
-                  {isDark ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-blue-400" />}
-                </button>
-                <a href="/login" className="text-sm font-semibold text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-colors decoration-transparent border border-white/10">Log In</a>
-                <a href="/register" className="btn-amber relative group overflow-hidden px-6 py-2 transition-transform hover:scale-105 text-sm border-none outline-none focus:outline-none ring-0 focus:ring-0 flex items-center justify-center shadow-lg shadow-amber-500/20">
-                  <span className="relative z-10">Register</span>
-                  <div className="absolute inset-0 -translate-x-full animate-[shimmer-nav_2s_infinite] bg-gradient-to-r from-transparent via-white/40 to-transparent z-0 pointer-events-none"></div>
+                  {link.label}
+                  {isActive && <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#ff642d] rounded-t-md"></div>}
                 </a>
-              </div>
-
-              {/* Mobile Controls */}
-              <div className="md:hidden flex items-center gap-3">
-                <button 
-                  onClick={toggleDarkMode}
-                  className="bg-slate-800/60 hover:bg-slate-700/80 border border-slate-700/50 transition-colors p-1.5 rounded-full shadow-inner flex items-center justify-center"
-                  aria-label="Toggle dark mode"
-                >
-                  {isDark ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-blue-400" />}
-                </button>
-                <a href="/register" className="btn-amber relative group overflow-hidden px-4 py-1.5 transition-transform hover:scale-105 text-sm border-none outline-none focus:outline-none ring-0 focus:ring-0 flex items-center justify-center shadow-md shadow-amber-500/20">
-                  <span className="relative z-10">Register</span>
-                  <div className="absolute inset-0 -translate-x-full animate-[shimmer-nav_2s_infinite] bg-gradient-to-r from-transparent via-white/40 to-transparent z-0 pointer-events-none"></div>
-                </a>
-                <button aria-label="Toggle menu" onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-400 p-2 bg-transparent border-none cursor-pointer">
-                  {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                </button>
-              </div>
-            </div>
+              );
+            })}
           </div>
 
-          {/* Mobile Menu */}
-          {isMenuOpen && (
-            <div
-              className="md:hidden border-t border-white/5 bg-slate-950/95 backdrop-blur-md overflow-hidden animate-slide-down px-6"
-            >
-              <div className="grid grid-cols-2 gap-4">
-                {navLinks.map(link => (
-                  <a key={link.page} href={getHref(link.page)} className="text-left text-gray-200 hover:text-white font-bold text-sm py-2 block decoration-transparent">{link.label}</a>
-                ))}
-              </div>
-              <div className="mt-2 mb-4 pt-4 border-t border-white/10 flex justify-center">
-                <a href="/login" className="text-center text-white bg-white/10 hover:bg-white/20 font-bold text-sm py-2.5 rounded-full block decoration-transparent w-full transition-colors border border-white/10">Log In</a>
-              </div>
+          <div className="hidden lg:flex flex-1"></div>
+
+          {/* Desktop Actions */}
+          <div className="hidden lg:flex items-center gap-4">
+            <div className="flex items-center gap-3 mr-2">
+              <a href="/search" className="text-[#424242] hover:text-[#ff642d] dark:text-gray-300 dark:hover:text-[#ff8a5c] transition-colors" aria-label="Search">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              </a>
+              <button 
+                onClick={toggleDarkMode}
+                className="text-[#424242] hover:text-amber-500 dark:text-gray-300 dark:hover:text-amber-400 transition-colors"
+                aria-label="Toggle dark mode"
+              >
+                {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
             </div>
-          )}
+            
+            <a href="/login" className="text-[15px] font-medium text-[#1c1c1c] dark:text-white hover:text-[#ff642d] dark:hover:text-[#ff8a5c] transition-colors decoration-transparent px-3">Log In</a>
+            
+            <a href="/register" className="btn-amber px-6 py-2.5 font-medium text-white rounded hover:bg-[#e85522] transition-colors decoration-transparent text-[15px]">
+              Sign Up
+            </a>
+          </div>
+
+          {/* Mobile Controls */}
+          <div className="lg:hidden flex items-center gap-3">
+            <a href="/search" className="text-[#424242] dark:text-gray-300">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </a>
+            <button aria-label="Toggle menu" onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-[#1c1c1c] dark:text-white">
+              {isMenuOpen ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
+            </button>
+          </div>
         </nav>
+
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="lg:hidden border-t border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#111111] py-4 animate-slide-down absolute left-0 right-0 top-[54px] shadow-lg max-h-[calc(100vh-54px)] overflow-y-auto">
+            <div className="flex flex-col">
+              {topLevelLinks.map(link => {
+                const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+                const linkPath = getHref(link.page);
+                const isActive = currentPath === linkPath || (link.page !== 'landing' && link.page !== '/' && currentPath.includes(link.page));
+                const children = getChildren(link.id);
+                const hasChildren = children.length > 0;
+                
+                return (
+                  <React.Fragment key={link.id || link.label}>
+                    <a 
+                      href={linkPath} 
+                      className={`px-6 py-3.5 text-[16px] font-medium decoration-transparent flex items-center justify-between border-l-4 ${
+                        isActive 
+                          ? 'bg-orange-50 dark:bg-zinc-900 text-[#ff642d] border-[#ff642d]' 
+                          : 'text-[#1c1c1c] dark:text-gray-200 border-transparent hover:bg-slate-50 dark:hover:bg-zinc-900'
+                      }`}
+                    >
+                      {link.label}
+                    </a>
+                    {hasChildren && children.map(child => {
+                      const grandChildren = getChildren(child.id);
+                      const hasGrandChildren = grandChildren.length > 0;
+                      return (
+                        <React.Fragment key={child.id || child.label}>
+                          <a 
+                            href={getHref(child.page)}
+                            className="px-10 py-3 text-[15px] font-medium text-[#707070] dark:text-gray-400 hover:text-[#ff642d] dark:hover:text-[#ff8a5c] hover:bg-slate-50 dark:hover:bg-zinc-900 transition-colors decoration-transparent border-l-4 border-transparent block"
+                          >
+                            {child.label}
+                          </a>
+                          {hasGrandChildren && grandChildren.map(gc => (
+                            <a 
+                              key={gc.id || gc.label}
+                              href={getHref(gc.page)}
+                              className="px-14 py-2 text-[14px] font-medium text-[#888] dark:text-gray-500 hover:text-[#ff642d] dark:hover:text-[#ff8a5c] hover:bg-slate-50 dark:hover:bg-zinc-900 transition-colors decoration-transparent border-l-4 border-transparent block"
+                            >
+                              - {gc.label}
+                            </a>
+                          ))}
+                        </React.Fragment>
+                      );
+                    })}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+            
+            <div className="px-6 py-4 mt-2 border-t border-slate-200 dark:border-zinc-800 flex justify-between items-center">
+               <button 
+                onClick={toggleDarkMode}
+                className="flex items-center gap-2 text-[#424242] dark:text-gray-300 font-medium"
+              >
+                {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                {isDark ? 'Light Mode' : 'Dark Mode'}
+              </button>
+            </div>
+
+            <div className="px-6 pt-2 pb-4 flex flex-col gap-3">
+              <a href="/login" className="flex items-center justify-center font-medium text-[#1c1c1c] dark:text-white border-2 border-slate-200 dark:border-zinc-700 hover:border-slate-300 dark:hover:border-zinc-600 py-3 rounded decoration-transparent transition-colors">Log In</a>
+              <a href="/register" className="btn-amber flex items-center justify-center font-medium text-white hover:bg-[#e85522] py-3 rounded decoration-transparent transition-colors">Sign Up</a>
+            </div>
+          </div>
+        )}
       </div>
     </header>
     </>

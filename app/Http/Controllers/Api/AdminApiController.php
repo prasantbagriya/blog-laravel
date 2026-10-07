@@ -285,7 +285,8 @@ class AdminApiController extends Controller
             'subtitle' => 'nullable|string',
             'image_url' => 'required|string',
             'link_url' => 'nullable|string',
-            'order' => 'integer'
+            'order' => 'integer',
+            'locations' => 'nullable|array'
         ]);
         if (empty($data['id'])) {
             $data['id'] = \Illuminate\Support\Str::uuid()->toString();

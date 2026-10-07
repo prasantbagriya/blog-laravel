@@ -57,11 +57,11 @@
     <style>
         *,*::before,*::after{box-sizing:border-box;padding:0;margin:0}
         html{overflow-x:clip;overflow-y:scroll;font-size:16px;-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-behavior:smooth}
-        body{max-width:100vw;overflow-x:clip;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:#fff;color:#0f172a;line-height:1.6;-webkit-font-smoothing:antialiased}
+        body{max-width:100vw;overflow-x:clip;font-family:'Outfit',system-ui,-apple-system,sans-serif;background:#fff;color:#0f172a;line-height:1.6;-webkit-font-smoothing:antialiased}
         img,video{max-width:100%;height:auto;display:block}
         h1,h2,h3,h4,h5,h6{font-weight:700;line-height:1.2;margin-bottom:1rem}
         a{color:inherit;text-decoration:none}
-        .btn-amber{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1.5rem;border-radius:9999px;background:#f59e0b;color:#000;font-weight:800;font-size:.875rem;box-shadow:0 10px 15px -3px rgba(245,158,11,.2);transition:all .15s;border:none;cursor:pointer}
+        .btn-amber{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1.5rem;border-radius:9999px;background:#ff642d;color:#fff;font-weight:800;font-size:.875rem;box-shadow:0 10px 15px -3px rgba(255,100,45,.2);transition:all .15s;border:none;cursor:pointer}
     </style>
 
     {{-- Non-blocking CSS: load the full home stylesheet without blocking rendering.

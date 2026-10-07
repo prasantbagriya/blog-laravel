@@ -192,6 +192,8 @@ Route::get('/test-edit', function() {
     return "Cache has been cleared successfully!";
 });
 
+
+
 Route::get('/blog/feed.xml', [\App\Http\Controllers\RssController::class, 'blogFeed'])->name('blog.rss');
 
 Route::get('/businesses/{slug}/edit', function ($slug) {
@@ -300,6 +302,16 @@ Route::middleware(['auth', 'admin'])->get('/fix-admin-temp', function () {
     $user->save();
     return 'Admin email and password fixed. You can now login with admin@example.com and password "password".';
 });
+
+Route::get('/run-migrations-now', function() {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        return 'Migrations completed successfully!';
+    } catch (\Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+});
+
 Route::fallback(function () {
     $path = request()->path();
     

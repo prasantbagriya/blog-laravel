@@ -11,14 +11,8 @@ export default function BlogFooter({ global_nav: passedNav }) {
   const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
   const [email, setEmail] = useState("");
 
-  let global_nav = passedNav;
-  if (!global_nav) {
-    try {
-      global_nav = usePage().props.global_nav;
-    } catch (e) {
-      global_nav = [];
-    }
-  }
+  const inertiaPage = usePage();
+  let global_nav = passedNav || inertiaPage.props.global_nav || [];
 
   // Don't render the public footer in the admin panel
   if (pathname?.startsWith('/blog/admin')) {

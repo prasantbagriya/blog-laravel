@@ -91,7 +91,7 @@ const FAQSection = ({ customFaqs }) => {
                             <div>
                                 <h3 className="font-bold text-slate-900 dark:text-white mb-1">Still have questions?</h3>
                                 <p className="text-sm text-slate-500 dark:text-zinc-400 mb-4">Chat with our educational counselors for personalized guidance.</p>
-                                <Link href="/contact" className="btn-amber px-5 py-2 text-sm transition-transform hover:scale-105 inline-block bg-amber-500 text-white rounded-full font-bold hover:bg-amber-600">
+                                <Link href="/contact" className="btn-amber px-5 py-2 text-sm transition-transform hover:scale-105 inline-block">
                                     Contact Support
                                 </Link>
                             </div>
@@ -139,12 +139,62 @@ const FAQSection = ({ customFaqs }) => {
     );
 };
 
-export default function Index({ posts, meta, faqs = [] }) {
+const SimpleSlider = ({ sliders }) => {
+    const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+
+    if (!sliders || sliders.length === 0) return null;
+
+    React.useEffect(() => {
+        if (sliders.length > 1) {
+            const interval = setInterval(() => {
+                setCurrentSlideIndex((prev) => (prev + 1) % sliders.length);
+            }, 5000);
+            return () => clearInterval(interval);
+        }
+    }, [sliders.length]);
+
+    return (
+        <div className="relative w-full h-[200px] md:h-[250px] overflow-hidden mb-12 rounded-2xl mx-auto max-w-7xl">
+            {sliders.map((slide, index) => {
+                const imgUrl = typeof slide === 'string' ? slide : (slide.image_url || slide.image);
+                return (
+                    <div
+                        key={index}
+                        className={`absolute inset-0 z-0 h-full w-full transition-opacity duration-1000 ${index === currentSlideIndex ? 'opacity-100' : 'opacity-0'}`}
+                    >
+                        <img
+                            src={imgUrl}
+                            alt={slide.title || "Slider Image"}
+                            className="w-full h-full object-cover"
+                        />
+                        {(slide.title || slide.subtitle) && (
+                            <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center p-4">
+                                {slide.title && <h2 className="text-3xl md:text-5xl font-bold text-white mb-2">{slide.title}</h2>}
+                                {slide.subtitle && <p className="text-lg md:text-xl text-white/90">{slide.subtitle}</p>}
+                                {slide.link && (
+                                    <a href={slide.link} className="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full transition">
+                                        Explore
+                                    </a>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                );
+            })}
+        </div>
+    );
+};
+
+export default function Index({ posts, sliders, meta, faqs = [] }) {
     const formatDate = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);
         return isNaN(date.getTime()) ? dateString : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     };
+
+    // Support both raw array (old) and Laravel paginator format (new)
+    const postList = posts?.data || (Array.isArray(posts) ? posts : []);
+    const paginationLinks = posts?.links || [];
 
     return (
         <div className="bg-white dark:bg-zinc-950 min-h-screen text-slate-900 dark:text-white transition-colors duration-300">
@@ -152,11 +202,13 @@ export default function Index({ posts, meta, faqs = [] }) {
             
             <GlobalNavbar />
             
-            <main className="w-full px-[25px] pb-8" style={{ paddingTop: '100px' }}>
+            <main className="w-full px-[25px] pb-8" style={{ paddingTop: '75px' }}>
+                <SimpleSlider sliders={sliders} />
+
                 <h1 className="text-4xl font-bold mb-12 text-slate-900 dark:text-white max-w-7xl mx-auto">{meta?.h1 || 'All Articles & Insights'}</h1>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-16">
-                    {posts.map((post, index) => (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-12">
+                    {postList.map((post, index) => (
                         <article key={post.id} className="border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-xl overflow-hidden hover:shadow-xl dark:hover:shadow-black/40 transition-shadow flex flex-col">
                             <Link href={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + (post.url_path || `/blog/${post.slug}`)} className="relative h-48 block">
                                 <Image src={post.coverImage || '/uploads/read.webp'} alt={post.title} fill style={{ objectFit: 'cover' }} priority={index === 0} />
@@ -177,6 +229,31 @@ export default function Index({ posts, meta, faqs = [] }) {
                         </article>
                     ))}
                 </div>
+
+                {/* Pagination Controls */}
+                {paginationLinks.length > 3 && (
+                    <div className="flex flex-wrap justify-center items-center gap-2 max-w-7xl mx-auto mb-16">
+                        {paginationLinks.map((link, index) => {
+                            if (!link.url) {
+                                return (
+                                    <span key={index} className="px-4 py-2 text-slate-400 bg-slate-50 dark:bg-zinc-800 dark:text-zinc-500 rounded-lg" dangerouslySetInnerHTML={{ __html: link.label }} />
+                                );
+                            }
+                            return (
+                                <Link
+                                    key={index}
+                                    href={link.url}
+                                    className={`px-4 py-2 rounded-lg transition-colors font-medium border ${
+                                        link.active
+                                            ? 'bg-blue-600 text-white border-blue-600'
+                                            : 'bg-white dark:bg-zinc-900 text-slate-700 dark:text-zinc-300 border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800'
+                                    }`}
+                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                />
+                            );
+                        })}
+                    </div>
+                )}
             </main>
 
             <FAQSection customFaqs={faqs} />

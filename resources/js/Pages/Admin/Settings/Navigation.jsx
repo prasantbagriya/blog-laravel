@@ -139,7 +139,7 @@ export default function NavigationManager() {
                 <button onClick={() => moveItem(index, 1)} disabled={index === navItems.length - 1} style={{ padding: '4px', cursor: index === navItems.length - 1 ? 'not-allowed' : 'pointer', background: '#f1f5f9', border: 'none', borderRadius: '4px' }}>↓</button>
               </div>
 
-              <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 2fr auto', gap: '1rem', alignItems: 'center' }}>
+              <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: '1rem', alignItems: 'center' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Label Name</label>
                   <input 
@@ -162,6 +162,24 @@ export default function NavigationManager() {
                     style={{ padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', width: '100%', fontFamily: 'monospace' }} 
                     placeholder="e.g., /about or https://google.com" 
                   />
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Parent Link</label>
+                  <select 
+                    value={item.parent_id || ''} 
+                    onChange={e => {
+                        const val = e.target.value ? parseInt(e.target.value) : null;
+                        handleFieldChange(identifier, isNew, 'parent_id', val);
+                        saveItem({ ...item, parent_id: val });
+                    }}
+                    style={{ padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', width: '100%' }}
+                  >
+                    <option value="">None (Top Level)</option>
+                    {navItems.filter(n => n.id && n.id !== item.id && !n.parent_id).map(parent => (
+                      <option key={parent.id} value={parent.id}>{parent.name}</option>
+                    ))}
+                  </select>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'flex-end', height: '100%', paddingBottom: '4px' }}>

@@ -134,13 +134,11 @@
         <style>
             *,*::before,*::after{box-sizing:border-box;padding:0;margin:0}
             html{font-size:16px;-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-behavior:smooth}
-            body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:#ffffff;color:#0f172a;line-height:1.6;-webkit-font-smoothing:antialiased}
+            body{font-family:'Outfit',system-ui,-apple-system,sans-serif;background:#ffffff;color:#0f172a;line-height:1.6;-webkit-font-smoothing:antialiased}
             .dark body{background:#09090b;color:#fafafa;}
             img,video{max-width:100%;height:auto;display:block}
             h1,h2,h3,h4,h5,h6{font-weight:700;line-height:1.2}
             a{color:inherit;text-decoration:none}
-            /* Basic skeleton for navbar to avoid shifting */
-            nav { width: 100%; display: block; border-bottom: 1px solid #f1f5f9; }
         </style>
 
         <!-- Scripts -->

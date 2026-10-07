@@ -22,7 +22,7 @@ export default function AuthorShow({ author, posts, meta }) {
             
             <main className="flex-grow">
                 {/* Author Profile Header */}
-                <section className="bg-white dark:bg-zinc-900 border-b border-slate-200 dark:border-zinc-800 pt-24 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+                <section className="bg-white dark:bg-zinc-900 border-b border-slate-200 dark:border-zinc-800 pt-12 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
                     <div className="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 bg-blue-500 opacity-5 dark:opacity-10 rounded-full blur-3xl pointer-events-none"></div>
                     
                     <div className="max-w-4xl mx-auto relative z-10">

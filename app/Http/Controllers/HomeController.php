@@ -28,6 +28,10 @@ class HomeController extends Controller
                 ->get()
                 ->toArray();
             $sliders = \App\Models\Slider::where('active', true)
+                ->where(function($q) {
+                    $q->whereJsonContains('locations', 'home')
+                      ->orWhereNull('locations'); // Backward compatibility for sliders before this feature
+                })
                 ->select(['id', 'image_url', 'order'])
                 ->orderBy('order', 'asc')
                 ->get()

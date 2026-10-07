@@ -95,7 +95,7 @@ const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses, fall
             
             <div className="absolute inset-0 z-0 bg-slate-900/80"></div>
             
-            <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-10 md:pt-32 md:pb-14">
+            <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-10 md:pt-12 md:pb-14">
                 <div className="grid lg:grid-cols-12 gap-8 lg:gap-10 items-center">
                     <div className="lg:col-span-7 text-white">
                         <p className="text-amber-400 text-xs font-bold tracking-[0.12em] mb-4">Coaching and School Discovery Platform</p>
@@ -235,7 +235,7 @@ const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses, fall
                         </div>
 
                         <div className="flex flex-wrap items-center gap-2 mb-8 text-sm">
-                            <span className="text-white/60 mr-1">Popular Exams:</span>
+                                <span className="text-white/60 mr-1">Popular Exams</span>
                             <Link href={`${basePath}/search?q=JEE`} className="px-4 py-1.5 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors font-semibold">JEE</Link>
                             <Link href={`${basePath}/search?q=NEET`} className="px-4 py-1.5 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors font-semibold">NEET</Link>
                             <Link href={`${basePath}/search?q=NDA`} className="px-4 py-1.5 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors font-semibold">NDA</Link>

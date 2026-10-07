@@ -21,16 +21,20 @@ class BlogController extends Controller
             // Table doesn't exist yet, fallback
         }
 
-        $allPosts = Post::where('published', true)->whereNull('community_id')->orderBy('date', 'desc')->get()->toArray();
+        $query = Post::where('published', true)->whereNull('community_id')->orderBy('date', 'desc');
 
         if ($dbPage && $dbPage->type === 'feed') {
-            $allPosts = array_filter($allPosts, function($post) use ($slug) {
-                $format = $post['url_format'] ?? 'blog/{slug}';
-                // Only show posts whose url_format starts with this page's slug
-                return str_starts_with($format, $slug . '/');
-            });
-            $allPosts = array_values($allPosts);
+            $query->where('url_format', 'like', $slug . '/%');
         }
+        
+        $allPosts = $query->paginate(9);
+        
+        // Fetch active sliders for this page
+        // A slider is shown if locations contains the slug, or 'blog' for the main blog page
+        $sliders = \App\Models\Slider::where('active', true)
+            ->whereJsonContains('locations', $slug)
+            ->orderBy('order', 'asc')
+            ->get();
 
         if ($dbPage) {
             $pageType = $dbPage->title;
@@ -76,6 +80,7 @@ class BlogController extends Controller
 
         return Inertia::render('Blog/Index', [
             'posts' => $allPosts,
+            'sliders' => $sliders,
             'pageType' => $pageType,
             'meta' => $meta,
             'faqs' => $dbPage ? ($dbPage->faqs ?? []) : [],
