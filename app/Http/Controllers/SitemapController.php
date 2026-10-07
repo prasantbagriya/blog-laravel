@@ -23,13 +23,22 @@ class SitemapController extends Controller
 
     public function blogPosts()
     {
-        $posts = Post::where('published', true)->where('isNoIndex', false)->whereNull('community_id')->orderBy('updated_at', 'desc')->get();
+        $posts = Post::where('published', true)
+            ->where(function($q) { $q->where('isNoIndex', false)->orWhereNull('isNoIndex'); })
+            ->whereNull('community_id')
+            ->orderBy('updated_at', 'desc')
+            ->get();
         return response()->view('sitemap.posts', ['posts' => $posts])->header('Content-Type', 'text/xml');
     }
 
     public function communityPosts()
     {
-        $posts = Post::where('published', true)->where('isNoIndex', false)->whereNotNull('community_id')->with('community')->orderBy('updated_at', 'desc')->get();
+        $posts = Post::where('published', true)
+            ->where(function($q) { $q->where('isNoIndex', false)->orWhereNull('isNoIndex'); })
+            ->whereNotNull('community_id')
+            ->with('community')
+            ->orderBy('updated_at', 'desc')
+            ->get();
         return response()->view('sitemap.community_posts', ['posts' => $posts])->header('Content-Type', 'text/xml');
     }
 
@@ -53,7 +62,10 @@ class SitemapController extends Controller
 
     public function stories()
     {
-        $stories = Story::where('published', true)->orderBy('updated_at', 'desc')->get();
+        $stories = Story::where('published', true)
+            ->where(function($q) { $q->where('isNoIndex', false)->orWhereNull('isNoIndex'); })
+            ->orderBy('updated_at', 'desc')
+            ->get();
         return response()->view('sitemap.stories', ['stories' => $stories])->header('Content-Type', 'text/xml');
     }
 }

@@ -23,7 +23,7 @@ class RssController extends Controller
 
         $posts = Post::where('community_id', $community->id)
             ->where('published', true)
-            ->where('isNoIndex', false)
+            ->where(function($q) { $q->where('isNoIndex', false)->orWhereNull('isNoIndex'); })
             ->orderBy('created_at', 'desc')
             ->take(20)
             ->get();
@@ -37,7 +37,7 @@ class RssController extends Controller
     {
         $posts = Post::where('published', true)
             ->whereNull('community_id')
-            ->where('isNoIndex', false)
+            ->where(function($q) { $q->where('isNoIndex', false)->orWhereNull('isNoIndex'); })
             ->orderBy('date', 'desc')
             ->take(30)
             ->get();
