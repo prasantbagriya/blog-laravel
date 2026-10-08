@@ -435,11 +435,13 @@ class AdminApiController extends Controller
             'url' => 'nullable|string',
             'order' => 'nullable|integer',
             'is_active' => 'nullable|boolean',
+            'show_in_footer' => 'nullable|boolean',
             'parent_id' => 'nullable|integer',
         ]);
         
         $data['order'] = $data['order'] ?? 0;
         $data['is_active'] = $data['is_active'] ?? true;
+        $data['show_in_footer'] = $data['show_in_footer'] ?? false;
 
         if (!empty($data['id']) && $data['id'] !== 'new') {
             \App\Models\Navigation::where('id', $data['id'])->update([
@@ -447,6 +449,7 @@ class AdminApiController extends Controller
                 'url' => $data['url'],
                 'order' => $data['order'],
                 'is_active' => $data['is_active'],
+                'show_in_footer' => $data['show_in_footer'],
                 'parent_id' => $data['parent_id'],
             ]);
             $nav = \App\Models\Navigation::find($data['id']);
@@ -456,6 +459,7 @@ class AdminApiController extends Controller
                 'url' => $data['url'],
                 'order' => $data['order'],
                 'is_active' => $data['is_active'],
+                'show_in_footer' => $data['show_in_footer'],
                 'parent_id' => $data['parent_id'],
             ]);
         }

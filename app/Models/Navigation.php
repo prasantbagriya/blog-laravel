@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Navigation extends Model
 {
-    protected $fillable = ['name', 'url', 'order', 'is_active', 'parent_id'];
+    protected $fillable = ['name', 'url', 'order', 'is_active', 'show_in_footer', 'parent_id'];
 
     public function children()
     {

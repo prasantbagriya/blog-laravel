@@ -50,7 +50,10 @@ class HandleInertiaRequests extends Middleware
         $global_nav = [];
         try {
             if (\Illuminate\Support\Facades\Schema::hasTable('navigations')) {
-                $global_nav = \App\Models\Navigation::where('is_active', true)->orderBy('order', 'asc')->get();
+                $global_nav = \App\Models\Navigation::where('is_active', true)
+                    ->orWhere('show_in_footer', true)
+                    ->orderBy('order', 'asc')
+                    ->get();
             }
         } catch (\Exception $e) {}
 

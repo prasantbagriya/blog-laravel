@@ -30,6 +30,7 @@ export default function NavigationManager() {
       url: '',
       order: navItems.length,
       is_active: true,
+      show_in_footer: false,
       parent_id: null
     };
     setNavItems([...navItems, newItem]);
@@ -182,7 +183,7 @@ export default function NavigationManager() {
                   </select>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'flex-end', height: '100%', paddingBottom: '4px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', justifyContent: 'center', height: '100%', paddingBottom: '4px' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600, color: '#475569' }}>
                     <input 
                       type="checkbox" 
@@ -191,9 +192,21 @@ export default function NavigationManager() {
                         handleFieldChange(identifier, isNew, 'is_active', e.target.checked);
                         saveItem({ ...item, is_active: e.target.checked });
                       }}
-                      style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                      style={{ width: '16px', height: '16px', cursor: 'pointer' }}
                     />
-                    Active
+                    Show in Navbar
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600, color: '#475569' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={item.show_in_footer} 
+                      onChange={e => {
+                        handleFieldChange(identifier, isNew, 'show_in_footer', e.target.checked);
+                        saveItem({ ...item, show_in_footer: e.target.checked });
+                      }}
+                      style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                    />
+                    Show in Footer
                   </label>
                 </div>
               </div>

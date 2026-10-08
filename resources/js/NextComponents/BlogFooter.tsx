@@ -29,7 +29,7 @@ export default function BlogFooter({ global_nav: passedNav }: { global_nav?: any
   };
 
   const dynamicLinks = (global_nav && global_nav.length > 0)
-    ? global_nav.filter(n => n.is_active).map(n => ({ label: n.name, page: n.url }))
+    ? global_nav.filter(n => n.show_in_footer).map(n => ({ label: n.name, page: n.url }))
     : [
         { label: "Home", page: "landing" },
         { label: "Blog", page: "blog" },
