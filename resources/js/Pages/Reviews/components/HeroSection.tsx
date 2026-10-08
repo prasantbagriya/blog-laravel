@@ -41,7 +41,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       ></div>
       <div className="absolute inset-0 z-0 bg-slate-900/85"></div>
       
-      <div className="relative z-10 w-full mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16 md:pt-40 md:pb-24">
+      <div className="relative z-10 w-full mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-10 md:pt-6 md:pb-14">
         <div className="text-center w-full">
           
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold tracking-wide border border-blue-500/30">

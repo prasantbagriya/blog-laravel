@@ -252,7 +252,7 @@ export default function Show({ post, recentPosts, meta, comments = [], userComme
                 summary={post.seoDescription || post.excerpt || ''} 
             />
             
-            <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 max-w-7xl mx-auto w-full px-[15px] pb-8" style={{ paddingTop: '75px' }}>
+            <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 max-w-7xl mx-auto w-full px-[15px] pt-4 md:pt-6 pb-8">
                 <main className="w-full lg:w-[70%]">
                     <article>
                     <header className="mb-8">

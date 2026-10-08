@@ -758,5 +758,5 @@ div[data-image-slider="true"] {
 .animate-slide-down { animation: slideDown 0.3s ease-out forwards; overflow: hidden; }
 
 /* Signup / Brand Button Theme (Semrush Style) */
-.btn-amber, a.btn-amber, button.btn-amber { background: #ff642d !important; color: white !important; border-color: #ff642d !important; border-radius: 4px !important; font-weight: 600 !important; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; transition: background-color 0.2s ease, border-color 0.2s ease; padding: 0.5rem 1.25rem; }
+.btn-amber, a.btn-amber, button.btn-amber { background: #ff642d !important; color: #1a1a1a !important; border-color: #ff642d !important; border-radius: 4px !important; font-weight: 700 !important; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; transition: background-color 0.2s ease, border-color 0.2s ease; padding: 0.5rem 1.25rem; }
 .btn-amber:hover, a.btn-amber:hover, button.btn-amber:hover { background: #e85522 !important; border-color: #e85522 !important; }

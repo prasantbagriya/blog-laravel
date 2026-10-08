@@ -60,7 +60,7 @@ const MenuBar = ({ editor, onOpenImageModal, onOpenVideoModal, onOpenLinkModal, 
     const Divider = () => <div className="flex-shrink-0 w-[1px] h-6 bg-gray-200 dark:bg-zinc-700 mx-1.5"></div>;
 
     return (
-        <div className="flex flex-wrap items-center gap-1 p-1.5 bg-[#F6F7F8] dark:bg-zinc-800 border-b border-[#EDEFF1] dark:border-zinc-700">
+        <div className="flex items-center gap-1 p-1.5 bg-[#F6F7F8] dark:bg-zinc-800 border-b border-[#EDEFF1] dark:border-zinc-700 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <ToolbarButton onClick={onToggleFullscreen} title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}>
                 {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
             </ToolbarButton>

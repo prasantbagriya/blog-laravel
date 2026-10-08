@@ -107,7 +107,7 @@ export default function Show({ auth, profileUser, posts, currentSort = 'new', me
                 )}
             </Suspense>
 
-            <main className="container mx-auto px-4 py-8 max-w-[1000px] mt-16 flex-grow">
+            <main className="container mx-auto px-4 py-8 max-w-[1000px] mt-6 md:mt-8 flex-grow">
                 {/* Modern Profile Header */}
                 <div className="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden shadow-sm border border-slate-200 dark:border-zinc-800 mb-8">
                     {/* Banner */}

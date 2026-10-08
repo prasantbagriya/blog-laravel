@@ -110,7 +110,7 @@ export default function Feed({ auth, posts, currentSort = 'new', currentFilter =
             
             <GlobalNavbar auth={auth} />
 
-            <div className="max-w-[1400px] w-full mx-auto pt-32 px-4 sm:px-6 flex gap-8">
+            <div className="max-w-[1400px] w-full mx-auto pt-4 md:pt-6 px-4 sm:px-6 flex gap-8">
                 
                 {/* Mobile Sidebar Overlay */}
                 {isMobileSidebarOpen && (

@@ -264,7 +264,7 @@ export default function ShowPost({ auth, community, post, comments, userCommentV
                 )}
             </Suspense>
 
-            <div className="max-w-[1400px] w-full mx-auto pt-8 md:pt-12 px-4 sm:px-6 flex gap-6">
+            <div className="max-w-[1400px] w-full mx-auto pt-4 md:pt-6 px-4 sm:px-6 flex gap-6">
                 
                 {/* Mobile Sidebar Overlay */}
                 {isMobileSidebarOpen && (

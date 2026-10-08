@@ -7,7 +7,7 @@ import { Instagram, Twitter, Linkedin, Youtube, Facebook, Pinterest, Tumblr } fr
 
 import { usePage } from '@inertiajs/react';
 
-export default function BlogFooter({ global_nav: passedNav }) {
+export default function BlogFooter({ global_nav: passedNav }: { global_nav?: any }) {
   const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
   const [email, setEmail] = useState("");
 

@@ -17,7 +17,7 @@ export default function ModQueue({ auth, community, reports }) {
     };
 
     return (
-        <div className="min-h-screen bg-[#DAE0E6] text-[#1C1C1C] font-sans pb-20 pt-14">
+        <div className="min-h-screen bg-[#DAE0E6] text-[#1C1C1C] font-sans pb-20 pt-4 md:pt-6">
             <Head title={`Mod Queue - r/${community.name}`} />
             
             <header className="fixed top-0 z-50 w-full bg-white border-b border-[#EDEFF1]">

@@ -32,7 +32,7 @@ export default function SearchIndex({ auth, posts, blogs, businesses, communitie
                 badgeIcon={Search}
                 title={<>Results for "<span className="text-amber-500">{query}</span>"</>}
                 description="Find discussions, communities, institutes, and blogs."
-                className="!pt-32 !pb-8"
+                className="!pt-4 md:!pt-6 !pb-8"
             />
 
             <main className="flex-grow w-full py-8">

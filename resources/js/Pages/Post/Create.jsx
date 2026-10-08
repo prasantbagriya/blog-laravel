@@ -44,7 +44,7 @@ export default function CreatePost({ auth, communities, default_community_id, ed
             
             <GlobalNavbar auth={auth} />
 
-            <div className="w-full max-w-6xl mx-auto pt-32 px-4 flex flex-col lg:flex-row gap-8">
+            <div className="w-full max-w-6xl mx-auto pt-4 md:pt-6 px-4 flex flex-col lg:flex-row gap-8">
                 
                 <div className="flex-1">
                     <div className="flex items-center gap-3 mb-8">

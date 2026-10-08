@@ -31,7 +31,7 @@ export const PageHero: React.FC<PageHeroProps> = ({
   const isCentered = className.includes('text-center');
 
   return (
-    <section className={`relative pt-32 pb-12 px-4 sm:px-6 lg:px-8 bg-white dark:bg-[#09090b] overflow-hidden ${className}`}>
+    <section className={`relative pt-4 md:pt-6 pb-12 px-4 sm:px-6 lg:px-8 bg-white dark:bg-[#09090b] overflow-hidden ${className}`}>
       {/* Decorative blobs */}
       <div className="absolute -top-20 -right-20 w-96 h-96 bg-amber-100 dark:bg-amber-900/20 rounded-full blur-3xl opacity-40 pointer-events-none" />
       <div className="absolute top-40 -left-20 w-72 h-72 bg-blue-100 dark:bg-blue-900/20 rounded-full blur-3xl opacity-30 pointer-events-none" />

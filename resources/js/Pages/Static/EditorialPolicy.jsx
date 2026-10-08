@@ -16,7 +16,7 @@ export default function EditorialPolicy() {
                 <meta name="twitter:description" content="Read how CoachingsinSikar maintains editorial quality. This page covers our standards, fact‑checking, update process, accuracy policy for coaching reviews, transparency in coaching coverage, and commitment to honest, local education information." />
             </Head>
             <GlobalNavbar />
-            <main className="w-full px-[25px] pb-8 flex-grow" style={{ paddingTop: '100px' }}>
+            <main className="w-full px-[25px] pt-4 md:pt-6 pb-8 flex-grow">
                 <h1 className="text-4xl font-bold mb-8">Editorial Policy</h1>
                 <div className="prose max-w-none text-gray-700 space-y-4 pb-12">
                     <p>Last Updated: September 2026</p>

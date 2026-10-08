@@ -26,7 +26,7 @@ export default function AuthorIndex({ authors, meta }) {
                     <div className="absolute inset-0 z-0 opacity-40 bg-[url('/uploads/aboutus.webp')] bg-cover bg-center" role="img" aria-label="Authors Background"></div>
                     <div className="absolute inset-0 z-0 bg-gradient-to-t from-slate-900 via-slate-900/90 to-slate-900/60"></div>
                     
-                    <div className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-16">
+                    <div className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-4 md:pt-6">
                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 text-blue-400 text-xs font-bold tracking-widest uppercase mb-6 border border-blue-500/20 backdrop-blur-md">
                             <Users className="w-4 h-4" /> Our Authors
                         </div>

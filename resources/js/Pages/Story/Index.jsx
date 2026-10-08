@@ -16,7 +16,7 @@ export default function StoryIndex({ stories }) {
         <div className="bg-white min-h-screen flex flex-col">
             <Head title="Web Stories | Blog" />
             <GlobalNavbar />
-            <main className="container mx-auto px-4 py-8 max-w-6xl mt-16 flex-grow">
+            <main className="container mx-auto px-4 py-8 max-w-6xl mt-6 md:mt-8 flex-grow">
                 <h1 className="text-4xl font-bold mb-12">Visual Web Stories</h1>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {stories.map((story) => (

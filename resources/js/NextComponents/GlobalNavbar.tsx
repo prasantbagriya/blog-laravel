@@ -1,23 +1,26 @@
 // @ts-nocheck
 import React, { useState, useEffect } from "react"
 import { Menu, X, Sun, Moon } from "lucide-react"
-import { usePage } from '@inertiajs/react'
+import { usePage, Link } from '@inertiajs/react'
 
-export default function Navbar({ global_nav: passedNav }) {
+export default function Navbar({ global_nav: passedNav }: { global_nav?: any }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isDark, setIsDark] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
+  const [expandedMenus, setExpandedMenus] = useState([])
   const [lastScrollY, setLastScrollY] = useState(0)
   
-  const { props } = usePage()
-  let global_nav = passedNav || props.global_nav || [];
+  const { props, url } = usePage()
+  const currentPath = typeof window !== 'undefined' ? (url || window.location.pathname) : '';
+  const user = props?.auth?.user;
+  let global_nav = passedNav || props?.global_nav || [];
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const isDarkMode = document.documentElement.classList.contains('dark')
       setIsDark(isDarkMode)
       
-      let lastScrollYValue = window.scrollY;
+      let lastScrollYValue = window.scrollY || 0;
       const handleScroll = () => {
         const currentScrollY = window.scrollY;
         if (currentScrollY > 60 && currentScrollY > lastScrollYValue) {
@@ -92,7 +95,6 @@ export default function Navbar({ global_nav: passedNav }) {
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-6 ml-10 h-full">
             {topLevelLinks.map((link) => {
-              const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
               const linkPath = getHref(link.page);
               const isActive = currentPath === linkPath || (link.page !== 'landing' && link.page !== '/' && currentPath.includes(link.page));
               const children = getChildren(link.id);
@@ -175,16 +177,31 @@ export default function Navbar({ global_nav: passedNav }) {
               </button>
             </div>
             
-            <a href="/login" className="text-[15px] font-medium text-[#1c1c1c] dark:text-white hover:text-[#ff642d] dark:hover:text-[#ff8a5c] transition-colors decoration-transparent px-3">Log In</a>
-            
-            <a href="/register" className="btn-amber px-6 py-2.5 font-medium text-white rounded hover:bg-[#e85522] transition-colors decoration-transparent text-[15px]">
-              Sign Up
-            </a>
+            {user ? (
+              <a href="/dashboard" className="btn-amber px-6 py-2.5 font-medium text-zinc-950 rounded hover:bg-[#e85522] transition-colors decoration-transparent text-[15px]">
+                Dashboard
+              </a>
+            ) : (
+              <>
+                <a href="/login" className="text-[15px] font-medium text-[#1c1c1c] dark:text-white hover:text-[#ff642d] dark:hover:text-[#ff8a5c] transition-colors decoration-transparent px-3">Log In</a>
+                
+                <a href="/register" className="btn-amber px-6 py-2.5 font-medium text-zinc-950 rounded hover:bg-[#e85522] transition-colors decoration-transparent text-[15px]">
+                  Sign Up
+                </a>
+              </>
+            )}
           </div>
 
           {/* Mobile Controls */}
           <div className="lg:hidden flex items-center gap-3">
-            <a href="/search" className="text-[#424242] dark:text-gray-300">
+            <button 
+              onClick={toggleDarkMode}
+              className="text-[#424242] hover:text-amber-500 dark:text-gray-300 dark:hover:text-amber-400 transition-colors"
+              aria-label="Toggle dark mode"
+            >
+              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+            <a href="/search" className="text-[#424242] dark:text-gray-300" aria-label="Search">
               <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
             </a>
             <button aria-label="Toggle menu" onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-[#1c1c1c] dark:text-white">
@@ -198,65 +215,98 @@ export default function Navbar({ global_nav: passedNav }) {
           <div className="lg:hidden border-t border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#111111] py-4 animate-slide-down absolute left-0 right-0 top-[54px] shadow-lg max-h-[calc(100vh-54px)] overflow-y-auto">
             <div className="flex flex-col">
               {topLevelLinks.map(link => {
-                const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
                 const linkPath = getHref(link.page);
                 const isActive = currentPath === linkPath || (link.page !== 'landing' && link.page !== '/' && currentPath.includes(link.page));
                 const children = getChildren(link.id);
                 const hasChildren = children.length > 0;
                 
+                const isExpanded = expandedMenus.includes(link.id || link.label);
+                
                 return (
                   <React.Fragment key={link.id || link.label}>
-                    <a 
-                      href={linkPath} 
-                      className={`px-6 py-3.5 text-[16px] font-medium decoration-transparent flex items-center justify-between border-l-4 ${
-                        isActive 
-                          ? 'bg-orange-50 dark:bg-zinc-900 text-[#ff642d] border-[#ff642d]' 
-                          : 'text-[#1c1c1c] dark:text-gray-200 border-transparent hover:bg-slate-50 dark:hover:bg-zinc-900'
-                      }`}
-                    >
-                      {link.label}
-                    </a>
-                    {hasChildren && children.map(child => {
-                      const grandChildren = getChildren(child.id);
-                      const hasGrandChildren = grandChildren.length > 0;
-                      return (
-                        <React.Fragment key={child.id || child.label}>
-                          <a 
-                            href={getHref(child.page)}
-                            className="px-10 py-3 text-[15px] font-medium text-[#707070] dark:text-gray-400 hover:text-[#ff642d] dark:hover:text-[#ff8a5c] hover:bg-slate-50 dark:hover:bg-zinc-900 transition-colors decoration-transparent border-l-4 border-transparent block"
-                          >
-                            {child.label}
-                          </a>
-                          {hasGrandChildren && grandChildren.map(gc => (
-                            <a 
-                              key={gc.id || gc.label}
-                              href={getHref(gc.page)}
-                              className="px-14 py-2 text-[14px] font-medium text-[#888] dark:text-gray-500 hover:text-[#ff642d] dark:hover:text-[#ff8a5c] hover:bg-slate-50 dark:hover:bg-zinc-900 transition-colors decoration-transparent border-l-4 border-transparent block"
-                            >
-                              - {gc.label}
-                            </a>
-                          ))}
-                        </React.Fragment>
-                      );
-                    })}
+                    <div className="flex items-center justify-between border-l-4 border-transparent group">
+                      <a 
+                        href={linkPath} 
+                        className={`flex-1 px-6 py-3.5 text-[16px] font-medium decoration-transparent ${
+                          isActive 
+                            ? 'bg-orange-50 dark:bg-zinc-900 text-[#ff642d]' 
+                            : 'text-[#1c1c1c] dark:text-gray-200 hover:bg-slate-50 dark:hover:bg-zinc-900'
+                        }`}
+                      >
+                        {link.label}
+                      </a>
+                      {hasChildren && (
+                        <button 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setExpandedMenus(prev => prev.includes(link.id || link.label) ? prev.filter(item => item !== (link.id || link.label)) : [...prev, link.id || link.label]);
+                          }}
+                          className={`p-3.5 flex items-center justify-center ${isActive ? 'bg-orange-50 dark:bg-zinc-900 text-[#ff642d]' : 'text-[#1c1c1c] dark:text-gray-200 hover:bg-slate-50 dark:hover:bg-zinc-900'}`}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}><path d="m6 9 6 6 6-6"/></svg>
+                        </button>
+                      )}
+                    </div>
+                    {hasChildren && isExpanded && (
+                      <div className="bg-slate-50/50 dark:bg-[#151515]/50 border-b border-slate-100 dark:border-zinc-800/50">
+                        {children.map(child => {
+                          const grandChildren = getChildren(child.id);
+                          const hasGrandChildren = grandChildren.length > 0;
+                          const isChildExpanded = expandedMenus.includes(child.id || child.label);
+                          
+                          return (
+                            <React.Fragment key={child.id || child.label}>
+                              <div className="flex items-center justify-between border-l-4 border-transparent">
+                                <a 
+                                  href={getHref(child.page)}
+                                  className="flex-1 px-10 py-3 text-[15px] font-medium text-[#707070] dark:text-gray-400 hover:text-[#ff642d] dark:hover:text-[#ff8a5c] transition-colors decoration-transparent"
+                                >
+                                  {child.label}
+                                </a>
+                                {hasGrandChildren && (
+                                  <button 
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      setExpandedMenus(prev => prev.includes(child.id || child.label) ? prev.filter(item => item !== (child.id || child.label)) : [...prev, child.id || child.label]);
+                                    }}
+                                    className="p-3 pr-6 text-[#707070] dark:text-gray-400 hover:text-[#ff642d] dark:hover:text-[#ff8a5c]"
+                                  >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-200 ${isChildExpanded ? 'rotate-180' : ''}`}><path d="m6 9 6 6 6-6"/></svg>
+                                  </button>
+                                )}
+                              </div>
+                              {hasGrandChildren && isChildExpanded && (
+                                <div className="bg-slate-100/50 dark:bg-[#202020]/50 py-1">
+                                  {grandChildren.map(gc => (
+                                    <a 
+                                      key={gc.id || gc.label}
+                                      href={getHref(gc.page)}
+                                      className="px-14 py-2.5 text-[14px] font-medium text-[#888] dark:text-gray-500 hover:text-[#ff642d] dark:hover:text-[#ff8a5c] transition-colors decoration-transparent border-l-4 border-transparent block"
+                                    >
+                                      - {gc.label}
+                                    </a>
+                                  ))}
+                                </div>
+                              )}
+                            </React.Fragment>
+                          );
+                        })}
+                      </div>
+                    )}
                   </React.Fragment>
                 );
               })}
             </div>
             
-            <div className="px-6 py-4 mt-2 border-t border-slate-200 dark:border-zinc-800 flex justify-between items-center">
-               <button 
-                onClick={toggleDarkMode}
-                className="flex items-center gap-2 text-[#424242] dark:text-gray-300 font-medium"
-              >
-                {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                {isDark ? 'Light Mode' : 'Dark Mode'}
-              </button>
-            </div>
-
-            <div className="px-6 pt-2 pb-4 flex flex-col gap-3">
-              <a href="/login" className="flex items-center justify-center font-medium text-[#1c1c1c] dark:text-white border-2 border-slate-200 dark:border-zinc-700 hover:border-slate-300 dark:hover:border-zinc-600 py-3 rounded decoration-transparent transition-colors">Log In</a>
-              <a href="/register" className="btn-amber flex items-center justify-center font-medium text-white hover:bg-[#e85522] py-3 rounded decoration-transparent transition-colors">Sign Up</a>
+            <div className="px-4 py-4 flex flex-col gap-3 border-t border-slate-200 dark:border-zinc-800">
+              {user ? (
+                <a href="/dashboard" className="btn-amber flex items-center justify-center font-medium text-zinc-950 hover:bg-[#e85522] py-2.5 rounded decoration-transparent transition-colors">Dashboard</a>
+              ) : (
+                <>
+                  <a href="/login" className="flex items-center justify-center font-medium text-[#1c1c1c] dark:text-white border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 py-2.5 rounded decoration-transparent transition-colors">Log In</a>
+                  <a href="/register" className="btn-amber flex items-center justify-center font-medium text-zinc-950 hover:bg-[#e85522] py-2.5 rounded decoration-transparent transition-colors">Sign Up</a>
+                </>
+              )}
             </div>
           </div>
         )}
