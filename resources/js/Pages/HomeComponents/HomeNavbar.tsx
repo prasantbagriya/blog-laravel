@@ -90,18 +90,18 @@ export default function Navbar({ global_nav: passedNav }: { global_nav?: any }) 
           <div className="hidden lg:flex items-center space-x-6 ml-10 h-full">
             {topLevelLinks.map((link) => {
               const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
-              const linkPath = getHref(link.page);
-              const isActive = currentPath === linkPath || (link.page !== 'landing' && link.page !== '/' && currentPath.includes(link.page));
+              const linkPath = getHref(link.page || link.url);
+              const isActive = currentPath === linkPath || ((link.page || link.url) !== 'landing' && (link.page || link.url) !== '/' && currentPath.includes(link.page || link.url));
               const children = getChildren(link.id);
               const hasChildren = children.length > 0;
               
               if (hasChildren) {
                 return (
-                  <div key={link.id || link.label} className="relative group h-full flex items-center">
-                    <button className={`flex items-center gap-1 text-[15px] font-medium transition-colors decoration-transparent ${isActive ? 'text-[#ff642d] dark:text-[#ff8a5c]' : 'text-[#424242] dark:text-gray-300 hover:text-[#ff642d] dark:hover:text-[#ff8a5c]'}`}>
-                      {link.label}
+                  <div key={link.id || link.label || link.name} className="relative group h-full flex items-center">
+                    <a href={linkPath} className={`flex items-center gap-1 text-[15px] font-medium transition-colors decoration-transparent ${isActive ? 'text-[#ff642d] dark:text-[#ff8a5c]' : 'text-[#424242] dark:text-gray-300 hover:text-[#ff642d] dark:hover:text-[#ff8a5c]'}`}>
+                      {link.label || link.name}
                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-70 group-hover:rotate-180 transition-transform duration-200"><path d="m6 9 6 6 6-6"/></svg>
-                    </button>
+                    </a>
                     {isActive && <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#ff642d] rounded-t-md"></div>}
                     
                     {/* Dropdown Menu */}
@@ -111,16 +111,16 @@ export default function Navbar({ global_nav: passedNav }: { global_nav?: any }) 
                         const hasGrandChildren = grandChildren.length > 0;
                         if (hasGrandChildren) {
                           return (
-                            <div key={child.id || child.label} className="relative group/sub w-full">
-                              <button className="w-full text-left px-4 py-2 text-[14px] text-[#424242] dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-[#ff642d] dark:hover:text-[#ff8a5c] transition-colors decoration-transparent flex items-center justify-between">
-                                <span>{child.label}</span>
+                            <div key={child.id || child.label || child.name} className="relative group/sub w-full">
+                              <a href={getHref(child.page || child.url)} className="w-full text-left px-4 py-2 text-[14px] text-[#424242] dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-[#ff642d] dark:hover:text-[#ff8a5c] transition-colors decoration-transparent flex items-center justify-between">
+                                <span>{child.label || child.name}</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="-rotate-90 opacity-70"><path d="m6 9 6 6 6-6"/></svg>
-                              </button>
+                              </a>
                               {/* Sub Dropdown Menu */}
                               <div className="absolute top-0 left-full min-w-[200px] bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-zinc-800 rounded-lg shadow-xl opacity-0 invisible group-hover/sub:opacity-100 group-hover/sub:visible transition-all duration-200 transform translate-x-2 group-hover/sub:translate-x-0 z-50 flex flex-col py-2 -mt-2">
                                 {grandChildren.map(gc => (
-                                  <a key={gc.id || gc.label} href={getHref(gc.page)} className="px-4 py-2 text-[14px] text-[#424242] dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-[#ff642d] dark:hover:text-[#ff8a5c] transition-colors decoration-transparent whitespace-nowrap block w-full">
-                                    {gc.label}
+                                  <a key={gc.id || gc.label || gc.name} href={getHref(gc.page || gc.url)} className="px-4 py-2 text-[14px] text-[#424242] dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-[#ff642d] dark:hover:text-[#ff8a5c] transition-colors decoration-transparent whitespace-nowrap block w-full">
+                                    {gc.label || gc.name}
                                   </a>
                                 ))}
                               </div>
@@ -128,8 +128,8 @@ export default function Navbar({ global_nav: passedNav }: { global_nav?: any }) 
                           );
                         }
                         return (
-                          <a key={child.id || child.label} href={getHref(child.page)} className="px-4 py-2 text-[14px] text-[#424242] dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-[#ff642d] dark:hover:text-[#ff8a5c] transition-colors decoration-transparent whitespace-nowrap block w-full">
-                            {child.label}
+                          <a key={child.id || child.label || child.name} href={getHref(child.page || child.url)} className="px-4 py-2 text-[14px] text-[#424242] dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-[#ff642d] dark:hover:text-[#ff8a5c] transition-colors decoration-transparent whitespace-nowrap block w-full">
+                            {child.label || child.name}
                           </a>
                         );
                       })}
@@ -140,7 +140,7 @@ export default function Navbar({ global_nav: passedNav }: { global_nav?: any }) 
               
               return (
                 <a
-                  key={link.id || link.label}
+                  key={link.id || link.label || link.name}
                   href={linkPath}
                   className={`relative flex items-center text-[15px] font-medium transition-colors decoration-transparent h-full ${
                     isActive 
@@ -148,7 +148,7 @@ export default function Navbar({ global_nav: passedNav }: { global_nav?: any }) 
                       : 'text-[#424242] dark:text-gray-300 hover:text-[#ff642d] dark:hover:text-[#ff8a5c]'
                   }`}
                 >
-                  {link.label}
+                  {link.label || link.name}
                   {isActive && <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#ff642d] rounded-t-md"></div>}
                 </a>
               );
@@ -203,15 +203,15 @@ export default function Navbar({ global_nav: passedNav }: { global_nav?: any }) 
             <div className="flex flex-col">
               {topLevelLinks.map(link => {
                 const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
-                const linkPath = getHref(link.page);
-                const isActive = currentPath === linkPath || (link.page !== 'landing' && link.page !== '/' && currentPath.includes(link.page));
+                const linkPath = getHref(link.page || link.url);
+                const isActive = currentPath === linkPath || ((link.page || link.url) !== 'landing' && (link.page || link.url) !== '/' && currentPath.includes(link.page || link.url));
                 const children = getChildren(link.id);
                 const hasChildren = children.length > 0;
                 
-                const isExpanded = expandedMenus.includes(link.id || link.label);
+                const isExpanded = expandedMenus.includes(link.id || link.label || link.name);
                 
                 return (
-                  <React.Fragment key={link.id || link.label}>
+                  <React.Fragment key={link.id || link.label || link.name}>
                     <div className="flex items-center justify-between border-l-4 border-transparent group">
                       <a 
                         href={linkPath} 
@@ -221,13 +221,13 @@ export default function Navbar({ global_nav: passedNav }: { global_nav?: any }) 
                             : 'text-[#1c1c1c] dark:text-gray-200 hover:bg-slate-50 dark:hover:bg-zinc-900'
                         }`}
                       >
-                        {link.label}
+                        {link.label || link.name}
                       </a>
                       {hasChildren && (
                         <button 
                           onClick={(e) => {
                             e.preventDefault();
-                            setExpandedMenus(prev => prev.includes(link.id || link.label) ? prev.filter(item => item !== (link.id || link.label)) : [...prev, link.id || link.label]);
+                            setExpandedMenus(prev => prev.includes(link.id || link.label || link.name) ? prev.filter(item => item !== (link.id || link.label || link.name)) : [...prev, link.id || link.label || link.name]);
                           }}
                           className={`p-3.5 flex items-center justify-center ${isActive ? 'bg-orange-50 dark:bg-zinc-900 text-[#ff642d]' : 'text-[#1c1c1c] dark:text-gray-200 hover:bg-slate-50 dark:hover:bg-zinc-900'}`}
                         >
@@ -240,22 +240,22 @@ export default function Navbar({ global_nav: passedNav }: { global_nav?: any }) 
                         {children.map(child => {
                           const grandChildren = getChildren(child.id);
                           const hasGrandChildren = grandChildren.length > 0;
-                          const isChildExpanded = expandedMenus.includes(child.id || child.label);
+                          const isChildExpanded = expandedMenus.includes(child.id || child.label || child.name);
                           
                           return (
-                            <React.Fragment key={child.id || child.label}>
+                            <React.Fragment key={child.id || child.label || child.name}>
                               <div className="flex items-center justify-between border-l-4 border-transparent">
                                 <a 
-                                  href={getHref(child.page)}
+                                  href={getHref(child.page || child.url)}
                                   className="flex-1 px-10 py-3 text-[15px] font-medium text-[#707070] dark:text-gray-400 hover:text-[#ff642d] dark:hover:text-[#ff8a5c] transition-colors decoration-transparent"
                                 >
-                                  {child.label}
+                                  {child.label || child.name}
                                 </a>
                                 {hasGrandChildren && (
                                   <button 
                                     onClick={(e) => {
                                       e.preventDefault();
-                                      setExpandedMenus(prev => prev.includes(child.id || child.label) ? prev.filter(item => item !== (child.id || child.label)) : [...prev, child.id || child.label]);
+                                      setExpandedMenus(prev => prev.includes(child.id || child.label || child.name) ? prev.filter(item => item !== (child.id || child.label || child.name)) : [...prev, child.id || child.label || child.name]);
                                     }}
                                     className="p-3 pr-6 text-[#707070] dark:text-gray-400 hover:text-[#ff642d] dark:hover:text-[#ff8a5c]"
                                   >
