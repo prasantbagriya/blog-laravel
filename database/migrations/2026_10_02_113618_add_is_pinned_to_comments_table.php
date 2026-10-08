@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('comments', function (Blueprint $table) {
-            $table->boolean('is_pinned')->default(false)->after('is_spam');
-        });
+        if (!Schema::hasColumn('comments', 'is_pinned')) {
+            Schema::table('comments', function (Blueprint $table) {
+                $table->boolean('is_pinned')->default(false)->after('is_spam');
+            });
+        }
     }
 
     /**
