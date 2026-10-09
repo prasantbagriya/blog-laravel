@@ -78,7 +78,8 @@ export default function BlogFooter({ global_nav: passedNav }) {
                 { Icon: Twitter, url: 'https://x.com/coachinginsikar' },
                 { Icon: Instagram, url: 'https://www.instagram.com/coachinginsikar' },
                 { Icon: Youtube, url: 'https://www.youtube.com/@coachinginsikar' },
-                { Icon: Linkedin, url: 'https://www.linkedin.com/company/coachinginsikar' }
+                { Icon: Linkedin, url: 'https://www.linkedin.com/company/coachinginsikar' },
+                { Icon: Pinterest, url: 'https://pin.it/3kdqaG0KN' }
               ].map(({ Icon, url }, i) => (
                 <a key={i} href={url} target="_blank" rel="noopener noreferrer" aria-label={`Visit our ${url.split('.')[1] || 'social'} page`} className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white hover:bg-blue-600 hover:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-blue-500/20 hover:-translate-y-1">
                   <Icon className="w-4 h-4" />

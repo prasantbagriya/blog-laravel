@@ -24,7 +24,7 @@ Route::get('/blog/{category}/{slug}', [\App\Http\Controllers\BlogController::cla
 
 
 // Redirect all old /public/... URLs to /blog/...
-Route::get('/public/{any}', function ($any) {
+Route::get('/public/{any?}', function ($any = '') {
     return redirect('/blog/' . $any, 301);
 })->where('any', '.*');
 
@@ -335,5 +335,5 @@ Route::fallback(function () {
         return app(\App\Http\Controllers\BlogController::class)->show(request(), $lastSegment);
     }
 
-    return redirect('/');
+    return abort(404);
 })->middleware('cacheResponse:86400');
