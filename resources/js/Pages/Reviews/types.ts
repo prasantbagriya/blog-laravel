@@ -106,11 +106,25 @@ export interface Business {
   city: string;
   country: string;
   openingHours: string;
-  socialLinks: {
+  socialLinks?: {
     twitter?: string;
     linkedin?: string;
     facebook?: string;
     github?: string;
+    youtube?: string;
+    instagram?: string;
+    telegram?: string;
+    [key: string]: string | undefined;
+  };
+  social_links?: {
+    twitter?: string;
+    linkedin?: string;
+    facebook?: string;
+    github?: string;
+    youtube?: string;
+    instagram?: string;
+    telegram?: string;
+    [key: string]: string | undefined;
   };
   rating: number; // 1.0 - 5.0
   reviewCount: number;

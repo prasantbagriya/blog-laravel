@@ -14,7 +14,7 @@ export default function ForgotPassword({ status }) {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#09090b] font-sans px-6 py-12">
-            <Head title="Forgot Password | CoachingInSikar" />
+            <Head title="Forgot Password | CoachingsInSikar" />
 
             <div className="w-full max-w-md">
                 {/* Logo */}

@@ -9,9 +9,10 @@ class NotificationController extends Controller
     public function markRead(Request $request, $id = null)
     {
         $user = $request->user();
+        $notificationId = $id ?: $request->input('id');
         
-        if ($id) {
-            $notification = $user->notifications()->find($id);
+        if ($notificationId) {
+            $notification = $user->notifications()->find($notificationId);
             if ($notification) {
                 $notification->markAsRead();
             }

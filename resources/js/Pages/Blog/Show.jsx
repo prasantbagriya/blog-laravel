@@ -41,7 +41,7 @@ const ShareWidget = ({ url, title, summary }) => {
 };
 
 // Recursive Comment Component
-const CommentThread = ({ comment, postId, auth, userCommentVotes }) => {
+const CommentThread = ({ comment, postId, postAuthorId, auth, userCommentVotes }) => {
     const userVote = userCommentVotes?.[comment.id] || 0;
     const [showReplyForm, setShowReplyForm] = useState(false);
     
@@ -64,14 +64,23 @@ const CommentThread = ({ comment, postId, auth, userCommentVotes }) => {
         <div className="mt-5">
             <div className="flex gap-3">
                 <div className="flex flex-col items-center group">
-                    <img src={`https://ui-avatars.com/api/?name=${comment.author?.username}&background=random`} width="32" height="32" className="w-8 h-8 rounded-full shadow-sm" />
+                    <img src={`https://ui-avatars.com/api/?name=${comment.author?.username || comment.author?.name || 'User'}&background=random`} alt={`${comment.author?.username || comment.author?.name || 'User'} avatar`} width="32" height="32" className="w-8 h-8 rounded-full shadow-sm" />
                     <div className="w-0.5 h-full bg-slate-200 dark:bg-zinc-800 mt-2 group-hover:bg-blue-400 dark:group-hover:bg-blue-500 transition-colors cursor-pointer rounded-full"></div>
                 </div>
                 
                 <div className="flex-1 pb-3">
                     <div className="flex items-center gap-2 mb-1.5">
-                        <span className="font-bold text-[13px] text-slate-900 dark:text-white">u/{comment.author?.username || 'deleted'}</span>
+                        <span className="font-bold text-[13px] text-slate-900 dark:text-white">{comment.author?.username || comment.author?.name || 'deleted'}</span>
                         <span className="text-slate-500 dark:text-zinc-500 text-[12px]">{dayjs(comment.created_at).fromNow()}</span>
+                        {comment.is_pinned == 1 && (
+                            <span className="flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 dark:bg-amber-900/30 px-1.5 py-0.5 rounded ml-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"></path></svg>
+                                Pinned
+                            </span>
+                        )}
+                        {comment.author_id === postAuthorId && (
+                            <span className="text-[10px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded ml-1">Author</span>
+                        )}
                     </div>
                     
                     <div className="text-[14px] text-slate-800 dark:text-zinc-300 mb-3 leading-relaxed">
@@ -81,15 +90,17 @@ const CommentThread = ({ comment, postId, auth, userCommentVotes }) => {
                     <div className="flex items-center gap-1.5 -ml-2">
                         <div className="flex items-center gap-1 bg-slate-100 dark:bg-zinc-800 rounded-full px-1 py-0.5">
                             <button 
+                                aria-label="Upvote comment"
                                 onClick={(e) => { e.preventDefault(); router.post('/vote', { votable_type: 'comment', votable_id: comment.id, value: 1 }, { preserveScroll: true }); }}
-                                className={`flex items-center justify-center w-7 h-7 rounded-full transition-all border-0 outline-none focus:outline-none focus:ring-0 ${userVote === 1 ? 'text-rose-600 bg-rose-100 dark:bg-rose-900/30' : 'text-slate-500 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700 hover:text-rose-500'}`}
+                                className={`flex items-center justify-center w-7 h-7 rounded-full transition-all border-0 outline-none focus:outline-none focus:ring-0 ${userVote === 1 ? 'text-rose-700 bg-rose-100 dark:bg-rose-900/30' : 'text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 hover:text-rose-600'}`}
                             >
                                 <ArrowBigUp size={18} className={userVote === 1 ? 'fill-current' : ''} />
                             </button>
-                            <span className={`text-[12px] font-extrabold px-1 ${userVote === 1 ? 'text-rose-600' : userVote === -1 ? 'text-blue-600' : 'text-slate-700 dark:text-zinc-300'}`}>{comment.score}</span>
+                            <span className={`text-[12px] font-extrabold px-1 ${userVote === 1 ? 'text-rose-700' : userVote === -1 ? 'text-blue-700' : 'text-slate-700 dark:text-zinc-300'}`}>{comment.score}</span>
                             <button 
+                                aria-label="Downvote comment"
                                 onClick={(e) => { e.preventDefault(); router.post('/vote', { votable_type: 'comment', votable_id: comment.id, value: -1 }, { preserveScroll: true }); }}
-                                className={`flex items-center justify-center w-7 h-7 rounded-full transition-all border-0 outline-none focus:outline-none focus:ring-0 ${userVote === -1 ? 'text-blue-600 bg-blue-100 dark:bg-blue-900/30' : 'text-slate-500 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700 hover:text-blue-500'}`}
+                                className={`flex items-center justify-center w-7 h-7 rounded-full transition-all border-0 outline-none focus:outline-none focus:ring-0 ${userVote === -1 ? 'text-blue-700 bg-blue-100 dark:bg-blue-900/30' : 'text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 hover:text-blue-600'}`}
                             >
                                 <ArrowBigDown size={18} className={userVote === -1 ? 'fill-current' : ''} />
                             </button>
@@ -97,11 +108,21 @@ const CommentThread = ({ comment, postId, auth, userCommentVotes }) => {
                         
                         <button 
                             onClick={() => setShowReplyForm(!showReplyForm)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-100 dark:bg-zinc-800 rounded-full transition-colors border-0 outline-none focus:outline-none focus:ring-0 text-slate-500 dark:text-zinc-400"
+                            className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-100 dark:bg-zinc-800 rounded-full transition-colors border-0 outline-none focus:outline-none focus:ring-0 text-slate-600 dark:text-zinc-300"
                         >
                             <MessageSquare size={16} />
                             <span className="text-[12px] font-bold">Reply</span>
                         </button>
+
+                        {auth?.user && (auth.user.id === postAuthorId || auth.user.role === 'admin' || auth.user.role === 'super_admin' || auth.user.is_admin) && (
+                            <button 
+                                onClick={(e) => { e.preventDefault(); router.post(route('comment.pin', comment.id), {}, { preserveScroll: true }); }}
+                                className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-100 dark:bg-zinc-800 rounded-full transition-colors border-0 outline-none focus:outline-none focus:ring-0 text-amber-600"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill={comment.is_pinned ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"></path></svg>
+                                <span className="text-[12px] font-bold">{comment.is_pinned ? 'Unpin' : 'Pin'}</span>
+                            </button>
+                        )}
                     </div>
 
                     {/* Reply Form */}
@@ -109,6 +130,7 @@ const CommentThread = ({ comment, postId, auth, userCommentVotes }) => {
                         <div className="mt-3 mb-4 pr-4">
                             <form onSubmit={submitReply}>
                                 <textarea
+                                    aria-label="Your reply"
                                     value={data.content}
                                     onChange={e => setData('content', e.target.value)}
                                     placeholder="What are your thoughts?"
@@ -138,7 +160,7 @@ const CommentThread = ({ comment, postId, auth, userCommentVotes }) => {
                     {comment.replies && comment.replies.length > 0 && (
                         <div className="pl-4">
                             {comment.replies.map(reply => (
-                                <CommentThread key={reply.id} comment={reply} postId={postId} auth={auth} userCommentVotes={userCommentVotes} />
+                                <CommentThread key={reply.id} comment={reply} postId={postId} postAuthorId={postAuthorId} auth={auth} userCommentVotes={userCommentVotes} />
                             ))}
                         </div>
                     )}
@@ -175,9 +197,14 @@ export default function Show({ post, recentPosts, meta, comments = [], userComme
     useEffect(() => {
         if (!contentRef.current) return;
 
-        // Lazy load images for Web Vitals optimization
+        // Optimize Web Vitals: Skip lazy loading for the first image as it might be LCP
         const images = contentRef.current.querySelectorAll('img');
-        images.forEach(img => {
+        images.forEach((img, index) => {
+            if (index === 0) {
+                img.removeAttribute('loading');
+                img.setAttribute('fetchpriority', 'high');
+                return;
+            }
             if (!img.getAttribute('loading')) {
                 img.setAttribute('loading', 'lazy');
             }
@@ -189,7 +216,7 @@ export default function Show({ post, recentPosts, meta, comments = [], userComme
         headings.forEach((heading, index) => {
             const id = `toc-heading-${index}`;
             heading.id = id;
-            tocItems.push({ id, text: heading.innerText });
+            tocItems.push({ id, text: heading.textContent });
         });
         setToc(tocItems);
     }, [post]);
@@ -221,11 +248,11 @@ export default function Show({ post, recentPosts, meta, comments = [], userComme
             
             <ShareWidget 
                 url={finalCanonicalUrl} 
-                title={post.title} 
+                title={meta?.title || post.title} 
                 summary={post.seoDescription || post.excerpt || ''} 
             />
             
-            <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 max-w-7xl mx-auto w-full px-[15px] pb-8" style={{ paddingTop: '100px' }}>
+            <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 max-w-7xl mx-auto w-full px-[15px] pt-4 md:pt-6 pb-8">
                 <main className="w-full lg:w-[70%]">
                     <article>
                     <header className="mb-8">
@@ -248,7 +275,7 @@ export default function Show({ post, recentPosts, meta, comments = [], userComme
                                     <img loading="lazy" decoding="async" fetchPriority="low" src={post.authorImage.startsWith('http') || post.authorImage.startsWith('/') ? post.authorImage : '/' + post.authorImage} alt={displayAuthor} width="48" height="48" className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover shrink-0" />
                                 )}
                                 <div className="truncate">
-                                    <Link href={window.BASE_PATH + '/author/' + (displayAuthor ? displayAuthor.toLowerCase().replace(/[^a-z0-9]+/g, '-') : '')} className="font-semibold text-base sm:text-lg text-slate-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 hover:underline truncate block">
+                                    <Link href={window.BASE_PATH + '/author/' + (post.author ? post.author.toLowerCase().replace(/[^a-z0-9]+/g, '-') : '')} className="font-semibold text-base sm:text-lg text-slate-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 hover:underline truncate block">
                                         {displayAuthor}
                                     </Link>
                                     {post.authorJobTitle && (
@@ -303,35 +330,12 @@ export default function Show({ post, recentPosts, meta, comments = [], userComme
                         )}
                     </header>
 
-                    {/* Social Share */}
-                    <div className="flex flex-wrap items-center gap-3 mb-8 border-y border-slate-100 dark:border-zinc-800 py-4">
-                        <span className="font-semibold text-slate-700 dark:text-zinc-300 mr-2">Share this article:</span>
-                        
-                        <a href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(finalCanonicalUrl)}&text=${encodeURIComponent(meta?.title || post.title)}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-zinc-900 hover:bg-sky-50 dark:hover:bg-sky-900/30 text-slate-600 dark:text-zinc-400 hover:text-sky-600 dark:hover:text-sky-400 rounded-full text-sm font-medium transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
-                            Twitter
-                        </a>
 
-                        <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(finalCanonicalUrl)}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-zinc-900 hover:bg-blue-50 dark:hover:bg-blue-900/30 text-slate-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-full text-sm font-medium transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-                            Facebook
-                        </a>
-
-                        <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(finalCanonicalUrl)}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-zinc-900 hover:bg-blue-50 dark:hover:bg-blue-900/30 text-slate-600 dark:text-zinc-400 hover:text-blue-700 dark:hover:text-blue-400 rounded-full text-sm font-medium transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
-                            LinkedIn
-                        </a>
-                        
-                        <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent((meta?.title || post.title) + ' ' + finalCanonicalUrl)}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-zinc-900 hover:bg-green-50 dark:hover:bg-green-900/30 text-slate-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400 rounded-full text-sm font-medium transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-                            WhatsApp
-                        </a>
-                    </div>
 
                     {/* Table of Contents */}
                     {toc.length > 0 && (
                         <div className="bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl p-6 mb-8 max-w-md">
-                            <h3 className="text-xl font-bold mb-4 text-slate-800 dark:text-white">Table of Contents</h3>
+                            <h2 className="text-xl font-bold mb-4 text-slate-800 dark:text-white">Table of Contents</h2>
                             <ul className="space-y-2 text-blue-600">
                                 {toc.map((item) => (
                                     <li key={item.id} className="font-medium text-sm">
@@ -345,10 +349,10 @@ export default function Show({ post, recentPosts, meta, comments = [], userComme
                     {/* Key Takeaways */}
                     {post.keyTakeaways && post.keyTakeaways.length > 0 && (
                         <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-10 shadow-sm">
-                            <h3 className="text-xl font-bold mb-4 text-amber-900 flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                                Key Takeaways
-                            </h3>
+                                <h2 className="text-xl font-bold mb-4 text-amber-900 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                    Key Takeaways
+                                </h2>
                             <ul className="space-y-3">
                                 {post.keyTakeaways.map((takeaway, index) => (
                                     <li key={index} className="flex gap-3 text-amber-800">
@@ -370,7 +374,7 @@ export default function Show({ post, recentPosts, meta, comments = [], userComme
                     {/* Sources */}
                     {post.sources && post.sources.length > 0 && (
                         <div className="mt-12 pt-8 border-t border-slate-200 dark:border-zinc-800">
-                            <h4 className="text-lg font-bold text-slate-800 dark:text-white mb-4">Sources & References</h4>
+                            <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4">Sources & References</h3>
                             <ul className="space-y-2 text-sm text-slate-600 dark:text-zinc-400">
                                 {post.sources.map((source, idx) => (
                                     <li key={idx}>
@@ -391,7 +395,7 @@ export default function Show({ post, recentPosts, meta, comments = [], userComme
                     {/* Corrections */}
                     {post.corrections && post.corrections.length > 0 && (
                         <div className="mt-8 p-6 bg-slate-50 border border-slate-200 rounded-xl">
-                            <h4 className="text-md font-bold text-slate-700 mb-3">Corrections & Updates</h4>
+                            <h3 className="text-md font-bold text-slate-700 mb-3">Corrections & Updates</h3>
                             <ul className="space-y-3 text-sm text-slate-600">
                                 {post.corrections.map((corr, idx) => (
                                     <li key={idx} className="flex flex-col sm:flex-row gap-2">
@@ -420,7 +424,7 @@ export default function Show({ post, recentPosts, meta, comments = [], userComme
                                 <img loading="lazy" decoding="async" fetchPriority="low" src={post.authorImage.startsWith('http') || post.authorImage.startsWith('/') ? post.authorImage : '/' + post.authorImage} alt={displayAuthor} width="96" height="96" className="w-24 h-24 rounded-full object-cover shrink-0 ring-4 ring-slate-50" />
                             )}
                             <div className="flex-1">
-                                <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-1">{displayAuthor}</h3>
+                                <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-1">{displayAuthor}</h2>
                                 {post.authorJobTitle && <p className="text-blue-600 font-medium text-sm mb-3">{post.authorJobTitle}</p>}
                                 
                                 {post.authorBio && (
@@ -458,17 +462,17 @@ export default function Show({ post, recentPosts, meta, comments = [], userComme
                                 {post.authorSocials && (post.authorSocials.twitter || post.authorSocials.linkedin || post.authorSocials.website) && (
                                     <div className="flex gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-zinc-800/50">
                                         {post.authorSocials.twitter && (
-                                            <a href={post.authorSocials.twitter} target="_blank" rel="nofollow noreferrer" className="p-2 bg-slate-50 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-zinc-700 rounded-full transition-colors">
+                                            <a aria-label="Twitter Profile" href={post.authorSocials.twitter} target="_blank" rel="nofollow noreferrer" className="p-2 bg-slate-50 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-zinc-700 rounded-full transition-colors">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
                                             </a>
                                         )}
                                         {post.authorSocials.linkedin && (
-                                            <a href={post.authorSocials.linkedin} target="_blank" rel="nofollow noreferrer" className="p-2 bg-slate-50 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-blue-700 dark:hover:text-blue-500 hover:bg-slate-100 dark:hover:bg-zinc-700 rounded-full transition-colors">
+                                            <a aria-label="LinkedIn Profile" href={post.authorSocials.linkedin} target="_blank" rel="nofollow noreferrer" className="p-2 bg-slate-50 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-blue-700 dark:hover:text-blue-500 hover:bg-slate-100 dark:hover:bg-zinc-700 rounded-full transition-colors">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
                                             </a>
                                         )}
                                         {post.authorSocials.website && (
-                                            <a href={post.authorSocials.website} target="_blank" rel="nofollow noreferrer" className="p-2 bg-slate-50 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-500 hover:bg-slate-100 dark:hover:bg-zinc-700 rounded-full transition-colors">
+                                            <a aria-label="Author Website" href={post.authorSocials.website} target="_blank" rel="nofollow noreferrer" className="p-2 bg-slate-50 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-500 hover:bg-slate-100 dark:hover:bg-zinc-700 rounded-full transition-colors">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                                             </a>
                                         )}
@@ -479,10 +483,10 @@ export default function Show({ post, recentPosts, meta, comments = [], userComme
                     </div>
                     {/* Comments Section */}
                     <div className="mt-12 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-4 sm:p-8 shadow-sm">
-                        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
                             <MessageSquare size={20} className="text-blue-600 dark:text-blue-400" />
                             Discussions ({comments.length})
-                        </h3>
+                        </h2>
                         
                         {auth?.user ? (
                             <div className="mb-8">
@@ -491,6 +495,7 @@ export default function Show({ post, recentPosts, meta, comments = [], userComme
                                 </div>
                                 <form onSubmit={submitComment}>
                                     <textarea
+                                        aria-label="Your comment"
                                         value={data.content}
                                         onChange={e => setData('content', e.target.value)}
                                         placeholder="What are your thoughts?"
@@ -520,7 +525,7 @@ export default function Show({ post, recentPosts, meta, comments = [], userComme
                         <div className="pt-2">
                             {comments.length > 0 ? (
                                 comments.map(comment => (
-                                    <CommentThread key={comment.id} comment={comment} postId={post.id} auth={auth} userCommentVotes={userCommentVotes} />
+                                    <CommentThread key={comment.id} comment={comment} postId={post.id} postAuthorId={post.author_id} auth={auth} userCommentVotes={userCommentVotes} />
                                 ))
                             ) : (
                                 <div className="text-center py-12 border-t border-slate-100 dark:border-zinc-800/50 mt-4">
@@ -534,7 +539,7 @@ export default function Show({ post, recentPosts, meta, comments = [], userComme
                     
                     {/* Community Cross-Promotion CTA */}
                     <div className="mt-12 p-8 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl border border-blue-100 dark:border-blue-900/30 shadow-sm text-center">
-                        <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-3">Join the Conversation!</h3>
+                        <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-3">Join the Conversation!</h2>
                         <p className="text-slate-600 dark:text-zinc-400 mb-6 text-lg">What are your thoughts on this topic? Discuss this article and more with our active community on coachingsinsikar.</p>
                         <Link href="/feed" className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full transition-all hover:scale-105 shadow-md">
                             Go to Community
@@ -546,7 +551,7 @@ export default function Show({ post, recentPosts, meta, comments = [], userComme
                 {/* Right Sidebar */}
                 <aside className="w-full lg:w-[30%]">
                     <div style={{ position: 'sticky', top: '120px', maxHeight: 'calc(100vh - 140px)', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                        <h3 className="text-xl font-bold mb-6 pb-2 border-b-2 border-blue-600 inline-block text-slate-900 dark:text-white">Recent Articles</h3>
+                        <h2 className="text-xl font-bold mb-6 pb-2 border-b-2 border-blue-600 inline-block text-slate-900 dark:text-white">Recent Articles</h2>
                         <div className="flex flex-col gap-4">
                             {recentPosts && recentPosts.map((rp) => (
                                 <Link key={rp.id} href={`${window.BASE_PATH}${rp.url_path || '/blog/'+rp.slug}`} className="flex gap-4 group bg-white dark:bg-zinc-900 p-3 rounded-xl border border-slate-100 dark:border-zinc-800 shadow-sm hover:shadow-md transition-all">
@@ -555,7 +560,7 @@ export default function Show({ post, recentPosts, meta, comments = [], userComme
                                     </div>
                                     <div className="flex flex-col justify-center">
                                         <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">{rp.category}</span>
-                                        <h4 className="font-bold text-sm leading-tight text-slate-800 dark:text-zinc-200 group-hover:text-blue-600 mt-1 line-clamp-3">{rp.title}</h4>
+                                        <h3 className="font-bold text-sm leading-tight text-slate-800 dark:text-zinc-200 group-hover:text-blue-600 mt-1 line-clamp-3">{rp.title}</h3>
                                     </div>
                                 </Link>
                             ))}

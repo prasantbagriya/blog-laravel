@@ -16,14 +16,10 @@ class ResponsiveImageController extends Controller
      */
     public function show(int $width, string $path): BinaryFileResponse
     {
-        abort_unless(in_array($width, [64, 192, 384, 672], true), 404);
+        abort_unless(in_array($width, [64, 192, 384, 640, 672, 800, 1024, 1200], true), 404);
 
         $relativePath = ltrim(str_replace('\\', '/', $path), '/');
         abort_if(Str::contains($relativePath, '..'), 404);
-        abort_unless(
-            Str::startsWith($relativePath, 'businesses/logos/') || in_array($relativePath, ['background.webp', 'logo.webp'], true),
-            404,
-        );
 
         $uploadsDirectory = realpath(public_path('uploads'));
         abort_unless($uploadsDirectory, 404);
@@ -50,7 +46,7 @@ class ResponsiveImageController extends Controller
 
         return response()->file($variantPath, [
             'Content-Type' => 'image/webp',
-            'Cache-Control' => 'public, max-age=604800',
+            'Cache-Control' => 'public, max-age=31536000, immutable',
         ]);
     }
 }

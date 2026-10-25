@@ -12,7 +12,7 @@ class TaxonomyController extends Controller
     public function categoryIndex()
     {
         $categories = \App\Models\Category::all()->toArray();
-        $title = "Categories | Coachinginsikar";
+        $title = "Categories";
         $description = "Browse all Blog Categories and Institute Categories on CoachingsinSikar. Find articles and verified coaching institutes for JEE, NEET, CA, NDA, CLAT, and schools in Sikar by topic.";
         $keywords = "Coaching Sikar Categories, blog categories Sikar coaching, institute categories Sikar, verified coaching institutes Sikar, expert guidance coaching Sikar, topic-wise coaching guides Sikar";
         $og_title = "CoachingsinSikar Explore Categories";
@@ -32,6 +32,7 @@ class TaxonomyController extends Controller
             'categories' => $categories,
             'meta' => [
                 'title' => $title,
+                'h1' => 'Explore All Categories',
                 'description' => $description,
                 'keywords' => $keywords,
                 'og_title' => $og_title,
@@ -53,12 +54,20 @@ class TaxonomyController extends Controller
         
         $category = \App\Models\Category::where('slug', $slug)->orWhere('name', 'LIKE', $categoryName)->first();
         
+        // Return 404 if category is not found in database
+        if (!$category) {
+            abort(404);
+        }
+        
         $posts = Post::where('published', true)
+                     ->whereNull('community_id')
                      ->where('category', 'LIKE', '%' . $target . '%')
+                     ->select(['id', 'slug', 'title', 'excerpt', 'coverImage', 'category', 'date', 'author', 'url_format'])
+                     ->orderBy('date', 'desc')
                      ->get()
                      ->toArray();
 
-        $title = $category && !empty($category->seo_title) ? $category->seo_title : "{$categoryName} Archives | Coachinginsikar";
+        $title = $category && !empty($category->seo_title) ? $category->seo_title : $categoryName;
         $description = $category && !empty($category->seo_description) ? $category->seo_description : "Read all articles filed under {$categoryName}.";
         $keywords = $category && !empty($category->seo_keywords) ? $category->seo_keywords : null;
         
@@ -76,6 +85,7 @@ class TaxonomyController extends Controller
 
         $meta = [
             'title' => $title,
+            'h1' => $categoryName,
             'description' => $description,
             'url' => url("/category/{$slug}"),
             'type' => 'website',
@@ -103,8 +113,9 @@ class TaxonomyController extends Controller
     public function authorIndex()
     {
         $authors = Author::all()->toArray();
-        $title = "Authors | Coachinginsikar";
-        $description = "Meet the authors contributing to Coachinginsikar.";
+        $title = "Our Authors & Education Experts | CoachingsinSikar";
+        $description = "Meet the experienced authors and education experts contributing to CoachingsinSikar. Read their articles on coaching institutes, school admissions, and competitive exams like JEE, NEET, and CA.";
+        $keywords = "CoachingsinSikar authors, education experts Sikar, blog writers, coaching guides, Sikar education writers, JEE NEET advisors";
         
         $schemas = [[
             "@context" => "https://schema.org",
@@ -118,7 +129,9 @@ class TaxonomyController extends Controller
             'authors' => $authors,
             'meta' => [
                 'title' => $title,
+                'h1' => 'Meet Our Authors & Experts',
                 'description' => $description,
+                'keywords' => $keywords,
                 'url' => url('/author'),
                 'type' => 'website',
                 'schemas' => $schemas
@@ -135,13 +148,20 @@ class TaxonomyController extends Controller
         }
 
         $posts = Post::where('published', true)
+                     ->whereNull('community_id')
                      ->where('author', $author->name)
+                     ->select(['id', 'slug', 'title', 'excerpt', 'coverImage', 'category', 'date', 'author', 'url_format'])
+                     ->orderBy('date', 'desc')
                      ->get()
                      ->toArray();
                      
-        $cleanBio = $author->bio ? substr(strip_tags($author->bio), 0, 160) : "Articles by {$author->name}";
-        $title = "{$author->name} - Author at Coachinginsikar";
-        $description = $cleanBio;
+        $cleanBio = $author->bio ? substr(strip_tags($author->bio), 0, 160) : "Articles and education guides written by {$author->name} on CoachingsinSikar.";
+        $jobTitle = $author->jobTitle ? " - " . $author->jobTitle : "";
+        
+        // Improved SEO strings
+        $title = "{$author->name}{$jobTitle} | CoachingsinSikar";
+        $description = "Read all articles, coaching reviews, and education guides by {$author->name}. {$cleanBio}";
+        $keywords = "{$author->name}, {$author->name} author, CoachingsinSikar {$author->name}, education expert Sikar, coaching guide writer";
 
         $sameAsLinks = [];
         if (!empty($author->socials) && is_array($author->socials)) {
@@ -192,17 +212,25 @@ class TaxonomyController extends Controller
             "@type" => "ProfilePage",
             "mainEntity" => $personSchema
         ]];
+        
+        $meta = [
+            'title' => $title,
+            'h1' => $author->name,
+            'description' => $description,
+            'keywords' => $keywords,
+            'url' => url("/author/{$slug}"),
+            'type' => 'profile',
+            'schemas' => $schemas
+        ];
+        
+        if (!empty($author->image)) {
+            $meta['og_image'] = url(str_starts_with($author->image, '/') ? $author->image : '/' . $author->image);
+        }
 
         return Inertia::render('Author/Show', [
             'author' => $author->toArray(),
             'posts' => $posts,
-            'meta' => [
-                'title' => $title,
-                'description' => $description,
-                'url' => url("/author/{$slug}"),
-                'type' => 'profile',
-                'schemas' => $schemas
-            ]
+            'meta' => $meta
         ]);
     }
 }

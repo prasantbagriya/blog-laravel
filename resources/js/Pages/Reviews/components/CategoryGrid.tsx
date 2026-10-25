@@ -36,17 +36,17 @@ const getCategoryIcon = (iconName: string) => {
 };
 
 const categoryColors: Record<string, { bg: string; icon: string; border: string; badge: string }> = {
-  Cloud:        { bg: 'bg-sky-500/10',    icon: 'text-sky-500',    border: 'group-hover:border-sky-500/60',    badge: 'group-hover:bg-sky-500/10 group-hover:text-sky-500' },
-  Sparkles:     { bg: 'bg-violet-500/10', icon: 'text-violet-500', border: 'group-hover:border-violet-500/60', badge: 'group-hover:bg-violet-500/10 group-hover:text-violet-500' },
-  ShoppingBag:  { bg: 'bg-amber-500/10',  icon: 'text-amber-500',  border: 'group-hover:border-amber-500/60',  badge: 'group-hover:bg-amber-500/10 group-hover:text-amber-500' },
-  Hospital:     { bg: 'bg-rose-500/10',   icon: 'text-rose-500',   border: 'group-hover:border-rose-500/60',   badge: 'group-hover:bg-rose-500/10 group-hover:text-rose-500' },
-  Server:       { bg: 'bg-emerald-500/10',icon: 'text-emerald-500',border: 'group-hover:border-emerald-500/60',badge: 'group-hover:bg-emerald-500/10 group-hover:text-emerald-500' },
-  GraduationCap:{ bg: 'bg-indigo-500/10', icon: 'text-indigo-500', border: 'group-hover:border-indigo-500/60', badge: 'group-hover:bg-indigo-500/10 group-hover:text-indigo-500' },
-  Building:     { bg: 'bg-orange-500/10', icon: 'text-orange-500', border: 'group-hover:border-orange-500/60', badge: 'group-hover:bg-orange-500/10 group-hover:text-orange-500' },
-  CreditCard:   { bg: 'bg-teal-500/10',   icon: 'text-teal-500',   border: 'group-hover:border-teal-500/60',   badge: 'group-hover:bg-teal-500/10 group-hover:text-teal-500' },
+  Cloud:        { bg: 'bg-sky-500/10',    icon: 'text-sky-600 dark:text-sky-400',    border: 'group-hover:border-sky-500/60',    badge: 'group-hover:bg-sky-600/10 group-hover:text-sky-700 dark:group-hover:text-sky-300' },
+  Sparkles:     { bg: 'bg-violet-500/10', icon: 'text-violet-600 dark:text-violet-400', border: 'group-hover:border-violet-500/60', badge: 'group-hover:bg-violet-600/10 group-hover:text-violet-700 dark:group-hover:text-violet-300' },
+  ShoppingBag:  { bg: 'bg-amber-500/10',  icon: 'text-amber-600 dark:text-amber-400',  border: 'group-hover:border-amber-500/60',  badge: 'group-hover:bg-amber-600/10 group-hover:text-amber-700 dark:group-hover:text-amber-300' },
+  Hospital:     { bg: 'bg-rose-500/10',   icon: 'text-rose-600 dark:text-rose-400',   border: 'group-hover:border-rose-500/60',   badge: 'group-hover:bg-rose-600/10 group-hover:text-rose-700 dark:group-hover:text-rose-300' },
+  Server:       { bg: 'bg-emerald-500/10',icon: 'text-emerald-600 dark:text-emerald-400',border: 'group-hover:border-emerald-500/60',badge: 'group-hover:bg-emerald-600/10 group-hover:text-emerald-700 dark:group-hover:text-emerald-300' },
+  GraduationCap:{ bg: 'bg-indigo-500/10', icon: 'text-indigo-600 dark:text-indigo-400', border: 'group-hover:border-indigo-500/60', badge: 'group-hover:bg-indigo-600/10 group-hover:text-indigo-700 dark:group-hover:text-indigo-300' },
+  Building:     { bg: 'bg-orange-500/10', icon: 'text-orange-600 dark:text-orange-400', border: 'group-hover:border-orange-500/60', badge: 'group-hover:bg-orange-600/10 group-hover:text-orange-700 dark:group-hover:text-orange-300' },
+  CreditCard:   { bg: 'bg-teal-500/10',   icon: 'text-teal-600 dark:text-teal-400',   border: 'group-hover:border-teal-500/60',   badge: 'group-hover:bg-teal-600/10 group-hover:text-teal-700 dark:group-hover:text-teal-300' },
 };
 
-const defaultColor = { bg: 'bg-blue-500/10', icon: 'text-blue-500', border: 'group-hover:border-blue-500/60', badge: 'group-hover:bg-blue-500/10 group-hover:text-blue-500' };
+const defaultColor = { bg: 'bg-blue-500/10', icon: 'text-blue-600 dark:text-blue-400', border: 'group-hover:border-blue-500/60', badge: 'group-hover:bg-blue-600/10 group-hover:text-blue-700 dark:group-hover:text-blue-300' };
 
 export const CategoryGrid: React.FC<CategoryGridProps> = ({ categories, onSelectCategory }) => {
   return (
@@ -82,7 +82,7 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({ categories, onSelect
                     <div className={`w-10 h-10 rounded-xl ${colors.bg} ${colors.icon} flex items-center justify-center group-hover:scale-110 transition-transform duration-200 shrink-0`}>
                       <IconComponent className="w-5 h-5" />
                     </div>
-                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 ${colors.badge} transition-colors duration-200 shrink-0`}>
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-200/80 dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 ${colors.badge} transition-colors duration-200 shrink-0`}>
                       {cat.businessCount.toLocaleString()} Listed
                     </span>
                   </div>
@@ -91,14 +91,14 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({ categories, onSelect
                     {cat.name}
                   </h3>
 
-                  <p className="text-xs text-slate-500 dark:text-zinc-400 line-clamp-2 leading-relaxed">
+                  <p className="text-xs text-slate-600 dark:text-zinc-300 line-clamp-2 leading-relaxed">
                     {cat.description}
                   </p>
                 </div>
 
-                <div className={`relative z-10 mt-5 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-xs font-bold text-slate-400 dark:text-zinc-500 ${colors.icon} opacity-60 group-hover:opacity-100 transition-all duration-200`}>
+                <div className="relative z-10 mt-5 pt-3 border-t border-slate-200 dark:border-zinc-800 flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-zinc-300 transition-colors duration-200">
                   <span>Browse Index</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform duration-200" />
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform duration-200 text-slate-700 dark:text-zinc-300" />
                 </div>
               </AnimatedBorderCard>
             );

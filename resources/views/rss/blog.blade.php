@@ -1,9 +1,9 @@
 @php echo '<?xml version="1.0" encoding="UTF-8" ?>'; @endphp
 <rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/">
     <channel>
-        <title>{{ config('app.name', 'Coachinginsikar') }} - Blog</title>
+        <title>{{ config('app.name', 'CoachingsinSikar') }} - Blog</title>
         <link>{{ url('/blog') }}</link>
-        <description>Latest insights, guides, and tutorials from Coachinginsikar.</description>
+        <description>Latest insights, guides, and tutorials from CoachingsinSikar.</description>
         <language>en-us</language>
         <lastBuildDate>{{ now()->toRfc822String() }}</lastBuildDate>
         @foreach($posts as $post)

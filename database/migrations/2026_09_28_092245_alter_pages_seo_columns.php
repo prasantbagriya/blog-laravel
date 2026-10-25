@@ -12,10 +12,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Use raw SQL to alter columns to TEXT to avoid requiring doctrine/dbal
-        DB::statement('ALTER TABLE pages MODIFY seo_keywords TEXT');
-        DB::statement('ALTER TABLE pages MODIFY seo_description TEXT');
-        DB::statement('ALTER TABLE pages MODIFY og_description TEXT');
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE pages MODIFY seo_keywords TEXT');
+            DB::statement('ALTER TABLE pages MODIFY seo_description TEXT');
+            DB::statement('ALTER TABLE pages MODIFY og_description TEXT');
+        } else {
+            Schema::table('pages', function (Blueprint $table) {
+                $table->text('seo_keywords')->nullable()->change();
+                $table->text('seo_description')->nullable()->change();
+                $table->text('og_description')->nullable()->change();
+            });
+        }
     }
 
     /**

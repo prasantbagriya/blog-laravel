@@ -16,7 +16,7 @@ export default function FactCheckingPolicy() {
                 <meta name="twitter:description" content="See how CoachingsinSikar verifies information. Our fact‑checking policy covers verification steps, corrections, and our commitment to accurate, trustworthy education content" />
             </Head>
             <GlobalNavbar />
-            <main className="w-full px-[25px] pb-8 flex-grow" style={{ paddingTop: '100px' }}>
+            <main className="w-full px-[25px] pt-4 md:pt-6 pb-8 flex-grow">
                 <h1 className="text-4xl font-bold mb-8">Fact-Checking Policy</h1>
                 <div className="prose max-w-none text-gray-700 space-y-4 pb-12">
                     <p>Last Updated: September 2026</p>

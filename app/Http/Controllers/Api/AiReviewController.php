@@ -10,7 +10,7 @@ class AiReviewController extends Controller
 
     private function generateContent($prompt, $jsonResponse = true)
     {
-        $apiKey = env('GEMINI_API_KEY');
+        $apiKey = config('services.gemini.api_key', env('GEMINI_API_KEY'));
         if (!$apiKey) {
             return null; // Handle fallback gracefully as per original logic
         }
@@ -25,17 +25,32 @@ class AiReviewController extends Controller
             $payload['generationConfig'] = ['responseMimeType' => 'application/json'];
         }
 
-        $response = \Illuminate\Support\Facades\Http::post(
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$apiKey}",
-            $payload
-        );
+        // Try primary model, with automatic fallback if Google reports model unavailable/busy
+        $candidateModels = array_unique([
+            config('services.gemini.model', env('GEMINI_MODEL', 'gemini-3.5-flash')),
+            'gemini-3.5-flash',
+            'gemini-3.8-flash',
+            'gemini-flash-latest'
+        ]);
 
-        if ($response->successful()) {
-            $text = $response->json('candidates.0.content.parts.0.text');
-            if ($jsonResponse) {
-                return json_decode($text, true);
+        foreach ($candidateModels as $model) {
+            try {
+                $response = \Illuminate\Support\Facades\Http::withoutVerifying()->timeout(15)->post(
+                    "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}",
+                    $payload
+                );
+
+                if ($response->successful()) {
+                    $text = $response->json('candidates.0.content.parts.0.text');
+                    if ($jsonResponse) {
+                        return json_decode($text, true);
+                    }
+                    return $text;
+                }
+            } catch (\Throwable $e) {
+                // Try next model fallback
+                continue;
             }
-            return $text;
         }
 
         return null;

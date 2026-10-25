@@ -47,16 +47,41 @@ class HandleInertiaRequests extends Middleware
             }
         }
 
+        $global_nav = [];
+        try {
+            $global_nav = \Illuminate\Support\Facades\Cache::remember('global_nav_active', 86400, function () {
+                if (\Illuminate\Support\Facades\Schema::hasTable('navigations')) {
+                    return \App\Models\Navigation::where('is_active', true)
+                        ->orWhere('show_in_footer', true)
+                        ->orderBy('order', 'asc')
+                        ->get()
+                        ->toArray();
+                }
+                return [];
+            });
+        } catch (\Exception $e) {}
+
         return [
             ...parent::share($request),
             'auth' => [
-                // Send only the fields public, authenticated UI elements require.
-                // Admin records and dashboard data are never shared with public pages.
-                'user' => $user?->only(['id', 'name', 'username', 'profile_picture', 'role']),
+                // Send profile fields required for navigation, settings, and forms
+                'user' => $user ? [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'username' => $user->username,
+                    'email' => $user->email,
+                    'bio' => $user->bio,
+                    'flair' => $user->flair,
+                    'role' => $user->role,
+                    'is_admin' => (bool) ($user->role === 'super_admin' || $user->role === 'admin' || $user->getAttribute('is_admin')),
+                    'profile_picture' => $user->profile_picture,
+                    'banner_image' => $user->banner_image,
+                ] : null,
                 'joined_communities' => $joined_communities,
                 'notifications' => $notifications,
                 'unread_notifications_count' => $unread_notifications_count,
             ],
+            'global_nav' => $global_nav,
         ];
     }
 }

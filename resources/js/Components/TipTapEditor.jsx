@@ -16,7 +16,8 @@ import {
     Bold, Italic, Underline as UnderlineIcon, Strikethrough,
     AlignLeft, AlignCenter, AlignRight,
     List, ListOrdered, Link as LinkIcon, Image as ImageIcon, Video,
-    Heading1, Heading2, Quote, Table as TableIcon
+    Heading1, Heading2, Quote, Table as TableIcon, Maximize, Minimize,
+    HelpCircle
 } from 'lucide-react';
 
 
@@ -36,7 +37,7 @@ const ToolbarButton = ({ onClick, disabled, isActive, title, children }) => (
     </button>
 );
 
-const MenuBar = ({ editor, onOpenImageModal, onOpenVideoModal, onOpenLinkModal }) => {
+const MenuBar = ({ editor, onOpenImageModal, onOpenVideoModal, onOpenLinkModal, isFullscreen, onToggleFullscreen }) => {
     if (!editor) {
         return null;
     }
@@ -57,10 +58,36 @@ const MenuBar = ({ editor, onOpenImageModal, onOpenVideoModal, onOpenLinkModal }
         onOpenLinkModal(previousUrl || '');
     }, [editor, onOpenLinkModal]);
 
+    const insertFaq = useCallback(() => {
+        const question = window.prompt('Enter FAQ Question:', 'What is your policy?');
+        if (!question) return;
+        const answer = window.prompt('Enter FAQ Answer:', 'Please provide answer here.');
+        if (!answer) return;
+        editor.chain().focus().insertContent(`
+            <div class="faq-item my-4 p-4 border border-gray-200 dark:border-zinc-700 rounded-lg bg-gray-50 dark:bg-zinc-800">
+                <h3 class="text-base font-bold text-gray-900 dark:text-gray-100 mb-1.5">Q: ${question}</h3>
+                <p class="text-sm text-gray-600 dark:text-zinc-300 m-0">${answer}</p>
+            </div>
+            <p></p>
+        `).run();
+    }, [editor]);
+
     const Divider = () => <div className="flex-shrink-0 w-[1px] h-6 bg-gray-200 dark:bg-zinc-700 mx-1.5"></div>;
 
     return (
-        <div className="flex flex-nowrap overflow-x-auto items-center gap-0.5 p-1.5 bg-[#F6F7F8] dark:bg-zinc-800 border-b border-[#EDEFF1] dark:border-zinc-700 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+        <div 
+            onWheel={(e) => {
+                if (e.deltaY !== 0) {
+                    e.currentTarget.scrollLeft += e.deltaY;
+                }
+            }}
+            className="flex items-center gap-1 p-1.5 bg-[#F6F7F8] dark:bg-zinc-800 border-b border-[#EDEFF1] dark:border-zinc-700 overflow-x-auto min-w-0"
+            style={{ scrollbarWidth: 'thin' }}
+        >
+            <ToolbarButton onClick={onToggleFullscreen} title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}>
+                {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
+            </ToolbarButton>
+            <Divider />
             <ToolbarButton
                 onClick={() => editor.chain().focus().toggleBold().run()}
                 disabled={!editor.can().chain().focus().toggleBold().run()}
@@ -183,6 +210,10 @@ const MenuBar = ({ editor, onOpenImageModal, onOpenVideoModal, onOpenLinkModal }
             <ToolbarButton onClick={addVideo} title="YouTube Video">
                 <Video size={18} />
             </ToolbarButton>
+
+            <ToolbarButton onClick={insertFaq} title="Insert FAQ Item">
+                <HelpCircle size={18} className="text-amber-500" />
+            </ToolbarButton>
             
             <Divider />
 
@@ -192,11 +223,45 @@ const MenuBar = ({ editor, onOpenImageModal, onOpenVideoModal, onOpenLinkModal }
             >
                 <TableIcon size={18} />
             </ToolbarButton>
+
+            {editor.isActive('table') && (
+                <>
+                    <Divider />
+                    <ToolbarButton onClick={() => editor.chain().focus().addColumnBefore().run()} title="Add Col Left">
+                        <span className="text-xs font-bold px-1">+Col</span>
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => editor.chain().focus().addColumnAfter().run()} title="Add Col Right">
+                        <span className="text-xs font-bold px-1">Col+</span>
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => editor.chain().focus().deleteColumn().run()} title="Delete Col">
+                        <span className="text-xs font-bold px-1 text-rose-500">-Col</span>
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => editor.chain().focus().addRowBefore().run()} title="Add Row Above">
+                        <span className="text-xs font-bold px-1">+Row</span>
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => editor.chain().focus().addRowAfter().run()} title="Add Row Below">
+                        <span className="text-xs font-bold px-1">Row+</span>
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => editor.chain().focus().deleteRow().run()} title="Delete Row">
+                        <span className="text-xs font-bold px-1 text-rose-500">-Row</span>
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => editor.chain().focus().mergeCells().run()} title="Merge Cells">
+                        <span className="text-xs font-bold px-1 text-blue-500">Merge</span>
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => editor.chain().focus().splitCell().run()} title="Split Cell">
+                        <span className="text-xs font-bold px-1 text-blue-500">Split</span>
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => editor.chain().focus().deleteTable().run()} title="Delete Table">
+                        <span className="text-xs font-bold px-1 text-rose-600">Del Tbl</span>
+                    </ToolbarButton>
+                </>
+            )}
         </div>
     );
 };
 
 export default function TipTapEditor({ value, onChange }) {
+    const [isFullscreen, setIsFullscreen] = React.useState(false);
     const editor = useEditor({
         extensions: [
             StarterKit,
@@ -257,6 +322,20 @@ export default function TipTapEditor({ value, onChange }) {
         },
     });
 
+    // Synchronize editor content when value is updated externally (e.g., AI auto-fill or reset)
+    React.useEffect(() => {
+        if (editor && value !== undefined) {
+            const currentHtml = editor.getHTML();
+            if (value !== currentHtml) {
+                // Only update if value is genuinely different
+                if (value === '' && (currentHtml === '<p></p>' || currentHtml === '')) {
+                    return;
+                }
+                editor.commands.setContent(value || '');
+            }
+        }
+    }, [value, editor]);
+
     const [isImageModalOpen, setIsImageModalOpen] = React.useState(false);
     const [imageFile, setImageFile] = React.useState(null);
     const [imageAlt, setImageAlt] = React.useState('');
@@ -278,7 +357,7 @@ export default function TipTapEditor({ value, onChange }) {
         formData.append('file', imageFile);
 
         try {
-            const res = await fetch('/api/upload', {
+            const res = await fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/upload', {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
@@ -330,14 +409,18 @@ export default function TipTapEditor({ value, onChange }) {
     };
 
     return (
-        <div className="border border-[#EDEFF1] dark:border-zinc-700 focus-within:border-[#1C1C1C] dark:focus-within:border-zinc-500 rounded-md overflow-hidden bg-white dark:bg-zinc-900 transition-colors relative">
+        <div className={`border border-[#EDEFF1] dark:border-zinc-700 focus-within:border-[#1C1C1C] dark:focus-within:border-zinc-500 bg-white dark:bg-zinc-900 transition-colors relative flex flex-col ${isFullscreen ? 'fixed inset-0 z-[100] w-screen h-[100dvh] rounded-none border-none editor-fullscreen' : 'rounded-md overflow-hidden'}`}>
             <MenuBar 
                 editor={editor} 
                 onOpenImageModal={() => setIsImageModalOpen(true)} 
                 onOpenVideoModal={() => setIsVideoModalOpen(true)}
                 onOpenLinkModal={(prevUrl) => { setLinkUrl(prevUrl); setIsLinkModalOpen(true); }}
+                isFullscreen={isFullscreen}
+                onToggleFullscreen={() => setIsFullscreen(!isFullscreen)}
             />
-            <EditorContent editor={editor} />
+            <div className={isFullscreen ? "flex-1 overflow-y-auto bg-slate-50 dark:bg-zinc-950" : ""}>
+                <EditorContent editor={editor} />
+            </div>
             
             {/* Video Modal */}
             {isVideoModalOpen && (
@@ -503,6 +586,21 @@ export default function TipTapEditor({ value, onChange }) {
             )}
             
             <style jsx global>{`
+                .editor-fullscreen .ProseMirror {
+                    min-height: calc(100vh - 60px);
+                    max-width: 800px;
+                    margin: 0 auto;
+                    background: white;
+                    padding: 2rem 4rem;
+                }
+                .dark .editor-fullscreen .ProseMirror {
+                    background: #18181b;
+                }
+                @media (max-width: 640px) {
+                    .editor-fullscreen .ProseMirror {
+                        padding: 1rem;
+                    }
+                }
                 .ProseMirror p.is-editor-empty:first-child::before {
                     color: #878A8C;
                     content: attr(data-placeholder);
@@ -525,9 +623,14 @@ export default function TipTapEditor({ value, onChange }) {
                 .editor-content ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 0.5em; }
                 .editor-content ol { list-style-type: decimal; padding-left: 1.5em; margin-bottom: 0.5em; }
                 .editor-content blockquote { border-left: 3px solid #EDEFF1; padding-left: 1em; margin-left: 0; color: #878A8C; font-style: italic; }
-                .editor-content table { border-collapse: collapse; margin: 0 0 1em 0; overflow: hidden; table-layout: fixed; width: 100%; }
-                .editor-content table td, .editor-content table th { border: 1px solid #ced4da; box-sizing: border-box; min-width: 1em; padding: 6px 8px; position: relative; vertical-align: top; }
-                .editor-content table th { background-color: #f1f3f5; font-weight: bold; text-align: left; }
+                .editor-content table { border-collapse: collapse; margin: 0 0 1.5em 0; table-layout: fixed; width: auto !important; border: none !important; }
+                .editor-content table tr, .editor-content table thead, .editor-content table tbody { border: none !important; }
+                .editor-content table td, .editor-content table th { border: 1px solid #ced4da; box-sizing: border-box; padding: 8px 12px; position: relative; vertical-align: top; }
+                @media (max-width: 768px) {
+                    .editor-content table { display: block; overflow-x: auto; white-space: nowrap; }
+                    .editor-content table td, .editor-content table th { min-width: 120px; }
+                }
+                .editor-content table th { background-color: #f8f9fa; font-weight: bold; text-align: left; }
                 .dark .editor-content table td, .dark .editor-content table th { border-color: #4b5563; }
                 .dark .editor-content table th { background-color: #374151; }
             `}</style>

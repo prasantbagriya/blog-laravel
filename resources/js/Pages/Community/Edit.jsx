@@ -26,13 +26,13 @@ export default function EditCommunity({ community }) {
                             <span className="text-white font-black text-lg">N</span>
                         </div>
                         <span className="font-extrabold text-xl tracking-tight hidden sm:block">
-                            coachinginsikar
+                            coachingsinsikar
                         </span>
                     </Link>
                 </div>
             </header>
 
-            <div className="w-full mx-auto max-w-[800px] pt-10 px-4">
+            <div className="w-full mx-auto max-w-[800px] pt-4 md:pt-6 px-4">
                 <div className="flex items-center gap-3 mb-6 border-b border-[#EDEFF1] pb-4">
                     <Settings size={32} className="text-[#0079D3]" />
                     <h1 className="text-2xl font-bold">Community Settings</h1>

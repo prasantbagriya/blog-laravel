@@ -5,6 +5,10 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
+@import '@fontsource/outfit/400.css';
+@import '@fontsource/outfit/600.css';
+@import '@fontsource/outfit/700.css';
+
 :root {
   --primary: #2563eb;
   --primary-hover: #1d4ed8;
@@ -16,11 +20,11 @@
   --accent: #f1f5ff;
   --border: #e2e8f0;
   --radius: 1rem;
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Outfit', system-ui, -apple-system, sans-serif;
   --glass: rgba(255, 255, 255, 0.8);
   --glass-border: rgba(255, 255, 255, 0.4);
   --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --header-height: 72px;
+  --header-height: 60px;
 }
 
 ::selection {
@@ -45,6 +49,7 @@
 button {
   outline: none !important;
   border: none;
+  background-color: transparent;
 }
 
 html {
@@ -224,8 +229,8 @@ section:not(:first-of-type):not(.lcp-section):not(.hero-skeleton) {
 
 /* ✅ Article body typography — maximizes dwell time & readability score */
 .tiptap-content {
-  font-size: 1.25rem;
-  line-height: 1.9;
+  font-size: 1.1rem;
+  line-height: 1.8;
   color: var(--foreground);
 }
 
@@ -354,7 +359,7 @@ section:not(:first-of-type):not(.lcp-section):not(.hero-skeleton) {
 
 .tiptap-content img {
   border-radius: var(--radius);
-  margin: 1.5rem auto;
+  margin: 0.5rem auto;
   box-shadow: var(--shadow);
 }
 
@@ -469,249 +474,39 @@ section:not(:first-of-type):not(.lcp-section):not(.hero-skeleton) {
   }
 }
 
-/* ✅ Admin Full-Screen Overrides */
-body:has(.sovereign-editor-v5-fixed) header,
-body:has(.sovereign-editor-v5-fixed) footer {
-  display: none !important;
-}
-
-body:has(.sovereign-editor-v5-fixed) main {
-  max-width: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-}
-
-/* ✅ Blog Post Responsive Title */
-.post-title {
-  font-size: clamp(1.5rem, 5.5vw, 2.75rem);
-  font-weight: 900;
-  line-height: 1.15;
-  letter-spacing: -0.04em;
-  margin-bottom: 1.5rem;
-  color: var(--foreground);
-}
-
-/* ✅ Responsive Breadcrumb Navigation */
-.breadcrumb-nav {
-  margin-bottom: 2rem;
-  font-size: 0.875rem;
-}
-
-.breadcrumb-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: center;
-  color: var(--muted-foreground);
-  line-height: 1.5;
-}
-
-.breadcrumb-list li {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.breadcrumb-list a {
-  color: var(--muted-foreground);
-  transition: color 0.2s ease;
-}
-
-.breadcrumb-list a:hover {
-  color: var(--primary);
-}
-
-.breadcrumb-list li[aria-current="page"] {
-  color: var(--foreground);
-  font-weight: 500;
-  word-break: break-word;
-}
-
-@media (max-width: 768px) {
-  .breadcrumb-nav {
-    margin-bottom: 1.5rem;
-    font-size: 0.8125rem;
-  }
-}
-
-/* ✅ Responsive Author Bio Card (Google E-E-A-T Compliant) */
-.author-bio-card {
-  display: flex;
-  gap: 2rem;
-  align-items: flex-start;
-  padding: 2.5rem;
-  margin-bottom: 4rem;
-  background: linear-gradient(135deg, var(--muted), #ffffff);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.author-bio-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.04);
-}
-
-.author-bio-avatar {
-  position: relative;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  overflow: hidden;
-  flex-shrink: 0;
-  border: 3px solid var(--primary);
-  display: block;
-  transition: transform 0.3s ease;
-}
-
-.author-bio-avatar:hover {
-  transform: scale(1.05);
-}
-
-.author-bio-content {
-  flex-grow: 1;
-}
-
-.author-bio-name {
-  margin-bottom: 0.25rem;
-  font-size: 1.25rem;
-  font-weight: 700;
-}
-
-.author-bio-title {
-  color: var(--primary);
-  font-size: 0.9375rem;
-  font-weight: 700;
-  margin-bottom: 0.75rem;
-}
-
-.author-bio-text {
-  color: var(--muted-foreground);
-  margin-bottom: 1.25rem;
-  font-size: 1rem;
-  line-height: 1.6;
-}
-
-.author-bio-links {
-  display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
-
-.author-bio-link {
-  color: var(--primary);
-  font-weight: 700;
-  font-size: 0.875rem;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  transition: color 0.2s ease, transform 0.2s ease;
-}
-
-.author-bio-link:hover {
-  color: var(--primary-hover);
-  transform: translateY(-1px);
-}
-
-@media (max-width: 768px) {
-  .author-bio-card {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 1.75rem 1.25rem;
-    gap: 1.5rem;
-  }
-
-  .author-bio-links {
-    justify-content: center;
-    gap: 1rem 1.5rem;
-  }
-}
-
-/* ✅ Full-screen Auth Portal Overrides */
-body:has(.auth-fullscreen-container) header,
-body:has(.auth-fullscreen-container) footer {
-  display: none !important;
-}
-
-body:has(.auth-fullscreen-container) main {
-  max-width: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-}
-
-.auth-fullscreen-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100vw;
-  height: 100vh;
-  min-height: 100vh;
-  background: radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.06) 0%, #ffffff 90.2%);
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 9999;
-  overflow: hidden;
-  font-family: var(--font-sans);
-}
-
-.auth-glow-1 {
-  position: absolute;
-  top: -15%;
-  left: -15%;
-  width: 50vw;
-  height: 50vw;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(37, 99, 235, 0.12) 0%, rgba(255, 255, 255, 0) 70%);
-  filter: blur(80px);
-  pointer-events: none;
-}
-
-.auth-glow-2 {
-  position: absolute;
-  bottom: -15%;
-  right: -15%;
-  width: 60vw;
-  height: 60vw;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
-  filter: blur(90px);
-  pointer-events: none;
-}
-
-/* ✅ Hide scrollbars for clean custom Slider layouts */
-div[data-image-slider="true"]::-webkit-scrollbar {
-  display: none !important;
-}
-
-div[data-image-slider="true"] {
-  -ms-overflow-style: none !important;
-  scrollbar-width: none !important;
-}
-
 /* Ensure Tailwind prose tables also render properly even when empty */
 .prose table {
-  table-layout: auto !important;
-  display: block !important;
-  overflow-x: auto !important;
-  -webkit-overflow-scrolling: touch !important;
+  table-layout: fixed !important;
   border-collapse: collapse !important;
-  border: 1px solid #f1ecec !important;
-  width: 100% !important;
+  margin: 1.5em 0 !important;
+  border: none !important;
+  width: auto !important;
+}
+
+.prose table tr,
+.prose table thead,
+.prose table tbody {
+  border: none !important;
 }
 
 .prose th,
 .prose td {
-  min-width: 1em !important;
   position: relative !important;
   box-sizing: border-box !important;
   border: 1px solid #f1ecec !important;
   padding: 0.75rem 1rem !important;
+}
+
+@media (max-width: 768px) {
+  .prose table {
+    display: block !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+  }
+  .prose th,
+  .prose td {
+    min-width: 120px !important;
+  }
 }
 
 .prose thead th {
@@ -727,3 +522,16 @@ div[data-image-slider="true"] {
 .dark .prose a {
   color: #f1ecec !important;
 }
+/* Navigation & Global Animations */
+@keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulseGlow { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.6; } }
+@keyframes slideDown { from { opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0; } to { opacity: 1; max-height: 500px; padding-top: 1.5rem; padding-bottom: 1.5rem; } }
+@keyframes shimmer-nav { 100% { transform: translateX(100%); } }
+
+.animate-fade-in-down { animation: fadeInDown 0.5s ease-out forwards; }
+.animate-pulse-glow { animation: pulseGlow 4s infinite ease-in-out; }
+.animate-slide-down { animation: slideDown 0.3s ease-out forwards; overflow: hidden; }
+
+/* Signup / Brand Button Theme (Semrush Style) */
+.btn-amber, a.btn-amber, button.btn-amber { background: #ff642d !important; color: #1a1a1a !important; border-color: #ff642d !important; border-radius: 4px !important; font-weight: 700 !important; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; transition: background-color 0.2s ease, border-color 0.2s ease; padding: 0.5rem 1.25rem; }
+.btn-amber:hover, a.btn-amber:hover, button.btn-amber:hover { background: #e85522 !important; border-color: #e85522 !important; }

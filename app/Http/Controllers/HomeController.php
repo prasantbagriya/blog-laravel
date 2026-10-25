@@ -11,13 +11,13 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $homeData = \Illuminate\Support\Facades\Cache::remember('homepage_data_v6', 3600, function () {
+        $getHomeData = function () {
             // Only send fields rendered on the home page.  The previous payload included
             // full post content, SEO metadata, and JSON fields that are not displayed here.
             $morePosts = Post::where('published', true)
+                ->whereNull('community_id')
                 ->select(['id', 'slug', 'title', 'coverImage', 'category', 'date'])
                 ->orderBy('date', 'desc')
-                ->offset(4)
                 ->limit(4)
                 ->get()
                 ->toArray();
@@ -28,6 +28,11 @@ class HomeController extends Controller
                 ->get()
                 ->toArray();
             $sliders = \App\Models\Slider::where('active', true)
+                ->where(function($q) {
+                    $q->where('locations', 'like', '%"home"%')
+                      ->orWhere('locations', 'like', '%home%')
+                      ->orWhereNull('locations'); // Backward compatibility for sliders before this feature
+                })
                 ->select(['id', 'image_url', 'order'])
                 ->orderBy('order', 'asc')
                 ->get()
@@ -55,6 +60,7 @@ class HomeController extends Controller
             $heroImage = $sliders[0]['image_url'] ?? $this->responsiveImageUrl('/uploads/background.webp', 672);
 
             $feedPosts = Post::with(['author', 'community'])
+                ->withCount('comments')
                 ->whereNotNull('community_id')
                 ->where(function ($q) {
                     $q->whereNull('status')->orWhereNotIn('status', ['removed', 'spam']);
@@ -70,7 +76,7 @@ class HomeController extends Controller
                         'author' => $post->author->username ?? 'deleted',
                         'time' => $post->created_at->diffForHumans(),
                         'score' => $post->score,
-                        'comments' => $post->comments()->count(),
+                        'comments' => $post->comments_count ?? 0,
                         'type' => $post->type,
                         'content' => \Illuminate\Support\Str::limit(strip_tags($post->content), 150),
                         'slug' => $post->slug,
@@ -98,10 +104,10 @@ class HomeController extends Controller
                 'feedPosts' => $feedPosts,
                 'topCommunities' => $topCommunities,
                 'meta' => [
-                    'title' => 'CoachinginSikar: JEE, NEET, CA, CLAT & School Guide',
+                    'title' => 'CoachingsinSikar: JEE, NEET, CA, CLAT & School Guide',
                     'description' => 'Find and compare the best coaching institutes and schools in Sikar. Honest guides on JEE, NEET, CA, CLAT, RBSE, and ICSE schools to help students and parents choose wisely.',
-                    'keywords' => 'CoachinginSikar, best CoachinginSikar, JEE coaching Sikar, NEET coaching Sikar, CA coaching Sikar, CLAT coaching Sikar, RBSE school Sikar, ICSE school Sikar, compare coaching institutes, education guide Sikar, top coaching centres Sikar, Sikar education blog',
-                    'og_title' => 'CoachinginSikar - Guide to JEE, NEET, CA, CLAT & Schools',
+                    'keywords' => 'CoachingsinSikar, best CoachingsinSikar, JEE coaching Sikar, NEET coaching Sikar, CA coaching Sikar, CLAT coaching Sikar, RBSE school Sikar, ICSE school Sikar, compare coaching institutes, education guide Sikar, top coaching centres Sikar, Sikar education blog',
+                    'og_title' => 'CoachingsinSikar - Guide to JEE, NEET, CA, CLAT & Schools',
                     'og_description' => 'Check out the best coaching institutes and schools in Sikar. Compare JEE, NEET, CA, CLAT, RBSE and ICSE options to find which is best.',
                     'twitter_title' => 'CoachingsinSikar - JEE, NEET, CA, CLAT, NDA, Schools, & Hospital',
                     'twitter_description' => 'A simple, local guide to the best coaching institutes and schools in Sikar. Compare options for JEE, NEET, CA, CLAT, RBSE, and ICSE with clear, practical info.',
@@ -120,7 +126,7 @@ class HomeController extends Controller
                                     "@type" => "WebSite",
                                     "@id" => url('/') . "/#website",
                                     "url" => url('/'),
-                                    "name" => "Coachinginsikar",
+                                    "name" => "CoachingsinSikar",
                                     "potentialAction" => [
                                         "@type" => "SearchAction",
                                         "target" => url('/search?q={search_term_string}'),
@@ -130,23 +136,23 @@ class HomeController extends Controller
                                 [
                                     "@type" => "Organization",
                                     "@id" => url('/') . "/#organization",
-                                    "name" => "Coachinginsikar",
+                                    "name" => "CoachingsinSikar",
                                     "url" => url('/'),
                                     "logo" => [
                                         "@type" => "ImageObject",
                                         "url" => url('/uploads/logo.webp')
                                     ],
                                     "sameAs" => [
-                                        "https://www.facebook.com/coachinginsikar",
-                                        "https://x.com/coachinginsikar",
-                                        "https://www.instagram.com/coachinginsikar",
-                                        "https://www.linkedin.com/company/coachinginsikar", "https://www.youtube.com/@coachinginsikar", "https://www.pinterest.com/coachinginsikar", "https://coachinginsikar.tumblr.com"
+                                        "https://www.facebook.com/coachingsinsikar",
+                                        "https://x.com/coachingsinsikar",
+                                        "https://www.instagram.com/coachingsinsikar",
+                                        "https://www.linkedin.com/company/coachingsinsikar", "https://www.youtube.com/@coachingsinsikar", "https://www.pinterest.com/coachingsinsikar", "https://coachingsinsikar.tumblr.com"
                                     ]
                                 ],
                                 [
                                     "@type" => "LocalBusiness",
                                     "@id" => url('/') . "/#localbusiness",
-                                    "name" => "Coachinginsikar",
+                                    "name" => "CoachingsinSikar",
                                     "url" => url('/'),
                                     "image" => url('/uploads/logo.webp'),
                                     "address" => [
@@ -156,10 +162,10 @@ class HomeController extends Controller
                                         "addressCountry" => "IN"
                                     ],
                                     "sameAs" => [
-                                        "https://www.facebook.com/coachinginsikar",
-                                        "https://x.com/coachinginsikar",
-                                        "https://www.instagram.com/coachinginsikar",
-                                        "https://www.linkedin.com/company/coachinginsikar", "https://www.youtube.com/@coachinginsikar", "https://www.pinterest.com/coachinginsikar", "https://coachinginsikar.tumblr.com"
+                                        "https://www.facebook.com/coachingsinsikar",
+                                        "https://x.com/coachingsinsikar",
+                                        "https://www.instagram.com/coachingsinsikar",
+                                        "https://www.linkedin.com/company/coachingsinsikar", "https://www.youtube.com/@coachingsinsikar", "https://www.pinterest.com/coachingsinsikar", "https://coachingsinsikar.tumblr.com"
                                     ]
                                 ]
                             ]
@@ -167,7 +173,14 @@ class HomeController extends Controller
                     ]
                 ]
             ];
-        });
+        };
+
+        try {
+            $homeData = \Illuminate\Support\Facades\Cache::remember('homepage_data_v6', 3600, $getHomeData);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Homepage cache error: ' . $e->getMessage());
+            $homeData = $getHomeData();
+        }
 
         // Dynamically replace .png/.jpg to .webp for any images from /uploads/ in the homepage data
         // array_walk_recursive($homeData, function(&$item) {
@@ -175,6 +188,20 @@ class HomeController extends Controller
         //         $item = preg_replace('/(uploads\/[^"\'\s>]+)\.(png|jpg|jpeg|bmp)/i', '$1.webp', $item);
         //     }
         // });
+
+        $global_nav = [];
+        try {
+            $global_nav = \Illuminate\Support\Facades\Cache::remember('global_nav_active', 86400, function () {
+                if (\Illuminate\Support\Facades\Schema::hasTable('navigations')) {
+                    return \App\Models\Navigation::where('is_active', true)
+                        ->orWhere('show_in_footer', true)
+                        ->orderBy('order', 'asc')
+                        ->get()
+                        ->toArray();
+                }
+                return [];
+            });
+        } catch (\Exception $e) {}
 
         $viewData = [
             'morePosts' => $homeData['morePosts'] ?? [],
@@ -185,6 +212,7 @@ class HomeController extends Controller
             'featuredBusinesses' => $homeData['featuredBusinesses'] ?? [],
             'feedPosts' => $homeData['feedPosts'] ?? [],
             'topCommunities' => $homeData['topCommunities'] ?? [],
+            'global_nav' => $global_nav,
         ];
 
         return view('home', $viewData);
@@ -192,10 +220,19 @@ class HomeController extends Controller
 
     public function getFeedData()
     {
-        $homeData = \Illuminate\Support\Facades\Cache::get('homepage_data_v6');
+        try {
+            $homeData = \Illuminate\Support\Facades\Cache::get('homepage_data_v6');
+        } catch (\Throwable $e) {
+            $homeData = null;
+        }
+
         if (!$homeData) {
             $this->index();
-            $homeData = \Illuminate\Support\Facades\Cache::get('homepage_data_v6');
+            try {
+                $homeData = \Illuminate\Support\Facades\Cache::get('homepage_data_v6');
+            } catch (\Throwable $e) {
+                $homeData = null;
+            }
         }
 
         if (!isset($homeData['topCommunities'])) {

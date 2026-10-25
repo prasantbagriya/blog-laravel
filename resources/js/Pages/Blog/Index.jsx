@@ -13,20 +13,20 @@ const Image = ({ src, alt, fill, style, sizes, priority, fetchPriority, ...props
     return <img src={src} alt={alt} style={imgStyle} sizes={sizes} fetchPriority={finalFetchPriority} loading={loadingAttr} decoding={priority ? 'sync' : 'async'} {...props} />;
 };
 
-const FAQSection = () => {
+const FAQSection = ({ customFaqs }) => {
     const [openIndex, setOpenIndex] = useState(0);
 
-    const faqs = [
+    const faqs = customFaqs && customFaqs.length > 0 ? customFaqs : [
         {
             question: "What kind of topics are covered in the CoachingsinSikar blog?",
-            answer: "The blog section covers topics like best CoachinginSikar, top schools in Sikar, college admissions, Olympiads, exam results, education news, and career guidance for students and parents."
+            answer: "The blog section covers topics like best CoachingsinSikar, top schools in Sikar, college admissions, Olympiads, exam results, education news, and career guidance for students and parents."
         },
         {
             question: "How can students use Blog section to prepare for JEE and NEET?",
-            answer: "Students can read blog posts on Top JEE CoachinginSikar, Best NEET CoachinginSikar, preparation tips, how to choose, test strategies, and study plans designed for competitive exam aspirants."
+            answer: "Students can read blog posts on Top JEE CoachingsinSikar, Best NEET CoachingsinSikar, preparation tips, how to choose, test strategies, and study plans designed for competitive exam aspirants."
         },
         {
-            question: "Does blog section help in choosing the right CoachinginSikar?",
+            question: "Does blog section help in choosing the right CoachingsinSikar?",
             answer: "Yes, the CoachingsinSikar blog shares comparison articles, ranking lists, and detailed guides on the best coaching institutes in Sikar for JEE, NEET, CA, CLAT, NDA, and other courses."
         },
         {
@@ -38,6 +38,8 @@ const FAQSection = () => {
             answer: "Yes, Best/Top Coaching Schools are compared on the basis of courses, faculty, fees, facilities, study material, results, tests, and doubt support."
         }
     ];
+
+    if (!faqs || faqs.length === 0) return null;
 
     const faqSchema = {
         "@context": "https://schema.org",
@@ -89,7 +91,7 @@ const FAQSection = () => {
                             <div>
                                 <h3 className="font-bold text-slate-900 dark:text-white mb-1">Still have questions?</h3>
                                 <p className="text-sm text-slate-500 dark:text-zinc-400 mb-4">Chat with our educational counselors for personalized guidance.</p>
-                                <Link href="/contact" className="btn-amber px-5 py-2 text-sm transition-transform hover:scale-105 inline-block bg-amber-500 text-white rounded-full font-bold hover:bg-amber-600">
+                                <Link href="/contact" className="btn-amber px-5 py-2 text-sm transition-transform hover:scale-105 inline-block">
                                     Contact Support
                                 </Link>
                             </div>
@@ -97,7 +99,7 @@ const FAQSection = () => {
                     </div>
 
                     {/* Right Column: Accordion */}
-                    <div className="lg:col-span-7 space-y-4">
+                    <div className="lg:col-span-7 space-y-2.5">
                         {faqs.map((faq, index) => {
                             const isOpen = openIndex === index;
                             return (
@@ -106,11 +108,11 @@ const FAQSection = () => {
                                     className={`group border rounded-2xl overflow-hidden transition-all duration-500 ${isOpen ? 'bg-white dark:bg-zinc-800 shadow-xl shadow-blue-900/5 dark:shadow-none border-blue-200 dark:border-blue-700 ring-1 ring-blue-100 dark:ring-blue-700/30' : 'bg-white/60 dark:bg-zinc-800/60 border-slate-200 dark:border-zinc-700 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-white dark:hover:bg-zinc-800 backdrop-blur-sm'}`}
                                 >
                                     <button 
-                                        className="w-full px-6 py-6 flex items-center justify-between text-left focus:outline-none focus:ring-0 ring-0 border-none bg-transparent cursor-pointer"
+                                        className="w-full px-4 py-3 md:px-4 md:py-3.5 flex items-center justify-between text-left focus:outline-none focus:ring-0 ring-0 border-none bg-transparent cursor-pointer"
                                         onClick={() => setOpenIndex(isOpen ? null : index)}
                                         aria-expanded={isOpen}
                                     >
-                                        <span className={`font-bold text-lg pr-6 transition-colors duration-300 ${isOpen ? 'text-blue-700 dark:text-blue-400' : 'text-slate-800 dark:text-zinc-200 group-hover:text-blue-600 dark:group-hover:text-blue-400'}`}>
+                                        <span className={`font-medium text-[15px] sm:text-[16px] pr-6 transition-colors duration-300 ${isOpen ? 'text-blue-700 dark:text-blue-400' : 'text-slate-800 dark:text-zinc-200 group-hover:text-blue-600 dark:group-hover:text-blue-400'}`}>
                                             {faq.question}
                                         </span>
                                         <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 ${isOpen ? 'bg-blue-600 text-white rotate-180 shadow-md shadow-blue-600/20' : 'bg-slate-100 dark:bg-zinc-700 text-slate-500 dark:text-zinc-400 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 group-hover:text-blue-500'}`}>
@@ -120,9 +122,9 @@ const FAQSection = () => {
                                     <div 
                                         className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
                                     >
-                                        <div className="px-6 pb-6">
-                                            <div className="w-full h-px bg-slate-200 dark:bg-zinc-700 mb-5"></div>
-                                            <p className="text-slate-600 dark:text-zinc-400 leading-relaxed text-base m-0">
+                                        <div className="px-4 pb-3 md:px-4 md:pb-4">
+                                            <div className="w-full h-px bg-slate-200 dark:bg-zinc-700 mb-2"></div>
+                                            <p className="text-slate-600 dark:text-zinc-400 leading-relaxed text-[14px] sm:text-[15px] m-0">
                                                 {faq.answer}
                                             </p>
                                         </div>
@@ -137,12 +139,62 @@ const FAQSection = () => {
     );
 };
 
-export default function Index({ posts, meta }) {
+const SimpleSlider = ({ sliders }) => {
+    const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+
+    if (!sliders || sliders.length === 0) return null;
+
+    React.useEffect(() => {
+        if (sliders.length > 1) {
+            const interval = setInterval(() => {
+                setCurrentSlideIndex((prev) => (prev + 1) % sliders.length);
+            }, 5000);
+            return () => clearInterval(interval);
+        }
+    }, [sliders.length]);
+
+    return (
+        <div className="relative w-full h-[200px] md:h-[250px] overflow-hidden mb-12 rounded-2xl mx-auto max-w-7xl">
+            {sliders.map((slide, index) => {
+                const imgUrl = typeof slide === 'string' ? slide : (slide.image_url || slide.image);
+                return (
+                    <div
+                        key={index}
+                        className={`absolute inset-0 z-0 h-full w-full transition-opacity duration-1000 ${index === currentSlideIndex ? 'opacity-100' : 'opacity-0'}`}
+                    >
+                        <img
+                            src={imgUrl}
+                            alt={slide.title || "Slider Image"}
+                            className="w-full h-full object-cover"
+                        />
+                        {(slide.title || slide.subtitle) && (
+                            <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center p-4">
+                                {slide.title && <h2 className="text-3xl md:text-5xl font-bold text-white mb-2">{slide.title}</h2>}
+                                {slide.subtitle && <p className="text-lg md:text-xl text-white/90">{slide.subtitle}</p>}
+                                {slide.link && (
+                                    <a href={slide.link} className="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full transition">
+                                        Explore
+                                    </a>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                );
+            })}
+        </div>
+    );
+};
+
+export default function Index({ posts, sliders, meta, faqs = [] }) {
     const formatDate = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);
         return isNaN(date.getTime()) ? dateString : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     };
+
+    // Support both raw array (old) and Laravel paginator format (new)
+    const postList = posts?.data || (Array.isArray(posts) ? posts : []);
+    const paginationLinks = posts?.links || [];
 
     return (
         <div className="bg-white dark:bg-zinc-950 min-h-screen text-slate-900 dark:text-white transition-colors duration-300">
@@ -150,14 +202,16 @@ export default function Index({ posts, meta }) {
             
             <GlobalNavbar />
             
-            <main className="w-full px-[25px] pb-8" style={{ paddingTop: '100px' }}>
-                <h1 className="text-4xl font-bold mb-12 text-slate-900 dark:text-white max-w-7xl mx-auto">All Articles & Insights</h1>
+            <main className="w-full px-[25px] pt-4 md:pt-6 pb-8">
+                <SimpleSlider sliders={sliders} />
+
+                <h1 className="text-4xl font-bold mb-12 text-slate-900 dark:text-white max-w-7xl mx-auto">{meta?.h1 || 'All Articles & Insights'}</h1>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-16">
-                    {posts.map((post) => (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-12">
+                    {postList.map((post, index) => (
                         <article key={post.id} className="border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-xl overflow-hidden hover:shadow-xl dark:hover:shadow-black/40 transition-shadow flex flex-col">
                             <Link href={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + (post.url_path || `/blog/${post.slug}`)} className="relative h-48 block">
-                                <Image src={post.coverImage || '/uploads/read.webp'} alt={post.title} fill style={{ objectFit: 'cover' }} />
+                                <Image src={post.coverImage || '/uploads/read.webp'} alt={post.title} fill style={{ objectFit: 'cover' }} priority={index === 0} />
                             </Link>
                             <div className="p-6 flex flex-col flex-grow">
                                 <span className="text-sm text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider mb-2">{post.category}</span>
@@ -167,7 +221,7 @@ export default function Index({ posts, meta }) {
                                 <p className="text-slate-600 dark:text-zinc-400 mb-4 flex-grow">{post.excerpt}</p>
                                 <div className="flex justify-between items-center text-sm text-slate-500 dark:text-zinc-500 pt-4 border-t border-slate-100 dark:border-zinc-800">
                                     <span>{formatDate(post.date)}</span>
-                                    <Link href={window.BASE_PATH + '/author/' + (post.author ? post.author.toLowerCase().replace(/[^a-z0-9]+/g, '-') : '')} className="font-semibold hover:text-blue-600 dark:hover:text-blue-400 hover:underline">
+                                    <Link href={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/author/' + (post.author ? post.author.toLowerCase().replace(/[^a-z0-9]+/g, '-') : '')} className="font-semibold hover:text-blue-600 dark:hover:text-blue-400 hover:underline">
                                         {post.author}
                                     </Link>
                                 </div>
@@ -175,9 +229,34 @@ export default function Index({ posts, meta }) {
                         </article>
                     ))}
                 </div>
+
+                {/* Pagination Controls */}
+                {paginationLinks.length > 3 && (
+                    <div className="flex flex-wrap justify-center items-center gap-2 max-w-7xl mx-auto mb-16">
+                        {paginationLinks.map((link, index) => {
+                            if (!link.url) {
+                                return (
+                                    <span key={index} className="px-4 py-2 text-slate-600 bg-slate-100 dark:bg-zinc-800 dark:text-zinc-400 rounded-lg" dangerouslySetInnerHTML={{ __html: link.label }} />
+                                );
+                            }
+                            return (
+                                <Link
+                                    key={index}
+                                    href={link.url}
+                                    className={`px-4 py-2 rounded-lg transition-colors font-medium border ${
+                                        link.active
+                                            ? 'bg-blue-600 text-white border-blue-600'
+                                            : 'bg-white dark:bg-zinc-900 text-slate-700 dark:text-zinc-300 border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800'
+                                    }`}
+                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                />
+                            );
+                        })}
+                    </div>
+                )}
             </main>
 
-            <FAQSection />
+            <FAQSection customFaqs={faqs} />
 
             <BlogFooter />
         </div>

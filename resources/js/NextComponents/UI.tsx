@@ -31,7 +31,7 @@ export const PageHero: React.FC<PageHeroProps> = ({
   const isCentered = className.includes('text-center');
 
   return (
-    <section className={`relative pt-32 pb-12 px-4 sm:px-6 lg:px-8 bg-white dark:bg-[#09090b] overflow-hidden ${className}`}>
+    <section className={`relative pt-4 md:pt-6 pb-12 px-4 sm:px-6 lg:px-8 bg-white dark:bg-[#09090b] overflow-hidden ${className}`}>
       {/* Decorative blobs */}
       <div className="absolute -top-20 -right-20 w-96 h-96 bg-amber-100 dark:bg-amber-900/20 rounded-full blur-3xl opacity-40 pointer-events-none" />
       <div className="absolute top-40 -left-20 w-72 h-72 bg-blue-100 dark:bg-blue-900/20 rounded-full blur-3xl opacity-30 pointer-events-none" />
@@ -47,7 +47,7 @@ export const PageHero: React.FC<PageHeroProps> = ({
           {title}
         </h1>
         {description && (
-          <p className={`text-slate-500 dark:text-zinc-400 text-base sm:text-lg max-w-2xl leading-relaxed ${isCentered ? 'text-center mx-auto' : ''}`}>
+          <p className={`text-slate-600 dark:text-zinc-300 text-base sm:text-lg max-w-2xl leading-relaxed ${isCentered ? 'text-center mx-auto' : ''}`}>
             {description}
           </p>
         )}
@@ -84,7 +84,7 @@ interface SectionHeaderProps {
 export const SectionHeader: React.FC<SectionHeaderProps> = ({
   badge,
   badgeIcon: BadgeIcon,
-  badgeColor = 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
+  badgeColor = 'bg-blue-600/10 text-blue-700 dark:text-blue-400 border-blue-600/20',
   title,
   description,
   action,
@@ -104,7 +104,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
           {title}
         </h2>
         {description && (
-          <p className="text-slate-500 dark:text-zinc-400 mt-2 text-sm sm:text-base max-w-lg">
+          <p className="text-slate-600 dark:text-zinc-300 mt-2 text-sm sm:text-base max-w-lg">
             {description}
           </p>
         )}

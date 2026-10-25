@@ -36,8 +36,30 @@ export default function BusinessesPage() {
   return (
     <div>
       <Head title="Businesses | Admin" />
-      <h1 style={{ fontSize: '28px', fontWeight: 800, color: '#0f172a', marginBottom: '8px' }}>Business Listings</h1>
-      <p style={{ color: '#64748b', marginBottom: '32px' }}>Manage user-submitted business profiles across the platform.</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px', flexWrap: 'wrap', gap: '16px' }}>
+        <div>
+          <h1 style={{ fontSize: '28px', fontWeight: 800, color: '#0f172a', marginBottom: '8px' }}>Business Listings</h1>
+          <p style={{ color: '#64748b', margin: 0 }}>Manage and auto-research business/coaching profiles across the platform.</p>
+        </div>
+        <a
+          href="/businesses/create"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '10px 18px',
+            background: '#f59e0b',
+            color: '#000',
+            fontWeight: 700,
+            fontSize: '14px',
+            borderRadius: '6px',
+            textDecoration: 'none',
+            boxShadow: '0 2px 4px rgba(245, 158, 11, 0.25)'
+          }}
+        >
+          <span>✦ Add New Business (AI Auto-Fill)</span>
+        </a>
+      </div>
 
       <div style={{ width: '100%', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
         <div style={{ overflowX: 'auto', width: '100%' }}>
@@ -63,7 +85,7 @@ export default function BusinessesPage() {
                       />
                       <div>
                         <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '15px' }}>{business.name}</div>
-                        <a href={`/business/${business.category_name}/${business.slug}`} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#2563eb', textDecoration: 'none' }}>
+                        <a href={`/business/${business.category || business.category_name || 'coaching-institutes'}/${business.slug}`} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#2563eb', textDecoration: 'none' }}>
                           View Live ↗
                         </a>
                       </div>
@@ -83,12 +105,12 @@ export default function BusinessesPage() {
                   </td>
                   <td style={{ padding: '16px 24px', textAlign: 'right' }}>
                     <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', alignItems: 'center' }}>
-                      <Link 
-                        href={`/businesses/${business.slug || business.id}/edit`}
+                      <a 
+                        href={(typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + `/businesses/${business.slug || business.id}/edit`}
                         style={{ padding: '6px 12px', background: '#e2e8f0', color: '#475569', borderRadius: '6px', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}
                       >
                         Edit
-                      </Link>
+                      </a>
                       <DeleteButton 
                         endpoint="/api/admin/businesses"
                         id={business.id}

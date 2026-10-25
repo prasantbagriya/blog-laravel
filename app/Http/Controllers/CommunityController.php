@@ -76,9 +76,15 @@ class CommunityController extends Controller
             });
 
         return Inertia::render('Community/Feed', [
-            'posts' => $posts,
-            'currentSort' => $sort,
+            'posts'         => $posts,
+            'currentSort'   => $sort,
             'currentFilter' => $filter,
+            'meta'          => [
+                'title'       => 'Community Feed | CoachingsinSikar',
+                'h1'          => 'CoachingsinSikar Community Feed',
+                'description' => 'Stay updated with new guides, comparisons, and discussions on coaching institutes and schools in Sikar through the CoachingsinSikar community feed.',
+                'url'         => url('/feed'),
+            ],
         ]);
     }
 
@@ -142,22 +148,32 @@ class CommunityController extends Controller
                 ];
             });
 
+        $displayName = $community->display_name ?: 'r/' . $community->name;
+
         return Inertia::render('Community/Show', [
             'community' => [
-                'id' => $community->id,
-                'name' => $community->name,
-                'display_name' => $community->display_name ?: 'r/' . $community->name,
-                'description' => $community->description,
-                'banner_image' => $community->banner_image,
-                'icon_image' => $community->icon_image,
+                'id'            => $community->id,
+                'name'          => $community->name,
+                'display_name'  => $displayName,
+                'description'   => $community->description,
+                'banner_image'  => $community->banner_image,
+                'icon_image'    => $community->icon_image,
                 'members_count' => $community->members()->count(),
-                'online_count' => 1,
-                'is_member' => auth()->check() ? $community->members()->where('user_id', auth()->id())->exists() : false,
-                'is_owner' => auth()->check() ? auth()->id() === $community->owner_id : false,
-                'is_moderator' => auth()->check() ? $community->moderators()->where('user_id', auth()->id())->exists() : false,
+                'online_count'  => 1,
+                'is_member'     => auth()->check() ? $community->members()->where('user_id', auth()->id())->exists() : false,
+                'is_owner'      => auth()->check() ? auth()->id() === $community->owner_id : false,
+                'is_moderator'  => auth()->check() ? $community->moderators()->where('user_id', auth()->id())->exists() : false,
             ],
-            'posts' => $posts,
+            'posts'       => $posts,
             'currentSort' => $sort,
+            'meta'        => [
+                'title'       => $displayName . ' Community | CoachingsinSikar',
+                'h1'          => $displayName . ' — Community on CoachingsinSikar',
+                'description' => $community->description
+                    ? substr(strip_tags($community->description), 0, 160)
+                    : 'Join the ' . $displayName . ' community on CoachingsinSikar to discuss coaching, exams, and education in Sikar.',
+                'url'         => url('/community/' . $community->name),
+            ],
         ]);
     }
 
@@ -180,6 +196,9 @@ class CommunityController extends Controller
             'description' => $validated['description'],
             'owner_id' => auth()->id(),
         ]);
+
+        $community->members()->syncWithoutDetaching([auth()->id()]);
+        $community->moderators()->syncWithoutDetaching([auth()->id()]);
 
         return redirect()->route('community.show', $community->name);
     }
@@ -272,8 +291,9 @@ class CommunityController extends Controller
         $user = auth()->user();
         $isOwner = $community && $community->owner_id === $user->id;
         $isModerator = $community && $community->moderators()->where('user_id', $user->id)->exists();
+        $canAdminister = in_array($user->role, ['admin', 'super_admin'], true) || (bool) $user->getAttribute('is_admin');
 
-        if (!$isOwner && !$isModerator) {
+        if (!$isOwner && !$isModerator && !$canAdminister) {
             abort(403);
         }
 
@@ -294,8 +314,9 @@ class CommunityController extends Controller
         $user = auth()->user();
         $isOwner = $community && $community->owner_id === $user->id;
         $isModerator = $community && $community->moderators()->where('user_id', $user->id)->exists();
+        $canAdminister = in_array($user->role, ['admin', 'super_admin'], true) || (bool) $user->getAttribute('is_admin');
 
-        if (!$isOwner && !$isModerator) {
+        if (!$isOwner && !$isModerator && !$canAdminister) {
             abort(403);
         }
 

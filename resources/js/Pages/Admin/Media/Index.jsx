@@ -158,18 +158,34 @@ export default function MediaLibraryPage() {
               onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
               onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
             >
-              <div style={{ width: '100%', paddingBottom: '100%', position: 'relative', background: '#f1f5f9' }}>
+              <div style={{ width: '100%', paddingBottom: '100%', position: 'relative', background: 'repeating-conic-gradient(#f8fafc 0% 25%, #f1f5f9 0% 50%) 50% / 16px 16px' }}>
                 <img loading="lazy" decoding="async" fetchPriority="low" 
                   src={item.url} 
                   alt={item.name} 
-                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }} 
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    if (e.currentTarget.parentElement) {
+                      e.currentTarget.parentElement.style.background = '#fef2f2';
+                    }
+                  }}
+                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'contain' }} 
                 />
+                {item.isCorrupted && (
+                  <span style={{ position: 'absolute', top: 8, right: 8, background: '#ef4444', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', zIndex: 2 }}>
+                    CORRUPT (0B)
+                  </span>
+                )}
               </div>
               <div style={{ padding: '12px' }}>
                 <div style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {item.name}
                 </div>
-                <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'flex', justifyContent: 'space-between' }}>
+                {item.creator && (
+                  <div style={{ fontSize: '11px', color: '#2563eb', fontWeight: 600, marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    By: {item.creator}
+                  </div>
+                )}
+                <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span>{formatSize(item.sizeBytes)}</span>
                   {item.usedIn && item.usedIn.length > 0 && (
                     <span style={{ background: '#dbeafe', color: '#1e40af', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
@@ -234,8 +250,13 @@ export default function MediaLibraryPage() {
             
             <div style={{ display: 'flex', flexWrap: 'wrap', flex: 1, overflowY: 'auto' }}>
               {/* Image Preview */}
-              <div style={{ flex: '1 1 300px', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '300px', borderRight: '1px solid #e2e8f0' }}>
+              <div style={{ flex: '1 1 300px', background: 'repeating-conic-gradient(#f8fafc 0% 25%, #f1f5f9 0% 50%) 50% / 16px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '300px', borderRight: '1px solid #e2e8f0', position: 'relative' }}>
                 <img loading="lazy" decoding="async" fetchPriority="low" src={selectedMedia.url} style={{ maxWidth: '100%', maxHeight: '400px', objectFit: 'contain' }} alt="Preview" />
+                {selectedMedia.isCorrupted && (
+                  <div style={{ position: 'absolute', background: 'rgba(239, 68, 68, 0.9)', color: '#fff', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 800 }}>
+                    ⚠️ Corrupted / Empty File (0 Bytes)
+                  </div>
+                )}
               </div>
               
               {/* Image Meta & Usage */}
@@ -245,6 +266,16 @@ export default function MediaLibraryPage() {
                   <div style={{ fontWeight: 600, fontSize: '14px', wordBreak: 'break-all' }}>{selectedMedia.name}</div>
                   <div style={{ fontSize: '13px', color: '#475569', marginTop: '4px' }}>Size: {formatSize(selectedMedia.sizeBytes)}</div>
                   <div style={{ fontSize: '13px', color: '#475569', marginTop: '4px' }}>Date: {selectedMedia.createdAt ? new Date(selectedMedia.createdAt).toLocaleDateString() : ''}</div>
+                  {selectedMedia.creator && (
+                    <div style={{ fontSize: '13px', color: '#2563eb', fontWeight: 600, marginTop: '4px' }}>
+                      Created By: {selectedMedia.creator}
+                    </div>
+                  )}
+                  {selectedMedia.sourceModule && (
+                    <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
+                      Source Module: {selectedMedia.sourceModule}
+                    </div>
+                  )}
                   <div style={{ fontSize: '13px', color: '#475569', marginTop: '4px' }}>URL: <a href={selectedMedia.url} target="_blank" rel="noreferrer" style={{ color: '#2563eb' }}>{selectedMedia.url}</a></div>
                 </div>
 
@@ -260,7 +291,14 @@ export default function MediaLibraryPage() {
                         <div key={i} style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px', background: '#fff' }}>
                           <div style={{ fontSize: '11px', fontWeight: 800, color: '#2563eb', textTransform: 'uppercase', marginBottom: '4px' }}>{usage.type}</div>
                           <div style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', marginBottom: '8px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{usage.title}</div>
-                          <Link href={BASE + usage.editUrl} style={{ fontSize: '13px', color: '#2563eb', textDecoration: 'none', fontWeight: 600 }}>Edit {usage.type} →</Link>
+                          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                            <Link href={BASE + usage.editUrl} style={{ fontSize: '13px', color: '#2563eb', textDecoration: 'none', fontWeight: 600 }}>Edit {usage.type} →</Link>
+                            {usage.publicUrl && (
+                              <a href={usage.publicUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#059669', textDecoration: 'none', fontWeight: 600 }}>
+                                View Live ↗
+                              </a>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>

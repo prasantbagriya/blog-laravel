@@ -6,7 +6,6 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { ChevronDown, MessageSquare, HelpCircle, Grid3X3 } from 'lucide-react';
-import './index.css';
 import GlobalNavbar from '../../NextComponents/GlobalNavbar';
 import BlogFooter from '../../NextComponents/BlogFooter';
 import SeoMeta from '../../NextComponents/SeoMeta';
@@ -14,8 +13,8 @@ import { PageHero } from '../../NextComponents/UI';
 import { HeroSection } from './components/HeroSection';
 import { CategoryGrid } from './components/CategoryGrid';
 import { BusinessCard } from './components/BusinessCard';
-import { BusinessProfileView } from './components/BusinessProfileView';
 
+const BusinessProfileView = React.lazy(() => import('./components/BusinessProfileView').then(module => ({ default: module.BusinessProfileView })));
 const SubmitReviewModal = React.lazy(() => import('./components/SubmitReviewModal').then(module => ({ default: module.SubmitReviewModal })));
 const AiSearchModal = React.lazy(() => import('./components/AiSearchModal').then(module => ({ default: module.AiSearchModal })));
 
@@ -100,7 +99,7 @@ const ReviewsFAQ = ({ business }: { business?: Business | null }) => {
           </div>
 
           {/* Right Column: Accordion */}
-          <div className="lg:col-span-7 space-y-4">
+          <div className="lg:col-span-7 space-y-2.5">
             {faqs.map((faq, index) => {
               const isOpen = openIndex === index;
               return (
@@ -109,11 +108,11 @@ const ReviewsFAQ = ({ business }: { business?: Business | null }) => {
                   className={`group border rounded-2xl overflow-hidden transition-all duration-500 ${isOpen ? 'bg-white dark:bg-zinc-900 shadow-xl shadow-blue-900/5 border-blue-200 dark:border-blue-500/30 ring-1 ring-blue-100 dark:ring-blue-500/20' : 'bg-white/60 dark:bg-zinc-900/60 border-slate-200 dark:border-zinc-800 hover:border-blue-300 dark:hover:border-blue-500/40 hover:bg-white dark:hover:bg-zinc-900 backdrop-blur-sm'}`}
                 >
                   <button
-                    className="w-full px-6 py-6 flex items-center justify-between text-left focus:outline-none focus:ring-0 ring-0 border-none bg-transparent cursor-pointer"
+                    className="w-full px-4 py-3 md:px-4 md:py-3.5 flex items-center justify-between text-left focus:outline-none focus:ring-0 ring-0 border-none bg-transparent cursor-pointer"
                     onClick={() => setOpenIndex(isOpen ? null : index)}
                     aria-expanded={isOpen}
                   >
-                    <span className={`font-bold text-base sm:text-lg pr-4 transition-colors duration-300 ${isOpen ? 'text-blue-600 dark:text-blue-400' : 'text-slate-800 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400'}`}>
+                    <span className={`font-medium text-[15px] sm:text-[16px] pr-4 transition-colors duration-300 ${isOpen ? 'text-blue-600 dark:text-blue-400' : 'text-slate-800 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400'}`}>
                       {faq.question}
                     </span>
                     <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 ${isOpen ? 'bg-blue-600 text-white rotate-180 shadow-md shadow-blue-600/20' : 'bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 group-hover:bg-blue-50 dark:group-hover:bg-blue-500/10 group-hover:text-blue-500'}`}>
@@ -121,9 +120,9 @@ const ReviewsFAQ = ({ business }: { business?: Business | null }) => {
                     </div>
                   </button>
                   <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
-                    <div className="px-6 pb-6">
-                        <div className="w-full h-px bg-slate-200 dark:bg-zinc-700 mb-5"></div>
-                        <p className="text-slate-600 dark:text-zinc-400 leading-relaxed text-base m-0">
+                    <div className="px-4 pb-3 md:px-4 md:pb-4">
+                        <div className="w-full h-px bg-slate-200 dark:bg-zinc-700 mb-2"></div>
+                        <p className="text-slate-600 dark:text-zinc-400 leading-relaxed text-[14px] sm:text-[15px] m-0">
                       {faq.answer}
                     </p>
                   </div>
@@ -138,7 +137,19 @@ const ReviewsFAQ = ({ business }: { business?: Business | null }) => {
   );
 };
 
-export default function App({ initialView = 'home', initialCategorySlug = 'all', businessData = null }: { initialView?: string, initialCategorySlug?: string, businessData?: Business | null }) {
+export default function App({
+  initialView = 'home',
+  initialCategorySlug = 'all',
+  businessData = null,
+  initialReviews = [],
+  initialBusinesses = []
+}: {
+  initialView?: string,
+  initialCategorySlug?: string,
+  businessData?: Business | null,
+  initialReviews?: Review[],
+  initialBusinesses?: Business[]
+}) {
   // Application State
   const [activeView, setActiveView] = useState<'home' | 'directory' | 'profile'>(initialView as any);
   const [selectedCategorySlug, setSelectedCategorySlug] = useState<string>(initialCategorySlug);
@@ -152,8 +163,8 @@ export default function App({ initialView = 'home', initialCategorySlug = 'all',
 
   // Data State
   const categories: Category[] = INITIAL_CATEGORIES;
-  const [businesses, setBusinesses] = useState<Business[]>([]);
-  const [currentReviews, setCurrentReviews] = useState<Review[]>([]);
+  const [businesses, setBusinesses] = useState<Business[]>(initialBusinesses || []);
+  const [currentReviews, setCurrentReviews] = useState<Review[]>(initialReviews || []);
 
   // Fetch initial businesses from server API
   const fetchBusinesses = async () => {
@@ -188,8 +199,10 @@ export default function App({ initialView = 'home', initialCategorySlug = 'all',
   };
 
   useEffect(() => {
-    fetchBusinesses();
-  }, []);
+    if (activeView !== 'profile' && businesses.length === 0) {
+      fetchBusinesses();
+    }
+  }, [activeView]);
 
   // Sync state when Inertia props change (e.g. back/forward navigation)
   useEffect(() => {
@@ -197,14 +210,24 @@ export default function App({ initialView = 'home', initialCategorySlug = 'all',
     setSelectedCategorySlug(initialCategorySlug);
     setSelectedBusinessSlug(businessData ? businessData.slug : null);
     setViewedBusiness(businessData);
-  }, [initialView, initialCategorySlug, businessData]);
+    if (initialReviews && initialReviews.length > 0) {
+      setCurrentReviews(initialReviews);
+    }
+    if (initialBusinesses && initialBusinesses.length > 0) {
+      setBusinesses(initialBusinesses);
+    }
+  }, [initialView, initialCategorySlug, businessData, initialReviews, initialBusinesses]);
 
   // When selectedBusinessSlug changes, fetch its detail & reviews
   useEffect(() => {
     if (selectedBusinessSlug) {
-      fetchReviewsForBusiness(selectedBusinessSlug);
+      if (initialReviews && initialReviews.length > 0 && businessData?.slug === selectedBusinessSlug) {
+        setCurrentReviews(initialReviews);
+      } else {
+        fetchReviewsForBusiness(selectedBusinessSlug);
+      }
     }
-  }, [selectedBusinessSlug]);
+  }, [selectedBusinessSlug, businessData]);
 
   // Handle selecting a business
   const handleSelectBusiness = (slug: string) => {
@@ -300,44 +323,74 @@ export default function App({ initialView = 'home', initialCategorySlug = 'all',
     return true;
   });
 
-  const selectedBusinessObject = businesses.find(
+  const selectedBusinessObject = viewedBusiness || businesses.find(
     (b) => b.slug === selectedBusinessSlug || b.id === selectedBusinessSlug
   ) || businesses[0];
 
   return (
     <>
-      {activeView === 'profile' && viewedBusiness ? (
-        <SeoMeta meta={{
-          title: `${viewedBusiness.name} Reviews & Trust Score | TrustPulse`,
-          description: `Read ${viewedBusiness.reviewCount} verified reviews for ${viewedBusiness.name}. Trust score: ${viewedBusiness.trustScore}/100. ${viewedBusiness.description}`,
-          og_image: viewedBusiness.logo,
-          schemas: [{
-            "@context": "https://schema.org",
-            "@type": "LocalBusiness",
-            "name": viewedBusiness.name,
-            "image": viewedBusiness.logo,
-            "description": viewedBusiness.description,
-            "aggregateRating": {
-              "@type": "AggregateRating",
-              "ratingValue": viewedBusiness.rating,
-              "reviewCount": viewedBusiness.reviewCount,
-              "bestRating": 5,
-              "worstRating": 1
-            }
-          }]
-        }} />
-      ) : (
+      {activeView === 'profile' && viewedBusiness ? (() => {
+        const numReviews = Number(viewedBusiness.reviewCount) || 0;
+        const numRating = Number(viewedBusiness.rating) || 0;
+        // Google Search Console requires reviewCount to be positive (> 0)
+        // and ratingValue to be within [worstRating, bestRating].
+        // If no reviews exist or rating is out of range, aggregateRating MUST be omitted completely.
+        const hasValidRating = numReviews > 0 && numRating >= 1 && numRating <= 5;
+
+        const businessSchema: Record<string, any> = {
+          "@context": "https://schema.org",
+          "@type": "LocalBusiness",
+          "name": viewedBusiness.name,
+          ...(viewedBusiness.logo ? { "image": viewedBusiness.logo } : {}),
+          ...(viewedBusiness.description ? { "description": viewedBusiness.description } : {}),
+          ...(viewedBusiness.phone ? { "telephone": viewedBusiness.phone } : {}),
+          ...(viewedBusiness.website ? { "url": viewedBusiness.website } : {}),
+        };
+
+        if (viewedBusiness.address || viewedBusiness.city) {
+          businessSchema.address = {
+            "@type": "PostalAddress",
+            "streetAddress": viewedBusiness.address || '',
+            "addressLocality": viewedBusiness.city || 'Sikar',
+            "addressRegion": "Rajasthan",
+            "addressCountry": viewedBusiness.country || 'IN',
+          };
+        }
+
+        if (hasValidRating) {
+          businessSchema.aggregateRating = {
+            "@type": "AggregateRating",
+            "ratingValue": Number(numRating.toFixed(1)),
+            "reviewCount": numReviews,
+            "bestRating": 5,
+            "worstRating": 1
+          };
+        }
+
+        const seoDescription = numReviews > 0
+          ? `Read ${numReviews} verified reviews for ${viewedBusiness.name}. Trust score: ${viewedBusiness.trustScore}/100. ${viewedBusiness.description || ''}`
+          : `Read verified details, student ratings, and coaching information for ${viewedBusiness.name}. Trust score: ${viewedBusiness.trustScore}/100. ${viewedBusiness.description || ''}`;
+
+        return (
+          <SeoMeta meta={{
+            title: `${viewedBusiness.name} Reviews & Trust Score | TrustPulse`,
+            description: seoDescription,
+            og_image: viewedBusiness.logo,
+            schemas: [businessSchema]
+          }} />
+        );
+      })() : (
         <SeoMeta meta={{
           title: "Coaching & Schools in Sikar Reviews & Ratings",
           description: "Read honest reviews from students and parents about coaching institutes and schools in Sikar. Compare experiences, ratings, and feedback before you choose.",
-          keywords: "Compare coaching institutes Sikar, CoachinginSikar reviews & ratings, Sikar school comparison Sikar, school ratings Sikar, Sikar coaching reviews, coaching results comparison, student coaching feedback Sikar",
+          keywords: "Compare coaching institutes Sikar, CoachingsinSikar reviews & ratings, Sikar school comparison Sikar, school ratings Sikar, Sikar coaching reviews, coaching results comparison, student coaching feedback Sikar",
           og_title: "Coaching & Schools in Sikar Reviews & Ratings",
           twitter_title: "Sikar Coaching Reviews & Ratings"
         }} />
       )}
       
       <div className="trustpulse-app min-h-screen flex flex-col font-sans transition-colors bg-white text-zinc-900 dark:bg-zinc-950 dark:text-white">
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1">
           {/* Main Header / Navigation */}
           <GlobalNavbar />
 
@@ -364,18 +417,18 @@ export default function App({ initialView = 'home', initialCategorySlug = 'all',
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-end justify-between mb-10">
                   <div>
-                    <div className="text-amber-500 text-sm font-bold uppercase tracking-wider mb-1">
+                    <div className="text-amber-700 dark:text-amber-400 text-sm font-extrabold uppercase tracking-wider mb-1">
                       Highest Trust Rating
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                       Verified Top Rated Companies
                     </h2>
-                    <p className="text-slate-500 mt-2 text-base md:text-lg">Discover the most trusted institutions based on verified student reviews.</p>
+                    <p className="text-slate-600 dark:text-zinc-300 mt-2 text-base md:text-lg">Discover the most trusted institutions based on verified student reviews.</p>
                   </div>
 
                     <Link
                       href="/business"
-                      className="inline-flex items-center gap-1 text-sm font-semibold text-slate-600 dark:text-zinc-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+                      className="inline-flex items-center gap-1 text-sm font-semibold text-slate-700 dark:text-zinc-300 hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
                     >
                       View All Directory ({businesses.length}) →
                     </Link>
@@ -395,7 +448,7 @@ export default function App({ initialView = 'home', initialCategorySlug = 'all',
                 <div className="mt-8 pb-8 text-center md:hidden">
                   <Link
                       href="/business"
-                      className="inline-flex items-center gap-1 text-sm font-semibold text-slate-600 dark:text-zinc-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+                      className="inline-flex items-center gap-1 text-sm font-semibold text-slate-700 dark:text-zinc-300 hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
                     >
                       View All Directory ({businesses.length}) →
                     </Link>
@@ -409,7 +462,7 @@ export default function App({ initialView = 'home', initialCategorySlug = 'all',
         {activeView === 'directory' && (
           <div className="w-full flex flex-col min-h-screen">
             {/* Custom Themed Directory Header */}
-            <section className="relative w-full pt-32 pb-16 bg-slate-900 overflow-hidden">
+            <section className="relative w-full pt-4 pb-10 md:pt-6 md:pb-14 bg-slate-900 overflow-hidden">
               <div 
                   className="absolute inset-0 z-0 opacity-40 bg-cover bg-center" 
                   style={{ backgroundImage: `url('/uploads/background.webp')`, filter: 'blur(8px)' }}
@@ -484,14 +537,16 @@ export default function App({ initialView = 'home', initialCategorySlug = 'all',
 
         {/* VIEW 3: BUSINESS PROFILE */}
         {activeView === 'profile' && selectedBusinessObject && (
-          <BusinessProfileView
-            business={selectedBusinessObject}
-            reviews={currentReviews}
-            allBusinesses={businesses}
-            onOpenWriteReview={handleOpenWriteReview}
-            onVoteHelpful={handleVoteHelpful}
-            onAddReply={handleAddReply}
-          />
+          <Suspense fallback={<div className="min-h-screen py-24 text-center text-slate-500 dark:text-zinc-400">Loading business profile...</div>}>
+            <BusinessProfileView
+              business={selectedBusinessObject}
+              reviews={currentReviews}
+              allBusinesses={businesses}
+              onOpenWriteReview={handleOpenWriteReview}
+              onVoteHelpful={handleVoteHelpful}
+              onAddReply={handleAddReply}
+            />
+          </Suspense>
         )}
 
       </main>

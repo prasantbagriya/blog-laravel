@@ -8,6 +8,8 @@ use Tests\TestCase;
 
 class AdminSecurityTest extends TestCase
 {
+    use RefreshDatabase;
+
     /**
      * A basic feature test example.
      */

@@ -12,13 +12,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::table('posts')
-            ->where('category', 'Eduction')
-            ->update(['category' => 'Education']);
+        if (Schema::hasColumn('posts', 'category')) {
+            DB::table('posts')
+                ->where('category', 'Eduction')
+                ->update(['category' => 'Education']);
+        }
 
-        DB::table('posts')
-            ->where('author', 'Prasant')
-            ->update(['author' => 'Prashant']);
+        if (Schema::hasColumn('posts', 'author')) {
+            DB::table('posts')
+                ->where('author', 'Prasant')
+                ->update(['author' => 'Prashant']);
+        }
     }
 
     /**

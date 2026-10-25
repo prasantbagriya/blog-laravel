@@ -6,6 +6,7 @@ const MediaPicker = React.lazy(() => import('../components/MediaPicker'));
 
 export default function SliderManager() {
   const [slides, setSlides] = useState([]);
+  const [pages, setPages] = useState([]);
   const [loading, setLoading] = useState(true);
   
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
@@ -16,6 +17,7 @@ export default function SliderManager() {
 
   useEffect(() => {
     fetchSlides();
+    fetchPages();
   }, []);
 
   const fetchSlides = () => {
@@ -25,6 +27,15 @@ export default function SliderManager() {
         setSlides(data);
         setLoading(false);
       });
+  };
+
+  const fetchPages = () => {
+    fetch(basePath + '/api/admin/pages')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setPages(data);
+      })
+      .catch(e => console.error(e));
   };
 
   const handleAddSlide = () => {
@@ -55,7 +66,8 @@ export default function SliderManager() {
         title: '',
         subtitle: '',
         link: '',
-        order: slides.length
+        order: slides.length,
+        locations: ['home']
       };
       setSlides([...slides, newSlide]);
       saveSlide(newSlide);
@@ -115,6 +127,17 @@ export default function SliderManager() {
     saveSlide(updated);
   };
 
+  const toggleLocation = (slide, location) => {
+    const currentLocs = slide.locations || [];
+    const newLocs = currentLocs.includes(location)
+      ? currentLocs.filter(l => l !== location)
+      : [...currentLocs, location];
+    
+    const updated = { ...slide, locations: newLocs };
+    setSlides(slides.map(s => s.id === slide.id ? updated : s));
+    saveSlide(updated);
+  };
+
   if (loading) return <div>Loading...</div>;
 
   return (
@@ -122,8 +145,8 @@ export default function SliderManager() {
       <Head title="Home Slider | Admin" />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <div>
-          <h1 style={{ fontSize: '2rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>Home Slider</h1>
-          <p style={{ color: '#64748b', margin: 0 }}>Manage the main rotating banners on the homepage</p>
+          <h1 style={{ fontSize: '2rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>Sliders</h1>
+          <p style={{ color: '#64748b', margin: 0 }}>Manage sliders and choose which pages they appear on</p>
         </div>
         <button onClick={handleAddSlide} style={{ background: '#2563eb', color: '#fff', padding: '10px 20px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
           + Add Slide
@@ -133,7 +156,7 @@ export default function SliderManager() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         {slides.length === 0 && (
           <div style={{ padding: '3rem', textAlign: 'center', background: '#f8fafc', borderRadius: '16px', color: '#64748b' }}>
-            No slides configured. Add some images to show a slider on the homepage.
+            No slides configured. Add some images to show a slider.
           </div>
         )}
 
@@ -197,6 +220,26 @@ export default function SliderManager() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <label style={{ fontSize: '12px', fontWeight: 600, color: '#475569' }}>Link URL (Optional)</label>
                 <input type="text" value={slide.link || ''} onChange={e => handleFieldChange(slide.id, 'link', e.target.value)} onBlur={() => handleFieldBlur(slide)} style={{ padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px' }} placeholder="e.g., /category/news" />
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '4px' }}>
+                <label style={{ fontSize: '12px', fontWeight: 600, color: '#475569' }}>Show on Pages:</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', background: '#f8fafc', padding: '4px 8px', borderRadius: '4px', border: '1px solid #e2e8f0', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={(slide.locations || []).includes('home')} onChange={() => toggleLocation(slide, 'home')} />
+                    Home Page
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', background: '#f8fafc', padding: '4px 8px', borderRadius: '4px', border: '1px solid #e2e8f0', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={(slide.locations || []).includes('blog')} onChange={() => toggleLocation(slide, 'blog')} />
+                    Blog Page
+                  </label>
+                  {pages.map(page => (
+                    <label key={page.id} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', background: '#f8fafc', padding: '4px 8px', borderRadius: '4px', border: '1px solid #e2e8f0', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={(slide.locations || []).includes(page.slug)} onChange={() => toggleLocation(slide, page.slug)} />
+                      {page.title} (Custom Page)
+                    </label>
+                  ))}
+                </div>
               </div>
             </div>
 

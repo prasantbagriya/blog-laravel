@@ -77,7 +77,7 @@ const PostDropdown = ({ post, auth, openReportModal }) => {
 };
 
 // Recursive Comment Component
-const CommentThread = ({ comment, postId, auth, userCommentVotes }) => {
+const CommentThread = ({ comment, postId, postAuthorId, auth, userCommentVotes }) => {
     const userVote = userCommentVotes?.[comment.id] || 0;
     const [showReplyForm, setShowReplyForm] = useState(false);
     
@@ -100,14 +100,23 @@ const CommentThread = ({ comment, postId, auth, userCommentVotes }) => {
         <div className="mt-5">
             <div className="flex gap-3">
                 <div className="flex flex-col items-center group">
-                    <img src={`https://ui-avatars.com/api/?name=${comment.author?.username}&background=random`} width="32" height="32" className="w-8 h-8 rounded-full shadow-sm" />
+                    <img src={`https://ui-avatars.com/api/?name=${comment.author?.username || comment.author?.name || 'User'}&background=random`} width="32" height="32" className="w-8 h-8 rounded-full shadow-sm" />
                     <div className="w-0.5 h-full bg-slate-200 dark:bg-zinc-800 mt-2 group-hover:bg-blue-400 dark:group-hover:bg-blue-500 transition-colors cursor-pointer rounded-full"></div>
                 </div>
                 
                 <div className="flex-1 pb-3">
                     <div className="flex items-center gap-2 mb-1.5">
-                        <span className="font-bold text-[13px] text-slate-900 dark:text-white">u/{comment.author?.username || 'deleted'}</span>
+                        <span className="font-bold text-[13px] text-slate-900 dark:text-white">{comment.author?.username || comment.author?.name || 'deleted'}</span>
                         <span className="text-slate-500 dark:text-zinc-500 text-[12px]">{dayjs(comment.created_at).fromNow()}</span>
+                        {comment.is_pinned == 1 && (
+                            <span className="flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-50 dark:bg-amber-900/30 px-1.5 py-0.5 rounded ml-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"></path></svg>
+                                Pinned
+                            </span>
+                        )}
+                        {comment.author_id === postAuthorId && (
+                            <span className="text-[10px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded ml-1">Author</span>
+                        )}
                     </div>
                     
                     <div className="text-[14px] text-slate-800 dark:text-zinc-300 mb-3 leading-relaxed">
@@ -133,11 +142,21 @@ const CommentThread = ({ comment, postId, auth, userCommentVotes }) => {
                         
                         <button 
                             onClick={() => setShowReplyForm(!showReplyForm)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-100 dark:bg-zinc-800 rounded-full transition-colors border-0 outline-none focus:outline-none focus:ring-0 text-slate-500 dark:text-zinc-400"
+                            className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-100 dark:bg-zinc-800 rounded-full transition-colors border-0 outline-none focus:outline-none focus:ring-0 text-slate-600 dark:text-zinc-300"
                         >
                             <MessageSquare size={16} />
                             <span className="text-[12px] font-bold">Reply</span>
                         </button>
+
+                        {auth?.user && (auth.user.id === postAuthorId || auth.user.role === 'admin' || auth.user.role === 'super_admin' || auth.user.is_admin) && (
+                            <button 
+                                onClick={(e) => { e.preventDefault(); router.post(route('comment.pin', comment.id), {}, { preserveScroll: true }); }}
+                                className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-100 dark:bg-zinc-800 rounded-full transition-colors border-0 outline-none focus:outline-none focus:ring-0 text-amber-600"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill={comment.is_pinned ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"></path></svg>
+                                <span className="text-[12px] font-bold">{comment.is_pinned ? 'Unpin' : 'Pin'}</span>
+                            </button>
+                        )}
                     </div>
 
                     {/* Reply Form */}
@@ -174,7 +193,7 @@ const CommentThread = ({ comment, postId, auth, userCommentVotes }) => {
                     {comment.replies && comment.replies.length > 0 && (
                         <div className="pl-4">
                             {comment.replies.map(reply => (
-                                <CommentThread key={reply.id} comment={reply} postId={postId} auth={auth} userCommentVotes={userCommentVotes} />
+                                <CommentThread key={reply.id} comment={reply} postId={postId} postAuthorId={postAuthorId} auth={auth} userCommentVotes={userCommentVotes} />
                             ))}
                         </div>
                     )}
@@ -207,7 +226,7 @@ export default function ShowPost({ auth, community, post, comments, userCommentV
     };
 
     const plainTextContent = post.excerpt || (post.content ? post.content.replace(/<[^>]*>?/gm, '').substring(0, 160) : `Read this post by u/${post.author.username} in r/${community.name}.`);
-    const pageTitle = `${post.title} - r/${community.name} - coachinginsikar`;
+    const pageTitle = `${post.title} - r/${community.name} - coachingsinsikar`;
     const currentUrl = typeof window !== 'undefined' ? window.location.href : `https://coachingsinsikar.com/r/${community.name}/comments/${post.id}/${post.slug || ''}`;
 
     const submitComment = (e) => {
@@ -245,7 +264,7 @@ export default function ShowPost({ auth, community, post, comments, userCommentV
                 )}
             </Suspense>
 
-            <div className="max-w-[1400px] w-full mx-auto pt-24 md:pt-32 px-4 sm:px-6 flex gap-6">
+            <div className="max-w-[1400px] w-full mx-auto pt-4 md:pt-6 px-4 sm:px-6 flex gap-6">
                 
                 {/* Mobile Sidebar Overlay */}
                 {isMobileSidebarOpen && (
@@ -460,7 +479,7 @@ export default function ShowPost({ auth, community, post, comments, userCommentV
                                 <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-6 uppercase tracking-wider">Discussions</h3>
                                 {comments.length > 0 ? (
                                     comments.map(comment => (
-                                        <CommentThread key={comment.id} comment={comment} postId={post.id} auth={auth} userCommentVotes={userCommentVotes} />
+                                        <CommentThread key={comment.id} comment={comment} postId={post.id} postAuthorId={post.author_id} auth={auth} userCommentVotes={userCommentVotes} />
                                     ))
                                 ) : (
                                     <div className="text-center py-16">

@@ -13,8 +13,8 @@ class VoteController extends Controller
     {
         $validated = $request->validate([
             'votable_type' => 'required|in:post,comment',
-            'votable_id' => 'required|string',
-            'value' => 'required|in:1,-1',
+            'votable_id' => 'required',
+            'value' => 'required|in:1,-1,0',
         ]);
 
         $user = $request->user();
@@ -33,18 +33,21 @@ class VoteController extends Controller
                 ->first();
 
             if ($existingVote) {
-                if ($existingVote->value === $value) {
-                    // Removing the vote
+                if ($existingVote->value === $value || $value === 0) {
+                    // The user clicked the same vote button they already have active, or passed 0: unvote/neutralize
                     DB::table('votes')->where('id', $existingVote->id)->delete();
-                    $model->decrement('score', $value);
+                    $model->decrement('score', $existingVote->value);
+                    return;
                 } else {
-                    // Changing the vote
-                    DB::table('votes')->where('id', $existingVote->id)->update(['value' => $value]);
-                    // If it was -1 and is now 1, difference is +2
+                    // Changing the vote (e.g., from up to down, or down to up)
+                    DB::table('votes')->where('id', $existingVote->id)->update([
+                        'value' => $value,
+                        'updated_at' => now()
+                    ]);
                     $diff = $value - $existingVote->value;
                     $model->increment('score', $diff);
                 }
-            } else {
+            } elseif ($value !== 0) {
                 // New vote
                 DB::table('votes')->insert([
                     'user_id' => $user->id,

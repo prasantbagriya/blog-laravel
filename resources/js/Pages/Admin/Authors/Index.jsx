@@ -62,8 +62,17 @@ export default function AuthorsPage() {
             </p>
 
             <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid #f1f5f9' }}>
+              <a 
+                href={author.slug ? `/author/${author.slug}` : '#'} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{ textAlign: 'center', background: '#f8fafc', color: '#059669', border: '1px solid #e2e8f0', padding: '8px 12px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none', fontSize: '13px', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                title="View Public Author Profile"
+              >
+                View ↗
+              </a>
               <Link href={BASE + `/admin/authors/edit/${author.id}`} style={{ flex: 1, textAlign: 'center', background: '#eff6ff', color: '#2563eb', padding: '8px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none', fontSize: '14px', whiteSpace: 'nowrap' }}>Edit Profile</Link>
-              <button onClick={() => handleDelete(author.id)} style={{ flex: 1, background: '#fef2f2', color: '#ef4444', padding: '8px', borderRadius: '8px', fontWeight: 700, border: 'none', cursor: 'pointer', fontSize: '14px', whiteSpace: 'nowrap' }}>Delete</button>
+              <button onClick={() => handleDelete(author.id)} style={{ background: '#fef2f2', color: '#ef4444', padding: '8px 12px', borderRadius: '8px', fontWeight: 700, border: 'none', cursor: 'pointer', fontSize: '14px', whiteSpace: 'nowrap' }}>Delete</button>
             </div>
           </div>
         ))}

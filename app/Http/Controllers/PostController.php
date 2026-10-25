@@ -70,28 +70,13 @@ class PostController extends Controller
                 $mediaUrls = json_encode(['/uploads/' . $path]);
             } else {
                 $postType = 'IMAGE';
-                
-                $filename = \Illuminate\Support\Str::uuid() . '_' . time() . '.webp';
-                
-                $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
-                $image = $manager->decodePath($file->getRealPath());
-                
-                // Scale down if width exceeds 1200
-                if ($image->width() > 1200) {
-                    $image->scaleDown(width: 1200);
-                }
-                
-                $quality = 80;
-                $encoded = $image->encodeUsingFileExtension('webp', $quality);
-                
-                // Iteratively reduce quality if file is > 100KB
-                while (strlen((string) $encoded) > 102400 && $quality > 10) {
-                    $quality -= 10;
-                    $encoded = $image->encodeUsingFileExtension('webp', $quality);
-                }
-                
-                \Illuminate\Support\Facades\Storage::disk('public')->put('uploads/' . $filename, (string) $encoded);
-                $mediaUrls = json_encode(['/storage/uploads/' . $filename]);
+                $imageService = app(\App\Services\ImageService::class);
+                $result = $imageService->optimizeAndStore(
+                    file: $file,
+                    maxWidth: 1200,
+                    quality: 82
+                );
+                $mediaUrls = json_encode([$result['url']]);
             }
         }
         
@@ -121,7 +106,9 @@ class PostController extends Controller
 
     public function update(Request $request, Post $post)
     {
-        if (auth()->id() !== $post->author_id) {
+        $user = auth()->user();
+        $canAdminister = in_array($user->role, ['admin', 'super_admin'], true) || (bool) $user->getAttribute('is_admin');
+        if ($user->id !== $post->author_id && !$canAdminister) {
             abort(403);
         }
 
@@ -163,12 +150,20 @@ class PostController extends Controller
     public function show($communityName, $id)
     {
         $post = Post::with(['author', 'community'])->findOrFail($id);
+        
+        // If post does not belong to a community (e.g. blog post), redirect to canonical path
+        if (!$post->community_id || !$post->community) {
+            return redirect($post->url_path, 301);
+        }
+
         $community = $post->community;
 
-        $comments = \App\Models\Comment::with(['author', 'replies'])
+        $comments = \App\Models\Comment::with(['author', 'replies', 'replies.author'])
             ->where('post_id', $post->id)
             ->whereNull('parent_id')
             ->where('is_spam', false)
+            ->orderBy('is_pinned', 'desc')
+            ->orderByRaw('CASE WHEN author_id = ? THEN 1 ELSE 0 END DESC', [$post->author_id])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -198,6 +193,7 @@ class PostController extends Controller
                 'link_url' => $post->link_url,
                 'media_urls' => is_string($post->media_urls) ? json_decode($post->media_urls) : $post->media_urls,
                 'author' => ['username' => $post->getRelation('author') ? $post->getRelation('author')->username : 'deleted'],
+                'author_id' => $post->author_id,
                 'score' => $post->score,
                 'comments_count' => $post->comments()->count(),
                 'created_at' => $post->created_at->diffForHumans(),
@@ -226,6 +222,15 @@ class PostController extends Controller
         ]);
 
         $post = Post::findOrFail($postId);
+
+        if ($request->filled('parent_id')) {
+            $parentExistsOnPost = \App\Models\Comment::where('id', $request->parent_id)
+                ->where('post_id', $post->id)
+                ->exists();
+            if (!$parentExistsOnPost) {
+                return back()->withErrors(['parent_id' => 'The selected parent comment does not belong to this post.']);
+            }
+        }
         $rawContent = $request->content;
         $safeContent = clean(strip_tags($rawContent));
 
@@ -258,14 +263,24 @@ class PostController extends Controller
 
         $comment->load('author', 'replies');
 
-        broadcast(new \App\Events\CommentPosted($comment))->toOthers();
+        // try {
+        //     broadcast(new \App\Events\CommentPosted($comment))->toOthers();
+        // } catch (\Exception $e) {
+        //     \Illuminate\Support\Facades\Log::error('Broadcasting failed: ' . $e->getMessage());
+        // }
 
         return back();
     }
 
     public function destroy(Post $post)
     {
-        if (auth()->id() !== $post->author_id) {
+        $user = auth()->user();
+        $isAuthorized = $user->id === $post->author_id 
+            || in_array($user->role, ['admin', 'super_admin'], true) 
+            || (bool) $user->getAttribute('is_admin')
+            || ($post->community_id && $post->community && $post->community->moderators()->where('user_id', $user->id)->exists());
+
+        if (!$isAuthorized) {
             abort(403);
         }
 
@@ -276,48 +291,49 @@ class PostController extends Controller
     public function uploadImage(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'file' => 'required|file|mimes:jpeg,png,jpg,gif,webp|max:20480',
         ]);
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             
             try {
-                $filename = \Illuminate\Support\Str::uuid() . '_' . time() . '.webp';
-                
-                $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
-                $image = $manager->decodePath($file->getRealPath());
-                
-                // Scale down if width exceeds 1200
-                if ($image->width() > 1200) {
-                    $image->scaleDown(width: 1200);
-                }
-                
-                $quality = 80;
-                $encoded = $image->encodeUsingFileExtension('webp', $quality);
-                
-                // Iteratively reduce quality if file is > 100KB
-                while (strlen((string) $encoded) > 102400 && $quality > 10) {
-                    $quality -= 10;
-                    $encoded = $image->encodeUsingFileExtension('webp', $quality);
-                }
-                
-                $uploadDir = public_path('uploads');
-                if (!\Illuminate\Support\Facades\File::exists($uploadDir)) {
-                    \Illuminate\Support\Facades\File::makeDirectory($uploadDir, 0755, true);
-                }
-                
-                file_put_contents($uploadDir . '/' . $filename, (string) $encoded);
+                $imageService = app(\App\Services\ImageService::class);
+                $result = $imageService->optimizeAndStore(
+                    file: $file,
+                    maxWidth: 1200,
+                    quality: 82
+                );
                 
                 return response()->json([
                     'success' => true,
-                    'url' => '/uploads/' . $filename
+                    'url' => $result['url'],
+                    'full_url' => $result['full_url'],
+                    'filename' => $result['filename']
                 ]);
             } catch (\Exception $e) {
-                return response()->json(['success' => false, 'error' => 'Image processing failed.'], 500);
+                return response()->json(['success' => false, 'error' => 'Image processing failed: ' . $e->getMessage()], 500);
             }
         }
 
         return response()->json(['success' => false, 'error' => 'No file uploaded'], 400);
+    }
+
+    public function togglePin(Request $request, $id)
+    {
+        $comment = \App\Models\Comment::findOrFail($id);
+        $post = $comment->post;
+        $user = $request->user();
+
+        // Allow if user is the post author, moderator, or an admin
+        $canAdminister = in_array($user->role, ['admin', 'super_admin'], true) || (bool) $user->getAttribute('is_admin');
+        if ($post->author_id !== $user->id && !$canAdminister) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $comment->is_pinned = !$comment->is_pinned;
+        $comment->save();
+
+        return back();
     }
 }

@@ -352,6 +352,78 @@ export default function AdminPage() {
       {activeTab === 'dashboard' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           
+          {/* 🔍 Google Search Console & Instant Indexing Quick Hub */}
+          <div style={{
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            borderRadius: '16px',
+            padding: '1.25rem 1.5rem',
+            color: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '1rem',
+            boxShadow: '0 10px 25px -5px rgba(15, 23, 42, 0.25)',
+            border: '1px solid rgba(255, 255, 255, 0.08)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <div style={{
+                width: '46px',
+                height: '46px',
+                borderRadius: '12px',
+                background: 'rgba(37, 99, 235, 0.2)',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#60a5fa',
+                flexShrink: 0
+              }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8"/>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  <path d="M11 8v6"/>
+                  <path d="M8 11h6"/>
+                </svg>
+              </div>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#f8fafc' }}>Google Search Console & Instant Indexing</h3>
+                  <span style={{ fontSize: '10px', fontWeight: 800, padding: '2px 8px', borderRadius: '999px', background: 'rgba(34, 197, 94, 0.15)', color: '#4ade80', border: '1px solid rgba(34, 197, 94, 0.3)' }}>
+                    API Suite Active
+                  </span>
+                </div>
+                <p style={{ margin: '4px 0 0 0', fontSize: '0.8125rem', color: '#94a3b8', lineHeight: 1.4 }}>
+                  Real-time Google search traffic (clicks, impressions, position), Instant Indexing API pushes, live URL inspection, and AI keyword gaps.
+                </p>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <Link
+                href={`${BASE}/admin/google-search`}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '0.625rem 1.125rem',
+                  borderRadius: '10px',
+                  background: '#2563eb',
+                  color: '#fff',
+                  fontSize: '0.8125rem',
+                  fontWeight: 700,
+                  textDecoration: 'none',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 4px 12px rgba(37, 99, 235, 0.4)'
+                }}
+              >
+                <span>Launch Search Console Hub</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </Link>
+            </div>
+          </div>
+          
           {/* Executive Metrics Overview Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem' }}>
             <div className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -495,7 +567,13 @@ export default function AdminPage() {
         <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '0.75rem', flexWrap: 'wrap' }}>
             <h3 style={{ fontSize: '1.125rem', fontWeight: 800, margin: 0, whiteSpace: 'nowrap' }}>Content Catalog ({posts.length} items)</h3>
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexShrink: 0 }}>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexShrink: 0, flexWrap: 'wrap' }}>
+              <a href="/blog" target="_blank" rel="noopener noreferrer" style={{ background: '#f8fafc', color: '#334155', border: '1px solid #cbd5e1', padding: '0.5rem 0.75rem', borderRadius: '6px', fontSize: '0.8125rem', fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                Blog ↗
+              </a>
+              <a href="/news" target="_blank" rel="noopener noreferrer" style={{ background: '#f8fafc', color: '#334155', border: '1px solid #cbd5e1', padding: '0.5rem 0.75rem', borderRadius: '6px', fontSize: '0.8125rem', fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                News ↗
+              </a>
               <a href={BASE + "/admin/export-seo"} style={{ background: '#10b981', color: '#fff', padding: '0.5rem 0.75rem', borderRadius: '6px', fontSize: '0.8125rem', fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)', whiteSpace: 'nowrap', flexShrink: 0 }}>
                 Export SEO CSV
               </a>
@@ -534,7 +612,8 @@ export default function AdminPage() {
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
                         <span style={{ fontWeight: 600, color: '#334155', fontSize: '13px' }}>{post.author}</span>
                       </div>
-                      <div style={{ display: 'flex', gap: '1rem', fontSize: '13px' }}>
+                      <div style={{ display: 'flex', gap: '0.75rem', fontSize: '13px', alignItems: 'center' }}>
+                        <a href={post.url_path || `/blog/${post.slug}`} target="_blank" rel="noopener noreferrer" style={{ color: '#059669', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>View ↗</a>
                         <Link href={BASE + `/admin/posts/edit/${post.id}`} style={{ color: 'var(--primary)', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>Edit</Link>
                         <DeleteButton id={post.id} type="post" />
                       </div>
@@ -569,6 +648,9 @@ export default function AdminPage() {
                             </Link>
                             <div style={{ fontSize: '11px', color: '#64748b', marginTop: '0.4rem', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                               {getDeployBadge(post.url_format)}
+                              <a href={post.url_path || `/blog/${post.slug}`} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '11px', color: '#2563eb', background: '#eff6ff', border: '1px solid #bfdbfe', padding: '1px 6px', borderRadius: '4px', fontWeight: 600, textDecoration: 'none' }} title="Open live public URL in new tab">
+                                {post.url_path || `/blog/${post.slug}`} ↗
+                              </a>
                               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg> {post.category}</span>
                               <span>•</span>
                               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg> {post.date ? new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : ''}</span>
@@ -630,7 +712,8 @@ export default function AdminPage() {
                             )}
                           </td>
                           <td style={tdStyle}>
-                            <div style={{ display: 'flex', gap: '1rem', fontSize: '13px' }}>
+                            <div style={{ display: 'flex', gap: '0.75rem', fontSize: '13px', alignItems: 'center' }}>
+                              <a href={post.url_path || `/blog/${post.slug}`} target="_blank" rel="noopener noreferrer" style={{ color: '#059669', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>View ↗</a>
                               <Link href={BASE + `/admin/posts/edit/${post.id}`} style={{ color: 'var(--primary)', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>Edit</Link>
                               <DeleteButton id={post.id} type="post" />
                             </div>

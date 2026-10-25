@@ -6,10 +6,22 @@ import { ArrowBigUp, ArrowBigDown, MessageSquare, Compass, User as UserIcon, Sea
 import { PageHero } from '../../NextComponents/UI';
 import AnimatedBorderCard from '../../Components/AnimatedBorderCard';
 
-export default function SearchIndex({ auth, posts, blogs, businesses, communities, users, query }) {
+export default function SearchIndex({ auth, posts = [], blogs = [], businesses = [], communities = [], users = [], query = '' }) {
     const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-    const initialTab = urlParams ? urlParams.get('tab') : null;
-    const [activeTab, setActiveTab] = useState(initialTab || 'businesses');
+    const requestedTab = urlParams ? urlParams.get('tab') : null;
+
+    // Smart initial tab: if requested use it, otherwise pick the first tab that actually has results!
+    const determineDefaultTab = () => {
+        if (requestedTab) return requestedTab;
+        if (businesses && businesses.length > 0) return 'businesses';
+        if (blogs && blogs.length > 0) return 'blogs';
+        if (posts && posts.length > 0) return 'posts';
+        if (communities && communities.length > 0) return 'communities';
+        if (users && users.length > 0) return 'users';
+        return 'businesses';
+    };
+
+    const [activeTab, setActiveTab] = useState(determineDefaultTab());
     const [searchQuery, setSearchQuery] = useState(query || '');
     const basePath = typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '';
 
@@ -32,7 +44,7 @@ export default function SearchIndex({ auth, posts, blogs, businesses, communitie
                 badgeIcon={Search}
                 title={<>Results for "<span className="text-amber-500">{query}</span>"</>}
                 description="Find discussions, communities, institutes, and blogs."
-                className="!pt-32 !pb-8"
+                className="!pt-4 md:!pt-6 !pb-8"
             />
 
             <main className="flex-grow w-full py-8">
@@ -61,57 +73,77 @@ export default function SearchIndex({ auth, posts, blogs, businesses, communitie
                     {/* Institutes - Amber */}
                     <button 
                         onClick={() => setActiveTab('businesses')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all active:scale-95 ${
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all active:scale-95 cursor-pointer ${
                             activeTab === 'businesses' 
                             ? 'bg-amber-500 text-white shadow-md shadow-amber-500/25' 
                             : 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-500/20'
                         }`}
                     >
-                        <Compass size={15} /> Institutes
+                        <Compass size={15} />
+                        <span>Institutes</span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-extrabold ${activeTab === 'businesses' ? 'bg-white/25 text-white' : 'bg-amber-200/60 dark:bg-amber-900/40 text-amber-900 dark:text-amber-300'}`}>
+                            {businesses?.length || 0}
+                        </span>
                     </button>
                     {/* Blogs - Purple */}
                     <button 
                         onClick={() => setActiveTab('blogs')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all active:scale-95 ${
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all active:scale-95 cursor-pointer ${
                             activeTab === 'blogs' 
                             ? 'bg-violet-500 text-white shadow-md shadow-violet-500/25' 
                             : 'bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400 hover:bg-violet-100 dark:hover:bg-violet-500/20'
                         }`}
                     >
-                        <MessageSquare size={15} /> Blogs
+                        <MessageSquare size={15} />
+                        <span>Blogs</span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-extrabold ${activeTab === 'blogs' ? 'bg-white/25 text-white' : 'bg-violet-200/60 dark:bg-violet-900/40 text-violet-900 dark:text-violet-300'}`}>
+                            {blogs?.length || 0}
+                        </span>
                     </button>
                     {/* Community Posts - Blue */}
                     <button 
                         onClick={() => setActiveTab('posts')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all active:scale-95 ${
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all active:scale-95 cursor-pointer ${
                             activeTab === 'posts' 
                             ? 'bg-blue-500 text-white shadow-md shadow-blue-500/25' 
                             : 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20'
                         }`}
                     >
-                        <MessageSquare size={15} /> Community Posts
+                        <MessageSquare size={15} />
+                        <span>Community Posts</span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-extrabold ${activeTab === 'posts' ? 'bg-white/25 text-white' : 'bg-blue-200/60 dark:bg-blue-900/40 text-blue-900 dark:text-blue-300'}`}>
+                            {posts?.length || 0}
+                        </span>
                     </button>
                     {/* Communities - Emerald */}
                     <button 
                         onClick={() => setActiveTab('communities')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all active:scale-95 ${
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all active:scale-95 cursor-pointer ${
                             activeTab === 'communities' 
                             ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/25' 
                             : 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20'
                         }`}
                     >
-                        <LayoutGrid size={15} /> Communities
+                        <LayoutGrid size={15} />
+                        <span>Communities</span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-extrabold ${activeTab === 'communities' ? 'bg-white/25 text-white' : 'bg-emerald-200/60 dark:bg-emerald-900/40 text-emerald-900 dark:text-emerald-300'}`}>
+                            {communities?.length || 0}
+                        </span>
                     </button>
                     {/* People - Pink */}
                     <button 
                         onClick={() => setActiveTab('users')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all active:scale-95 ${
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all active:scale-95 cursor-pointer ${
                             activeTab === 'users' 
                             ? 'bg-pink-500 text-white shadow-md shadow-pink-500/25' 
                             : 'bg-pink-50 dark:bg-pink-500/10 text-pink-600 dark:text-pink-400 hover:bg-pink-100 dark:hover:bg-pink-500/20'
                         }`}
                     >
-                        <Users size={15} /> People
+                        <Users size={15} />
+                        <span>People</span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-extrabold ${activeTab === 'users' ? 'bg-white/25 text-white' : 'bg-pink-200/60 dark:bg-pink-900/40 text-pink-900 dark:text-pink-300'}`}>
+                            {users?.length || 0}
+                        </span>
                     </button>
                 </div>
 
@@ -124,6 +156,11 @@ export default function SearchIndex({ auth, posts, blogs, businesses, communitie
                                         <Compass className="w-8 h-8 text-slate-400" />
                                     </div>
                                     <p className="text-xl font-bold text-slate-900 dark:text-white mb-2">No institutes found</p>
+                                    {blogs.length > 0 && (
+                                        <button onClick={() => setActiveTab('blogs')} className="mt-2 text-sm text-blue-600 dark:text-blue-400 font-bold hover:underline cursor-pointer">
+                                            Found {blogs.length} matching result(s) in Blogs →
+                                        </button>
+                                    )}
                                 </div>
                             ) : (
                                 businesses.map(biz => (

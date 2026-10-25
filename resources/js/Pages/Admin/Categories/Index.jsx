@@ -140,9 +140,32 @@ export default function CategoriesPage() {
                     <td style={{ padding: '16px 24px' }}>
                       <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '15px' }}>{cat.name}</div>
                     </td>
-                    <td style={{ padding: '16px 24px', fontSize: '14px', color: '#475569' }}>/{cat.slug}</td>
+                    <td style={{ padding: '16px 24px', fontSize: '14px', color: '#475569' }}>
+                      <a 
+                        href={`/category/${cat.slug}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        style={{ color: '#2563eb', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 500 }}
+                        title="View Public Category Page"
+                      >
+                        /{cat.slug}
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                          <polyline points="15 3 21 3 21 9" />
+                          <line x1="10" y1="14" x2="21" y2="3" />
+                        </svg>
+                      </a>
+                    </td>
                     <td style={{ padding: '16px 24px', textAlign: 'right' }}>
                       <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', alignItems: 'center' }}>
+                        <a 
+                          href={`/category/${cat.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ color: '#059669', fontSize: '13px', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                        >
+                          View ↗
+                        </a>
                         <button 
                           onClick={() => handleEdit(cat)}
                           style={{ background: 'none', border: 'none', color: '#2563eb', fontWeight: 600, cursor: 'pointer', fontSize: '14px', whiteSpace: 'nowrap' }}

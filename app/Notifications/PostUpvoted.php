@@ -53,7 +53,9 @@ class PostUpvoted extends Notification
     {
         return [
             'message' => "u/{$this->voter->username} upvoted your post",
-            'url' => "/r/{$this->post->community->name}/comments/{$this->post->id}/" . \Illuminate\Support\Str::slug($this->post->title),
+            'url' => $this->post->community 
+                ? "/r/{$this->post->community->name}/comments/{$this->post->id}/" . \Illuminate\Support\Str::slug($this->post->title)
+                : $this->post->url_path,
             'user_id' => $this->voter->id,
             'username' => $this->voter->username,
             'profile_picture' => $this->voter->profile_picture,

@@ -53,12 +53,26 @@ class ReviewController extends Controller
 
     public function vote($id, Request $request)
     {
+        $validated = $request->validate([
+            'direction' => 'required|in:up,down',
+        ]);
+
         $review = Review::find($id);
         if (!$review) {
             return response()->json(['error' => 'Review not found'], 404);
         }
 
-        $direction = $request->input('direction');
+        $userId = $request->user()?->id;
+        $ip = $request->ip();
+        $voteKey = 'review_vote_' . ($userId ?: $ip) . '_' . $review->id;
+
+        if (\Illuminate\Support\Facades\Cache::has($voteKey)) {
+            return response()->json(['error' => 'You have already voted on this review.'], 422);
+        }
+
+        \Illuminate\Support\Facades\Cache::put($voteKey, $validated['direction'], 86400 * 30);
+
+        $direction = $validated['direction'];
         if ($direction === 'up') {
             $review->increment('helpful_count');
         } elseif ($direction === 'down') {
@@ -104,7 +118,22 @@ class ReviewController extends Controller
 
     public function store(Request $request)
     {
-        $business = Business::find($request->input('businessId'));
+        $validated = $request->validate([
+            'businessId' => 'required|exists:businesses,id',
+            'title' => 'required|string|max:255',
+            'description' => 'required|string|max:5000',
+            'rating' => 'required|integer|min:1|max:5',
+            'reviewerName' => 'nullable|string|max:100',
+            'reviewerLocation' => 'nullable|string|max:100',
+            'isVerifiedPurchase' => 'nullable|boolean',
+            'isAnonymous' => 'nullable|boolean',
+            'pros' => 'nullable|array',
+            'cons' => 'nullable|array',
+            'categoryRatings' => 'nullable|array',
+            'proof' => 'nullable|array',
+        ]);
+
+        $business = Business::find($validated['businessId']);
         if (!$business) {
             return response()->json(['error' => 'Business not found'], 404);
         }
@@ -112,30 +141,30 @@ class ReviewController extends Controller
         // Simplistic AI Fraud Check fallback if AiReviewController isn't called directly by frontend
         $aiFraudScore = 5;
         $aiFraudReason = 'Verified genuine user review';
-        $sentiment = $request->input('rating') >= 4 ? 'positive' : ($request->input('rating') == 3 ? 'neutral' : 'negative');
+        $sentiment = $validated['rating'] >= 4 ? 'positive' : ($validated['rating'] == 3 ? 'neutral' : 'negative');
 
-        $isAnonymous = $request->input('isAnonymous', false);
-        $reviewerName = $isAnonymous ? 'Verified Community Member' : $request->input('reviewerName', 'Verified User');
-        $isVerifiedPurchase = $request->input('isVerifiedPurchase', false);
-        $rating = (int) $request->input('rating', 5);
+        $isAnonymous = (bool) ($validated['isAnonymous'] ?? false);
+        $reviewerName = $isAnonymous ? 'Verified Community Member' : ($validated['reviewerName'] ?? 'Verified User');
+        $isVerifiedPurchase = (bool) ($validated['isVerifiedPurchase'] ?? false);
+        $rating = (int) $validated['rating'];
 
         $review = Review::create([
             'id' => 'rev-' . time() . rand(100,999),
             'business_id' => $business->id,
             'reviewer_name' => $reviewerName,
             'reviewer_avatar' => 'https://api.dicebear.com/7.x/avataaars/svg?seed=' . urlencode($reviewerName),
-            'reviewer_location' => $request->input('reviewerLocation', 'Global'),
+            'reviewer_location' => $validated['reviewerLocation'] ?? 'Global',
             'reviewer_badges' => $isVerifiedPurchase ? ['Verified Buyer'] : ['Community Reviewer'],
             'reviewer_total_reviews' => 1,
             'is_verified_purchase' => $isVerifiedPurchase,
             'is_anonymous' => $isAnonymous,
-            'proof' => $request->has('proof') ? array_merge($request->input('proof'), ['verifiedAt' => now()->toDateString()]) : null,
+            'proof' => !empty($validated['proof']) ? array_merge($validated['proof'], ['verifiedAt' => now()->toDateString()]) : null,
             'rating' => $rating,
-            'category_ratings' => $request->input('categoryRatings') ?? ['support' => $rating, 'quality' => $rating, 'delivery' => $rating, 'pricing' => $rating, 'communication' => $rating, 'value' => $rating],
-            'title' => $request->input('title'),
-            'description' => $request->input('description'),
-            'pros' => $request->input('pros', ['Fast experience']),
-            'cons' => $request->input('cons', ['None noted']),
+            'category_ratings' => $validated['categoryRatings'] ?? ['support' => $rating, 'quality' => $rating, 'delivery' => $rating, 'pricing' => $rating, 'communication' => $rating, 'value' => $rating],
+            'title' => clean(strip_tags($validated['title'])),
+            'description' => clean(strip_tags($validated['description'])),
+            'pros' => $validated['pros'] ?? ['Fast experience'],
+            'cons' => $validated['cons'] ?? ['None noted'],
             'helpful_count' => 0,
             'unhelpful_count' => 0,
             'ai_fraud_score' => $aiFraudScore,

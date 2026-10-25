@@ -10,6 +10,18 @@ use Illuminate\Validation\Rule;
 class ProfileUpdateRequest extends FormRequest
 {
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('email')) {
+            $this->merge([
+                'email' => strtolower($this->input('email')),
+            ]);
+        }
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, ValidationRule|array<mixed>|string>
@@ -23,11 +35,6 @@ class ProfileUpdateRequest extends FormRequest
                 'string',
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
-                function ($attribute, $value, $fail) {
-                    if ($this->user()->username && $this->user()->username !== $value) {
-                        $fail('Username can only be set once and cannot be changed.');
-                    }
-                }
             ],
             'bio' => ['nullable', 'string', 'max:1000'],
             'email' => [

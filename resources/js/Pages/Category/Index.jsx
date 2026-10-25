@@ -65,7 +65,7 @@ export default function CategoryIndex({ categories, meta }) {
             <GlobalNavbar />
 
             {/* Custom Clean Hero */}
-            <section className="relative pt-32 pb-12 px-4 sm:px-6 lg:px-8 z-10 text-center">
+            <section className="relative pt-4 md:pt-6 pb-12 px-4 sm:px-6 lg:px-8 z-10 text-center">
                 <div className="max-w-3xl mx-auto flex flex-col items-center">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-600 dark:text-zinc-300 text-xs font-bold tracking-widest uppercase mb-6 shadow-sm">
                         <Grid3X3 className="w-4 h-4 text-amber-500" />

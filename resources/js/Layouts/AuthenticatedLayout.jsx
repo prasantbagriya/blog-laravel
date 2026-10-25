@@ -62,10 +62,15 @@ export default function AuthenticatedLayout({ header, children }) {
                                     </Dropdown.Trigger>
 
                                     <Dropdown.Content>
+                                        {user?.username && (
+                                            <Dropdown.Link href={`/u/${user.username}`}>
+                                                View Profile
+                                            </Dropdown.Link>
+                                        )}
                                         <Dropdown.Link
                                             href={route('profile.edit')}
                                         >
-                                            Profile
+                                            Profile Settings
                                         </Dropdown.Link>
                                         <Dropdown.Link
                                             href={route('logout')}
@@ -148,8 +153,13 @@ export default function AuthenticatedLayout({ header, children }) {
                         </div>
 
                         <div className="mt-3 space-y-1">
+                            {user?.username && (
+                                <ResponsiveNavLink href={`/u/${user.username}`}>
+                                    View Profile
+                                </ResponsiveNavLink>
+                            )}
                             <ResponsiveNavLink href={route('profile.edit')}>
-                                Profile
+                                Profile Settings
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 method="post"

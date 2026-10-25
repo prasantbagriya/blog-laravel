@@ -29,6 +29,12 @@ createInertiaApp({
                 './Pages/Static/*.jsx',
                 './Pages/Story/Index.jsx',
                 './Pages/User/Show.jsx',
+                './Pages/Admin/SearchConsole/Index.jsx',
+                './Pages/Admin/Facebook/Index.jsx',
+                './Pages/Admin/X/Index.jsx',
+                './Pages/Admin/Pinterest/Index.jsx',
+                './Pages/Admin/Instagram/Index.jsx',
+                './Pages/Admin/LinkedIn/Index.jsx',
             ]),
         ),
     setup({ el, App, props }) {

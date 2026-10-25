@@ -21,61 +21,101 @@ class BlogController extends Controller
             // Table doesn't exist yet, fallback
         }
 
-        $allPosts = \Illuminate\Support\Facades\Cache::remember('blog_all_posts', 3600, function () {
-            return Post::where('published', true)->whereNull('community_id')->orderBy('date', 'desc')->get()->toArray();
-        });
+        $query = Post::where('published', true)->whereNull('community_id')->orderBy('date', 'desc');
 
-        if ($dbPage && $dbPage->type === 'feed') {
-            $allPosts = array_filter($allPosts, function($post) use ($slug) {
-                $format = $post['url_format'] ?? 'blog/{slug}';
-                // Only show posts whose url_format starts with this page's slug
-                return str_starts_with($format, $slug . '/');
+        if ($isNews) {
+            $query->where('url_format', 'like', 'news/%');
+        } elseif ($slug === 'blog') {
+            $query->where(function ($q) {
+                $q->where('url_format', 'like', 'blog/%')
+                  ->orWhereNull('url_format')
+                  ->orWhere('url_format', '');
             });
-            $allPosts = array_values($allPosts);
+        } elseif ($dbPage && $dbPage->type === 'feed') {
+            $query->where('url_format', 'like', $slug . '/%');
         }
+        
+        $allPosts = $query->paginate(9);
+        
+        // Fetch active sliders for this page
+        // A slider is shown if locations contains the slug, or 'blog' for the main blog page
+        $sliders = \App\Models\Slider::where('active', true)
+            ->where(function ($q) use ($slug) {
+                $q->where('locations', 'like', '%"' . $slug . '"%')
+                  ->orWhere('locations', 'like', '%' . $slug . '%');
+            })
+            ->orderBy('order', 'asc')
+            ->get();
 
         if ($dbPage) {
             $pageType = $dbPage->title;
             $meta = [
-                'title' => $dbPage->seo_title ?: ($dbPage->title . ' | Coachinginsikar'),
-                'description' => $dbPage->seo_description ?: '',
-                'keywords' => $dbPage->seo_keywords ?: '',
-                'og_title' => $dbPage->og_title ?: ($dbPage->seo_title ?: $dbPage->title),
-                'og_description' => $dbPage->og_description ?: $dbPage->seo_description,
-                'twitter_title' => $dbPage->og_title ?: ($dbPage->seo_title ?: $dbPage->title),
+                'title'               => $dbPage->seo_title ?: $dbPage->title,
+                'h1'                  => $dbPage->h1 ?? $dbPage->title,
+                'description'         => $dbPage->seo_description ?: '',
+                'keywords'            => $dbPage->seo_keywords ?: '',
+                'og_title'            => $dbPage->og_title ?: ($dbPage->seo_title ?: $dbPage->title),
+                'og_description'      => $dbPage->og_description ?: $dbPage->seo_description,
+                'twitter_title'       => $dbPage->og_title ?: ($dbPage->seo_title ?: $dbPage->title),
                 'twitter_description' => $dbPage->og_description ?: $dbPage->seo_description,
-                'url' => url('/' . $slug),
-                'type' => 'website',
-                'og_image' => $dbPage->og_image ?: url('/uploads/social-cover.webp'),
-                'schemas' => [
+                'url'                 => url('/' . $slug),
+                'type'                => 'website',
+                'og_image'            => $dbPage->og_image ?: url('/uploads/social-cover.webp'),
+                'schemas'             => [
                     [
-                        "@context" => "https://schema.org",
-                        "@type" => "CollectionPage",
-                        "headline" => $dbPage->seo_title ?: $dbPage->title,
+                        "@context"    => "https://schema.org",
+                        "@type"       => "CollectionPage",
+                        "headline"    => $dbPage->seo_title ?: $dbPage->title,
                         "description" => $dbPage->seo_description ?: '',
-                        "url" => url('/' . $slug)
+                        "url"         => url('/' . $slug)
                     ]
                 ]
             ];
         } else {
-            // If the page doesn't exist in the database, use basic empty metadata
+            // If the page doesn't exist in the database, use high-quality default metadata
             $meta = [
-                'title' => ucfirst($slug) . ' | Coachinginsikar',
-                'description' => '',
-                'keywords' => '',
-                'og_title' => ucfirst($slug),
-                'og_description' => '',
-                'twitter_title' => ucfirst($slug),
+                'title'               => $isNews ? 'Education & Coaching News in Sikar | CoachingsinSikar' : 'Latest Articles, Guides & Coaching Insights | CoachingsinSikar',
+                'h1'                  => $isNews ? 'Education & Coaching News' : 'Articles & Insights',
+                'description'         => $isNews ? 'Stay updated with the latest exam notifications, results, and education news in Sikar.' : 'Read expert coaching guides, preparation strategies, and top institute reviews in Sikar.',
+                'keywords'            => $isNews ? 'sikar coaching news, jee news, neet updates, exam alerts' : 'coaching in sikar, neet coaching, jee coaching blog',
+                'og_title'            => $isNews ? 'Education News | CoachingsinSikar' : 'Blog | CoachingsinSikar',
+                'og_description'      => $isNews ? 'Stay updated with the latest education news in Sikar.' : 'Read expert coaching guides in Sikar.',
+                'twitter_title'       => $isNews ? 'Education News | CoachingsinSikar' : 'Blog | CoachingsinSikar',
                 'twitter_description' => '',
-                'url' => url('/' . $slug),
-                'type' => 'website',
-                'og_image' => url('/uploads/social-cover.webp'),
-                'schemas' => []
+                'url'                 => url('/' . $slug),
+                'type'                => 'website',
+                'og_image'            => url('/uploads/social-cover.webp'),
+                'schemas'             => [
+                    [
+                        "@context"    => "https://schema.org",
+                        "@type"       => "CollectionPage",
+                        "headline"    => $isNews ? 'Education & Coaching News' : 'Articles & Insights',
+                        "description" => $isNews ? 'Latest coaching and education updates from Sikar.' : 'Latest coaching guides and insights from Sikar.',
+                        "url"         => url('/' . $slug)
+                    ]
+                ]
             ];
+        }
+
+        $allPosts->getCollection()->transform(function ($post) {
+            if ($post->coverImage && str_contains($post->coverImage, '/uploads/')) {
+                $path = substr($post->coverImage, strpos($post->coverImage, '/uploads/') + strlen('/uploads/'));
+                $cleanPath = ltrim($path, '/');
+                if (file_exists(public_path('uploads/' . $cleanPath))) {
+                    $post->coverImage = '/images/640/' . $cleanPath;
+                }
+            }
+            return $post;
+        });
+
+        $firstPost = $allPosts->first();
+        if ($firstPost && !empty($firstPost->coverImage)) {
+            $meta['preload_image'] = $firstPost->coverImage;
         }
 
         return Inertia::render('Blog/Index', [
             'posts' => $allPosts,
+            'sliders' => $sliders,
             'pageType' => $pageType,
             'meta' => $meta,
             'faqs' => $dbPage ? ($dbPage->faqs ?? []) : [],
@@ -87,7 +127,16 @@ class BlogController extends Controller
         $slug = $optionalSlug ?: $slugOrCategory;
         $post = Post::where('slug', $slug)->first();
 
-        if (!$post) {
+        if (!$post || (!$post->published && (!auth()->check() || (!auth()->user()->isSuperAdmin() && !auth()->user()->isModerator())))) {
+            abort(404);
+        }
+
+        // Strict canonical URL enforcement:
+        // A post must ONLY open at its configured url_path (e.g. /blog/{slug}, /news/{slug}, etc.)
+        $currentPath = '/' . trim(strtolower($request->path()), '/');
+        $canonicalPath = '/' . trim(strtolower($post->url_path), '/');
+
+        if ($currentPath !== $canonicalPath) {
             abort(404);
         }
 
@@ -102,22 +151,23 @@ class BlogController extends Controller
 
         $plainTextExcerpt = $post->excerpt ? strip_tags($post->excerpt) : \Illuminate\Support\Str::limit(strip_tags($post->content), 160);
         
-        $seoTitle = !empty($post->seoTitle) ? $post->seoTitle : $post->title . ' | Coachinginsikar';
+        $seoTitle = !empty($post->seoTitle) ? $post->seoTitle : $post->title;
         $seoDescription = !empty($post->metaDescription) ? $post->metaDescription : $plainTextExcerpt;
 
         // Schemas Generation (Server-Side for Pure Static HTML)
         $currentUrl = url()->current();
         $finalCanonicalUrl = !empty($post->canonicalUrl) ? $post->canonicalUrl : $currentUrl;
         
-        $isNews = $request->is('news*');
-        $pageType = $isNews ? 'News' : 'Blog';
+        $pathSegments = explode('/', trim($canonicalPath, '/'));
+        $basePageSlug = count($pathSegments) > 1 ? $pathSegments[0] : 'blog';
+        $pageType = ucfirst($basePageSlug);
 
         $schemas = [];
         
         // 1. Breadcrumb Schema
         $breadcrumbItems = [
             ["@type" => "ListItem", "position" => 1, "name" => "Home", "item" => url('/')],
-            ["@type" => "ListItem", "position" => 2, "name" => $pageType, "item" => url('/' . strtolower($pageType))]
+            ["@type" => "ListItem", "position" => 2, "name" => $pageType, "item" => url('/' . $basePageSlug)]
         ];
         
         $position = 3;
@@ -139,23 +189,23 @@ class BlogController extends Controller
         $schemas[] = [
             "@context" => "https://schema.org",
             "@type" => "Organization",
-            "name" => "Coachinginsikar",
+            "name" => "CoachingsinSikar",
             "url" => url('/'),
             "logo" => url('/uploads/logo.webp'),
             "foundingDate" => "2023",
             "contactPoint" => [
                 "@type" => "ContactPoint",
                 "contactType" => "customer support",
-                "email" => "support@Coachinginsikar.com"
+                "email" => "support@Coachingsinsikar.com"
             ],
             "sameAs" => [
-                "https://www.facebook.com/coachinginsikar",
-                "https://x.com/coachinginsikar",
-                "https://www.instagram.com/coachinginsikar",
-                "https://www.youtube.com/@coachinginsikar",
-                "https://www.linkedin.com/company/coachinginsikar",
-                "https://www.pinterest.com/coachinginsikar",
-                "https://www.tumblr.com/coachinginsikar"
+                "https://www.facebook.com/coachingsinsikar",
+                "https://x.com/coachingsinsikar",
+                "https://www.instagram.com/coachingsinsikar",
+                "https://www.youtube.com/@coachingsinsikar",
+                "https://www.linkedin.com/company/coachingsinsikar",
+                "https://www.pinterest.com/coachingsinsikar",
+                "https://www.tumblr.com/coachingsinsikar"
             ]
         ];
         
@@ -163,7 +213,7 @@ class BlogController extends Controller
         $schemas[] = [
             "@context" => "https://schema.org",
             "@type" => "WebSite",
-            "name" => "Coachinginsikar",
+            "name" => "CoachingsinSikar",
             "url" => url('/'),
             "potentialAction" => [
                 "@type" => "SearchAction",
@@ -176,7 +226,7 @@ class BlogController extends Controller
         ];
 
         // 3. BlogPosting Schema
-        $authorName = $post->author ?? 'Coachinginsikar';
+        $authorName = $post->author ?? 'CoachingsinSikar';
         if (strtolower($authorName) === 'prasant') {
             $authorName = 'Prashant';
         }
@@ -271,7 +321,7 @@ class BlogController extends Controller
             "author" => $authorData,
             "publisher" => [
                 "@type" => "Organization",
-                "name" => "Coachinginsikar",
+                "name" => "CoachingsinSikar",
                 "logo" => [
                     "@type" => "ImageObject",
                     "url" => url('/uploads/logo.webp')
@@ -348,7 +398,6 @@ class BlogController extends Controller
         
         // 6. HowTo Schema (if available)
         $howToStepsData = $post->howToSteps ?? $post->howtosteps ?? $post->how_to_steps ?? null;
-        \Log::info("RAW HOW TO DATA: ", ['data' => $howToStepsData]);
         if (is_string($howToStepsData)) {
             $howToStepsData = json_decode($howToStepsData, true);
         }
@@ -424,11 +473,17 @@ class BlogController extends Controller
                 ];
             }
             if (!empty($localBusinessData['ratingValue']) && !empty($localBusinessData['reviewCount'])) {
-                $lbSchema['aggregateRating'] = [
-                    "@type" => "AggregateRating",
-                    "ratingValue" => $localBusinessData['ratingValue'],
-                    "reviewCount" => $localBusinessData['reviewCount']
-                ];
+                $lbRatingVal = floatval($localBusinessData['ratingValue']);
+                $lbRevCount = intval($localBusinessData['reviewCount']);
+                if ($lbRevCount > 0 && $lbRatingVal >= 1 && $lbRatingVal <= 5) {
+                    $lbSchema['aggregateRating'] = [
+                        "@type" => "AggregateRating",
+                        "ratingValue" => round($lbRatingVal, 1),
+                        "reviewCount" => $lbRevCount,
+                        "bestRating" => 5,
+                        "worstRating" => 1,
+                    ];
+                }
             }
             $schemas[] = $lbSchema;
         }
@@ -440,32 +495,36 @@ class BlogController extends Controller
         }
 
         if (!empty($seoRatingData) && !empty($seoRatingData['ratingValue']) && !empty($seoRatingData['reviewCount'])) {
-            $productSchema = [
-                "@context" => "https://schema.org",
-                "@type" => "Product",
-                "name" => !empty($post->seoTitle) ? $post->seoTitle : $post->title,
-                "description" => $seoDescription,
-                "image" => !empty($post->coverImage) ? (str_starts_with($post->coverImage, 'http') ? $post->coverImage : url($post->coverImage)) : url('/uploads/logo.webp'),
-                "brand" => [
-                    "@type" => "Brand",
-                    "name" => "Coachinginsikar"
-                ],
-                "offers" => [
-                    "@type" => "Offer",
-                    "url" => url($finalCanonicalUrl),
-                    "priceCurrency" => "INR",
-                    "price" => "0",
-                    "availability" => "https://schema.org/InStock"
-                ],
-                "aggregateRating" => [
-                    "@type" => "AggregateRating",
-                    "ratingValue" => $seoRatingData['ratingValue'],
-                    "reviewCount" => $seoRatingData['reviewCount'],
-                    "bestRating" => "5",
-                    "worstRating" => "1"
-                ]
-            ];
-            $schemas[] = $productSchema;
+            $seoRatingVal = floatval($seoRatingData['ratingValue']);
+            $seoRevCount = intval($seoRatingData['reviewCount']);
+            if ($seoRevCount > 0 && $seoRatingVal >= 1 && $seoRatingVal <= 5) {
+                $productSchema = [
+                    "@context" => "https://schema.org",
+                    "@type" => "Product",
+                    "name" => !empty($post->seoTitle) ? $post->seoTitle : $post->title,
+                    "description" => $seoDescription,
+                    "image" => !empty($post->coverImage) ? (str_starts_with($post->coverImage, 'http') ? $post->coverImage : url($post->coverImage)) : url('/uploads/logo.webp'),
+                    "brand" => [
+                        "@type" => "Brand",
+                        "name" => "CoachingsinSikar"
+                    ],
+                    "offers" => [
+                        "@type" => "Offer",
+                        "url" => url($finalCanonicalUrl),
+                        "priceCurrency" => "INR",
+                        "price" => "0",
+                        "availability" => "https://schema.org/InStock"
+                    ],
+                    "aggregateRating" => [
+                        "@type" => "AggregateRating",
+                        "ratingValue" => round($seoRatingVal, 1),
+                        "reviewCount" => $seoRevCount,
+                        "bestRating" => "5",
+                        "worstRating" => "1"
+                    ]
+                ];
+                $schemas[] = $productSchema;
+            }
         }
 
         $keywords = is_array($post->keywords) ? implode(',', $post->keywords) : ($post->keywords ?? '');
@@ -478,9 +537,10 @@ class BlogController extends Controller
         $keywordArray = array_unique($keywordArray);
         $cleanKeywords = !empty($keywordArray) ? implode(', ', $keywordArray) : null;
 
-        $recentPostsCache = \Illuminate\Support\Facades\Cache::remember('blog_recent_posts_5', 3600, function () {
+        $recentPostsCache = \Illuminate\Support\Facades\Cache::remember('recent_posts_sidebar_v2', 3600, function () {
             return Post::where('published', true)
                 ->whereNull('community_id')
+                ->select(['id', 'title', 'slug', 'coverImage', 'date', 'category'])
                 ->orderBy('date', 'desc')
                 ->limit(6)
                 ->get()
@@ -493,10 +553,12 @@ class BlogController extends Controller
             ->values()
             ->toArray();
 
-        $comments = \App\Models\Comment::with(['author', 'replies'])
+        $comments = \App\Models\Comment::with(['author', 'replies', 'replies.author'])
             ->where('post_id', $post->id)
             ->whereNull('parent_id')
             ->where('is_spam', false)
+            ->orderBy('is_pinned', 'desc')
+            ->orderByRaw('CASE WHEN author_id = ? THEN 1 ELSE 0 END DESC', [$post->author_id])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -507,6 +569,28 @@ class BlogController extends Controller
                 ->where('votable_type', \App\Models\Comment::class)
                 ->pluck('value', 'votable_id')
                 ->toArray();
+        }
+
+        $preloadImage = null;
+        if (!empty($post->coverImage)) {
+            $preloadImage = str_starts_with($post->coverImage, 'http') ? $post->coverImage : url($post->coverImage);
+        }
+        
+        // Always optimize the first image in the content for LCP (SSR HTML)
+        if (preg_match('/<img[^>]+src=["\']([^"\']+)["\']/i', $post->content, $matches)) {
+            if (empty($preloadImage)) {
+                $preloadImage = $matches[1];
+                if (!str_starts_with($preloadImage, 'http') && !str_starts_with($preloadImage, 'data:')) {
+                    $preloadImage = url($preloadImage);
+                }
+            }
+            
+            // Fix initial SSR HTML: Remove lazy loading and add high fetch priority for the first image
+            $post->content = preg_replace_callback('/(<img[^>]+)(>)/i', function($m) {
+                $imgTag = preg_replace('/\s+loading=["\']lazy["\']/i', '', $m[1]);
+                $imgTag = preg_replace('/\s+fetchpriority=["\'][a-z]+["\']/i', '', $imgTag);
+                return $imgTag . ' fetchpriority="high" loading="eager"' . $m[2];
+            }, $post->content, 1);
         }
 
         return Inertia::render('Blog/Show', [
@@ -524,7 +608,7 @@ class BlogController extends Controller
                 'is_ai_assisted' => $post->isAiAssisted ?? false,
                 'og_image' => !empty($post->coverImage) ? (str_starts_with($post->coverImage, 'http') ? $post->coverImage : url($post->coverImage)) : url('/images/default-blog.jpg'),
                 'og_image_alt' => $post->coverImageAlt ?? $seoTitle,
-                'preload_image' => !empty($post->coverImage) ? (str_starts_with($post->coverImage, 'http') ? $post->coverImage : url($post->coverImage)) : null,
+                'preload_image' => $preloadImage,
                 'twitter_card' => $post->twitterCard ?? 'summary_large_image',
                 'twitter_title' => $post->twitterTitle ?? $seoTitle,
                 'twitter_description' => $post->twitterDescription ?? $seoDescription,

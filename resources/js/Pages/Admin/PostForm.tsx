@@ -1,6 +1,6 @@
 
 
-console.log('--- SOVEREIGN_EDITOR_V11.0_FULL_RESTORE ---');
+
 
 import { useState, useEffect, useCallback, useTransition, useMemo, useRef } from 'react';
 import { router } from '@inertiajs/react';
@@ -341,13 +341,13 @@ const TabBtn = ({ label, icon, active, onClick, status = 'neutral' }: any) => (
    </button>
 );
 
-const SovereignToolBtn = ({ children, onClick, active, title, color }: any) => (
+const SovereignToolBtn = ({ children, onClick, active, title, color, style }: any) => (
    <button 
       type="button" 
       onClick={onClick} 
       title={title} 
       style={{ 
-         width: '42px', 
+         minWidth: '42px', 
          height: '42px', 
          borderRadius: '12px', 
          border: active ? '2px solid #3b82f6' : '1px solid #e2e8f0', 
@@ -356,10 +356,11 @@ const SovereignToolBtn = ({ children, onClick, active, title, color }: any) => (
          display: 'flex', 
          alignItems: 'center', 
          justifyContent: 'center', 
-         padding: 0,
+         padding: '0 8px',
          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
          color: active ? '#2563eb' : (color || '#475569'),
-         boxShadow: active ? '0 4px 12px -4px rgba(59, 130, 246, 0.25)' : '0 2px 4px rgba(0,0,0,0.02)'
+         boxShadow: active ? '0 4px 12px -4px rgba(59, 130, 246, 0.25)' : '0 2px 4px rgba(0,0,0,0.02)',
+         ...style
       }}
    >
       {children}
@@ -372,6 +373,11 @@ const InputGroup = ({ label, value, onChange, placeholder }: any) => (
       <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} style={metaInputStyle} />
    </div>
 );
+
+const getCsrfHeaders = (): Record<string, string> => {
+   const token = typeof document !== 'undefined' ? document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') : null;
+   return token ? { 'X-CSRF-TOKEN': token } : {};
+};
 
 interface PostFormProps {
    post?: Post;
@@ -430,7 +436,7 @@ export default function PostForm({ post }: PostFormProps) {
    const [availablePages, setAvailablePages] = useState<any[]>([]);
    
    const getInitialBasePage = (format: string) => {
-      if (!format) return 'direct';
+      if (!format) return 'blog';
       if (format.startsWith('{')) return 'direct';
       return format.split('/')[0];
    };
@@ -469,7 +475,7 @@ export default function PostForm({ post }: PostFormProps) {
    const [informationGain, setInformationGain] = useState(0);
    const [humanScore, setHumanScore] = useState(0);
    const [clusterStrength, setClusterStrength] = useState(0);
-   const [mediaPickerTarget, setMediaPickerTarget] = useState<'cover' | 'author' | null>(null);
+   const [mediaPickerTarget, setMediaPickerTarget] = useState<'cover' | 'author' | 'content' | null>(null);
 
    // EEAT Authority State
    const [authorExpertise, setAuthorExpertise] = useState(post?.authorJobTitle || 'Subject Matter Expert');
@@ -513,6 +519,39 @@ export default function PostForm({ post }: PostFormProps) {
    const [aiSuggestions, setAiSuggestions] = useState<any>(null);
    const [appliedAiSuggestions, setAppliedAiSuggestions] = useState<Record<string, boolean>>({});
 
+   // 🧠 AI Deep Research & Human Writer Studio State
+   const [aiStudioOpen, setAiStudioOpen] = useState(false);
+   const [isAiResearching, setIsAiResearching] = useState(false);
+   const [aiStage, setAiStage] = useState('');
+   const [aiTopic, setAiTopic] = useState('');
+   const [aiUserSources, setAiUserSources] = useState('');
+   const [aiUrlSources, setAiUrlSources] = useState('');
+   const [aiSpecificInfo, setAiSpecificInfo] = useState('');
+   const [isScrapingUrl, setIsScrapingUrl] = useState(false);
+   const [scrapedDataPreview, setScrapedDataPreview] = useState<{ url: string; title: string; char_count: number; content: string; description?: string } | null>(null);
+   const [aiIncludeTraps, setAiIncludeTraps] = useState(true);
+   const [aiIncludeTable, setAiIncludeTable] = useState(true);
+   const [aiIncludeFaqs, setAiIncludeFaqs] = useState(true);
+   const [aiIncludeTakeaways, setAiIncludeTakeaways] = useState(true);
+   const [aiKeywords, setAiKeywords] = useState('');
+   const [aiCategory, setAiCategory] = useState(category || 'Education & Coaching');
+   const [aiTone, setAiTone] = useState<'investigative' | 'parent_guide' | 'comparison' | 'editorial'>('investigative');
+   const [aiWordCount, setAiWordCount] = useState<number>(2500);
+   const [aiLanguage, setAiLanguage] = useState<'English' | 'Hindi' | 'Hinglish'>('English');
+   const [aiGeneratedPost, setAiGeneratedPost] = useState<any>(null);
+   const [aiActiveViewTab, setAiActiveViewTab] = useState<'article' | 'takeaways' | 'faqs' | 'sources' | 'metadata'>('article');
+
+   // Section expander state
+   const [expandHeading, setExpandHeading] = useState('');
+   const [expandNotes, setExpandNotes] = useState('');
+   const [isExpandingSection, setIsExpandingSection] = useState(false);
+
+   const [isPublished, setIsPublished] = useState(post?.published || false);
+   const isPublishedRef = useRef(isPublished);
+   useEffect(() => {
+      isPublishedRef.current = isPublished;
+   }, [isPublished]);
+
    const handleSaveRef = useRef<any>(null);
    useEffect(() => {
       handleSaveRef.current = handleSave;
@@ -521,7 +560,7 @@ export default function PostForm({ post }: PostFormProps) {
    useEffect(() => {
       const timer = setInterval(() => {
          if (handleSaveRef.current && title.trim() !== '') {
-             handleSaveRef.current(false, true);
+             handleSaveRef.current(isPublishedRef.current, true);
          }
       }, 5000);
       return () => clearInterval(timer);
@@ -574,6 +613,179 @@ export default function PostForm({ post }: PostFormProps) {
       setAppliedAiSuggestions((prev) => ({ ...prev, [key]: true }));
    };
 
+   // 🧠 AI Deep Research & Human Writer Handlers
+   const handleScrapeExternalUrl = async () => {
+      const url = aiUrlSources.trim();
+      if (!url) {
+         alert('Please enter a website or article URL to scrape.');
+         return;
+      }
+
+      setIsScrapingUrl(true);
+      try {
+         const res = await fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/ai/scrape-url', {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json',
+               ...getCsrfHeaders()
+            },
+            body: JSON.stringify({ url })
+         });
+         const data = await res.json();
+         if (data && data.success && data.data) {
+            setScrapedDataPreview(data.data);
+            if (!aiTopic.trim() && data.data.title) {
+               setAiTopic(data.data.title);
+            }
+         } else {
+            alert(data?.message || 'Could not extract content from this URL. Please verify that the website is online.');
+         }
+      } catch (err: any) {
+         console.error('URL Scrape Error:', err);
+         alert('Failed to scrape URL: ' + (err.message || 'Network error'));
+      } finally {
+         setIsScrapingUrl(false);
+      }
+   };
+
+   const handleRunAiDeepResearch = async () => {
+      const topicToSearch = aiTopic.trim() || title.trim();
+      if (!topicToSearch) {
+         alert('Please enter a research topic or blog title.');
+         return;
+      }
+
+      setIsAiResearching(true);
+      setAiStage('Initiating multi-fact grounding & source parsing...');
+
+      const stages = [
+         'Extracting ground realities from your provided sources & URLs...',
+         'Cross-referencing verified databases, official domains & exam statistics...',
+         'Synthesizing human-style narrative (strictly zero robotic AI fluff)...',
+         'Formatting comparison tables, Ground Reality Callouts & H2/H3 structure...',
+         'Generating Google FAQ Schema items & Key Takeaways...'
+      ];
+
+      let stageIdx = 0;
+      const stageTimer = setInterval(() => {
+         stageIdx = (stageIdx + 1) % stages.length;
+         setAiStage(stages[stageIdx]);
+      }, 3200);
+
+      try {
+         const res = await fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/ai/research-post', {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json',
+               ...getCsrfHeaders()
+            },
+            body: JSON.stringify({
+               topic: topicToSearch,
+               sources: aiUserSources,
+               sources_urls: aiUrlSources,
+               specific_info: aiSpecificInfo,
+               scraped_content: scrapedDataPreview ? scrapedDataPreview.content : '',
+               keywords: aiKeywords || focusKeyword,
+               category: aiCategory || category || 'Education & Coaching',
+               tone: aiTone,
+               word_count: aiWordCount,
+               language: aiLanguage,
+               include_traps: aiIncludeTraps,
+               include_table: aiIncludeTable,
+               include_faqs: aiIncludeFaqs,
+               include_takeaways: aiIncludeTakeaways
+            })
+         });
+
+         clearInterval(stageTimer);
+         const json = await res.json();
+
+         if (json && json.success && json.data) {
+            setAiGeneratedPost(json.data);
+            setAiActiveViewTab('article');
+         } else {
+            alert('AI research generation notice: ' + (json?.message || 'Failed to complete research.'));
+         }
+      } catch (err: any) {
+         clearInterval(stageTimer);
+         console.error('AI Research Error:', err);
+         alert('Error connecting to research engine. Please try again.');
+      } finally {
+         setIsAiResearching(false);
+         setAiStage('');
+      }
+   };
+
+   const handleApplyAiPostToEditor = () => {
+      if (!aiGeneratedPost) return;
+
+      if (aiGeneratedPost.title) setTitle(aiGeneratedPost.title);
+      if (aiGeneratedPost.slug) setSlug(aiGeneratedPost.slug);
+      if (aiGeneratedPost.metaDescription) setMetaDescription(aiGeneratedPost.metaDescription);
+      if (aiGeneratedPost.focusKeyword) setFocusKeyword(aiGeneratedPost.focusKeyword);
+      if (aiGeneratedPost.tags && Array.isArray(aiGeneratedPost.tags)) setTags(aiGeneratedPost.tags);
+      if (aiGeneratedPost.category) setCategory(aiGeneratedPost.category);
+      if (aiGeneratedPost.excerpt) setExcerpt(aiGeneratedPost.excerpt);
+      if (aiGeneratedPost.keyTakeaways && Array.isArray(aiGeneratedPost.keyTakeaways)) setKeyTakeaways(aiGeneratedPost.keyTakeaways);
+      if (aiGeneratedPost.faqs && Array.isArray(aiGeneratedPost.faqs)) setFaqs(aiGeneratedPost.faqs);
+      if (aiGeneratedPost.sources && Array.isArray(aiGeneratedPost.sources)) setSources(aiGeneratedPost.sources);
+
+      if (aiGeneratedPost.content && editor) {
+         editor.commands.setContent(aiGeneratedPost.content);
+      }
+
+      setIsAiAssisted(true);
+      setAiStudioOpen(false);
+   };
+
+   const handleInsertAiContentOnly = () => {
+      if (!aiGeneratedPost?.content || !editor) return;
+      editor.commands.insertContent(aiGeneratedPost.content);
+      if (aiGeneratedPost.faqs && Array.isArray(aiGeneratedPost.faqs) && aiGeneratedPost.faqs.length > 0) {
+         setFaqs([...faqs, ...aiGeneratedPost.faqs]);
+      }
+      setAiStudioOpen(false);
+   };
+
+   const handleExpandSection = async () => {
+      if (!expandHeading.trim()) {
+         alert('Please enter a heading or subtopic to expand.');
+         return;
+      }
+
+      setIsExpandingSection(true);
+      try {
+         const res = await fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/ai/expand-section', {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json',
+               ...getCsrfHeaders()
+            },
+            body: JSON.stringify({
+               heading: expandHeading,
+               context: title,
+               raw_notes: expandNotes,
+               tone: aiTone
+            })
+         });
+
+         const json = await res.json();
+         if (json && json.success && json.data && json.data.html && editor) {
+            editor.commands.insertContent(`<h2>${json.data.heading}</h2>${json.data.html}`);
+            setExpandHeading('');
+            setExpandNotes('');
+            alert('Section successfully researched and inserted into editor!');
+         } else {
+            alert('Unable to expand section: ' + (json?.message || 'Please try again.'));
+         }
+      } catch (err) {
+         console.error('Section expand error:', err);
+         alert('Error expanding section.');
+      } finally {
+         setIsExpandingSection(false);
+      }
+   };
+
    useEffect(() => {
       if (coverImage) {
          const img = new window.Image();
@@ -613,11 +825,357 @@ export default function PostForm({ post }: PostFormProps) {
    const [factCheckedBy, setFactCheckedBy] = useState(post?.factCheckedBy || '');
    const [factCheckerRole, setFactCheckerRole] = useState(post?.factCheckerRole || 'Editorial Reviewer');
 
-   const [activeTab, setActiveTab] = useState<'editor' | 'seo' | 'eeat' | 'schema' | 'snippets' | 'strategy' | 'guardian' | 'meta'>('editor');
+   const [activeTab, setActiveTab] = useState<'editor' | 'seo' | 'eeat' | 'schema' | 'snippets' | 'strategy' | 'guardian' | 'meta' | 'ai_research' | 'facebook' | 'x' | 'pinterest' | 'instagram' | 'linkedin'>('editor');
    const [previewMode, setPreviewMode] = useState<'none' | 'google' | 'social' | 'mobile'>('none');
    const [distractionFree, setDistractionFree] = useState(false);
    const [lastSaved, setLastSaved] = useState<string | null>(null);
    const [isPending, startTransition] = useTransition();
+   
+   const [fbCaption, setFbCaption] = useState('');
+   const [fbPageName, setFbPageName] = useState('');
+   const [fbPageId, setFbPageId] = useState('');
+   const [isGeneratingFbCaption, setIsGeneratingFbCaption] = useState(false);
+   const [isPublishingFb, setIsPublishingFb] = useState(false);
+   const [fbPublishedPermalink, setFbPublishedPermalink] = useState<string | null>(null);
+
+   const [xTweetText, setXTweetText] = useState('');
+   const [isGeneratingXDraft, setIsGeneratingXDraft] = useState(false);
+   const [isPublishingX, setIsPublishingX] = useState(false);
+   const [xPublishedPermalink, setXPublishedPermalink] = useState<string | null>(null);
+
+   const [pinTitle, setPinTitle] = useState('');
+   const [pinDescription, setPinDescription] = useState('');
+   const [pinBoardName, setPinBoardName] = useState('');
+   const [pinBoardId, setPinBoardId] = useState('');
+   const [isGeneratingPinDraft, setIsGeneratingPinDraft] = useState(false);
+   const [isPublishingPin, setIsPublishingPin] = useState(false);
+   const [pinPublishedUrl, setPinPublishedUrl] = useState<string | null>(null);
+
+   const generatePinDraft = async () => {
+      setIsGeneratingPinDraft(true);
+      try {
+         const targetId = post?.id || slug || 'draft';
+         const res = await fetch(`/api/admin/pinterest/draft/${targetId}`);
+         const data = await res.json();
+         if (data.success && data.draft) {
+            setPinTitle(data.draft.title || '');
+            setPinDescription(data.draft.description || '');
+            if (data.board) {
+               setPinBoardName(data.board.name);
+               setPinBoardId(data.board.id);
+            }
+         } else {
+            setPinTitle((title || 'Best Coaching & Education Updates in Sikar').slice(0, 100));
+            setPinDescription(`Discover the latest updates, top coaching institutes, fee structures, and admissions guides in Sikar. Read full review: ${window.location.origin}/${url_format || 'blog'}/${slug || ''}\n\n#Sikar #Education #JEE #NEET`);
+         }
+      } catch (e) {
+         setPinTitle((title || 'Best Coaching & Education Updates in Sikar').slice(0, 100));
+         setPinDescription(`Discover the latest updates, top coaching institutes, fee structures, and admissions guides in Sikar. Read full review: ${window.location.origin}/${url_format || 'blog'}/${slug || ''}\n\n#Sikar #Education #JEE #NEET`);
+      } finally {
+         setIsGeneratingPinDraft(false);
+      }
+   };
+
+   const publishToPinterest = async () => {
+      if (!pinTitle.trim() || pinTitle.length > 100) {
+         alert('Pin title is required and must be max 100 characters.');
+         return;
+      }
+      if (!pinDescription.trim() || pinDescription.length > 500) {
+         alert('Pin description is required and must be max 500 characters.');
+         return;
+      }
+      const finalImage = coverImage ? (coverImage.startsWith('http') ? coverImage : window.location.origin + coverImage) : null;
+      if (!finalImage) {
+         alert('An image or cover photo is required to publish a Pin to Pinterest.');
+         return;
+      }
+      setIsPublishingPin(true);
+      try {
+         const targetId = post?.id || slug || 'draft';
+         const draftRes = await fetch(`/api/admin/pinterest/draft/${targetId}`);
+         const draftData = await draftRes.json();
+         const shareId = draftData.share_id || (draftData.share ? draftData.share.id : null);
+
+         const res = await fetch('/api/admin/pinterest/approve-publish', {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json',
+               'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            },
+            body: JSON.stringify({
+               share_id: shareId,
+               post_id: post?.id || null,
+               pinterest_board_id: pinBoardId || null,
+               title: pinTitle,
+               description: pinDescription,
+               image_url: finalImage,
+               target_link: window.location.origin + '/' + (url_format ? (url_format.endsWith('/') ? url_format : url_format + '/') : 'blog/') + (slug || '')
+            })
+         });
+         const data = await res.json();
+         if (data.success) {
+            setPinPublishedUrl(data.pin_url || (data.pin_id ? `https://pinterest.com/pin/${data.pin_id}` : null));
+            alert('Successfully published Pin to Pinterest!');
+         } else {
+            alert(data.message || 'Publishing Pin failed.');
+         }
+      } catch (e: any) {
+         alert('Error: ' + e.message);
+      } finally {
+         setIsPublishingPin(false);
+      }
+   };
+
+   const [igCaption, setIgCaption] = useState('');
+   const [isGeneratingIgDraft, setIsGeneratingIgDraft] = useState(false);
+   const [isPublishingIg, setIsPublishingIg] = useState(false);
+   const [igPublishedPermalink, setIgPublishedPermalink] = useState<string | null>(null);
+
+   const generateIgDraft = async () => {
+      setIsGeneratingIgDraft(true);
+      try {
+         const targetId = post?.id || slug || 'draft';
+         const res = await fetch(`/api/admin/instagram/draft/${targetId}`);
+         const data = await res.json();
+         if (data.success && data.draft) {
+            setIgCaption(data.draft.caption || '');
+         } else {
+            setIgCaption(`📢 ${title || 'Latest Update in Sikar'}\n\nDiscover top coaching institutes, faculty insights, fee structures, and admissions.\n\n📍 Sikar, Rajasthan\n👉 Tap link in bio for full review!\n\n#CoachingsInSikar #SikarEducation #JEE #NEET`);
+         }
+      } catch (e) {
+         setIgCaption(`📢 ${title || 'Latest Update in Sikar'}\n\nDiscover top coaching institutes, faculty insights, fee structures, and admissions.\n\n📍 Sikar, Rajasthan\n👉 Tap link in bio for full review!\n\n#CoachingsInSikar #SikarEducation #JEE #NEET`);
+      } finally {
+         setIsGeneratingIgDraft(false);
+      }
+   };
+
+   const publishToInstagram = async () => {
+      if (!igCaption.trim() || igCaption.length > 2200) {
+         alert('Instagram caption is required and must be max 2,200 characters.');
+         return;
+      }
+      const finalImage = coverImage ? (coverImage.startsWith('http') ? coverImage : window.location.origin + coverImage) : null;
+      if (!finalImage) {
+         alert('A cover image is required to publish to Instagram.');
+         return;
+      }
+      setIsPublishingIg(true);
+      try {
+         const targetId = post?.id || slug || 'draft';
+         const draftRes = await fetch(`/api/admin/instagram/draft/${targetId}`);
+         const draftData = await draftRes.json();
+         const shareId = draftData.share_id || (draftData.share ? draftData.share.id : null);
+
+         const res = await fetch('/api/admin/instagram/approve-publish', {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json',
+               'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            },
+            body: JSON.stringify({
+               share_id: shareId,
+               post_id: post?.id || null,
+               caption: igCaption,
+               image_url: finalImage,
+            })
+         });
+         const data = await res.json();
+         if (data.success) {
+            setIgPublishedPermalink(data.permalink);
+            alert('Successfully published to Instagram!');
+         } else {
+            alert(data.message || 'Publishing to Instagram failed.');
+         }
+      } catch (e: any) {
+         alert('Error: ' + e.message);
+      } finally {
+         setIsPublishingIg(false);
+      }
+   };
+
+   const [liCommentary, setLiCommentary] = useState('');
+   const [isGeneratingLiDraft, setIsGeneratingLiDraft] = useState(false);
+   const [isPublishingLi, setIsPublishingLi] = useState(false);
+   const [liPublishedPermalink, setLiPublishedPermalink] = useState<string | null>(null);
+
+   const generateLiDraft = async () => {
+      setIsGeneratingLiDraft(true);
+      try {
+         const targetId = post?.id || slug || 'draft';
+         const res = await fetch(`/api/admin/linkedin/draft/${targetId}`);
+         const data = await res.json();
+         if (data.success && data.draft) {
+            setLiCommentary(data.draft.commentary || '');
+         } else {
+            setLiCommentary(`🎓 ${title || 'Top Coaching & Education Update in Sikar'}\n\nKey Takeaways for Students & Parents:\n• Verified benchmarks on student-to-faculty ratios\n• Transparent admissions deadlines & criteria\n\n👉 Read complete review: ${window.location.origin}/${url_format || 'blog'}/${slug || ''}\n\n#Education #CareerGuidance #SikarEducationHub #IITJEE #NEETUG`);
+         }
+      } catch (e) {
+         setLiCommentary(`🎓 ${title || 'Top Coaching & Education Update in Sikar'}\n\nKey Takeaways for Students & Parents:\n• Verified benchmarks on student-to-faculty ratios\n• Transparent admissions deadlines & criteria\n\n👉 Read complete review: ${window.location.origin}/${url_format || 'blog'}/${slug || ''}\n\n#Education #CareerGuidance #SikarEducationHub #IITJEE #NEETUG`);
+      } finally {
+         setIsGeneratingLiDraft(false);
+      }
+   };
+
+   const publishToLinkedIn = async () => {
+      if (!liCommentary.trim() || liCommentary.length > 3000) {
+         alert('LinkedIn commentary is required and must be max 3,000 characters.');
+         return;
+      }
+      setIsPublishingLi(true);
+      try {
+         const targetId = post?.id || slug || 'draft';
+         const draftRes = await fetch(`/api/admin/linkedin/draft/${targetId}`);
+         const draftData = await draftRes.json();
+         const shareId = draftData.share_id || (draftData.share ? draftData.share.id : null);
+
+         const finalImage = coverImage ? (coverImage.startsWith('http') ? coverImage : window.location.origin + coverImage) : null;
+         const finalLink = window.location.origin + '/' + (url_format ? (url_format.endsWith('/') ? url_format : url_format + '/') : 'blog/') + (slug || '');
+
+         const res = await fetch('/api/admin/linkedin/approve-publish', {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json',
+               'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            },
+            body: JSON.stringify({
+               share_id: shareId,
+               post_id: post?.id || null,
+               commentary: liCommentary,
+               media_url: finalImage,
+               target_link: finalLink,
+               title: title || 'Coachings in Sikar',
+            })
+         });
+         const data = await res.json();
+         if (data.success) {
+            setLiPublishedPermalink(data.permalink);
+            alert('Successfully published to LinkedIn!');
+         } else {
+            alert(data.message || 'Publishing to LinkedIn failed.');
+         }
+      } catch (e: any) {
+         alert('Error: ' + e.message);
+      } finally {
+         setIsPublishingLi(false);
+      }
+   };
+
+   const generateXDraft = async () => {
+      setIsGeneratingXDraft(true);
+      try {
+         const targetId = post?.id || slug || 'draft';
+         const res = await fetch(`/api/admin/x/draft/${targetId}`);
+         const data = await res.json();
+         if (data.success && data.draft) {
+            setXTweetText(data.draft.text);
+         } else {
+            setXTweetText(`📢 ${title || 'Latest Update'}\n\n🔗 ${window.location.origin}/${url_format || 'blog'}/${slug || ''}\n\n#Sikar #Education`);
+         }
+      } catch (e) {
+         setXTweetText(`📢 ${title || 'Latest Update'}\n\n🔗 ${window.location.origin}/${url_format || 'blog'}/${slug || ''}\n\n#Sikar #Education`);
+      } finally {
+         setIsGeneratingXDraft(false);
+      }
+   };
+
+   const publishToX = async () => {
+      if (!xTweetText.trim() || xTweetText.length > 280) {
+         alert('Please check your tweet text (must be 1-280 characters).');
+         return;
+      }
+      setIsPublishingX(true);
+      try {
+         const targetId = post?.id || slug || 'draft';
+         const draftRes = await fetch(`/api/admin/x/draft/${targetId}`);
+         const draftData = await draftRes.json();
+         const shareId = draftData.share_id || (draftData.share ? draftData.share.id : null);
+
+         const res = await fetch('/api/admin/x/approve-publish', {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json',
+               'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            },
+            body: JSON.stringify({
+               share_id: shareId,
+               text: xTweetText,
+               media_url: coverImage ? (coverImage.startsWith('http') ? coverImage : window.location.origin + coverImage) : null,
+               target_link: window.location.origin + '/' + (url_format ? (url_format.endsWith('/') ? url_format : url_format + '/') : 'blog/') + (slug || '')
+            })
+         });
+         const data = await res.json();
+         if (data.success) {
+            setXPublishedPermalink(data.permalink);
+            alert('Successfully published to 𝕏!');
+         } else {
+            alert(data.message || 'Publishing to X failed.');
+         }
+      } catch (e: any) {
+         alert('Error: ' + e.message);
+      } finally {
+         setIsPublishingX(false);
+      }
+   };
+
+   const generateFbDraft = async () => {
+      setIsGeneratingFbCaption(true);
+      try {
+         const targetId = post?.id || slug || 'draft';
+         const res = await fetch(`/api/admin/facebook/draft/${targetId}`);
+         const data = await res.json();
+         if (data.success && data.draft) {
+            setFbCaption(data.draft.caption);
+            if (data.page) {
+               setFbPageName(data.page.name);
+               setFbPageId(data.page.id);
+            }
+         } else {
+            const tags = ['#CoachingsinSikar', '#SikarEducation', '#JEE', '#NEET'];
+            setFbCaption(`📢 ${title || 'Latest Update'}\n\n👉 Read complete details here: ${window.location.origin}/${url_format || 'blog'}/${slug || ''}\n\n${tags.join(' ')}`);
+         }
+      } catch (e) {
+         const tags = ['#CoachingsinSikar', '#SikarEducation', '#JEE', '#NEET'];
+         setFbCaption(`📢 ${title || 'Latest Update'}\n\n👉 Read complete details here: ${window.location.origin}/${url_format || 'blog'}/${slug || ''}\n\n${tags.join(' ')}`);
+      } finally {
+         setIsGeneratingFbCaption(false);
+      }
+   };
+
+   const publishToFacebook = async () => {
+      if (!fbCaption.trim()) {
+         alert('Please enter or generate a caption first.');
+         return;
+      }
+      setIsPublishingFb(true);
+      try {
+         const res = await fetch('/api/admin/facebook/approve-publish', {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json',
+               'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            },
+            body: JSON.stringify({
+               post_id: post?.id || null,
+               facebook_page_id: fbPageId,
+               caption: fbCaption,
+               image_url: coverImage ? (coverImage.startsWith('http') ? coverImage : window.location.origin + coverImage) : null,
+               target_link: window.location.origin + '/' + (url_format ? (url_format.endsWith('/') ? url_format : url_format + '/') : 'blog/') + (slug || '')
+            })
+         });
+         const data = await res.json();
+         if (data.success) {
+            setFbPublishedPermalink(data.permalink);
+            alert('Successfully published to Facebook Page!');
+         } else {
+            alert(data.message || 'Publishing to Facebook failed.');
+         }
+      } catch (e: any) {
+         alert('Error: ' + e.message);
+      } finally {
+         setIsPublishingFb(false);
+      }
+   };
    
 
    const [mounted, setMounted] = useState(false);
@@ -628,6 +1186,8 @@ export default function PostForm({ post }: PostFormProps) {
    const colorInputRef = useRef<HTMLInputElement>(null);
    const sliderInputRef = useRef<HTMLInputElement>(null);
     const authorInputRef = useRef<HTMLInputElement>(null);
+   const toolbarRef = useRef<HTMLDivElement>(null);
+   const deepWorkToolbarRef = useRef<HTMLDivElement>(null);
 
    const [lsiKeywords, setLsiKeywords] = useState<string[]>(post?.lsiKeywords || []);
    const [scheduleDate, setScheduleDate] = useState<string>('');
@@ -726,7 +1286,8 @@ export default function PostForm({ post }: PostFormProps) {
       if (!editor) return;
       if (editor.isActive('faqBlock')) {
          const attrs = editor.getAttributes('faqBlock');
-         setTempFaqs(attrs.items || []);
+         const existing = attrs.items && attrs.items.length > 0 ? attrs.items : [{ question: '', answer: '' }];
+         setTempFaqs(existing);
       } else {
          setTempFaqs([{ question: '', answer: '' }]);
       }
@@ -736,11 +1297,17 @@ export default function PostForm({ post }: PostFormProps) {
    const handleApplyFaq = () => {
       if (!editor || tempFaqs.length === 0) return;
       const validFaqs = tempFaqs.filter(f => f.question.trim() && f.answer.trim());
+      if (validFaqs.length === 0) {
+         alert('Please provide at least one FAQ item with both Question and Answer.');
+         return;
+      }
       if (editor.isActive('faqBlock')) {
          editor.chain().focus().updateAttributes('faqBlock', { items: validFaqs }).run();
       } else {
          editor.chain().focus().insertContent({ type: 'faqBlock', attrs: { items: validFaqs } }).run();
       }
+      // Sync with post FAQs schema so SEO JSON-LD is populated
+      setFaqs(validFaqs);
       setFaqModalOpen(false);
    };
 
@@ -984,6 +1551,66 @@ export default function PostForm({ post }: PostFormProps) {
          Placeholder.configure({ placeholder: 'Start your story or type / for commands...' }),
       ],
       content: post?.content || '',
+      editorProps: {
+         handleDrop: (view: any, event: any, slice: any, moved: boolean) => {
+            if (!moved && event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0]) {
+               const file = event.dataTransfer.files[0];
+               if (file.type.startsWith('image/')) {
+                  event.preventDefault();
+                  const formData = new FormData();
+                  formData.append('file', file);
+                  fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/upload', {
+                     method: 'POST',
+                     body: formData
+                  })
+                  .then(r => r.json())
+                  .then(res => {
+                     if (res.success && res.url) {
+                        const { schema } = view.state;
+                        const coordinates = view.posAtCoords({ left: event.clientX, top: event.clientY });
+                        const node = schema.nodes.image.create({ src: res.url });
+                        const transaction = view.state.tr.insert(coordinates ? coordinates.pos : view.state.selection.from, node);
+                        view.dispatch(transaction);
+                     }
+                  })
+                  .catch(err => console.error('Drop upload failed:', err));
+                  return true;
+               }
+            }
+            return false;
+         },
+         handlePaste: (view: any, event: any) => {
+            const items = event.clipboardData?.items;
+            if (items) {
+               for (let i = 0; i < items.length; i++) {
+                  if (items[i].type.indexOf('image') !== -1) {
+                     const file = items[i].getAsFile();
+                     if (file) {
+                        event.preventDefault();
+                        const formData = new FormData();
+                        formData.append('file', file);
+                        fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/upload', {
+                           method: 'POST',
+                           body: formData
+                        })
+                        .then(r => r.json())
+                        .then(res => {
+                           if (res.success && res.url) {
+                              const { schema } = view.state;
+                              const node = schema.nodes.image.create({ src: res.url });
+                              const transaction = view.state.tr.replaceSelectionWith(node);
+                              view.dispatch(transaction);
+                           }
+                        })
+                        .catch(err => console.error('Paste upload failed:', err));
+                        return true;
+                     }
+                  }
+               }
+            }
+            return false;
+         }
+      },
       onUpdate: ({ editor }) => {
          const html = editor.getHTML();
          const text = editor.getText();
@@ -1103,6 +1730,7 @@ export default function PostForm({ post }: PostFormProps) {
    }, [entities.length]);
 
    const handleSave = async (published: boolean = true, isAutoSave: boolean = false) => {
+      if (!isAutoSave) setIsPublished(published);
       if (!editor) return;
       startTransition(async () => {
          const cleanSlug = (slug || title)
@@ -1192,7 +1820,43 @@ export default function PostForm({ post }: PostFormProps) {
                <div    style={deepWorkOverlayStyle}>
                   <div style={{ width: '100%', padding: '0 0 100px 0', height: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', background: '#fff' }}>
                      <div style={{ width: '100%', maxWidth: '1000px', marginTop: '40px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', alignItems: 'center', marginBottom: '20px' }}>
+                         <button 
+                            type="button"
+                            onClick={() => {
+                               if (!aiTopic) setAiTopic(title);
+                               if (!aiKeywords) setAiKeywords(focusKeyword);
+                               setAiStudioOpen(true);
+                            }} 
+                            style={{
+                               display: 'flex',
+                               alignItems: 'center',
+                               gap: '5px',
+                               padding: '4px 10px',
+                               borderRadius: '6px',
+                               background: '#f8fafc',
+                               color: '#475569',
+                               border: '1px solid #cbd5e1',
+                               fontWeight: 600,
+                               fontSize: '11.5px',
+                               cursor: 'pointer',
+                               transition: 'all 0.15s ease'
+                            }}
+                            onMouseEnter={(e) => {
+                               e.currentTarget.style.background = '#f1f5f9';
+                               e.currentTarget.style.borderColor = '#94a3b8';
+                               e.currentTarget.style.color = '#0f172a';
+                            }}
+                            onMouseLeave={(e) => {
+                               e.currentTarget.style.background = '#f8fafc';
+                               e.currentTarget.style.borderColor = '#cbd5e1';
+                               e.currentTarget.style.color = '#475569';
+                            }}
+                            title="AI Deep Multi-Fact Research & Human Writer"
+                         >
+                            <span style={{ fontSize: '12px' }}>✨</span>
+                            <span>AI Research</span>
+                         </button>
                          <button onClick={() => setDistractionFree(false)} style={exitDeepWorkStyle}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px' }}><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
                             Exit Deep Work
@@ -1200,9 +1864,31 @@ export default function PostForm({ post }: PostFormProps) {
                       </div>
 
                       {/* Full-Feature Sticky Toolbar for Deep Work */}
-                      <div style={{ ...floatingToolbarStyle, top: '0', marginBottom: '40px', borderRadius: '16px', border: '1px solid #e2e8f0', padding: '12px 24px', justifyContent: 'center' }}>
+                      <div 
+                         ref={deepWorkToolbarRef}
+                         onWheel={(e) => {
+                            if (e.deltaY !== 0) {
+                               e.currentTarget.scrollLeft += e.deltaY;
+                            }
+                         }}
+                         className="toolbar-scroll"
+                         style={{ 
+                            ...floatingToolbarStyle, 
+                            top: '0', 
+                            marginBottom: '40px', 
+                            borderRadius: '16px', 
+                            border: '1px solid #e2e8f0', 
+                            padding: '12px 20px', 
+                            justifyContent: 'flex-start',
+                            overflowX: 'auto',
+                            minWidth: 0,
+                            maxWidth: '1000px',
+                            width: '100%',
+                            scrollBehavior: 'smooth'
+                         }}
+                      >
                          {/* History Group */}
-                         <div style={{ display: 'flex', gap: '4px' }}>
+                         <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
                             <SovereignToolBtn onClick={() => editor?.chain().focus().undo().run()} title="Undo">
                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
                             </SovereignToolBtn>
@@ -1210,10 +1896,10 @@ export default function PostForm({ post }: PostFormProps) {
                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
                             </SovereignToolBtn>
                          </div>
-                         <div style={toolDivider} />
+                         <div style={{ ...toolDivider, flexShrink: 0 }} />
 
                          {/* Formatting Group */}
-                         <div style={{ display: 'flex', gap: '4px' }}>
+                         <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
                             <SovereignToolBtn onClick={() => editor?.chain().focus().toggleBold().run()} active={editor?.isActive('bold')} title="Bold">
                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/></svg>
                             </SovereignToolBtn>
@@ -1227,10 +1913,10 @@ export default function PostForm({ post }: PostFormProps) {
                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><line x1="5" y1="12" x2="19" y2="12"/><path d="M16 4h-7a4 4 0 0 0-4 4 4 4 0 0 0 4 4h7a4 4 0 0 1 4 4 4 4 0 0 1-4 4h-7"/></svg>
                             </SovereignToolBtn>
                          </div>
-                         <div style={toolDivider} />
+                         <div style={{ ...toolDivider, flexShrink: 0 }} />
 
                          {/* Structure Group */}
-                         <div style={headerSelectWrapper}>
+                         <div style={{ ...headerSelectWrapper, flexShrink: 0 }}>
                             <select 
                                onChange={(e) => {
                                   const val = e.target.value;
@@ -1260,10 +1946,10 @@ export default function PostForm({ post }: PostFormProps) {
                                ))}
                             </select>
                          </div>
-                         <div style={toolDivider} />
+                         <div style={{ ...toolDivider, flexShrink: 0 }} />
 
                          {/* Alignment Group */}
-                         <div style={{ display: 'flex', gap: '4px' }}>
+                         <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
                             <SovereignToolBtn onClick={() => editor?.chain().focus().setTextAlign('left').run()} active={editor?.isActive({ textAlign: 'left' })} title="Left Align">
                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>
                             </SovereignToolBtn>
@@ -1274,10 +1960,10 @@ export default function PostForm({ post }: PostFormProps) {
                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><line x1="21" y1="10" x2="7" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="7" y2="18"/></svg>
                             </SovereignToolBtn>
                          </div>
-                         <div style={toolDivider} />
+                         <div style={{ ...toolDivider, flexShrink: 0 }} />
 
                          {/* Lists Group */}
-                         <div style={{ display: 'flex', gap: '4px' }}>
+                         <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
                             <SovereignToolBtn onClick={() => editor?.chain().focus().toggleBulletList().run()} active={editor?.isActive('bulletList')} title="Bullet List">
                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
                             </SovereignToolBtn>
@@ -1285,10 +1971,53 @@ export default function PostForm({ post }: PostFormProps) {
                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
                             </SovereignToolBtn>
                          </div>
-                         <div style={toolDivider} />
+                         <div style={{ ...toolDivider, flexShrink: 0 }} />
 
-                         {/* Inserts & Colors */}
-                         <div style={{ display: 'flex', gap: '4px' }}>
+                         {/* Inserts & Components Group */}
+                         <div style={{ display: 'flex', gap: '5px', flexShrink: 0, alignItems: 'center' }}>
+                            {/* Prominent FAQ Button */}
+                            <button
+                               type="button"
+                               onClick={handleOpenFaqModal}
+                               title="Insert / Edit FAQ Schema Block"
+                               style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '5px',
+                                  padding: '5px 12px',
+                                  background: editor?.isActive('faqBlock') ? 'linear-gradient(135deg, #eff6ff, #dbeafe)' : '#ffffff',
+                                  border: editor?.isActive('faqBlock') ? '1.5px solid #2563eb' : '1px solid #cbd5e1',
+                                  borderRadius: '8px',
+                                  cursor: 'pointer',
+                                  color: editor?.isActive('faqBlock') ? '#1d4ed8' : '#0f172a',
+                                  fontWeight: 800,
+                                  fontSize: '12px',
+                                  boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                                  whiteSpace: 'nowrap',
+                                  flexShrink: 0,
+                                  transition: 'all 0.15s ease',
+                               }}
+                            >
+                               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                                  <circle cx="12" cy="12" r="10"/>
+                                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                  <path d="M12 17h.01"/>
+                               </svg>
+                               <span>{editor?.isActive('faqBlock') ? 'Edit FAQ' : '+ FAQ Block'}</span>
+                            </button>
+
+                            <SovereignToolBtn onClick={handleOpenLinkModal} active={editor?.isActive('link')} title="Insert Link">
+                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                            </SovereignToolBtn>
+                            <SovereignToolBtn onClick={() => fileInputRef.current?.click()} title="Upload Image to Content">
+                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            </SovereignToolBtn>
+                            <SovereignToolBtn onClick={() => setMediaPickerTarget('content')} title="Choose Image from Media Library">
+                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                            </SovereignToolBtn>
+                            <SovereignToolBtn onClick={handleOpenSliderModal} title="Insert Image Slider">
+                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+                            </SovereignToolBtn>
                             <SovereignToolBtn onClick={() => colorInputRef.current?.click()} title="Text Color">
                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M4 20h16"/><path d="m6 16 6-12 6 12"/><path d="M8 12h8"/></svg>
                             </SovereignToolBtn>
@@ -1298,13 +2027,14 @@ export default function PostForm({ post }: PostFormProps) {
                             <SovereignToolBtn onClick={() => setVideoModalOpen(true)} title="Video Portal">
                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m15 8-5 4 5 4V8Z"/><path d="M7 12h1"/></svg>
                             </SovereignToolBtn>
-                            <SovereignToolBtn onClick={handleOpenLinkModal} active={editor?.isActive('link')} title="Insert Link">
-                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-                            </SovereignToolBtn>
                          </div>
-                         <div style={toolDivider} />
+                         <div style={{ ...toolDivider, flexShrink: 0 }} />
 
-                         <div style={{ display: 'flex', gap: '4px' }}>
+                         {/* Tables Group */}
+                         <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+                            <SovereignToolBtn onClick={() => editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} title="Insert Table">
+                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+                            </SovereignToolBtn>
                             <SovereignToolBtn onClick={() => editor?.chain().focus().deleteTable().run()} title="Delete Table" color="#ef4444">
                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                             </SovereignToolBtn>
@@ -1315,11 +2045,13 @@ export default function PostForm({ post }: PostFormProps) {
                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><rect width="18" height="18" x="3" y="3" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
                             </SovereignToolBtn>
                          </div>
-                         <div style={toolDivider} />
+                         <div style={{ ...toolDivider, flexShrink: 0 }} />
 
-                         <SovereignToolBtn onClick={() => editor?.chain().focus().unsetAllMarks().clearNodes().run()} title="Clear Formatting">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M21 7L7 21"/><path d="M7 7l14 14"/><path d="M3 11l5 5"/><path d="m13 16 5 5"/><path d="m8 3 5 5"/></svg>
-                         </SovereignToolBtn>
+                         <div style={{ flexShrink: 0 }}>
+                            <SovereignToolBtn onClick={() => editor?.chain().focus().unsetAllMarks().clearNodes().run()} title="Clear Formatting">
+                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M21 7L7 21"/><path d="M7 7l14 14"/><path d="M3 11l5 5"/><path d="m13 16 5 5"/><path d="m8 3 5 5"/></svg>
+                            </SovereignToolBtn>
+                         </div>
                       </div>
                      <input placeholder="Unlock the Sovereign Title..." value={title} onChange={(e) => setTitle(e.target.value)} style={{ ...deepWorkTitleStyle, fontSize: '48px', marginBottom: '16px' }} />
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '-8px', marginBottom: '32px', padding: '0 4px', fontSize: '12px', fontWeight: 600 }}>
@@ -1340,21 +2072,82 @@ export default function PostForm({ post }: PostFormProps) {
             )}
          <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', flex: 1, overflow: isMobile ? 'auto' : 'hidden' }}>
             <main style={{ ...mainCanvasStyle, overflowY: isMobile ? 'visible' : 'auto' }}>
-                <div style={{ ...floatingToolbarStyle, padding: isMobile ? '8px 12px' : '12px 24px' }}>
-                   <div style={{ display: 'flex', alignItems: 'center', width: '100%', maxWidth: '1200px', gap: isMobile ? '8px' : '16px' }}>
-                      {/* Global Style for hiding scrollbar in toolbar */}
+                <div style={{ ...floatingToolbarStyle, padding: isMobile ? '8px 12px' : '10px 20px' }}>
+                   <div style={{ display: 'flex', alignItems: 'center', width: '100%', maxWidth: '1240px', gap: isMobile ? '6px' : '10px' }}>
+                      {/* Enhanced Custom Scrollbar Styles for Toolbar */}
                       <style>{`
-                         .toolbar-scroll::-webkit-scrollbar { display: none; }
-                         .toolbar-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+                         .toolbar-scroll {
+                            -webkit-overflow-scrolling: touch;
+                            scrollbar-width: thin;
+                            scrollbar-color: #cbd5e1 rgba(241, 245, 249, 0.7);
+                         }
+                         .toolbar-scroll::-webkit-scrollbar {
+                            height: 4px;
+                         }
+                         .toolbar-scroll::-webkit-scrollbar-track {
+                            background: rgba(241, 245, 249, 0.7);
+                            border-radius: 4px;
+                         }
+                         .toolbar-scroll::-webkit-scrollbar-thumb {
+                            background: #cbd5e1;
+                            border-radius: 4px;
+                         }
+                         .toolbar-scroll::-webkit-scrollbar-thumb:hover {
+                            background: #94a3b8;
+                         }
                       `}</style>
                       
                       {/* Left: Back Button */}
-                      <button onClick={() => window.history.back()} style={{ ...navIconStyle, border: 'none', background: 'transparent', flexShrink: 0 }}>
+                      <button onClick={() => window.history.back()} style={{ ...navIconStyle, border: 'none', background: 'transparent', flexShrink: 0 }} title="Go Back">
                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '20px', height: '20px' }}><path d="m15 18-6-6 6-6"/></svg>
                       </button>
 
-                      {/* Center: Formatting Toolbar (Scrollable Row) */}
-                      <div className="toolbar-scroll" style={{ display: 'flex', gap: '4px', alignItems: 'center', flex: 1, overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: '2px' }}>
+                      {/* Toolbar Scroll Left Arrow Button */}
+                      <button 
+                         type="button" 
+                         onClick={() => toolbarRef.current?.scrollBy({ left: -240, behavior: 'smooth' })} 
+                         style={{ 
+                            ...navIconStyle, 
+                            padding: '6px 7px', 
+                            borderRadius: '8px', 
+                            border: '1px solid #e2e8f0', 
+                            background: '#ffffff', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center', 
+                            flexShrink: 0, 
+                            cursor: 'pointer', 
+                            color: '#475569', 
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.04)' 
+                         }}
+                         title="Scroll Toolbar Left"
+                         aria-label="Scroll Toolbar Left"
+                      >
+                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                      </button>
+
+                      {/* Center: Formatting Toolbar (Scrollable Row with wheel support) */}
+                      <div 
+                         ref={toolbarRef}
+                         className="toolbar-scroll" 
+                         onWheel={(e) => {
+                            if (e.deltaY !== 0) {
+                               e.currentTarget.scrollLeft += e.deltaY;
+                            }
+                         }}
+                         style={{ 
+                            display: 'flex', 
+                            gap: '4px', 
+                            alignItems: 'center', 
+                            flex: 1, 
+                            minWidth: 0, 
+                            overflowX: 'auto', 
+                            WebkitOverflowScrolling: 'touch', 
+                            paddingBottom: '4px', 
+                            paddingTop: '2px', 
+                            scrollBehavior: 'smooth' 
+                         }}
+                      >
                       <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
                          <SovereignToolBtn onClick={() => editor.chain().focus().undo().run()} title="Undo">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
@@ -1439,19 +2232,50 @@ export default function PostForm({ post }: PostFormProps) {
                       </div>
                       <div style={{ ...toolDivider, flexShrink: 0 }} />
 
-                      {/* Inserts & Tables */}
-                      <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+                      {/* Inserts & Components Group */}
+                      <div style={{ display: 'flex', gap: '5px', flexShrink: 0, alignItems: 'center' }}>
+                         {/* Highly Visible + FAQ Button */}
+                         <button
+                            type="button"
+                            onClick={handleOpenFaqModal}
+                            title="Insert / Edit FAQ Schema Block"
+                            style={{
+                               display: 'inline-flex',
+                               alignItems: 'center',
+                               gap: '5px',
+                               padding: '5px 12px',
+                               background: editor.isActive('faqBlock') ? 'linear-gradient(135deg, #eff6ff, #dbeafe)' : '#ffffff',
+                               border: editor.isActive('faqBlock') ? '1.5px solid #2563eb' : '1px solid #cbd5e1',
+                               borderRadius: '8px',
+                               cursor: 'pointer',
+                               color: editor.isActive('faqBlock') ? '#1d4ed8' : '#0f172a',
+                               fontWeight: 800,
+                               fontSize: '12px',
+                               boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                               whiteSpace: 'nowrap',
+                               flexShrink: 0,
+                               transition: 'all 0.15s ease',
+                            }}
+                         >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                               <circle cx="12" cy="12" r="10"/>
+                               <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                               <path d="M12 17h.01"/>
+                            </svg>
+                            <span>{editor.isActive('faqBlock') ? 'Edit FAQ' : '+ FAQ Block'}</span>
+                         </button>
+
                          <SovereignToolBtn onClick={handleOpenLinkModal} active={editor.isActive('link')} title="Insert Link">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
                          </SovereignToolBtn>
-                         <SovereignToolBtn onClick={() => fileInputRef.current?.click()} title="Insert Image">
+                         <SovereignToolBtn onClick={() => fileInputRef.current?.click()} title="Upload Image to Content">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                         </SovereignToolBtn>
+                         <SovereignToolBtn onClick={() => setMediaPickerTarget('content')} title="Choose Image from Media Library">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
                          </SovereignToolBtn>
                          <SovereignToolBtn onClick={handleOpenSliderModal} title="Insert Image Slider">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
-                         </SovereignToolBtn>
-                         <SovereignToolBtn onClick={handleOpenFaqModal} title="Insert FAQ Schema Block">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
                          </SovereignToolBtn>
                          <SovereignToolBtn onClick={handleOpenQuizModal} title="Insert Interactive Quiz">
                             <span style={{ fontSize: '16px', lineHeight: 1 }}>🧩</span>
@@ -1499,8 +2323,123 @@ export default function PostForm({ post }: PostFormProps) {
                       <input type="file" ref={sliderInputRef} onChange={handleSliderImageUpload} multiple style={{ display: 'none' }} accept="image/*" />
                       </div>
                       
+                      {/* Toolbar Scroll Right Arrow Button */}
+                      <button 
+                         type="button" 
+                         onClick={() => toolbarRef.current?.scrollBy({ left: 240, behavior: 'smooth' })} 
+                         style={{ 
+                            ...navIconStyle, 
+                            padding: '6px 7px', 
+                            borderRadius: '8px', 
+                            border: '1px solid #e2e8f0', 
+                            background: '#ffffff', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center', 
+                            flexShrink: 0, 
+                            cursor: 'pointer', 
+                            color: '#475569', 
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.04)' 
+                         }}
+                         title="Scroll Toolbar Right"
+                         aria-label="Scroll Toolbar Right"
+                      >
+                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                      </button>
+
                       {/* Right: Actions */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                         <button 
+                            type="button"
+                            onClick={() => {
+                               if (!aiTopic) setAiTopic(title);
+                               if (!aiKeywords) setAiKeywords(focusKeyword);
+                               setAiStudioOpen(true);
+                            }} 
+                            style={{
+                               display: 'flex',
+                               alignItems: 'center',
+                               gap: '5px',
+                               padding: '4px 10px',
+                               borderRadius: '6px',
+                               background: '#f8fafc',
+                               color: '#475569',
+                               border: '1px solid #cbd5e1',
+                               fontWeight: 600,
+                               fontSize: '11.5px',
+                               cursor: 'pointer',
+                               flexShrink: 0,
+                               transition: 'all 0.15s ease'
+                            }}
+                            onMouseEnter={(e) => {
+                               e.currentTarget.style.background = '#f1f5f9';
+                               e.currentTarget.style.borderColor = '#94a3b8';
+                               e.currentTarget.style.color = '#0f172a';
+                            }}
+                            onMouseLeave={(e) => {
+                               e.currentTarget.style.background = '#f8fafc';
+                               e.currentTarget.style.borderColor = '#cbd5e1';
+                               e.currentTarget.style.color = '#475569';
+                            }}
+                            title="AI Deep Multi-Fact Research & Human Writer"
+                         >
+                            <span style={{ fontSize: '12px' }}>✨</span>
+                            <span>AI Research</span>
+                         </button>
+                         {(slug || post?.slug) && (
+                            <a 
+                               href={selectedBasePage === 'direct' ? `/${slug || post?.slug}` : `/${selectedBasePage}/${slug || post?.slug}`}
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '5px',
+                                  padding: '4px 10px',
+                                  borderRadius: '6px',
+                                  background: '#ecfdf5',
+                                  color: '#059669',
+                                  border: '1px solid #a7f3d0',
+                                  fontWeight: 700,
+                                  fontSize: '11.5px',
+                                  textDecoration: 'none',
+                                  flexShrink: 0,
+                                  transition: 'all 0.15s ease'
+                               }}
+                               onMouseEnter={(e) => {
+                                  e.currentTarget.style.background = '#d1fae5';
+                                  e.currentTarget.style.borderColor = '#6ee7b7';
+                               }}
+                               onMouseLeave={(e) => {
+                                  e.currentTarget.style.background = '#ecfdf5';
+                                  e.currentTarget.style.borderColor = '#a7f3d0';
+                               }}
+                               title="Open live public URL in new tab"
+                            >
+                               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                               <span>View Live ↗</span>
+                            </a>
+                         )}
+                         <button
+                            type="button"
+                            onClick={() => { setActiveTab('facebook'); if (!fbCaption) generateFbDraft(); }}
+                            style={{
+                               padding: '4px 10px',
+                               fontSize: '11px',
+                               fontWeight: 700,
+                               background: '#eff6ff',
+                               color: '#1877f2',
+                               border: '1px solid #bfdbfe',
+                               borderRadius: '8px',
+                               cursor: 'pointer',
+                               display: 'inline-flex',
+                               alignItems: 'center',
+                               gap: '4px'
+                            }}
+                            title="Share to Facebook Page"
+                         >
+                            <span>📘 FB Share</span>
+                         </button>
                          <button onClick={() => setDistractionFree(true)} style={iconBtnStyle} title="Distraction Free Mode">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
                          </button>
@@ -1533,10 +2472,16 @@ export default function PostForm({ post }: PostFormProps) {
                                   </SovereignToolBtn>
                                );
                                if (selectedNodeType === 'faqBlock' || editor.isActive('faqBlock')) return (
-                                  <SovereignToolBtn onClick={handleOpenFaqModal} title="Edit FAQ Block">
-                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '14px', height: '14px' }}><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
-                                     <span style={{ fontSize: '11px', fontWeight: 700, marginLeft: '6px' }}>EDIT FAQ</span>
-                                  </SovereignToolBtn>
+                                  <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                                     <SovereignToolBtn onClick={handleOpenFaqModal} title="Edit FAQ Block">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '14px', height: '14px' }}><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                                        <span style={{ fontSize: '11px', fontWeight: 700, marginLeft: '6px' }}>EDIT FAQ</span>
+                                     </SovereignToolBtn>
+                                     <SovereignToolBtn onClick={() => editor.chain().focus().deleteSelection().run()} title="Delete FAQ Block" color="#ef4444">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '14px', height: '14px' }}><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                                        <span style={{ fontSize: '11px', fontWeight: 700, marginLeft: '6px', color: '#ef4444' }}>DELETE</span>
+                                     </SovereignToolBtn>
+                                  </div>
                                );
                                if (selectedNodeType === 'quizBlock' || editor.isActive('quizBlock')) return (
                                   <SovereignToolBtn onClick={handleOpenQuizModal} title="Edit Quiz Block">
@@ -1585,10 +2530,16 @@ export default function PostForm({ post }: PostFormProps) {
                <div style={{ padding: '24px 24px 0 24px' }}>
                   <div style={{ fontSize: '10px', fontWeight: 900, color: '#94a3b8', letterSpacing: '1px', marginBottom: '12px' }}>INTEL MODULES</div>
                    <div style={{ ...intelTabsStyle, display: isMobile ? 'flex' : 'grid', overflowX: isMobile ? 'auto' : 'visible' }}>
+                     <TabBtn active={activeTab === 'ai_research'} onClick={() => setActiveTab('ai_research')} icon={<span style={{ fontSize: '13px' }}>✨</span>} label="AI Studio" status="success" />
                      <TabBtn active={activeTab === 'editor'} onClick={() => setActiveTab('editor')} icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '14px', height: '14px' }}><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>} label="Audit" status={seoScore > 80 ? 'success' : 'warning'} />
                      <TabBtn active={activeTab === 'snippets'} onClick={() => setActiveTab('snippets')} icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '14px', height: '14px' }}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>} label="Snippets" status={snippetScore > 70 ? 'success' : 'neutral'} />
                      <TabBtn active={activeTab === 'strategy'} onClick={() => setActiveTab('strategy')} icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '14px', height: '14px' }}><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.54Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.54Z"/></svg>} label="Strategy" status="neutral" />
                      <TabBtn active={activeTab === 'meta'} onClick={() => setActiveTab('meta')} icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '14px', height: '14px' }}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>} label="Meta" status={seoTitle ? 'success' : 'warning'} />
+                     <TabBtn active={activeTab === 'facebook'} onClick={() => { setActiveTab('facebook'); if (!fbCaption) generateFbDraft(); }} icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>} label="Facebook" status={fbPublishedPermalink ? 'success' : 'neutral'} />
+                     <TabBtn active={activeTab === 'x'} onClick={() => { setActiveTab('x'); if (!xTweetText) generateXDraft(); }} icon={<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>} label="Twitter/X" status={xPublishedPermalink ? 'success' : 'neutral'} />
+                     <TabBtn active={activeTab === 'pinterest'} onClick={() => { setActiveTab('pinterest'); if (!pinTitle) generatePinDraft(); }} icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg>} label="Pinterest" status={pinPublishedUrl ? 'success' : 'neutral'} />
+                      <TabBtn active={activeTab === 'instagram'} onClick={() => { setActiveTab('instagram'); if (!igCaption) generateIgDraft(); }} icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>} label="Instagram" status={igPublishedPermalink ? 'success' : 'neutral'} />
+                      <TabBtn active={activeTab === 'linkedin'} onClick={() => { setActiveTab('linkedin'); if (!liCommentary) generateLiDraft(); }} icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>} label="LinkedIn" status={liPublishedPermalink ? 'success' : 'neutral'} />
 
                      
                      <TabBtn active={activeTab === 'eeat'} onClick={() => setActiveTab('eeat')} icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '14px', height: '14px' }}><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/></svg>} label="EEAT" status={factCheckedBy ? 'success' : 'warning'} />
@@ -1600,7 +2551,110 @@ export default function PostForm({ post }: PostFormProps) {
                </div>
 
                <div style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
-                                       {activeTab === 'editor' && (
+                     {activeTab === 'ai_research' && (
+                        <div key="ai_research">
+                           <div style={{ ...hcuCardStyle, background: '#f8fafc', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                                 <span style={{ fontSize: '15px' }}>✨</span>
+                                 <span style={{ fontWeight: 700, fontSize: '13px', color: '#1e293b' }}>AI Deep Research & Writer</span>
+                              </div>
+                              <p style={{ fontSize: '11.5px', color: '#64748b', lineHeight: 1.4, margin: '0 0 12px 0' }}>
+                                 Fact-dense research grounded in URLs, specific insider facts, and real-world data with natural human cadence.
+                              </p>
+                              
+                              <button
+                                 type="button"
+                                 onClick={() => {
+                                    if (!aiTopic) setAiTopic(title);
+                                    if (!aiKeywords) setAiKeywords(focusKeyword);
+                                    setAiStudioOpen(true);
+                                 }}
+                                 style={{
+                                    width: '100%',
+                                    padding: '8px 12px',
+                                    borderRadius: '8px',
+                                    background: '#ffffff',
+                                    color: '#334155',
+                                    fontWeight: 600,
+                                    fontSize: '12px',
+                                    border: '1px solid #cbd5e1',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '6px',
+                                    transition: 'all 0.15s ease'
+                                 }}
+                                 onMouseEnter={(e) => {
+                                    e.currentTarget.style.background = '#f1f5f9';
+                                    e.currentTarget.style.borderColor = '#94a3b8';
+                                    e.currentTarget.style.color = '#0f172a';
+                                 }}
+                                 onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = '#ffffff';
+                                    e.currentTarget.style.borderColor = '#cbd5e1';
+                                    e.currentTarget.style.color = '#334155';
+                                 }}
+                              >
+                                 <span>Open Research Studio</span>
+                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                              </button>
+                           </div>
+
+                           <h3 style={sidebarHeadingStyle}>Quick Section Expander</h3>
+                           <div style={{ ...hcuCardStyle, marginBottom: '20px' }}>
+                              <label style={metaLabelStyle}>SUBTOPIC / HEADING TO EXPAND</label>
+                              <input 
+                                 value={expandHeading} 
+                                 onChange={e => setExpandHeading(e.target.value)} 
+                                 placeholder="e.g. Hostel Caution Fees & Mess Hygiene" 
+                                 style={{ ...faqInputSmall, marginBottom: '12px' }} 
+                              />
+
+                              <label style={metaLabelStyle}>FACTS / NOTES TO INTEGRATE (OPTIONAL)</label>
+                              <textarea 
+                                 value={expandNotes} 
+                                 onChange={e => setExpandNotes(e.target.value)} 
+                                 placeholder="Paste raw fees, numbers, student quotes, or specific rules..." 
+                                 style={{ ...faqTextArea, minHeight: '80px', marginBottom: '14px' }} 
+                              />
+
+                              <button
+                                 type="button"
+                                 onClick={handleExpandSection}
+                                 disabled={isExpandingSection}
+                                 style={{
+                                    ...addNodeBtn,
+                                    width: '100%',
+                                    background: isExpandingSection ? '#e2e8f0' : '#3b82f6',
+                                    color: isExpandingSection ? '#94a3b8' : '#fff',
+                                    border: 'none',
+                                    fontWeight: 700
+                                 }}
+                              >
+                                 {isExpandingSection ? 'Researching Section...' : '+ Research & Insert Section'}
+                              </button>
+                           </div>
+
+                           <h3 style={sidebarHeadingStyle}>Human Quality Guard</h3>
+                           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '12px' }}>
+                                 <span style={{ color: '#10b981', fontWeight: 800 }}>✓</span>
+                                 <span><strong>Zero Robotic Clichés:</strong> Banned generic intros</span>
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '12px' }}>
+                                 <span style={{ color: '#10b981', fontWeight: 800 }}>✓</span>
+                                 <span><strong>Multi-Source Grounding:</strong> Cross-verified handles</span>
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '12px' }}>
+                                 <span style={{ color: '#10b981', fontWeight: 800 }}>✓</span>
+                                 <span><strong>Rich Structures:</strong> Tables, Takeaways & FAQs</span>
+                              </div>
+                           </div>
+                        </div>
+                     )}
+
+                     {activeTab === 'editor' && (
                         <div key="editor"   >
                            <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
                               <MiniScore label="SEO" value={seoScore} />
@@ -1956,6 +3010,54 @@ export default function PostForm({ post }: PostFormProps) {
                                  placeholder="e.g. custom-post-url (leave empty for auto)" 
                               />
                               <div style={{ height: '15px' }} />
+                              <label style={metaLabelStyle}>BASE PAGE / SECTION</label>
+                              <select 
+                                 value={selectedBasePage} 
+                                 onChange={e => {
+                                    const newBase = e.target.value;
+                                    setSelectedBasePage(newBase);
+                                    if (newBase === 'direct') setUrlFormat('{slug}');
+                                    else setUrlFormat(`${newBase}/{slug}`);
+                                 }} 
+                                 style={metaInputStyle}
+                              >
+                                 <option value="blog">Blog (/blog)</option>
+                                 <option value="news">News (/news)</option>
+                                 <option value="direct">Direct (No Prefix /slug)</option>
+                                 {availablePages?.filter(p => p.slug !== 'blog' && p.slug !== 'news').map(p => (
+                                    <option key={p.id || p.slug} value={p.slug}>{p.title} (/{p.slug})</option>
+                                 ))}
+                              </select>
+                              <div style={{ height: '8px' }} />
+                              <a 
+                                 href={selectedBasePage === 'direct' ? `/${slug || 'article-name'}` : `/${selectedBasePage}/${slug || 'article-name'}`}
+                                 target="_blank"
+                                 rel="noopener noreferrer"
+                                 style={{ 
+                                    fontSize: '11px', 
+                                    color: '#1e40af', 
+                                    background: '#eff6ff', 
+                                    padding: '8px 12px', 
+                                    borderRadius: '8px', 
+                                    border: '1px solid #bfdbfe', 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    justifyContent: 'space-between', 
+                                    textDecoration: 'none',
+                                    transition: 'all 0.15s ease'
+                                 }}
+                                 onMouseEnter={e => { e.currentTarget.style.background = '#dbeafe'; }}
+                                 onMouseLeave={e => { e.currentTarget.style.background = '#eff6ff'; }}
+                                 title="Click to open this public post in new tab"
+                              >
+                                 <span style={{ wordBreak: 'break-all', fontWeight: 600 }}>
+                                    <strong>Public URL:</strong> /{selectedBasePage === 'direct' ? (slug || 'article-name') : `${selectedBasePage}/${slug || 'article-name'}`}
+                                 </span>
+                                 <span style={{ fontWeight: 800, color: '#2563eb', flexShrink: 0, marginLeft: '8px', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                                    Open ↗
+                                 </span>
+                              </a>
+                              <div style={{ height: '15px' }} />
                               <label style={metaLabelStyle}>META DESCRIPTION</label>
                               <textarea value={metaDescription} onChange={e => setMetaDescription(e.target.value)} style={metaTextAreaStyle} placeholder="150-160 characters for optimal CTR" />
                               <div style={{ height: '15px' }} />
@@ -2060,7 +3162,599 @@ export default function PostForm({ post }: PostFormProps) {
                         </div>
                      )}
 
-                     {activeTab === 'seo' && (
+                     {activeTab === 'facebook' && (
+                        <div key="facebook" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <h3 style={{ ...sidebarHeadingStyle, margin: 0 }}>Facebook Page Publishing</h3>
+                              <button
+                                 type="button"
+                                 onClick={(e) => { e.preventDefault(); generateFbDraft(); }}
+                                 disabled={isGeneratingFbCaption}
+                                 style={{ background: '#eff6ff', color: '#1877f2', border: '1px solid #bfdbfe', padding: '5px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: 700, cursor: 'pointer' }}
+                              >
+                                 {isGeneratingFbCaption ? 'Drafting...' : '✨ Auto-Draft Caption'}
+                              </button>
+                           </div>
+
+                           {/* Live Facebook Post Mockup */}
+                           <div style={{ background: '#f0f2f5', borderRadius: '12px', padding: '14px', border: '1px solid #e2e8f0' }}>
+                              <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', marginBottom: '8px', textTransform: 'uppercase' }}>
+                                 Live Facebook Post Mockup
+                              </div>
+                              <div style={{ background: '#fff', borderRadius: '10px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
+                                 <div style={{ padding: '10px 12px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#1877f2', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '14px' }}>
+                                       f
+                                    </div>
+                                    <div>
+                                       <div style={{ fontWeight: 700, fontSize: '13px', color: '#050505' }}>
+                                          {fbPageName || 'Connected Facebook Page'}
+                                       </div>
+                                       <div style={{ fontSize: '11px', color: '#65676b' }}>Just now • 🌍 Public</div>
+                                    </div>
+                                 </div>
+                                 <div style={{ padding: '0 12px 10px 12px', fontSize: '12px', color: '#050505', lineHeight: 1.4, whiteSpace: 'pre-wrap', maxHeight: '120px', overflowY: 'auto' }}>
+                                    {fbCaption || '📢 ' + (title || 'Post title preview will appear here...') + '\n\n👉 Read complete details: https://coachingsinsikar.com/...'}
+                                 </div>
+                                 {coverImage && (
+                                    <div style={{ background: '#000', maxHeight: '160px', overflow: 'hidden' }}>
+                                       <img src={coverImage} alt="Preview" style={{ width: '100%', height: '160px', objectFit: 'cover', display: 'block' }} />
+                                    </div>
+                                 )}
+                              </div>
+                           </div>
+
+                           <div>
+                              <label style={metaLabelStyle}>EDIT CAPTION & HASHTAGS</label>
+                              <textarea
+                                 rows={6}
+                                 value={fbCaption}
+                                 onChange={(e) => setFbCaption(e.target.value)}
+                                 style={{ ...metaTextAreaStyle, height: '130px' }}
+                                 placeholder="Write or edit caption with hashtags and blog link..."
+                              />
+                           </div>
+
+                           {fbPublishedPermalink && (
+                              <div style={{ padding: '10px 14px', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '8px', color: '#065f46', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                 <span>✓ Published to Facebook!</span>
+                                 <a href={fbPublishedPermalink} target="_blank" rel="noopener noreferrer" style={{ color: '#047857', fontWeight: 800 }}>
+                                    View Post ↗
+                                 </a>
+                              </div>
+                           )}
+
+                           <button
+                              type="button"
+                              onClick={(e) => { e.preventDefault(); publishToFacebook(); }}
+                              disabled={isPublishingFb}
+                              style={{
+                                 background: '#1877f2',
+                                 color: '#fff',
+                                 border: 'none',
+                                 padding: '12px',
+                                 borderRadius: '10px',
+                                 fontWeight: 800,
+                                 fontSize: '13px',
+                                 cursor: 'pointer',
+                                 display: 'flex',
+                                 alignItems: 'center',
+                                 justifyContent: 'center',
+                                 gap: '8px',
+                                 opacity: isPublishingFb ? 0.7 : 1,
+                              }}
+                           >
+                              {isPublishingFb ? 'Publishing to Meta Graph...' : 'Approve & Publish to Facebook Page'}
+                           </button>
+                        </div>
+                     )}
+
+                     {activeTab === 'x' && (
+                        <div key="x" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <h3 style={{ ...sidebarHeadingStyle, margin: 0 }}>𝕏 (Twitter) Publishing</h3>
+                              <button
+                                 type="button"
+                                 onClick={(e) => { e.preventDefault(); generateXDraft(); }}
+                                 disabled={isGeneratingXDraft}
+                                 style={{ background: '#f4f4f5', color: '#000', border: '1px solid #d4d4d8', padding: '5px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: 700, cursor: 'pointer' }}
+                              >
+                                 {isGeneratingXDraft ? 'Drafting...' : '✨ Auto-Draft Tweet'}
+                              </button>
+                           </div>
+
+                           {/* Live X Tweet Mockup */}
+                           <div style={{ background: '#09090b', borderRadius: '12px', padding: '14px', border: '1px solid #27272a', color: '#fff' }}>
+                              <div style={{ fontSize: '11px', fontWeight: 800, color: '#a1a1aa', marginBottom: '8px', textTransform: 'uppercase' }}>
+                                 Live 𝕏 Tweet Mockup
+                              </div>
+                              <div style={{ background: '#000', borderRadius: '10px', border: '1px solid #27272a', overflow: 'hidden' }}>
+                                 <div style={{ padding: '10px 12px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#fff', color: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '14px' }}>
+                                       𝕏
+                                    </div>
+                                    <div>
+                                       <div style={{ fontWeight: 700, fontSize: '13px', color: '#fff' }}>
+                                          Coachings in Sikar <span style={{ color: '#71717a', fontWeight: 400 }}>@coachingsinsikar</span>
+                                       </div>
+                                       <div style={{ fontSize: '11px', color: '#71717a' }}>Just now</div>
+                                    </div>
+                                 </div>
+                                 <div style={{ padding: '0 12px 10px 12px', fontSize: '12px', color: '#f4f4f5', lineHeight: 1.4, whiteSpace: 'pre-wrap', maxHeight: '120px', overflowY: 'auto' }}>
+                                    {xTweetText || '📢 ' + (title || 'Tweet preview will appear here...') + '\n\n🔗 https://coachingsinsikar.com/...'}
+                                 </div>
+                                 {coverImage && (
+                                    <div style={{ background: '#000', maxHeight: '140px', overflow: 'hidden' }}>
+                                       <img src={coverImage} alt="Preview" style={{ width: '100%', height: '140px', objectFit: 'cover', display: 'block' }} />
+                                    </div>
+                                 )}
+                              </div>
+                           </div>
+
+                           <div>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                                 <label style={metaLabelStyle}>EDIT TWEET (MAX 280 CHARACTERS)</label>
+                                 <span
+                                    style={{
+                                       fontSize: '11px',
+                                       fontWeight: 800,
+                                       color: xTweetText.length > 280 ? '#ef4444' : (xTweetText.length > 250 ? '#f59e0b' : '#64748b'),
+                                    }}
+                                 >
+                                    {xTweetText.length} / 280
+                                 </span>
+                              </div>
+                              <textarea
+                                 rows={5}
+                                 value={xTweetText}
+                                 onChange={(e) => setXTweetText(e.target.value)}
+                                 style={{
+                                    ...metaTextAreaStyle,
+                                    height: '110px',
+                                    border: xTweetText.length > 280 ? '2px solid #ef4444' : undefined,
+                                 }}
+                                 placeholder="Write or edit tweet (max 280 chars)..."
+                              />
+                           </div>
+
+                           {xPublishedPermalink && (
+                              <div style={{ padding: '10px 14px', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '8px', color: '#065f46', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                 <span>✓ Published to 𝕏!</span>
+                                 <a href={xPublishedPermalink} target="_blank" rel="noopener noreferrer" style={{ color: '#047857', fontWeight: 800 }}>
+                                    View Tweet ↗
+                                 </a>
+                              </div>
+                           )}
+
+                           <button
+                              type="button"
+                              onClick={(e) => { e.preventDefault(); publishToX(); }}
+                              disabled={isPublishingX || !xTweetText.trim() || xTweetText.length > 280}
+                              style={{
+                                 background: xTweetText.length > 280 ? '#94a3b8' : '#000',
+                                 color: '#fff',
+                                 border: 'none',
+                                 padding: '12px',
+                                 borderRadius: '10px',
+                                 fontWeight: 800,
+                                 fontSize: '13px',
+                                 cursor: xTweetText.length > 280 ? 'not-allowed' : 'pointer',
+                                 display: 'flex',
+                                 alignItems: 'center',
+                                 justifyContent: 'center',
+                                 gap: '8px',
+                                 opacity: isPublishingX ? 0.7 : 1,
+                              }}
+                           >
+                              {isPublishingX ? 'Publishing to 𝕏 API...' : 'Approve & Publish to 𝕏 🚀'}
+                           </button>
+                        </div>
+                     )}
+
+                                           {activeTab === 'pinterest' && (
+                         <div key="pinterest" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                               <h3 style={{ ...sidebarHeadingStyle, margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg> Pinterest Pin Approval
+                               </h3>
+                               <button
+                                  type="button"
+                                  onClick={(e) => { e.preventDefault(); generatePinDraft(); }}
+                                  disabled={isGeneratingPinDraft}
+                                  style={{
+                                     padding: '4px 10px',
+                                     borderRadius: '6px',
+                                     background: '#fef2f2',
+                                     border: '1px solid #fecaca',
+                                     color: '#e60023',
+                                     fontSize: '11px',
+                                     fontWeight: 700,
+                                     cursor: 'pointer',
+                                  }}
+                               >
+                                  {isGeneratingPinDraft ? 'Drafting...' : '↻ Regenerate'}
+                               </button>
+                            </div>
+
+                            {pinBoardName && (
+                               <div style={{ fontSize: '11px', color: '#64748b', background: '#f8fafc', padding: '6px 10px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                                  Board: <strong style={{ color: '#0f172a' }}>{pinBoardName}</strong>
+                               </div>
+                            )}
+
+                            <div>
+                               <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', marginBottom: '8px', letterSpacing: '0.5px' }}>
+                                  PINTEREST PIN PREVIEW
+                               </div>
+                               <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}>
+                                  <div style={{ padding: '10px 12px', display: 'flex', gap: '8px', alignItems: 'center', background: '#fef2f2', borderBottom: '1px solid #fee2e2' }}>
+                                     <div style={{ width: '26px', height: '26px', borderRadius: '50%', background: '#e60023', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '13px' }}>
+                                        P
+                                     </div>
+                                     <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div style={{ fontWeight: 700, fontSize: '12px', color: '#991b1b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                           Pinterest Pin Mockup
+                                        </div>
+                                     </div>
+                                  </div>
+
+                                  {coverImage ? (
+                                     <div style={{ background: '#f1f5f9', position: 'relative', overflow: 'hidden', maxHeight: '240px' }}>
+                                        <img
+                                           src={coverImage}
+                                           alt="Pin preview"
+                                           style={{ width: '100%', maxHeight: '240px', objectFit: 'cover', display: 'block' }}
+                                        />
+                                        <div style={{ position: 'absolute', top: '10px', right: '10px', background: '#e60023', color: '#fff', padding: '6px 14px', borderRadius: '20px', fontWeight: 800, fontSize: '11px' }}>
+                                           Save
+                                        </div>
+                                     </div>
+                                  ) : (
+                                     <div style={{ padding: '24px', textAlign: 'center', background: '#f8fafc', borderBottom: '1px dashed #cbd5e1', color: '#94a3b8', fontSize: '12px' }}>
+                                        ⚠️ Set a Cover Image for this post to preview vertical Pin
+                                     </div>
+                                  )}
+
+                                  <div style={{ padding: '12px 14px' }}>
+                                     <div style={{ fontWeight: 800, fontSize: '14px', color: '#0f172a', lineHeight: 1.3, marginBottom: '6px' }}>
+                                        {pinTitle || title || 'Pin Title will appear here...'}
+                                     </div>
+                                     <div style={{ fontSize: '11.5px', color: '#475569', lineHeight: 1.4, whiteSpace: 'pre-wrap', maxHeight: '90px', overflowY: 'auto', marginBottom: '10px' }}>
+                                        {pinDescription || 'SEO-optimized Pin description with keywords and hashtags...'}
+                                     </div>
+                                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#f1f5f9', padding: '4px 10px', borderRadius: '12px', fontSize: '11px', color: '#475569', fontWeight: 600 }}>
+                                        🔗 coachingsinsikar.com
+                                     </div>
+                                  </div>
+                               </div>
+                            </div>
+
+                            <div>
+                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                                  <label style={metaLabelStyle}>PIN TITLE (MAX 100 CHARS)</label>
+                                  <span style={{ fontSize: '11px', fontWeight: 800, color: pinTitle.length > 100 ? '#ef4444' : '#64748b' }}>
+                                     {pinTitle.length} / 100
+                                  </span>
+                               </div>
+                               <input
+                                  type="text"
+                                  value={pinTitle}
+                                  onChange={(e) => setPinTitle(e.target.value)}
+                                  maxLength={100}
+                                  style={{
+                                     ...metaInputStyle,
+                                     border: pinTitle.length > 100 ? '2px solid #ef4444' : undefined,
+                                  }}
+                                  placeholder="Eye-catching Pin title..."
+                               />
+                            </div>
+
+                            <div>
+                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                                  <label style={metaLabelStyle}>PIN DESCRIPTION (MAX 500 CHARS)</label>
+                                  <span style={{ fontSize: '11px', fontWeight: 800, color: pinDescription.length > 500 ? '#ef4444' : '#64748b' }}>
+                                     {pinDescription.length} / 500
+                                  </span>
+                               </div>
+                               <textarea
+                                  rows={5}
+                                  value={pinDescription}
+                                  onChange={(e) => setPinDescription(e.target.value)}
+                                  style={{
+                                     ...metaTextAreaStyle,
+                                     height: '110px',
+                                     border: pinDescription.length > 500 ? '2px solid #ef4444' : undefined,
+                                  }}
+                                  placeholder="Keyword-rich Pin description with hashtags..."
+                               />
+                            </div>
+
+                            {pinPublishedUrl && (
+                               <div style={{ padding: '10px 14px', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '8px', color: '#065f46', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                  <span>✓ Published to Pinterest!</span>
+                                  <a href={pinPublishedUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#047857', fontWeight: 800 }}>
+                                     View Pin ↗
+                                  </a>
+                               </div>
+                            )}
+
+                            <button
+                               type="button"
+                               onClick={(e) => { e.preventDefault(); publishToPinterest(); }}
+                               disabled={isPublishingPin || !pinTitle.trim() || !coverImage}
+                               style={{
+                                  background: (!coverImage || !pinTitle.trim()) ? '#94a3b8' : '#e60023',
+                                  color: '#fff',
+                                  border: 'none',
+                                  padding: '12px',
+                                  borderRadius: '10px',
+                                  fontWeight: 800,
+                                  fontSize: '13px',
+                                  cursor: (!coverImage || !pinTitle.trim()) ? 'not-allowed' : 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  gap: '8px',
+                                  boxShadow: (!coverImage || !pinTitle.trim()) ? 'none' : '0 4px 12px rgba(230, 0, 35, 0.3)',
+                                  opacity: isPublishingPin ? 0.7 : 1,
+                               }}
+                            >
+                               {isPublishingPin ? 'Publishing Pin to Pinterest...' : 'Approve & Publish Pin'}
+                            </button>
+                         </div>
+                      )}
+
+                      {activeTab === 'instagram' && (
+                         <div key="instagram" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                               <h3 style={{ ...sidebarHeadingStyle, margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg> Instagram Feed Approval
+                               </h3>
+                               <button
+                                  type="button"
+                                  onClick={(e) => { e.preventDefault(); generateIgDraft(); }}
+                                  disabled={isGeneratingIgDraft}
+                                  style={{
+                                     padding: '4px 10px',
+                                     borderRadius: '6px',
+                                     background: '#fdf2f8',
+                                     border: '1px solid #fbcfe8',
+                                     color: '#db2777',
+                                     fontSize: '11px',
+                                     fontWeight: 700,
+                                     cursor: 'pointer',
+                                  }}
+                               >
+                                  {isGeneratingIgDraft ? 'Drafting...' : '↻ Regenerate'}
+                               </button>
+                            </div>
+
+                            <div>
+                               <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', marginBottom: '8px', letterSpacing: '0.5px' }}>
+                                  INSTAGRAM FEED PREVIEW
+                               </div>
+                               <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}>
+                                  <div style={{ padding: '10px 12px', display: 'flex', gap: '8px', alignItems: 'center', borderBottom: '1px solid #f1f5f9' }}>
+                                     <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '12px' }}>
+                                        IG
+                                     </div>
+                                     <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div style={{ fontWeight: 800, fontSize: '12.5px', color: '#0f172a' }}>
+                                           coachingsinsikar
+                                        </div>
+                                        <div style={{ fontSize: '10.5px', color: '#64748b' }}>Sikar, Rajasthan</div>
+                                     </div>
+                                  </div>
+
+                                  {coverImage ? (
+                                     <div style={{ background: '#f8fafc', overflow: 'hidden', maxHeight: '260px' }}>
+                                        <img
+                                           src={coverImage}
+                                           alt="Post preview"
+                                           style={{ width: '100%', height: '260px', objectFit: 'cover', display: 'block' }}
+                                        />
+                                     </div>
+                                  ) : (
+                                     <div style={{ padding: '28px', textAlign: 'center', background: '#f8fafc', color: '#94a3b8', fontSize: '12px' }}>
+                                        ⚠️ Set a Cover Image for this post to preview Instagram photo
+                                     </div>
+                                  )}
+
+                                  <div style={{ padding: '8px 12px', display: 'flex', gap: '12px', fontSize: '16px', borderBottom: '1px solid #f8fafc' }}>
+                                     <span>❤️</span>
+                                     <span>💬</span>
+                                     <span>↗️</span>
+                                  </div>
+
+                                  <div style={{ padding: '10px 12px' }}>
+                                     <div style={{ fontSize: '12px', color: '#334155', lineHeight: 1.45, whiteSpace: 'pre-wrap', maxHeight: '120px', overflowY: 'auto' }}>
+                                        {igCaption || 'Caption will appear here...'}
+                                     </div>
+                                  </div>
+                               </div>
+                            </div>
+
+                            <div>
+                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                                  <label style={metaLabelStyle}>EDIT CAPTION (MAX 2200 CHARS)</label>
+                                  <span style={{ fontSize: '11px', fontWeight: 800, color: igCaption.length > 2200 ? '#ef4444' : '#64748b' }}>
+                                     {igCaption.length} / 2200
+                                  </span>
+                               </div>
+                               <textarea
+                                  rows={6}
+                                  value={igCaption}
+                                  onChange={(e) => setIgCaption(e.target.value)}
+                                  style={{
+                                     ...metaTextAreaStyle,
+                                     height: '130px',
+                                     border: igCaption.length > 2200 ? '2px solid #ef4444' : undefined,
+                                  }}
+                                  placeholder="Write or edit Instagram caption with emojis and hashtags..."
+                               />
+                            </div>
+
+                            {igPublishedPermalink && (
+                               <div style={{ padding: '10px 14px', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '8px', color: '#065f46', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                  <span>✓ Published to Instagram!</span>
+                                  <a href={igPublishedPermalink} target="_blank" rel="noopener noreferrer" style={{ color: '#047857', fontWeight: 800 }}>
+                                     View Post ↗
+                                  </a>
+                               </div>
+                            )}
+
+                            <button
+                               type="button"
+                               onClick={(e) => { e.preventDefault(); publishToInstagram(); }}
+                               disabled={isPublishingIg || !igCaption.trim() || !coverImage}
+                               style={{
+                                  background: (!coverImage || !igCaption.trim()) ? '#94a3b8' : 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)',
+                                  color: '#fff',
+                                  border: 'none',
+                                  padding: '12px',
+                                  borderRadius: '10px',
+                                  fontWeight: 800,
+                                  fontSize: '13px',
+                                  cursor: (!coverImage || !igCaption.trim()) ? 'not-allowed' : 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  gap: '8px',
+                                  boxShadow: (!coverImage || !igCaption.trim()) ? 'none' : '0 4px 12px rgba(220, 39, 67, 0.3)',
+                                  opacity: isPublishingIg ? 0.7 : 1,
+                               }}
+                            >
+                               {isPublishingIg ? 'Publishing to Instagram...' : 'Approve & Publish to Instagram'}
+                            </button>
+                         </div>
+                      )}
+
+                      {activeTab === 'linkedin' && (
+                         <div key="linkedin" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                               <h3 style={{ ...sidebarHeadingStyle, margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg> LinkedIn Post Approval
+                               </h3>
+                               <button
+                                  type="button"
+                                  onClick={(e) => { e.preventDefault(); generateLiDraft(); }}
+                                  disabled={isGeneratingLiDraft}
+                                  style={{
+                                     padding: '4px 10px',
+                                     borderRadius: '6px',
+                                     background: '#eff6ff',
+                                     border: '1px solid #bfdbfe',
+                                     color: '#1d4ed8',
+                                     fontSize: '11px',
+                                     fontWeight: 700,
+                                     cursor: 'pointer',
+                                  }}
+                               >
+                                  {isGeneratingLiDraft ? 'Drafting...' : '↻ Regenerate'}
+                               </button>
+                            </div>
+
+                            <div>
+                               <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', marginBottom: '8px', letterSpacing: '0.5px' }}>
+                                  LINKEDIN POST PREVIEW
+                               </div>
+                               <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}>
+                                  <div style={{ padding: '12px 14px', display: 'flex', gap: '10px', alignItems: 'center', borderBottom: '1px solid #f1f5f9' }}>
+                                     <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#0a66c2', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '14px' }}>
+                                        in
+                                     </div>
+                                     <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                           <span style={{ fontWeight: 800, fontSize: '13px', color: '#0f172a' }}>
+                                              Coachings in Sikar
+                                           </span>
+                                           <span style={{ background: '#e0f2fe', color: '#0369a1', fontSize: '10px', fontWeight: 800, padding: '1px 6px', borderRadius: '4px' }}>
+                                              Company Page
+                                           </span>
+                                        </div>
+                                        <div style={{ fontSize: '10.5px', color: '#64748b' }}>Education Advisory • 🌐 Public</div>
+                                     </div>
+                                  </div>
+
+                                  <div style={{ padding: '12px 14px', fontSize: '12.5px', color: '#1e293b', lineHeight: 1.5, whiteSpace: 'pre-wrap', maxHeight: '140px', overflowY: 'auto' }}>
+                                     {liCommentary || 'LinkedIn commentary preview will appear here with professional takeaways and hashtags...'}
+                                  </div>
+
+                                  {coverImage && (
+                                     <div style={{ background: '#f8fafc', overflow: 'hidden', maxHeight: '200px' }}>
+                                        <img
+                                           src={coverImage}
+                                           alt="Post preview"
+                                           style={{ width: '100%', height: '200px', objectFit: 'cover', display: 'block' }}
+                                        />
+                                     </div>
+                                  )}
+
+                                  <div style={{ padding: '8px 14px', display: 'flex', justifyContent: 'space-around', fontSize: '11px', color: '#64748b', fontWeight: 700, borderTop: '1px solid #f1f5f9' }}>
+                                     <span>👍 Like</span>
+                                     <span>💬 Comment</span>
+                                     <span>🔁 Repost</span>
+                                     <span>📤 Send</span>
+                                  </div>
+                               </div>
+                            </div>
+
+                            <div>
+                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                                  <label style={metaLabelStyle}>POST COMMENTARY (MAX 3000 CHARS)</label>
+                                  <span style={{ fontSize: '11px', fontWeight: 800, color: liCommentary.length > 3000 ? '#ef4444' : '#64748b' }}>
+                                     {liCommentary.length} / 3000
+                                  </span>
+                               </div>
+                               <textarea
+                                  rows={7}
+                                  value={liCommentary}
+                                  onChange={(e) => setLiCommentary(e.target.value)}
+                                  style={{
+                                     ...metaTextAreaStyle,
+                                     height: '140px',
+                                     border: liCommentary.length > 3000 ? '2px solid #ef4444' : undefined,
+                                  }}
+                                  placeholder="Write professional commentary with key highlights, links, and hashtags..."
+                               />
+                            </div>
+
+                            {liPublishedPermalink && (
+                               <div style={{ padding: '10px 14px', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '8px', color: '#065f46', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                  <span>✓ Published to LinkedIn!</span>
+                                  <a href={liPublishedPermalink} target="_blank" rel="noopener noreferrer" style={{ color: '#047857', fontWeight: 800 }}>
+                                     View Post ↗
+                                  </a>
+                               </div>
+                            )}
+
+                            <button
+                               type="button"
+                               onClick={(e) => { e.preventDefault(); publishToLinkedIn(); }}
+                               disabled={isPublishingLi || !liCommentary.trim()}
+                               style={{
+                                  background: !liCommentary.trim() ? '#94a3b8' : '#0a66c2',
+                                  color: '#fff',
+                                  border: 'none',
+                                  padding: '12px',
+                                  borderRadius: '10px',
+                                  fontWeight: 800,
+                                  fontSize: '13px',
+                                  cursor: !liCommentary.trim() ? 'not-allowed' : 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  gap: '8px',
+                                  boxShadow: !liCommentary.trim() ? 'none' : '0 4px 12px rgba(10, 102, 194, 0.3)',
+                                  opacity: isPublishingLi ? 0.7 : 1,
+                               }}
+                            >
+                               {isPublishingLi ? 'Publishing to LinkedIn...' : 'Approve & Publish to LinkedIn'}
+                            </button>
+                         </div>
+                      )}
+
+{activeTab === 'seo' && (
                         <div key="seo"  >
                            <h3 style={sidebarHeadingStyle}>AI SEO Audit</h3>
                            <div style={{ ...hcuCardStyle, background: 'linear-gradient(135deg, #fdf4ff 0%, #f3e8ff 100%)', border: '1px solid #e9d5ff' }}>
@@ -2379,17 +4073,23 @@ export default function PostForm({ post }: PostFormProps) {
                                              if (newBase === 'direct') setUrlFormat('{slug}');
                                              else setUrlFormat(`${newBase}/{slug}`);
                                          }} style={metaInputStyle}>
+                                             <option value="blog">Blog (/blog)</option>
+                                             <option value="news">News (/news)</option>
                                              <option value="direct">Direct (No Base Page)</option>
-                                             {availablePages?.map(p => (
-                                                 <option key={p.id || p.slug} value={p.slug}>{p.title}</option>
+                                             {availablePages?.filter(p => p.slug !== 'blog' && p.slug !== 'news').map(p => (
+                                                 <option key={p.id || p.slug} value={p.slug}>{p.title} (/{p.slug})</option>
                                              ))}
-                                             {(!availablePages || availablePages.length === 0) && (
-                                                <>
-                                                    <option value="blog">Blog</option>
-                                                    <option value="news">News</option>
-                                                </>
-                                             )}
                                          </select>
+                                         <a 
+                                              href={selectedBasePage === 'direct' ? `/${slug || 'article-name'}` : `/${selectedBasePage}/${slug || 'article-name'}`}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              style={{ fontSize: '11px', color: '#1e40af', background: '#eff6ff', padding: '6px 10px', borderRadius: '6px', border: '1px solid #bfdbfe', marginTop: '6px', wordBreak: 'break-all', display: 'flex', alignItems: 'center', justifyContent: 'space-between', textDecoration: 'none' }}
+                                              title="Preview target URL in new tab"
+                                          >
+                                              <span><strong>Target URL:</strong> /{selectedBasePage === 'direct' ? (slug || 'article-name') : `${selectedBasePage}/${slug || 'article-name'}`}</span>
+                                              <span style={{ fontWeight: 800, color: '#2563eb', marginLeft: '6px' }}>Open ↗</span>
+                                          </a>
                                      </div>
                                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                          <label style={metaLabelStyle}>URL FORMAT</label>
@@ -2851,11 +4551,598 @@ export default function PostForm({ post }: PostFormProps) {
                </div>
             )}
           
+
+            {/* 🧠 AI Deep Research & Human Writer Studio Modal */}
+            {aiStudioOpen && (
+               <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(8px)', zIndex: 100000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+                  <div style={{ background: '#ffffff', width: '100%', maxWidth: '1280px', height: '90vh', maxHeight: '920px', borderRadius: '24px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.3)', border: '1px solid #e2e8f0' }}>
+                     {/* Studio Top Header */}
+                     <div style={{ padding: '18px 28px', borderBottom: '1px solid #e2e8f0', background: 'linear-gradient(135deg, #0f172a, #1e293b)', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                           <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(139, 92, 246, 0.4)' }}>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+                           </div>
+                           <div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                 <h2 style={{ fontSize: '18px', fontWeight: 800, margin: 0, letterSpacing: '-0.3px', color: '#fff' }}>AI Deep Research & Human Blog Writer</h2>
+                                 <span style={{ fontSize: '11px', fontWeight: 800, background: 'rgba(139, 92, 246, 0.25)', color: '#c4b5fd', padding: '3px 10px', borderRadius: '999px', border: '1px solid rgba(139, 92, 246, 0.4)', letterSpacing: '0.5px' }}>ZERO FLUFF • FACT-CHECKED</span>
+                              </div>
+                              <p style={{ margin: '3px 0 0', fontSize: '12px', color: '#94a3b8' }}>
+                                 Multi-source factual grounding, verified metrics, zero robotic clichés, with 1-click publishing.
+                              </p>
+                           </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                           <button 
+                              onClick={() => setAiStudioOpen(false)} 
+                              style={{ border: 'none', background: 'rgba(255, 255, 255, 0.1)', color: '#cbd5e1', padding: '8px 14px', borderRadius: '10px', cursor: 'pointer', fontSize: '12.5px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.2s' }}
+                           >
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                              Close Studio
+                           </button>
+                        </div>
+                     </div>
+
+                     {/* Studio Main Workspace: Split Pane */}
+                     <div style={{ display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+                        {/* LEFT COLUMN: Research Brief Inputs */}
+                        <div style={{ width: '470px', flexShrink: 0, borderRight: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                           <div style={{ flex: 1, overflowY: 'auto', padding: '22px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                              {/* Topic / Headline */}
+                              <div>
+                                 <label style={metaLabelStyle}>
+                                    TARGET TOPIC / HEADLINE <span style={{ color: '#ef4444' }}>*</span>
+                                 </label>
+                                 <input 
+                                    type="text"
+                                    value={aiTopic}
+                                    onChange={e => setAiTopic(e.target.value)}
+                                    placeholder="e.g. Top NEET Coaching in Sikar: Real Fees, Faculty & Batch Size"
+                                    style={{ ...metaInputStyle, background: '#fff', fontSize: '13px', padding: '11px 13px' }}
+                                 />
+                              </div>
+
+                              {/* Live URL Scraper Grounding */}
+                              <div>
+                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
+                                    <label style={{ ...metaLabelStyle, marginBottom: 0 }}>
+                                       REFERENCE / SOURCE URL (LIVE SCRAPE)
+                                    </label>
+                                    <span style={{ fontSize: '10px', color: '#6366f1', fontWeight: 800 }}>AUTO-EXTRACT FACTS</span>
+                                 </div>
+                                 <div style={{ display: 'flex', gap: '8px' }}>
+                                    <input 
+                                       type="url"
+                                       value={aiUrlSources}
+                                       onChange={e => setAiUrlSources(e.target.value)}
+                                       placeholder="https://example.com/fees-or-official-page"
+                                       style={{ ...metaInputStyle, background: '#fff', fontSize: '12px', padding: '8px 10px', flex: 1 }}
+                                    />
+                                    <button
+                                       type="button"
+                                       onClick={handleScrapeExternalUrl}
+                                       disabled={isScrapingUrl || !aiUrlSources.trim()}
+                                       style={{
+                                          padding: '7px 12px',
+                                          borderRadius: '8px',
+                                          background: isScrapingUrl ? '#94a3b8' : '#f1f5f9',
+                                          border: '1px solid #cbd5e1',
+                                          color: isScrapingUrl ? '#fff' : '#334155',
+                                          fontSize: '11.5px',
+                                          fontWeight: 700,
+                                          cursor: isScrapingUrl ? 'not-allowed' : 'pointer',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          gap: '5px',
+                                          flexShrink: 0
+                                       }}
+                                    >
+                                       {isScrapingUrl ? (
+                                          <>
+                                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'spin 1s linear infinite' }}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                                             <span>Scraping...</span>
+                                          </>
+                                       ) : (
+                                          <>
+                                             <span>🌐</span>
+                                             <span>Scrape URL</span>
+                                          </>
+                                       )}
+                                    </button>
+                                 </div>
+                                 {scrapedDataPreview && (
+                                    <div style={{ marginTop: '7px', padding: '8px 12px', borderRadius: '8px', background: '#ecfdf5', border: '1px solid #a7f3d0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                       <div style={{ fontSize: '11px', color: '#065f46', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '340px' }}>
+                                          <strong>✓ Scraped:</strong> {scrapedDataPreview.title || scrapedDataPreview.url} <span style={{ opacity: 0.8 }}>({scrapedDataPreview.char_count} chars)</span>
+                                       </div>
+                                       <button 
+                                          type="button" 
+                                          onClick={() => setScrapedDataPreview(null)}
+                                          style={{ border: 'none', background: 'transparent', color: '#047857', cursor: 'pointer', fontSize: '11px', fontWeight: 800, padding: '2px 5px' }}
+                                          title="Remove scraped data"
+                                       >
+                                          ✕
+                                       </button>
+                                    </div>
+                                 )}
+                              </div>
+
+                              {/* Specific Focus Information (SPACK INFORMATION) */}
+                              <div>
+                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
+                                    <label style={{ ...metaLabelStyle, marginBottom: 0 }}>
+                                       SPECIFIC INFORMATION & INSIDER FACTS (SPACK DATA)
+                                    </label>
+                                    <span style={{ fontSize: '10px', color: '#059669', background: '#d1fae5', padding: '2px 6px', borderRadius: '4px', fontWeight: 800 }}>HIGH PRIORITY</span>
+                                 </div>
+                                 <p style={{ margin: '0 0 6px', fontSize: '10.5px', color: '#64748b', lineHeight: '1.4' }}>
+                                    Enter exact fees, faculty names, batch strength, refund rules, student quotes, or hostel reality. The AI weaves these specific facts naturally into human-written prose.
+                                 </p>
+                                 <textarea
+                                    value={aiSpecificInfo}
+                                    onChange={e => setAiSpecificInfo(e.target.value)}
+                                    placeholder="e.g. Batch size is capped at 85 students. Real fee is ₹1,35,000 for XI+XII. Physics HOD has 18 yrs exp. Caution money is ₹10,000 non-refundable after 30 days. Hostel mess on Piprali road rated 3.2/5 by students..."
+                                    style={{ ...metaTextAreaStyle, background: '#ffffff', minHeight: '90px', fontSize: '11.5px', lineHeight: '1.45', fontFamily: 'inherit' }}
+                                 />
+                              </div>
+
+                              {/* Additional Raw Notes / Bullets */}
+                              <div>
+                                 <label style={metaLabelStyle}>ADDITIONAL RAW NOTES / BULLETS (OPTIONAL)</label>
+                                 <textarea
+                                    value={aiUserSources}
+                                    onChange={e => setAiUserSources(e.target.value)}
+                                    placeholder="Any additional bullet points, syllabus updates, or rough facts..."
+                                    style={{ ...metaTextAreaStyle, background: '#ffffff', minHeight: '65px', fontSize: '11.5px', lineHeight: '1.45', fontFamily: 'inherit' }}
+                                 />
+                              </div>
+
+                              {/* Focus Keyword & Category */}
+                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                                 <div>
+                                    <label style={metaLabelStyle}>PRIMARY KEYWORD</label>
+                                    <input 
+                                       type="text"
+                                       value={aiKeywords}
+                                       onChange={e => setAiKeywords(e.target.value)}
+                                       placeholder="e.g. neet coaching fees"
+                                       style={{ ...metaInputStyle, background: '#fff', fontSize: '12px', padding: '9px 11px' }}
+                                    />
+                                 </div>
+                                 <div>
+                                    <label style={metaLabelStyle}>CATEGORY</label>
+                                    <input 
+                                       type="text"
+                                       value={aiCategory}
+                                       onChange={e => setAiCategory(e.target.value)}
+                                       placeholder="e.g. Sikar Coaching"
+                                       style={{ ...metaInputStyle, background: '#fff', fontSize: '12px', padding: '9px 11px' }}
+                                    />
+                                 </div>
+                              </div>
+
+                              {/* Editorial Tone */}
+                              <div>
+                                 <label style={metaLabelStyle}>EDITORIAL CADENCE & HUMAN TONE</label>
+                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '7px' }}>
+                                    {[
+                                       { key: 'investigative', label: 'Investigative Audit', desc: 'Unbiased facts, fees, caveats' },
+                                       { key: 'parent_guide', label: 'Parent Guide', desc: 'ROI, safety, hostel & reality' },
+                                       { key: 'comparison', label: 'Head-to-Head', desc: 'Pros, cons, table & verdict' },
+                                       { key: 'editorial', label: 'Hard Editorial', desc: 'Direct advice, zero sugarcoating' },
+                                    ].map(item => (
+                                       <button
+                                          key={item.key}
+                                          type="button"
+                                          onClick={() => setAiTone(item.key as any)}
+                                          style={{
+                                             textAlign: 'left',
+                                             padding: '9px 10px',
+                                             borderRadius: '9px',
+                                             border: aiTone === item.key ? '2px solid #6366f1' : '1px solid #e2e8f0',
+                                             background: aiTone === item.key ? '#eef2ff' : '#ffffff',
+                                             cursor: 'pointer',
+                                             transition: 'all 0.15s'
+                                          }}
+                                       >
+                                          <div style={{ fontSize: '11.5px', fontWeight: 800, color: aiTone === item.key ? '#4338ca' : '#1e293b' }}>{item.label}</div>
+                                          <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', lineHeight: '1.2' }}>{item.desc}</div>
+                                       </button>
+                                    ))}
+                                 </div>
+                              </div>
+
+                              {/* Target Word Count & Language */}
+                              <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: '10px' }}>
+                                 <div>
+                                    <label style={metaLabelStyle}>RESEARCH DEPTH / LENGTH</label>
+                                    <div style={{ display: 'flex', gap: '5px' }}>
+                                       {[
+                                          { cnt: 1500, label: '1.5k Std' },
+                                          { cnt: 2500, label: '2.5k Deep' },
+                                          { cnt: 3800, label: '4k Pillar' }
+                                       ].map(item => (
+                                          <button
+                                             key={item.cnt}
+                                             type="button"
+                                             onClick={() => setAiWordCount(item.cnt)}
+                                             style={{
+                                                flex: 1,
+                                                padding: '7px 3px',
+                                                borderRadius: '7px',
+                                                border: aiWordCount === item.cnt ? '2px solid #3b82f6' : '1px solid #e2e8f0',
+                                                background: aiWordCount === item.cnt ? '#eff6ff' : '#fff',
+                                                fontSize: '11px',
+                                                fontWeight: 800,
+                                                color: aiWordCount === item.cnt ? '#1d4ed8' : '#475569',
+                                                cursor: 'pointer'
+                                             }}
+                                          >
+                                             {item.label}
+                                          </button>
+                                       ))}
+                                    </div>
+                                 </div>
+                                 <div>
+                                    <label style={metaLabelStyle}>LANGUAGE</label>
+                                    <select
+                                       value={aiLanguage}
+                                       onChange={e => setAiLanguage(e.target.value as any)}
+                                       style={{ ...metaInputStyle, background: '#fff', fontSize: '12px', padding: '8px 10px' }}
+                                    >
+                                       <option value="English">English (Natural)</option>
+                                       <option value="Hinglish">Hinglish (Conversational)</option>
+                                       <option value="Hindi">Hindi (Shuddh)</option>
+                                    </select>
+                                 </div>
+                              </div>
+
+                              {/* Depth Feature Inclusions */}
+                              <div>
+                                 <label style={metaLabelStyle}>DEEP CONTENT MODULES</label>
+                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#334155', cursor: 'pointer', background: '#fff', padding: '7px 9px', borderRadius: '7px', border: '1px solid #e2e8f0' }}>
+                                       <input type="checkbox" checked={aiIncludeTable} onChange={e => setAiIncludeTable(e.target.checked)} />
+                                       <span>Comparison Table</span>
+                                    </label>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#334155', cursor: 'pointer', background: '#fff', padding: '7px 9px', borderRadius: '7px', border: '1px solid #e2e8f0' }}>
+                                       <input type="checkbox" checked={aiIncludeTraps} onChange={e => setAiIncludeTraps(e.target.checked)} />
+                                       <span>Hidden Traps Callout</span>
+                                    </label>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#334155', cursor: 'pointer', background: '#fff', padding: '7px 9px', borderRadius: '7px', border: '1px solid #e2e8f0' }}>
+                                       <input type="checkbox" checked={aiIncludeFaqs} onChange={e => setAiIncludeFaqs(e.target.checked)} />
+                                       <span>Google FAQ Schema</span>
+                                    </label>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#334155', cursor: 'pointer', background: '#fff', padding: '7px 9px', borderRadius: '7px', border: '1px solid #e2e8f0' }}>
+                                       <input type="checkbox" checked={aiIncludeTakeaways} onChange={e => setAiIncludeTakeaways(e.target.checked)} />
+                                       <span>Key Takeaways Box</span>
+                                    </label>
+                                 </div>
+                              </div>
+                           </div>
+
+                           {/* Bottom Action Footer in Left Column */}
+                           <div style={{ padding: '16px 24px', background: '#ffffff', borderTop: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                              <button
+                                 type="button"
+                                 disabled={isAiResearching}
+                                 onClick={handleRunAiDeepResearch}
+                                 style={{
+                                    width: '100%',
+                                    padding: '14px',
+                                    borderRadius: '12px',
+                                    border: 'none',
+                                    background: isAiResearching 
+                                       ? '#94a3b8' 
+                                       : 'linear-gradient(135deg, #6366f1, #3b82f6)',
+                                    color: '#ffffff',
+                                    fontWeight: 800,
+                                    fontSize: '14px',
+                                    cursor: isAiResearching ? 'not-allowed' : 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '10px',
+                                    boxShadow: isAiResearching ? 'none' : '0 4px 14px rgba(99, 102, 241, 0.35)',
+                                    transition: 'all 0.2s'
+                                 }}
+                              >
+                                 {isAiResearching ? (
+                                    <>
+                                       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'spin 1s linear infinite' }}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                                       <span>{aiStage || 'Synthesizing Verified Facts...'}</span>
+                                    </>
+                                 ) : (
+                                    <>
+                                       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                       <span>Launch Deep Research & Write</span>
+                                    </>
+                                 )}
+                              </button>
+                              {aiGeneratedPost && (
+                                 <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button
+                                       type="button"
+                                       onClick={handleInsertAiContentOnly}
+                                       style={{ flex: 1, padding: '9px', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '10px', fontSize: '12px', fontWeight: 700, color: '#334155', cursor: 'pointer' }}
+                                    >
+                                       Insert Body Only
+                                    </button>
+                                    <button
+                                       type="button"
+                                       onClick={handleApplyAiPostToEditor}
+                                       style={{ flex: 1.4, padding: '9px', background: '#10b981', border: 'none', borderRadius: '10px', fontSize: '12px', fontWeight: 800, color: '#fff', cursor: 'pointer', boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)' }}
+                                    >
+                                       Apply All Fields ✨
+                                    </button>
+                                 </div>
+                              )}
+                           </div>
+                        </div>
+
+                        {/* RIGHT COLUMN: Output Workspace & Preview */}
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, background: '#ffffff', overflow: 'hidden' }}>
+                           {/* Output View Tabs Header (Visible when results exist) */}
+                           {aiGeneratedPost ? (
+                              <div style={{ padding: '14px 24px', borderBottom: '1px solid #e2e8f0', background: '#fafcff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+                                 <div style={{ display: 'flex', gap: '6px' }}>
+                                    {[
+                                       { key: 'article', label: 'Article Preview', badge: `${aiGeneratedPost.readingTime || '6 min'}` },
+                                       { key: 'takeaways', label: 'Key Takeaways', badge: `${aiGeneratedPost.keyTakeaways?.length || 0}` },
+                                       { key: 'faqs', label: 'FAQ Schema', badge: `${aiGeneratedPost.faqs?.length || 0}` },
+                                       { key: 'sources', label: 'Verified Sources', badge: `${aiGeneratedPost.sources?.length || 0}` },
+                                       { key: 'metadata', label: 'SEO & Metadata', badge: 'Ready' }
+                                    ].map(tab => (
+                                       <button
+                                          key={tab.key}
+                                          type="button"
+                                          onClick={() => setAiActiveViewTab(tab.key as any)}
+                                          style={{
+                                             padding: '8px 14px',
+                                             borderRadius: '10px',
+                                             border: aiActiveViewTab === tab.key ? '1px solid #6366f1' : '1px solid transparent',
+                                             background: aiActiveViewTab === tab.key ? '#eef2ff' : 'transparent',
+                                             color: aiActiveViewTab === tab.key ? '#4338ca' : '#64748b',
+                                             fontWeight: 800,
+                                             fontSize: '12.5px',
+                                             cursor: 'pointer',
+                                             display: 'flex',
+                                             alignItems: 'center',
+                                             gap: '6px'
+                                          }}
+                                       >
+                                          <span>{tab.label}</span>
+                                          <span style={{ fontSize: '10px', padding: '2px 6px', borderRadius: '6px', background: aiActiveViewTab === tab.key ? '#c7d2fe' : '#f1f5f9', color: aiActiveViewTab === tab.key ? '#312e81' : '#64748b' }}>
+                                             {tab.badge}
+                                          </span>
+                                       </button>
+                                    ))}
+                                 </div>
+
+                                 <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button
+                                       type="button"
+                                       onClick={handleApplyAiPostToEditor}
+                                       style={{
+                                          padding: '8px 16px',
+                                          borderRadius: '10px',
+                                          border: 'none',
+                                          background: 'linear-gradient(135deg, #10b981, #059669)',
+                                          color: '#fff',
+                                          fontWeight: 800,
+                                          fontSize: '13px',
+                                          cursor: 'pointer',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          gap: '6px',
+                                          boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)'
+                                       }}
+                                    >
+                                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                       Apply Everything to Post Form
+                                    </button>
+                                 </div>
+                              </div>
+                           ) : null}
+
+                           {/* Main Output Content Container */}
+                           <div style={{ flex: 1, overflowY: 'auto', padding: '32px' }}>
+                              {isAiResearching ? (
+                                 <div style={{ height: '100%', minHeight: '380px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '40px' }}>
+                                    <div style={{ position: 'relative', width: '90px', height: '90px', marginBottom: '24px' }}>
+                                       <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)', opacity: 0.15, transform: 'scale(1.4)' }}></div>
+                                       <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '3px solid #8b5cf6', borderTopColor: 'transparent', animation: 'spin 1s linear infinite' }}></div>
+                                       <div style={{ position: 'absolute', inset: '12px', borderRadius: '50%', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6366f1' }}>
+                                          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6Z"/></svg>
+                                       </div>
+                                    </div>
+                                    <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#1e293b', marginBottom: '8px' }}>
+                                       Deep Research In Progress...
+                                    </h3>
+                                    <p style={{ fontSize: '13.5px', color: '#6366f1', fontWeight: 700, maxWidth: '480px', lineHeight: '1.6' }}>
+                                       {aiStage || 'Analyzing sources, eliminating clichés, and structuring verified journalistic content...'}
+                                    </p>
+                                    <div style={{ marginTop: '24px', display: 'flex', gap: '8px' }}>
+                                       <span style={{ fontSize: '11px', background: '#f1f5f9', padding: '5px 12px', borderRadius: '8px', color: '#475569', fontWeight: 600 }}>Multi-Source Grounding</span>
+                                       <span style={{ fontSize: '11px', background: '#f1f5f9', padding: '5px 12px', borderRadius: '8px', color: '#475569', fontWeight: 600 }}>Zero Fluff Filter</span>
+                                       <span style={{ fontSize: '11px', background: '#f1f5f9', padding: '5px 12px', borderRadius: '8px', color: '#475569', fontWeight: 600 }}>Schema Generation</span>
+                                    </div>
+                                 </div>
+                              ) : !aiGeneratedPost ? (
+                                 <div style={{ height: '100%', minHeight: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', maxWidth: '640px', margin: '0 auto' }}>
+                                    <div style={{ width: '70px', height: '70px', borderRadius: '20px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6', marginBottom: '20px' }}>
+                                       <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                                    </div>
+                                    <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginBottom: '8px' }}>
+                                       AI Deep Research & Fact Synthesis Ready
+                                    </h3>
+                                    <p style={{ fontSize: '13.5px', color: '#64748b', lineHeight: '1.6', marginBottom: '28px' }}>
+                                       Give your topic and any unformatted raw material (rough notes, fee brochures, review links) on the left panel. The research engine will verify facts, eliminate generic AI filler words, and write a human-grade article.
+                                    </p>
+
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', width: '100%', textAlign: 'left' }}>
+                                       <div style={{ padding: '16px', borderRadius: '16px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                                          <div style={{ fontSize: '13px', fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}>🛡️ Zero AI Fluff</div>
+                                          <div style={{ fontSize: '11.5px', color: '#64748b', lineHeight: '1.4' }}>Bans generic openers like "In today\'s fast-paced world". Directly delivers high-value facts.</div>
+                                       </div>
+                                       <div style={{ padding: '16px', borderRadius: '16px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                                          <div style={{ fontSize: '13px', fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}>📊 Structured Tables</div>
+                                          <div style={{ fontSize: '11.5px', color: '#64748b', lineHeight: '1.4' }}>Generates clear comparison tables with exact fee ranges, ranks, batch sizes & metrics.</div>
+                                       </div>
+                                       <div style={{ padding: '16px', borderRadius: '16px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                                          <div style={{ fontSize: '13px', fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}>⚡ 1-Click Publishing</div>
+                                          <div style={{ fontSize: '11.5px', color: '#64748b', lineHeight: '1.4' }}>Auto-populates Title, Editor HTML, FAQs, Key Takeaways, Meta SEO & Focus Keywords.</div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              ) : (
+                                 <div>
+                                    {/* Tab 1: ARTICLE PREVIEW */}
+                                    {aiActiveViewTab === 'article' && (
+                                       <div>
+                                          <div style={{ marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid #e2e8f0' }}>
+                                             <div style={{ fontSize: '12px', fontWeight: 800, color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '6px' }}>
+                                                {aiGeneratedPost.category || 'Deep Research Report'}
+                                             </div>
+                                             <h1 style={{ fontSize: '24px', fontWeight: 900, color: '#0f172a', margin: '0 0 10px', lineHeight: '1.3' }}>
+                                                {aiGeneratedPost.title}
+                                             </h1>
+                                             <div style={{ display: 'flex', gap: '16px', fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
+                                                <span>Slug: <code>{aiGeneratedPost.slug}</code></span>
+                                                <span>•</span>
+                                                <span>Focus: <strong>{aiGeneratedPost.focusKeyword}</strong></span>
+                                                <span>•</span>
+                                                <span>Est. Read: <strong>{aiGeneratedPost.readingTime || '6 min'}</strong></span>
+                                             </div>
+                                          </div>
+
+                                          <div 
+                                             style={{
+                                                fontSize: '15px',
+                                                lineHeight: '1.8',
+                                                color: '#1e293b',
+                                                background: '#ffffff'
+                                             }}
+                                             dangerouslySetInnerHTML={{ __html: aiGeneratedPost.content }}
+                                          />
+                                       </div>
+                                    )}
+
+                                    {/* Tab 2: KEY TAKEAWAYS */}
+                                    {aiActiveViewTab === 'takeaways' && (
+                                       <div>
+                                          <h4 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', marginBottom: '14px' }}>
+                                             Key Executive Takeaways
+                                          </h4>
+                                          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                             {(aiGeneratedPost.keyTakeaways || []).map((t, idx) => (
+                                                <div key={idx} style={{ padding: '16px', borderRadius: '14px', background: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                                                   <span style={{ width: '24px', height: '24px', borderRadius: '6px', background: '#6366f1', color: '#fff', fontSize: '12px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                                      {idx + 1}
+                                                   </span>
+                                                   <div style={{ fontSize: '14px', color: '#1e293b', fontWeight: 600, lineHeight: '1.5' }}>{t}</div>
+                                                </div>
+                                             ))}
+                                          </div>
+                                       </div>
+                                    )}
+
+                                    {/* Tab 3: FAQs */}
+                                    {aiActiveViewTab === 'faqs' && (
+                                       <div>
+                                          <h4 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', marginBottom: '14px' }}>
+                                             Google FAQ Schema Q&As ({aiGeneratedPost.faqs?.length || 0})
+                                          </h4>
+                                          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                             {(aiGeneratedPost.faqs || []).map((f, idx) => (
+                                                <div key={idx} style={{ padding: '18px', borderRadius: '16px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                                                   <div style={{ fontSize: '15px', fontWeight: 800, color: '#1e293b', marginBottom: '8px' }}>
+                                                      Q: {f.question}
+                                                   </div>
+                                                   <div style={{ fontSize: '13.5px', color: '#475569', lineHeight: '1.6' }}>
+                                                      {f.answer}
+                                                   </div>
+                                                </div>
+                                             ))}
+                                          </div>
+                                       </div>
+                                    )}
+
+                                    {/* Tab 4: SOURCES */}
+                                    {aiActiveViewTab === 'sources' && (
+                                       <div>
+                                          <h4 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', marginBottom: '14px' }}>
+                                             Verified Official Sources & Grounding Citations
+                                          </h4>
+                                          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                             {(aiGeneratedPost.sources || []).map((s, idx) => (
+                                                <div key={idx} style={{ padding: '16px', borderRadius: '14px', background: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                   <div>
+                                                      <div style={{ fontSize: '14px', fontWeight: 800, color: '#1e293b' }}>{s.title}</div>
+                                                      <a href={s.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '12px', color: '#2563eb', textDecoration: 'underline' }}>
+                                                         {s.url}
+                                                      </a>
+                                                   </div>
+                                                   <span style={{ fontSize: '11px', background: '#e0f2fe', color: '#0369a1', padding: '4px 10px', borderRadius: '6px', fontWeight: 700 }}>
+                                                      Verified Official
+                                                   </span>
+                                                </div>
+                                             ))}
+                                          </div>
+                                       </div>
+                                    )}
+
+                                    {/* Tab 5: METADATA */}
+                                    {aiActiveViewTab === 'metadata' && (
+                                       <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                                          <div>
+                                             <label style={metaLabelStyle}>META DESCRIPTION</label>
+                                             <div style={{ padding: '14px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', fontSize: '13.5px', color: '#1e293b' }}>
+                                                {aiGeneratedPost.metaDescription}
+                                             </div>
+                                          </div>
+                                          <div>
+                                             <label style={metaLabelStyle}>FOCUS KEYWORD</label>
+                                             <div style={{ padding: '12px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', fontSize: '13px', fontWeight: 700, color: '#2563eb' }}>
+                                                {aiGeneratedPost.focusKeyword}
+                                             </div>
+                                          </div>
+                                          <div>
+                                             <label style={metaLabelStyle}>RECOMMENDED TAGS</label>
+                                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                                {(aiGeneratedPost.tags || []).map((tag, idx) => (
+                                                   <span key={idx} style={lsiTagStyle}>#{tag}</span>
+                                                ))}
+                                             </div>
+                                          </div>
+                                          {aiGeneratedPost.excerpt && (
+                                             <div>
+                                                <label style={metaLabelStyle}>EXCERPT</label>
+                                                <div style={{ padding: '14px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', fontSize: '13px', color: '#475569' }}>
+                                                   {aiGeneratedPost.excerpt}
+                                                </div>
+                                             </div>
+                                          )}
+                                       </div>
+                                    )}
+                                 </div>
+                              )}
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            )}
+
           {mediaPickerTarget && (
              <MediaPicker 
                 onSelect={(url) => {
                    if (mediaPickerTarget === 'cover') setCoverImage(url);
                    if (mediaPickerTarget === 'author') setAuthorImage(url);
+                   if (mediaPickerTarget === 'content' && editor) {
+                      editor.chain().focus().setImage({ src: url, alt: '' }).run();
+                      setTimeout(() => handleOpenImageModal(), 100);
+                   }
                    setMediaPickerTarget(null);
                 }}
                 onClose={() => setMediaPickerTarget(null)}

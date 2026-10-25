@@ -19,7 +19,7 @@ export default function Register() {
 
     return (
         <div className="min-h-screen flex bg-white dark:bg-[#09090b] font-sans selection:bg-blue-500/30">
-            <Head title="Sign Up | CoachingInSikar" />
+            <Head title="Sign Up | CoachingsInSikar" />
 
             {/* Left Panel - Form */}
             <div className="w-full lg:w-1/2 flex flex-col px-6 sm:px-12 lg:px-24 xl:px-32 relative z-10 pt-8 pb-6 lg:py-0 lg:min-h-screen lg:justify-center">
@@ -56,7 +56,7 @@ export default function Register() {
                                     type="text"
                                     value={data.name}
                                     onChange={(e) => setData('name', e.target.value)}
-                                    className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
+                                    className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-xl text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
                                     placeholder="John Doe"
                                     required
                                     autoFocus
@@ -77,7 +77,7 @@ export default function Register() {
                                     type="email"
                                     value={data.email}
                                     onChange={(e) => setData('email', e.target.value)}
-                                    className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
+                                    className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-xl text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
                                     placeholder="you@example.com"
                                     required
                                 />
@@ -98,7 +98,7 @@ export default function Register() {
                                         type="password"
                                         value={data.password}
                                         onChange={(e) => setData('password', e.target.value)}
-                                        className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
+                                        className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-xl text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
                                         placeholder="••••••••"
                                         required
                                     />
@@ -118,7 +118,7 @@ export default function Register() {
                                         type="password"
                                         value={data.password_confirmation}
                                         onChange={(e) => setData('password_confirmation', e.target.value)}
-                                        className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
+                                        className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-xl text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
                                         placeholder="••••••••"
                                         required
                                     />
@@ -131,7 +131,7 @@ export default function Register() {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="group relative w-full flex justify-center items-center gap-2 py-3.5 px-4 rounded-full text-sm font-extrabold text-black bg-amber-500 hover:bg-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-500/30 disabled:opacity-70 disabled:cursor-not-allowed transition-all active:scale-[0.98] shadow-lg shadow-amber-500/20 overflow-hidden"
+                                className="group relative w-full flex justify-center items-center gap-2 py-3.5 px-4 rounded-xl text-sm font-extrabold text-black bg-amber-500 hover:bg-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-500/30 disabled:opacity-70 disabled:cursor-not-allowed transition-all active:scale-[0.98] shadow-lg shadow-amber-500/20 overflow-hidden cursor-pointer"
                             >
                                 <span className="relative z-10 flex items-center gap-2">
                                     {processing ? 'Creating account...' : 'Create Account'}
@@ -142,6 +142,24 @@ export default function Register() {
                             </button>
                         </div>
                     </form>
+
+                    <div className="mt-4">
+                        <div className="relative flex py-2 items-center">
+                            <div className="flex-grow border-t border-slate-200 dark:border-zinc-800"></div>
+                            <span className="flex-shrink mx-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">or</span>
+                            <div className="flex-grow border-t border-slate-200 dark:border-zinc-800"></div>
+                        </div>
+
+                        <a
+                            href="/auth/facebook"
+                            className="w-full mt-1 flex items-center justify-center gap-3 py-3 px-4 rounded-xl text-sm font-bold text-white bg-[#1877F2] hover:bg-[#166fe5] focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all shadow-md shadow-blue-500/10 cursor-pointer no-underline"
+                        >
+                            <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                            </svg>
+                            <span>Continue with Facebook</span>
+                        </a>
+                    </div>
 
                     <div className="mt-5 text-center text-sm font-medium text-slate-500 dark:text-zinc-400 pb-4 lg:pb-0">
                         Already have an account?{' '}

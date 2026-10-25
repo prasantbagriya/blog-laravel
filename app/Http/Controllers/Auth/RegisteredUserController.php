@@ -37,8 +37,18 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        $baseUsername = \Illuminate\Support\Str::slug($request->name);
+        if (empty($baseUsername)) {
+            $baseUsername = 'user';
+        }
+        $username = $baseUsername . rand(100, 999);
+        while (User::where('username', $username)->exists()) {
+            $username = $baseUsername . rand(1000, 9999);
+        }
+
         $user = User::create([
             'name' => $request->name,
+            'username' => $username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);

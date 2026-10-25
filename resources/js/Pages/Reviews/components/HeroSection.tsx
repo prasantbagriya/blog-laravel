@@ -33,15 +33,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   return (
     <section className="relative w-full min-h-[500px] md:min-h-[600px] flex items-center overflow-hidden bg-slate-900">
       {/* Background Image & Tint */}
-      <div 
-          className="absolute inset-0 z-0 bg-cover bg-center" 
-          style={{ backgroundImage: `url('/uploads/background.webp')` }}
-          role="img"
-          aria-label="Hero Background"
-      ></div>
-      <div className="absolute inset-0 z-0 bg-slate-900/85"></div>
+      <img
+          src="/uploads/background.webp"
+          alt=""
+          aria-hidden="true"
+          fetchPriority="high"
+          loading="eager"
+          decoding="async"
+          className="absolute inset-0 z-0 w-full h-full object-cover"
+      />
+      <div className="absolute inset-0 z-0 bg-slate-900/85 pointer-events-none"></div>
       
-      <div className="relative z-10 w-full mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16 md:pt-40 md:pb-24">
+      <div className="relative z-10 w-full mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-10 md:pt-6 md:pb-14">
         <div className="text-center w-full">
           
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold tracking-wide border border-blue-500/30">
@@ -213,9 +216,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         <div className="mt-16 max-w-5xl mx-auto">
           <div className="flex items-center justify-center gap-2 mb-6">
             <TrendingUp className="w-5 h-5 text-amber-400" />
-            <h3 className="text-sm font-bold uppercase tracking-widest text-white/90">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-white/90">
               Trending High Trust Companies
-            </h3>
+            </h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -229,12 +232,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   <img
                     src={biz.logo}
                     alt={biz.name}
+                    width={48}
+                    height={48}
+                    loading="lazy"
+                    decoding="async"
                     className="w-12 h-12 rounded-lg object-cover bg-white p-0.5 shrink-0"
                   />
                   <div className="truncate">
-                    <h4 className="text-sm font-bold text-white truncate group-hover:text-blue-300 transition">
+                    <h3 className="text-sm font-bold text-white truncate group-hover:text-blue-300 transition">
                       {biz.name}
-                    </h4>
+                    </h3>
                     <p className="text-[11px] text-white/60 truncate mt-0.5 uppercase tracking-wide">
                       {biz.categoryName}
                     </p>

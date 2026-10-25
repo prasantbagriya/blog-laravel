@@ -61,7 +61,7 @@ export default function Contact() {
     return (
         <div className="bg-white dark:bg-[#09090b] min-h-screen flex flex-col font-sans">
             <Head>
-                <title>Contact Us | CoachinginSikar</title>
+                <title>Contact Us | CoachingsinSikar</title>
                 <meta name="description" content="Have a question about coaching or schools in Sikar? Reach out to the CoachingsinSikar team with suggestions, corrections, or topics you want us to cover next." />
                 <meta name="keywords" content="contact CoachingsinSikar, CoachingsinSikar contact, contact coaching guide Sikar, Sikar education contact, coaching information Sikar, education queries Sikar, coaching feedback Sikar" />
                 

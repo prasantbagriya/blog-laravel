@@ -13,5 +13,7 @@ class Author extends Model
 
     protected $casts = [
         'socials' => 'array',
+        'alumniOf' => 'array',
+        'knowsAbout' => 'array',
     ];
 }

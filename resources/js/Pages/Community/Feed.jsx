@@ -110,7 +110,7 @@ export default function Feed({ auth, posts, currentSort = 'new', currentFilter =
             
             <GlobalNavbar auth={auth} />
 
-            <div className="max-w-[1400px] w-full mx-auto pt-32 px-4 sm:px-6 flex gap-8">
+            <div className="max-w-[1400px] w-full mx-auto pt-4 md:pt-6 px-4 sm:px-6 flex gap-8">
                 
                 {/* Mobile Sidebar Overlay */}
                 {isMobileSidebarOpen && (
@@ -214,6 +214,11 @@ export default function Feed({ auth, posts, currentSort = 'new', currentFilter =
                             <Plus size={22} strokeWidth={2.5} />
                         </div>
                     </Link>
+
+                    {/* Page H1 — required for SEO / accessibility */}
+                    <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-5">
+                        CoachingsinSikar Community Feed
+                    </h1>
 
                     {/* Sort Bar */}
                     <div className="flex gap-2 items-center mb-6 pb-4 border-b border-slate-200 dark:border-zinc-800 overflow-x-auto scrollbar-hide">

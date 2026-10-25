@@ -12,6 +12,15 @@ class Business extends Model
     protected $keyType = 'string';
     protected $guarded = [];
 
+    protected static function booted()
+    {
+        static::creating(function ($business) {
+            if (empty($business->id)) {
+                $business->id = 'b-' . (string) Str::uuid();
+            }
+        });
+    }
+
     protected $casts = [
         'social_links' => 'array',
         'rating_distribution' => 'array',

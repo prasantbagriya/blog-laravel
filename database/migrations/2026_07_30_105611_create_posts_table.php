@@ -24,7 +24,7 @@ return new class extends Migration
             $table->integer('score')->default(0);
             
             $table->foreignId('author_id')->nullable()->constrained('users')->onDelete('cascade');
-            $table->foreignId('community_id')->nullable()->constrained('communities')->onDelete('cascade');
+            $table->unsignedBigInteger('community_id')->nullable();
             
             $table->boolean('is_pinned')->default(false);
             $table->boolean('is_locked')->default(false);

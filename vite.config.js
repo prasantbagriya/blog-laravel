@@ -5,7 +5,16 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
     plugins: [
         laravel({
-            input: ['resources/js/app.jsx', 'resources/js/admin.jsx', 'resources/js/home.jsx'],
+            input: [
+                'resources/js/app.jsx',
+                'resources/js/admin.jsx',
+                // home.jsx JS entry — CSS is deliberately excluded from here so that
+                // @vite('resources/js/home.jsx') only injects a non-blocking <script>.
+                'resources/js/home.jsx',
+                // Home-page CSS loaded as separate entries so the Blade template can
+                // apply the media="print" trick for non-blocking delivery.
+                'resources/css/home.pcss',
+            ],
             ssr: 'resources/js/ssr.jsx',
             refresh: true,
         }),
@@ -26,3 +35,4 @@ export default defineConfig({
         }
     }
 });
+

@@ -28,8 +28,27 @@ class UserController extends Controller
             $query->orderBy('created_at', 'desc');
         }
 
-        $posts = $query->paginate(15)
-            ->through(function ($post) {
+        $posts = $query->paginate(15);
+        $postIds = $posts->pluck('id')->toArray();
+        $savedPostIds = [];
+        $userVotes = [];
+
+        if (auth()->check()) {
+            $savedPostIds = \Illuminate\Support\Facades\DB::table('saved_posts')
+                ->where('user_id', auth()->id())
+                ->whereIn('post_id', $postIds)
+                ->pluck('post_id')
+                ->toArray();
+                
+            $userVotes = \Illuminate\Support\Facades\DB::table('votes')
+                ->where('user_id', auth()->id())
+                ->where('votable_type', \App\Models\Post::class)
+                ->whereIn('votable_id', $postIds)
+                ->pluck('value', 'votable_id')
+                ->toArray();
+        }
+
+        $posts->getCollection()->transform(function ($post) use ($savedPostIds, $userVotes) {
                 return [
                     'id' => $post->id,
                     'title' => $post->title,
@@ -47,8 +66,8 @@ class UserController extends Controller
                     'comments_count' => $post->comments_count,
                     'created_at' => $post->created_at->diffForHumans(),
                     'slug' => \Illuminate\Support\Str::slug($post->title),
-                    'is_saved' => auth()->check() ? auth()->user()->savedPosts()->where('post_id', $post->id)->exists() : false,
-                    'user_vote' => auth()->check() ? \Illuminate\Support\Facades\DB::table('votes')->where('user_id', auth()->id())->where('votable_type', \App\Models\Post::class)->where('votable_id', $post->id)->value('value') : 0,
+                    'is_saved' => in_array($post->id, $savedPostIds),
+                    'user_vote' => $userVotes[$post->id] ?? 0,
                 ];
             });
 
@@ -61,9 +80,19 @@ class UserController extends Controller
                 'profile_picture' => $user->profile_picture,
                 'banner_image' => $user->banner_image,
                 'created_at' => $user->created_at->format('M j, Y'),
+                'post_karma' => $user->post_karma ?? 0,
+                'comment_karma' => $user->comment_karma ?? 0,
             ],
             'posts' => $posts,
             'currentSort' => $sort,
+            'meta' => [
+                'title'       => $user->name . ' (@' . $user->username . ') | CoachingsinSikar',
+                'description' => 'Check out ' . $user->name . '\'s profile on CoachingsinSikar. Read their posts, reviews, and updates about coaching institutes and schools in Sikar.',
+                'og_title'    => $user->name . ' (@' . $user->username . ') | CoachingsinSikar',
+                'og_image'    => $user->profile_picture ?? url('/uploads/social-cover.webp'),
+                'url'         => url('/u/' . $user->username),
+                'type'        => 'profile',
+            ],
         ]);
     }
 }

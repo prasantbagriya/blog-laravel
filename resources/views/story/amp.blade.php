@@ -30,34 +30,35 @@
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:image" content="{{ $seo_image }}">
     
+    @php
+        $storySchema = [
+            "@context" => "https://schema.org",
+            "@type" => "Article",
+            "mainEntityOfPage" => [
+                "@type" => "WebPage",
+                "@id" => url()->current()
+            ],
+            "headline" => $story->title,
+            "image" => [$seo_image],
+            "datePublished" => $story->created_at ? $story->created_at->toIso8601String() : now()->toIso8601String(),
+            "dateModified" => $story->updated_at ? $story->updated_at->toIso8601String() : now()->toIso8601String(),
+            "author" => [[
+                "@type" => "Person",
+                "name" => $story->author ?: 'CoachingsinSikar',
+                "url" => "https://coachingsinsikar.com"
+            ]],
+            "publisher" => [
+                "@type" => "Organization",
+                "name" => "CoachingsinSikar",
+                "logo" => [
+                    "@type" => "ImageObject",
+                    "url" => url('/uploads/logo.webp')
+                ]
+            ]
+        ];
+    @endphp
     <script type="application/ld+json">
-    {
-      "@@context": "https://schema.org",
-      "@@type": "Article",
-      "mainEntityOfPage": { 
-        "@@type": "WebPage", 
-        "@@id": "{{ url()->current() }}" 
-      },
-      "headline": "{{ $story->title }}",
-      "image": [
-        "{{ $seo_image }}"
-      ],
-      "datePublished": "{{ $story->created_at ? $story->created_at->toIso8601String() : now()->toIso8601String() }}",
-      "dateModified": "{{ $story->updated_at ? $story->updated_at->toIso8601String() : now()->toIso8601String() }}",
-      "author": [{
-          "@@type": "Person",
-          "name": "{{ $story->author ?: 'Coachinginsikar' }}",
-          "url": "https://coachingsinsikar.com"
-      }],
-      "publisher": {
-        "@@type": "Organization",
-        "name": "Coachinginsikar",
-        "logo": {
-          "@@type": "ImageObject",
-          "url": "{{ url('/images/logo.webp') }}"
-        }
-      }
-    }
+    {!! json_encode($storySchema, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
     </script>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <style amp-custom>
@@ -70,7 +71,7 @@
 
   </head>
   <body>
-    <amp-story standalone title="{{ $story->title }}" publisher="Coachinginsikar" publisher-logo-src="{{ url('/images/logo.webp') }}" poster-portrait-src="{{ $seo_image }}">
+    <amp-story standalone title="{{ e($story->title) }}" publisher="CoachingsinSikar" publisher-logo-src="{{ url('/uploads/logo.webp') }}" poster-portrait-src="{{ $seo_image }}">
         @if(!empty($story->pages))
           @foreach($story->pages as $index => $page)
           @php

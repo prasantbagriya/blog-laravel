@@ -16,7 +16,7 @@ export default function Privacy() {
                 <meta name="twitter:description" content="Your privacy matters on CoachingsinSikar. Read our privacy policy to see how we collect, use, and safeguard your personal information on this education guide." />
             </Head>
             <GlobalNavbar />
-            <main className="w-full px-[25px] pb-8 flex-grow" style={{ paddingTop: '100px' }}>
+            <main className="w-full px-[25px] pt-4 md:pt-6 pb-8 flex-grow">
                 <div className="prose max-w-none text-gray-700 space-y-4 pb-12">
                     <h1 className="text-4xl font-bold mb-8">Privacy Policy</h1>
                     <p>Last updated: September 21, 2026</p>

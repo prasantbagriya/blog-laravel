@@ -16,7 +16,7 @@ export default function Terms() {
                 <meta name="twitter:description" content="Before using CoachingsinSikar, read our terms and conditions. They cover acceptable use, content ownership, disclaimers, and other key rules for this education guide." />
             </Head>
             <GlobalNavbar />
-            <main className="w-full px-[25px] pb-8 flex-grow" style={{ paddingTop: '100px' }}>
+            <main className="w-full px-[25px] pt-4 md:pt-6 pb-8 flex-grow">
                 <h1 className="text-4xl font-bold mb-8">Terms of Service</h1>
                 <div className="prose max-w-none text-gray-700 space-y-4 pb-12">
                     <h1 className="text-4xl font-bold mb-8">Terms and Conditions</h1>

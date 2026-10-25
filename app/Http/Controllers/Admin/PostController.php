@@ -104,6 +104,8 @@ class PostController extends Controller
             $data['date'] = Carbon::parse($data['date']);
         }
         if (isset($data['content'])) {
+            $imageService = app(\App\Services\ImageService::class);
+            $data['content'] = $imageService->processContentImages($data['content']);
             $data['content'] = clean($data['content']);
         }
 
@@ -114,7 +116,37 @@ class PostController extends Controller
 
         // Dynamically filter out fields that do not exist in the database schema
         $safeData = [];
-        $columns = \Illuminate\Support\Facades\Schema::getColumnListing('posts');
+        try {
+            $columns = \Illuminate\Support\Facades\Schema::getColumnListing('posts');
+        } catch (\Throwable $e) {
+            // Older SQLite versions lack pragma_table_xinfo virtual table support in FROM clause
+            try {
+                $rawCols = \Illuminate\Support\Facades\DB::select('PRAGMA table_info("posts")');
+                $columns = array_map(function ($c) {
+                    return is_object($c) ? $c->name : ($c['name'] ?? null);
+                }, $rawCols);
+                $columns = array_values(array_filter($columns));
+            } catch (\Throwable $ex) {
+                $columns = [];
+            }
+
+            if (empty($columns)) {
+                $columns = [
+                    'id', 'slug', 'title', 'type', 'content', 'media_urls', 'link_url', 'poll_options',
+                    'score', 'author_id', 'community_id', 'is_pinned', 'is_locked', 'is_nsfw', 'excerpt',
+                    'coverImage', 'category', 'tags', 'published', 'date', 'created_at', 'updated_at',
+                    'factCheckedBy', 'factCheckerRole', 'authorJobTitle', 'authorBio', 'researchMethodology',
+                    'sources', 'searchIntent', 'seoScore', 'targetRegion', 'targetLanguage', 'contentScope',
+                    'authorExperienceYears', 'authorAwards', 'authorAlumniOf', 'authorKnowsAbout',
+                    'keyTakeaways', 'semanticMentions', 'reviewCycleDays', 'nextReviewDate', 'isNoIndex',
+                    'isSponsored', 'isPillarPage', 'isAiAssisted', 'corrections', 'post_type', 'media_path',
+                    'url', 'flair', 'status', 'is_live_discussion', 'seoTitle', 'ogTitle', 'ogDescription',
+                    'canonicalUrl', 'keywords', 'faqs', 'authorImage', 'authorSocials', 'metaDescription',
+                    'focusKeyword', 'lsiKeywords', 'twitterCard', 'twitterTitle', 'twitterDescription',
+                    'coverImageAlt', 'howToSteps', 'localBusiness', 'seoRating', 'url_format', 'author', 'schema_type'
+                ];
+            }
+        }
         $columnsLower = array_map('strtolower', $columns);
         foreach ($data as $key => $value) {
             $index = array_search(strtolower($key), $columnsLower);
@@ -126,7 +158,26 @@ class PostController extends Controller
         }
         
         try {
-            Post::updateOrCreate(['id' => $safeData['id']], $safeData);
+            $post = Post::updateOrCreate(['id' => $safeData['id']], $safeData);
+            \Illuminate\Support\Facades\Cache::forget('blog_all_posts');
+            \Illuminate\Support\Facades\Cache::forget('homepage_data_v6');
+            \Illuminate\Support\Facades\Cache::forget('recent_posts_sidebar_v2');
+
+            // Auto-ping Google Instant Indexing API if post is published
+            if (!empty($safeData['published'])) {
+                try {
+                    $gscSettings = \App\Models\GscSetting::instance();
+                    if ($gscSettings->is_connected && $gscSettings->auto_index_posts) {
+                        $postUrl = url($post->url_path);
+                        app(\App\Services\Google\GoogleIndexingService::class)->publishUrl($postUrl, 'URL_UPDATED', 'auto_post_publish');
+                    }
+                } catch (\Throwable $ignore) {}
+            }
+
+            // Auto-generate pending social post drafts (LinkedIn, Pinterest, Facebook, Instagram, X)
+            try {
+                \App\Services\Social\SocialAutoDraftService::syncDraftsForPost($post);
+            } catch (\Throwable $ignore) {}
         } catch (\Throwable $e) {
             return response()->json(['success' => false, 'message' => 'DB Error: ' . $e->getMessage()], 500);
         }

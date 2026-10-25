@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -109,7 +110,7 @@ class BusinessController extends Controller
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%")
                   ->orWhere('category_name', 'like', "%{$search}%")
-                  ->orWhereJsonContains('tags', $search);
+                  ->orWhere('tags', 'like', "%{$search}%");
             });
         }
 
@@ -195,6 +196,9 @@ class BusinessController extends Controller
             'phone' => 'nullable|string|max:255',
             'email' => 'nullable|email|max:255',
             'address' => 'nullable|string|max:500',
+            'city' => 'nullable|string|max:100',
+            'tags' => 'nullable',
+            'social_links' => 'nullable',
             'claimed_by_owner' => 'boolean',
             'faqs' => 'nullable|array',
             'faqs.*.question' => 'required|string',
@@ -205,6 +209,8 @@ class BusinessController extends Controller
             'services.*.price' => 'nullable|string',
             'logo' => 'nullable|image|max:2048',
             'cover_image' => 'nullable|image|max:4096',
+            'logo_url' => 'nullable|string|max:1000',
+            'cover_image_url' => 'nullable|string|max:1000',
             'opening_hours' => 'nullable|string|max:255',
         ]);
 
@@ -220,12 +226,31 @@ class BusinessController extends Controller
         $logoPath = 'https://ui-avatars.com/api/?name=' . urlencode($validated['name']) . '&background=random';
         if ($request->hasFile('logo')) {
             $logoPath = $this->storeOptimizedImage($request->file('logo'), 'businesses/logos', 672);
+        } elseif ($request->filled('logo_url')) {
+            $downloadedLogo = $this->storeOptimizedImageFromUrl($request->input('logo_url'), 'businesses/logos', 672);
+            if ($downloadedLogo) {
+                $logoPath = $downloadedLogo;
+            }
         }
 
         $coverPath = 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=2070';
         if ($request->hasFile('cover_image')) {
             $coverPath = $this->storeOptimizedImage($request->file('cover_image'), 'businesses/covers', 1600);
+        } elseif ($request->filled('cover_image_url')) {
+            $downloadedCover = $this->storeOptimizedImageFromUrl($request->input('cover_image_url'), 'businesses/covers', 1600);
+            if ($downloadedCover) {
+                $coverPath = $downloadedCover;
+            }
         }
+
+        $rawTags = $request->input('tags');
+        $tagsList = is_array($rawTags) ? $rawTags : (is_string($rawTags) ? json_decode($rawTags, true) : null);
+        if (!is_array($tagsList) || empty($tagsList)) {
+            $tagsList = ['new', strtolower($validated['category_name'])];
+        }
+
+        $rawSocial = $request->input('social_links');
+        $socialLinks = is_array($rawSocial) ? $rawSocial : (is_string($rawSocial) ? json_decode($rawSocial, true) : null);
 
         try {
             $business = Business::create([
@@ -242,17 +267,28 @@ class BusinessController extends Controller
                 'phone' => $validated['phone'] ?? null,
                 'email' => $validated['email'] ?? null,
                 'address' => $validated['address'] ?? null,
+                'city' => $request->input('city', 'Sikar'),
                 'opening_hours' => $validated['opening_hours'] ?? null,
                 'claimed_by_owner' => filter_var($validated['claimed_by_owner'] ?? false, FILTER_VALIDATE_BOOLEAN),
                 'faqs' => $validated['faqs'] ?? null,
                 'products' => $validated['services'] ?? null,
+                'social_links' => $socialLinks,
                 'logo' => $logoPath,
                 'cover_image' => $coverPath,
                 'rating' => 0,
                 'review_count' => 0,
                 'is_verified' => false,
-                'tags' => ['new', strtolower($validated['category_name'])],
+                'tags' => $tagsList,
             ]);
+
+            try {
+                $gscSettings = \App\Models\GscSetting::instance();
+                if ($gscSettings->is_connected && $gscSettings->auto_index_businesses) {
+                    $cat = $business->category ?: 'coaching-institutes';
+                    $bizUrl = url('/business/' . $cat . '/' . ($business->slug ?: $business->id));
+                    app(\App\Services\Google\GoogleIndexingService::class)->publishUrl($bizUrl, 'URL_UPDATED', 'auto_business_publish');
+                }
+            } catch (\Throwable $ignore) {}
 
             return response()->json($business->publicPayload($request->user()), 201);
         } catch (\Exception $e) {
@@ -310,6 +346,9 @@ class BusinessController extends Controller
                 'phone' => 'nullable|string|max:255',
                 'email' => 'nullable|email|max:255',
                 'address' => 'nullable|string|max:500',
+                'city' => 'nullable|string|max:100',
+                'tags' => 'nullable',
+                'social_links' => 'nullable',
                 'opening_hours' => 'nullable|string|max:255',
                 'faqs' => 'nullable|array',
                 'faqs.*.question' => 'required|string',
@@ -320,6 +359,8 @@ class BusinessController extends Controller
                 'services.*.price' => 'nullable|string',
                 'logo' => 'nullable|image|max:2048',
                 'cover_image' => 'nullable|image|max:4096',
+                'logo_url' => 'nullable|string|max:1000',
+                'cover_image_url' => 'nullable|string|max:1000',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             \Illuminate\Support\Facades\Log::warning('Business update validation failed: ' . json_encode($e->errors()));
@@ -337,9 +378,23 @@ class BusinessController extends Controller
                 'phone' => $validated['phone'] ?? $business->phone,
                 'email' => $validated['email'] ?? $business->email,
                 'address' => $validated['address'] ?? $business->address,
+                'city' => $request->has('city') ? $request->input('city') : $business->city,
                 'opening_hours' => $validated['opening_hours'] ?? $business->opening_hours,
                 'faqs' => $validated['faqs'] ?? $business->faqs,
             ];
+
+            if ($request->has('tags')) {
+                $rawTags = $request->input('tags');
+                $tagsList = is_array($rawTags) ? $rawTags : (is_string($rawTags) ? json_decode($rawTags, true) : null);
+                if (is_array($tagsList)) {
+                    $updateData['tags'] = $tagsList;
+                }
+            }
+
+            if ($request->has('social_links')) {
+                $rawSocial = $request->input('social_links');
+                $updateData['social_links'] = is_array($rawSocial) ? $rawSocial : (is_string($rawSocial) ? json_decode($rawSocial, true) : null);
+            }
 
             if (!empty($validated['slug'])) {
                 $newSlug = \Illuminate\Support\Str::slug($validated['slug']);
@@ -355,13 +410,32 @@ class BusinessController extends Controller
 
             if ($request->hasFile('logo')) {
                 $updateData['logo'] = $this->storeOptimizedImage($request->file('logo'), 'businesses/logos', 672);
+            } elseif ($request->filled('logo_url')) {
+                $downloadedLogo = $this->storeOptimizedImageFromUrl($request->input('logo_url'), 'businesses/logos', 672);
+                if ($downloadedLogo) {
+                    $updateData['logo'] = $downloadedLogo;
+                }
             }
 
             if ($request->hasFile('cover_image')) {
                 $updateData['cover_image'] = $this->storeOptimizedImage($request->file('cover_image'), 'businesses/covers', 1600);
+            } elseif ($request->filled('cover_image_url')) {
+                $downloadedCover = $this->storeOptimizedImageFromUrl($request->input('cover_image_url'), 'businesses/covers', 1600);
+                if ($downloadedCover) {
+                    $updateData['cover_image'] = $downloadedCover;
+                }
             }
 
             $business->update($updateData);
+
+            try {
+                $gscSettings = \App\Models\GscSetting::instance();
+                if ($gscSettings->is_connected && $gscSettings->auto_index_businesses) {
+                    $cat = $business->category ?: 'coaching-institutes';
+                    $bizUrl = url('/business/' . $cat . '/' . ($business->slug ?: $business->id));
+                    app(\App\Services\Google\GoogleIndexingService::class)->publishUrl($bizUrl, 'URL_UPDATED', 'auto_business_publish');
+                }
+            } catch (\Throwable $ignore) {}
 
             return response()->json($business->publicPayload($request->user()));
         } catch (\Exception $e) {
@@ -378,14 +452,113 @@ class BusinessController extends Controller
         }
 
         $image = (new ImageManager(new Driver()))->decodePath($file->getRealPath());
-        $image->scaleDown(width: $maxWidth);
+        
+        if ($image->width() > $maxWidth) {
+            $image->scaleDown(width: $maxWidth);
+        }
+
+        $quality = 85;
+        $encoded = $image->encodeUsingFileExtension('webp', $quality);
+        
+        // Iteratively reduce quality if file is > 100KB, but keep visual quality high (min 65)
+        while (strlen((string) $encoded) > 102400 && $quality > 65) {
+            $quality -= 5;
+            $encoded = $image->encodeUsingFileExtension('webp', $quality);
+        }
+
+        // If still > 100KB, shrink dimensions instead of ruining quality
+        while (strlen((string) $encoded) > 102400 && $image->width() > 400) {
+            $image->scaleDown(width: (int)($image->width() * 0.85));
+            $encoded = $image->encodeUsingFileExtension('webp', $quality);
+        }
 
         $filename = Str::uuid() . '.webp';
         Storage::disk('uploads')->put(
             $directory . '/' . $filename,
-            (string) $image->encodeUsingFileExtension('webp', 78),
+            (string) $encoded
         );
 
         return '/uploads/' . $directory . '/' . $filename;
+    }
+
+    /**
+     * Download an image from an external URL (scraped from official website),
+     * optimize and convert it to WebP format, and save locally into uploads directory.
+     */
+    private function storeOptimizedImageFromUrl(string $url, string $directory, int $maxWidth): ?string
+    {
+        $url = trim($url);
+        if (!filter_var($url, FILTER_VALIDATE_URL) || !\App\Http\Controllers\Api\AiBusinessController::isSafePublicUrl($url)) {
+            return null;
+        }
+
+        try {
+            $response = Http::timeout(8)
+                ->withHeaders([
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                    'Accept' => 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'
+                ])
+                ->get($url);
+
+            if (!$response->successful() || empty($response->body())) {
+                return null;
+            }
+
+            $contentType = strtolower($response->header('Content-Type') ?? '');
+            $body = $response->body();
+            $pathOnly = strtolower(parse_url($url, PHP_URL_PATH) ?? '');
+
+            // 1. Handle SVG images directly with strict security filters
+            if (str_contains($contentType, 'svg') || str_ends_with($pathOnly, '.svg')) {
+                // Prevent SVG script execution, event handlers, and data injection
+                if (preg_match('/<script|javascript:|on[a-z]+\s*=|xlink:href|<iframe|<embed|<object/i', $body)) {
+                    return null;
+                }
+                $filename = Str::uuid() . '.svg';
+                Storage::disk('uploads')->put($directory . '/' . $filename, $body);
+                return '/uploads/' . $directory . '/' . $filename;
+            }
+
+            // 2. Handle animated GIF images
+            if (str_contains($contentType, 'gif') || str_ends_with($pathOnly, '.gif')) {
+                $filename = Str::uuid() . '.gif';
+                Storage::disk('uploads')->put($directory . '/' . $filename, $body);
+                return '/uploads/' . $directory . '/' . $filename;
+            }
+
+            // 3. Decode & optimize with Intervention Image
+            $imageManager = new ImageManager(new Driver());
+            $image = $imageManager->decodeBinary($body);
+
+            // Reject tiny tracking pixels, spacers, or corrupt empty downloads (< 40px)
+            if ($image->width() < 40 || $image->height() < 40) {
+                return null;
+            }
+
+            if ($image->width() > $maxWidth) {
+                $image->scaleDown(width: $maxWidth);
+            }
+
+            $quality = 85;
+            $encoded = $image->encodeUsingFileExtension('webp', $quality);
+
+            while (strlen((string) $encoded) > 102400 && $quality > 65) {
+                $quality -= 5;
+                $encoded = $image->encodeUsingFileExtension('webp', $quality);
+            }
+
+            while (strlen((string) $encoded) > 102400 && $image->width() > 400) {
+                $image->scaleDown(width: (int)($image->width() * 0.85));
+                $encoded = $image->encodeUsingFileExtension('webp', $quality);
+            }
+
+            $filename = Str::uuid() . '.webp';
+            Storage::disk('uploads')->put($directory . '/' . $filename, (string) $encoded);
+
+            return '/uploads/' . $directory . '/' . $filename;
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Failed to download and optimize image from {$url}: " . $e->getMessage());
+            return null;
+        }
     }
 }

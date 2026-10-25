@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Post extends Model
 {
-    use HasUuids;
+    use HasUuids, \Illuminate\Database\Eloquent\Factories\HasFactory;
 
     public $incrementing = false;
     protected $keyType = 'string';
@@ -16,6 +16,7 @@ class Post extends Model
     protected $appends = ['url_path'];
 
     protected $casts = [
+        'media_urls' => 'array',
         'authorSocials' => 'array',
         'tags' => 'array',
         'faqs' => 'array',
@@ -42,15 +43,51 @@ class Post extends Model
 
     public function getUrlPathAttribute()
     {
-        $format = $this->url_format ?? 'blog/{slug}';
+        $format = !empty($this->url_format) ? $this->url_format : 'blog/{slug}';
         
         $path = str_replace('{slug}', $this->slug ?? '', $format);
         if (str_contains($path, '{category}')) {
-            $catSlug = $this->category ? strtolower(str_replace(' ', '-', $this->category)) : 'general';
+            $catSlug = $this->category ? \Illuminate\Support\Str::slug($this->category) : 'general';
             $path = str_replace('{category}', $catSlug, $path);
         }
         
         return '/' . ltrim($path, '/');
+    }
+
+    protected static function booted()
+    {
+        static::saved(function ($post) {
+            $newUrl = url($post->url_path);
+            \Illuminate\Support\Facades\Cache::forget('public_page_cache_v2_' . md5($newUrl . '_0'));
+            \Illuminate\Support\Facades\Cache::forget('public_page_cache_v2_' . md5($newUrl . '_1'));
+            \Illuminate\Support\Facades\Cache::forget('blog_all_posts');
+            \Illuminate\Support\Facades\Cache::forget('homepage_data_v6');
+            \Illuminate\Support\Facades\Cache::forget('recent_posts_sidebar_v2');
+
+            if ($post->wasChanged(['url_format', 'slug', 'category'])) {
+                $oldFormat = !empty($post->getOriginal('url_format')) ? $post->getOriginal('url_format') : 'blog/{slug}';
+                $oldSlug = $post->getOriginal('slug') ?: '';
+                $oldCat = $post->getOriginal('category') ? \Illuminate\Support\Str::slug($post->getOriginal('category')) : 'general';
+                $oldPath = str_replace(['{slug}', '{category}'], [$oldSlug, $oldCat], $oldFormat);
+                $oldUrl = url('/' . ltrim($oldPath, '/'));
+                \Illuminate\Support\Facades\Cache::forget('public_page_cache_v2_' . md5($oldUrl . '_0'));
+                \Illuminate\Support\Facades\Cache::forget('public_page_cache_v2_' . md5($oldUrl . '_1'));
+            }
+
+            // Auto-generate pending social post drafts (LinkedIn, Pinterest, etc.)
+            try {
+                \App\Services\Social\SocialAutoDraftService::syncDraftsForPost($post);
+            } catch (\Throwable $ignore) {}
+        });
+
+        static::deleted(function ($post) {
+            $url = url($post->url_path);
+            \Illuminate\Support\Facades\Cache::forget('public_page_cache_v2_' . md5($url . '_0'));
+            \Illuminate\Support\Facades\Cache::forget('public_page_cache_v2_' . md5($url . '_1'));
+            \Illuminate\Support\Facades\Cache::forget('blog_all_posts');
+            \Illuminate\Support\Facades\Cache::forget('homepage_data_v6');
+            \Illuminate\Support\Facades\Cache::forget('recent_posts_sidebar_v2');
+        });
     }
 
     public function community()
@@ -83,18 +120,28 @@ class Post extends Model
         return $query->where('published', true);
     }
 
-    protected static function booted()
+    public function facebookShares(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        static::saved(function ($post) {
-            \Illuminate\Support\Facades\Cache::forget('blog_all_posts');
-            \Illuminate\Support\Facades\Cache::forget('homepage_data_v6');
-            \Illuminate\Support\Facades\Cache::forget('blog_recent_posts_5'); // added for recent posts sidebar
-        });
+        return $this->hasMany(FacebookPostShare::class);
+    }
 
-        static::deleted(function ($post) {
-            \Illuminate\Support\Facades\Cache::forget('blog_all_posts');
-            \Illuminate\Support\Facades\Cache::forget('homepage_data_v6');
-            \Illuminate\Support\Facades\Cache::forget('blog_recent_posts_5'); // added for recent posts sidebar
-        });
+    public function xShares(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(XPostShare::class);
+    }
+
+    public function pinterestShares(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PinterestPinShare::class);
+    }
+
+    public function instagramShares(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(InstagramPostShare::class);
+    }
+
+    public function linkedinShares(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(LinkedInPostShare::class);
     }
 }

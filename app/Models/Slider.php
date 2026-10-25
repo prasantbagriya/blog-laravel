@@ -18,6 +18,7 @@ class Slider extends Model
     
     protected $casts = [
         'active' => 'boolean',
-        'order' => 'integer'
+        'order' => 'integer',
+        'locations' => 'array'
     ];
 }

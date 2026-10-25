@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Community extends Model
 {
+    use \Illuminate\Database\Eloquent\Factories\HasFactory;
+
     protected $guarded = [];
 
     public function posts()

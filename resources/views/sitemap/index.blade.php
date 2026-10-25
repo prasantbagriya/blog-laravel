@@ -29,6 +29,10 @@
         <lastmod>{{ now()->tz('UTC')->toAtomString() }}</lastmod>
     </sitemap>
     <sitemap>
+        <loc>{{ route('sitemap.businesses') }}</loc>
+        <lastmod>{{ now()->tz('UTC')->toAtomString() }}</lastmod>
+    </sitemap>
+    <sitemap>
         <loc>{{ route('sitemap.news') }}</loc>
         <lastmod>{{ now()->tz('UTC')->toAtomString() }}</lastmod>
     </sitemap>

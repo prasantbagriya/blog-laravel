@@ -15,6 +15,7 @@ class UploadSecurityTest extends TestCase
     {
         $admin = \App\Models\User::factory()->create(['is_admin' => true]);
         
+        \Illuminate\Support\Facades\Storage::fake('uploads');
         \Illuminate\Support\Facades\Storage::fake('public');
         $file = \Illuminate\Http\UploadedFile::fake()->image('photo.jpg', 10, 10);
 

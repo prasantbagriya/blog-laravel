@@ -21,7 +21,7 @@ export default function CreateCommunity({ auth }) {
             
             <GlobalNavbar auth={auth} />
 
-            <div className="max-w-3xl mx-auto pt-32 px-4 sm:px-6">
+            <div className="max-w-3xl mx-auto pt-4 md:pt-6 px-4 sm:px-6">
                 <div className="flex items-center gap-4 mb-8 border-b border-slate-200 dark:border-zinc-800 pb-6">
                     <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center border border-blue-200 dark:border-blue-800 shadow-sm">
                         <Users size={24} strokeWidth={2.5} />

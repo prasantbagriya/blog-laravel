@@ -47,7 +47,8 @@ export default function MediaPicker({ onSelect, onClose, open = true }: MediaPic
     formData.append('file', uploadFile);
     try {
       const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-      const res = await fetch('/api/admin/media', {
+      const basePath = (typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '');
+      const res = await fetch(basePath + '/api/admin/media', {
         method: 'POST',
         headers: { 'X-CSRF-TOKEN': csrfToken },
         body: formData
@@ -71,6 +72,45 @@ export default function MediaPicker({ onSelect, onClose, open = true }: MediaPic
       setUploadError('Network error. Please check your connection and try again.');
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleReplace = async (e: React.ChangeEvent<HTMLInputElement>, oldFilename: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    if (!window.confirm(`Are you sure you want to replace ${oldFilename}? This will update the image everywhere it's used.`)) {
+        e.target.value = '';
+        return;
+    }
+
+    setLoading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('oldFilename', oldFilename);
+    
+    try {
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+      const basePath = (typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '');
+      const res = await fetch(basePath + '/api/admin/media', {
+        method: 'POST',
+        headers: { 'X-CSRF-TOKEN': csrfToken },
+        body: formData
+      });
+      
+      if (res.ok) {
+        // Refetch to bust cache and show new image
+        const mediaRes = await fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/media');
+        const data = await mediaRes.json();
+        if (Array.isArray(data)) setMedia(data);
+      } else {
+        alert('Failed to replace image. It might be too large or invalid format.');
+      }
+    } catch (err) {
+      alert('Network error replacing image.');
+    } finally {
+      setLoading(false);
+      e.target.value = '';
     }
   };
 
@@ -275,12 +315,30 @@ export default function MediaPicker({ onSelect, onClose, open = true }: MediaPic
                       onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = '#2563eb'; }}
                       onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
                     >
-                      <div style={{ width: '100%', paddingBottom: '100%', position: 'relative', background: '#f1f5f9' }}>
-                        <img loading="lazy" decoding="async" src={item.url} alt={item.name} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <div style={{ width: '100%', paddingBottom: '100%', position: 'relative', background: 'repeating-conic-gradient(#f8fafc 0% 25%, #f1f5f9 0% 50%) 50% / 16px 16px' }}>
+                        <img 
+                          loading="lazy" 
+                          decoding="async" 
+                          src={item.url} 
+                          alt={item.name} 
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            if (e.currentTarget.parentElement) {
+                              e.currentTarget.parentElement.style.background = '#fef2f2';
+                            }
+                          }}
+                          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'contain' }} 
+                        />
                       </div>
-                      <div style={{ padding: '12px' }}>
-                        <div style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</div>
-                        <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>{formatSize(item.sizeBytes)}</div>
+                      <div style={{ padding: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ overflow: 'hidden', flex: 1, paddingRight: '8px' }}>
+                          <div style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</div>
+                          <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>{formatSize(item.sizeBytes)}</div>
+                        </div>
+                        <label onClick={(e) => e.stopPropagation()} style={{ cursor: 'pointer', background: '#f1f5f9', padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, color: '#2563eb', border: '1px solid #e2e8f0', transition: 'all 0.1s ease' }} onMouseEnter={(e) => e.currentTarget.style.background = '#e2e8f0'} onMouseLeave={(e) => e.currentTarget.style.background = '#f1f5f9'}>
+                          Replace
+                          <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleReplace(e, item.name)} />
+                        </label>
                       </div>
                     </div>
                   ))}
@@ -300,7 +358,13 @@ export default function MediaPicker({ onSelect, onClose, open = true }: MediaPic
                         <div style={{ fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</div>
                         <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>{new Date(item.createdAt).toLocaleDateString()}</div>
                       </div>
-                      <div style={{ fontSize: '13px', color: '#475569', fontWeight: 600, paddingRight: '12px' }}>{formatSize(item.sizeBytes)}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div style={{ fontSize: '13px', color: '#475569', fontWeight: 600 }}>{formatSize(item.sizeBytes)}</div>
+                        <label onClick={(e) => e.stopPropagation()} style={{ cursor: 'pointer', background: '#f1f5f9', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 700, color: '#2563eb', border: '1px solid #e2e8f0', transition: 'all 0.1s ease' }} onMouseEnter={(e) => e.currentTarget.style.background = '#e2e8f0'} onMouseLeave={(e) => e.currentTarget.style.background = '#f1f5f9'}>
+                          Replace
+                          <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleReplace(e, item.name)} />
+                        </label>
+                      </div>
                     </div>
                   ))}
                 </div>

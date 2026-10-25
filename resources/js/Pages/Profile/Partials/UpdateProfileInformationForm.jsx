@@ -15,8 +15,10 @@ export default function UpdateProfileInformation({
     const { data, setData, patch, errors, processing, recentlySuccessful } =
         useForm({
             name: user.name,
+            username: user.username || '',
             email: user.email,
             flair: user.flair || '',
+            bio: user.bio || '',
         });
 
     const submit = (e) => {
@@ -55,6 +57,19 @@ export default function UpdateProfileInformation({
                 </div>
 
                 <div>
+                    <InputLabel htmlFor="username" value="Username" className="text-[#1A1A1A] dark:text-white" />
+
+                    <TextInput
+                        id="username"
+                        className="mt-1 block w-full bg-white dark:bg-black border-[#E5E5E1] dark:border-[#2A2A28] text-[#1A1A1A] dark:text-white focus:border-[#0052FF] focus:ring-[#0052FF]"
+                        value={data.username}
+                        onChange={(e) => setData('username', e.target.value)}
+                    />
+
+                    <InputError className="mt-2" message={errors.username} />
+                </div>
+
+                <div>
                     <InputLabel htmlFor="email" value="Email" className="text-[#1A1A1A] dark:text-white" />
 
                     <TextInput
@@ -68,6 +83,20 @@ export default function UpdateProfileInformation({
                     />
 
                     <InputError className="mt-2" message={errors.email} />
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="bio" value="Bio" className="text-[#1A1A1A] dark:text-white" />
+
+                    <textarea
+                        id="bio"
+                        className="mt-1 block w-full bg-white dark:bg-black border-[#E5E5E1] dark:border-[#2A2A28] text-[#1A1A1A] dark:text-white focus:border-[#0052FF] focus:ring-[#0052FF] rounded-md shadow-sm min-h-[100px]"
+                        value={data.bio}
+                        onChange={(e) => setData('bio', e.target.value)}
+                        placeholder="Tell us a little bit about yourself..."
+                    ></textarea>
+
+                    <InputError className="mt-2" message={errors.bio} />
                 </div>
 
                 <div>
@@ -123,9 +152,19 @@ export default function UpdateProfileInformation({
                         leave="transition ease-in-out"
                         leaveTo="opacity-0"
                     >
-                        <p className="text-sm text-[#555555] dark:text-[#A0A09C]">
-                            Saved.
-                        </p>
+                        <div className="flex items-center gap-3">
+                            <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                                Saved.
+                            </span>
+                            {(data.username || user.username) && (
+                                <Link
+                                    href={`/u/${data.username || user.username}`}
+                                    className="text-sm font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline"
+                                >
+                                    View Profile &rarr;
+                                </Link>
+                            )}
+                        </div>
                     </Transition>
                 </div>
             </form>

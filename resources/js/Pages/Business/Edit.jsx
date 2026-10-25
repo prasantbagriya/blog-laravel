@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Head, Link } from '@inertiajs/react';
-import { Building, MapPin, Globe, Phone, Mail, FileText, ArrowRight, ArrowLeft, CheckCircle, ShieldCheck, Clock } from 'lucide-react';
+import { Building, MapPin, Globe, Phone, Mail, FileText, ArrowRight, ArrowLeft, CheckCircle, ShieldCheck, Clock, Sparkles, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import axios from 'axios';
 import TipTapEditor from '../../Components/TipTapEditor';
 
@@ -17,18 +17,51 @@ export default function Edit({ auth, business }) {
         phone: business.phone || '',
         email: business.email || '',
         address: business.address || '',
+        city: business.city || 'Sikar',
         opening_hours: business.openingHours || business.opening_hours || '',
         claimed_by_owner: business.claimedByOwner !== false && business.claimed_by_owner !== false,
         faqs: business.faqs || [],
         services: typeof business.products === 'string' ? JSON.parse(business.products) : (business.products || []),
+        tags: business.tags || [],
+        social_links: (() => {
+            const raw = typeof business.social_links === 'string' 
+                ? JSON.parse(business.social_links) 
+                : (business.social_links || business.socialLinks || {});
+            return {
+                youtube: raw.youtube || '',
+                instagram: raw.instagram || '',
+                facebook: raw.facebook || '',
+                telegram: raw.telegram || '',
+                twitter: raw.twitter || '',
+                linkedin: raw.linkedin || ''
+            };
+        })(),
         logo: null,
-        cover_image: null
+        logo_url: '',
+        cover_image: null,
+        cover_image_url: ''
     });
     
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [errors, setErrors] = useState({});
+
+    const initialCategory = business.category || 'coaching-institutes';
+    const initialSlug = business.slug || business.id;
+    const [profileUrl, setProfileUrl] = useState(`/business/${initialCategory}/${initialSlug}`);
+
+    // AI Deep Research & Website Scraper States
+    const [aiPromptName, setAiPromptName] = useState(business.name || '');
+    const [aiCity, setAiCity] = useState(business.city || 'Sikar');
+    const [aiWebsite, setAiWebsite] = useState(business.website || '');
+    const [isAiResearching, setIsAiResearching] = useState(false);
+    const [isScrapingWebsite, setIsScrapingWebsite] = useState(false);
+    const [scrapeMessage, setScrapeMessage] = useState(null);
+    const [aiStepMessage, setAiStepMessage] = useState('');
+    const [aiSuccessMessage, setAiSuccessMessage] = useState(null);
+    const [aiError, setAiError] = useState(null);
+    const [verifiedSources, setVerifiedSources] = useState([]);
 
     useEffect(() => {
         // Fetch categories for the dropdown
@@ -113,6 +146,188 @@ export default function Edit({ auth, business }) {
         }
     };
 
+    const handleSocialChange = (network, value) => {
+        setFormData(prev => ({
+            ...prev,
+            social_links: {
+                ...prev.social_links,
+                [network]: value
+            }
+        }));
+    };
+
+    const handleScrapeWebsite = async (url) => {
+        const targetUrl = (url || formData.website || aiWebsite || '').trim();
+        if (!targetUrl) {
+            setScrapeMessage('Pehle business ki official website URL enter karein.');
+            return;
+        }
+
+        setIsScrapingWebsite(true);
+        setScrapeMessage(null);
+
+        try {
+            const response = await axios.post('/api/ai/scrape-website', {
+                url: targetUrl
+            });
+
+            if (response.data && response.data.success && response.data.data) {
+                const scraped = response.data.data;
+                const scrapedSocial = scraped.social_links || {};
+                const newLinks = {
+                    youtube: scrapedSocial.youtube || '',
+                    instagram: scrapedSocial.instagram || '',
+                    facebook: scrapedSocial.facebook || '',
+                    telegram: scrapedSocial.telegram || '',
+                    twitter: scrapedSocial.twitter || '',
+                    linkedin: scrapedSocial.linkedin || '',
+                };
+                const foundCount = Object.keys(newLinks).filter(k => Boolean(newLinks[k])).length;
+
+                setFormData(prev => ({
+                    ...prev,
+                    website: scraped.website || targetUrl,
+                    phone: scraped.phone || '',
+                    email: scraped.email || '',
+                    address: scraped.address || '',
+                    logo_url: scraped.logo_url || prev.logo_url || '',
+                    cover_image_url: scraped.cover_image_url || prev.cover_image_url || '',
+                    social_links: newLinks
+                }));
+
+                const mediaFound = [];
+                if (scraped.logo_url) mediaFound.push('Logo');
+                if (scraped.cover_image_url) mediaFound.push('Cover Image');
+
+                if (foundCount > 0 || mediaFound.length > 0) {
+                    setScrapeMessage(`Success! Official website se ${foundCount} verified handles${mediaFound.length > 0 ? ` aur ${mediaFound.join(' + ')} auto-detected` : ''}.`);
+                } else {
+                    setScrapeMessage(`Website scrape hui, lekin homepage ya contact page par direct official social handles nahi mile.`);
+                }
+            } else {
+                setScrapeMessage('Website scrape nahi ho saki. Kripya URL check karein.');
+            }
+        } catch (err) {
+            console.error('Website scraping error:', err);
+            setScrapeMessage(err.response?.data?.message || 'Website connect karne me error aayi.');
+        } finally {
+            setIsScrapingWebsite(false);
+        }
+    };
+
+    const handleAiResearch = async (overrideName) => {
+        const queryName = (typeof overrideName === 'string' ? overrideName : (aiPromptName || formData.name)).trim();
+        if (!queryName) {
+            setAiError('Please enter an institute or business name to research.');
+            return;
+        }
+
+        setIsAiResearching(true);
+        setAiError(null);
+        setAiSuccessMessage(null);
+        setAiStepMessage(`Deep researching "${queryName}" across official portals & educational directories...`);
+
+        const timer1 = setTimeout(() => {
+            setAiStepMessage(`Verifying official website, contact helpline & campus address in ${aiCity}...`);
+        }, 2200);
+
+        const timer2 = setTimeout(() => {
+            setAiStepMessage(`Compiling courses, realistic fees, official YouTube/social handles & FAQs...`);
+        }, 5000);
+
+        const timer3 = setTimeout(() => {
+            setAiStepMessage(`Structuring short overview and comprehensive rich HTML about sections...`);
+        }, 8500);
+
+        // Only pass website if explicitly entered or if relevant to the new queryName
+        let targetWebsite = (aiWebsite || '').trim();
+        if (!targetWebsite && formData.website) {
+            const host = formData.website.toLowerCase();
+            const brandTokens = queryName.toLowerCase().split(/\s+/).filter(t => t.length >= 3);
+            if (brandTokens.some(t => host.includes(t))) {
+                targetWebsite = formData.website.trim();
+            }
+        }
+
+        try {
+            const response = await axios.post('/api/ai/research-business', {
+                name: queryName,
+                city: aiCity.trim() || 'Sikar',
+                category: formData.category_name || 'Coaching & Institutes',
+                website: targetWebsite
+            });
+
+            clearTimeout(timer1);
+            clearTimeout(timer2);
+            clearTimeout(timer3);
+
+            if (response.data && response.data.success && response.data.data) {
+                const d = response.data.data;
+                const finalName = queryName || d.name;
+                if (d.website) {
+                    setAiWebsite(d.website);
+                } else {
+                    setAiWebsite('');
+                }
+                setFormData(prev => ({
+                    ...prev,
+                    name: finalName,
+                    slug: prev.slug || d.slug,
+                    category_name: d.category_name || prev.category_name || 'Coaching & Institutes',
+                    description: d.description || '',
+                    detailed_description: d.detailed_description || '',
+                    website: d.website || '',
+                    phone: d.phone || '',
+                    email: d.email || '',
+                    logo_url: d.logo_url || '',
+                    cover_image_url: d.cover_image_url || '',
+                    address: d.address || '',
+                    city: d.city || prev.city || 'Sikar',
+                    opening_hours: d.opening_hours || '',
+                    services: Array.isArray(d.services) && d.services.length > 0 ? d.services : [],
+                    faqs: Array.isArray(d.faqs) && d.faqs.length > 0 ? d.faqs : [],
+                    tags: Array.isArray(d.tags) ? d.tags : [],
+                    social_links: {
+                        youtube: d.social_links?.youtube || '',
+                        instagram: d.social_links?.instagram || '',
+                        facebook: d.social_links?.facebook || '',
+                        telegram: d.social_links?.telegram || '',
+                        twitter: d.social_links?.twitter || '',
+                        linkedin: d.social_links?.linkedin || ''
+                    }
+                }));
+
+                if (Array.isArray(d.verified_sources) && d.verified_sources.length > 0) {
+                    setVerifiedSources(d.verified_sources);
+                }
+
+                setAiPromptName(finalName);
+                setAiSuccessMessage(`Deep research complete for "${finalName}"! Short overview (40-70 words), long comprehensive guide, verified official handles, courses, and FAQs have all been auto-populated.`);
+            } else {
+                setAiError('Could not complete AI research. Please try again.');
+            }
+        } catch (err) {
+            clearTimeout(timer1);
+            clearTimeout(timer2);
+            clearTimeout(timer3);
+            console.error('AI Research Error:', err);
+            let errMsg = err.response?.data?.message;
+            if (err.response?.status === 419) {
+                errMsg = 'Session expired. Please refresh the page and try again.';
+            } else if (err.response?.status === 401) {
+                errMsg = 'Please log in to use AI research.';
+            } else if (err.response?.status === 429) {
+                errMsg = 'Too many requests. Please wait a minute and try again.';
+            } else if (!errMsg) {
+                errMsg = 'AI research request timed out or network disconnected. Please check your connection and try again.';
+            }
+            setAiError(errMsg);
+        } finally {
+            setIsAiResearching(false);
+            setAiStepMessage('');
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -131,13 +346,21 @@ export default function Edit({ auth, business }) {
                     if (formData[key]) {
                         submitData.append(key, window.btoa(encodeURIComponent(formData[key])));
                     }
+                } else if (key === 'tags') {
+                    if (formData[key] && Array.isArray(formData[key])) {
+                        submitData.append(key, JSON.stringify(formData[key]));
+                    }
+                } else if (key === 'social_links') {
+                    if (formData[key] && typeof formData[key] === 'object') {
+                        submitData.append(key, JSON.stringify(formData[key]));
+                    }
                 } else if (key === 'logo' || key === 'cover_image') {
                     if (formData[key]) submitData.append(key, formData[key]);
                 } else {
                     submitData.append(key, formData[key]);
                 }
             });
-            submitData.append('user_id', user.id);
+            submitData.append('user_id', business.userId || business.user_id || user.id);
             submitData.append('_encoded_payloads', 'true');
 
             submitData.append('_method', 'PUT'); // Laravel requires this for multipart/form-data PUT requests
@@ -149,10 +372,15 @@ export default function Edit({ auth, business }) {
             });
             
             if (response.status === 201 || response.status === 200) {
+                const updated = response.data;
+                const finalSlug = updated?.slug || formData.slug || business.slug || business.id;
+                const finalCategory = updated?.category || formData.category || business.category || 'coaching-institutes';
+                const targetUrl = `/business/${finalCategory}/${finalSlug}`;
+                setProfileUrl(targetUrl);
                 setSuccess(true);
-                // Optionally redirect to business profile after a delay
+                // Redirect to business profile after a short delay
                 setTimeout(() => {
-                    window.location.href = `/biz/${business.slug || business.id}`;
+                    window.location.href = targetUrl;
                 }, 2000);
             }
         } catch (error) {
@@ -168,11 +396,11 @@ export default function Edit({ auth, business }) {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-white font-sans py-12 px-4 sm:px-6 lg:px-8">
-            <Head title={`Edit ${business.name} | CoachingInSikar`} />
+            <Head title={`Edit ${business.name} | CoachingsInSikar`} />
             
             <div className="w-full max-w-screen-2xl px-4 mx-auto">
                 <div className="mb-8">
-                    <Link href={`/biz/${business.slug || business.id}`} className="inline-flex items-center text-sm font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors mb-4">
+                    <Link href={profileUrl} className="inline-flex items-center text-sm font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors mb-4">
                         <ArrowLeft size={16} className="mr-2" /> Back to Profile
                     </Link>
                     <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Edit Your Business Listing</h1>
@@ -186,7 +414,7 @@ export default function Edit({ auth, business }) {
                         </div>
                         <h2 className="text-2xl font-bold text-emerald-900 dark:text-emerald-300 mb-2">Listing Updated Successfully!</h2>
                         <p className="text-emerald-700 dark:text-emerald-400 mb-6">Your business changes have been saved and are now visible on the platform.</p>
-                        <Link href={`/biz/${business.slug || business.id}`} className="inline-block px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-full transition-colors">
+                        <Link href={profileUrl} className="inline-block px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-full transition-colors">
                             View Profile
                         </Link>
                     </div>
@@ -200,6 +428,160 @@ export default function Edit({ auth, business }) {
                         )}
 
                         <div className="p-8 sm:p-10 space-y-10 relative z-10">
+                            {/* AI Deep Research Engine Card */}
+                            <div className="bg-gradient-to-br from-amber-500/10 via-slate-50 to-amber-500/5 dark:from-amber-500/10 dark:via-zinc-900 dark:to-zinc-900 border-2 border-amber-500/30 dark:border-amber-500/20 rounded-2xl p-6 sm:p-7 shadow-sm relative overflow-hidden">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                                    <div className="flex items-center gap-2.5">
+                                        <span className="p-2 rounded-md bg-amber-500 text-black shadow-md shadow-amber-500/20">
+                                            <Sparkles size={18} className="animate-pulse" />
+                                        </span>
+                                        <div>
+                                            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                                AI Deep Research & Profile Auto-Fill
+                                                <span className="text-[11px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                                                    Gemini AI
+                                                </span>
+                                            </h3>
+                                            <p className="text-xs text-slate-600 dark:text-zinc-400 mt-0.5">
+                                                Is profile ke liye deep research chalayein. AI online search karke verified details, courses, fees, address aur FAQs ko update karega.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                                    <div className="md:col-span-7">
+                                        <label className="block text-sm font-bold text-slate-700 dark:text-zinc-300 mb-1.5">
+                                            Institute / Business Name
+                                        </label>
+                                        <div className="relative group">
+                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                <Building className="h-5 w-5 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
+                                            </div>
+                                            <input
+                                                type="text"
+                                                value={aiPromptName}
+                                                onChange={(e) => {
+                                                    setAiPromptName(e.target.value);
+                                                    setFormData(prev => ({ ...prev, name: e.target.value }));
+                                                }}
+                                                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAiResearch(); } }}
+                                                placeholder="e.g. Matrix Academy Sikar, PCP Sikar, Allen Sikar..."
+                                                className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="md:col-span-5">
+                                        <label className="block text-sm font-bold text-slate-700 dark:text-zinc-300 mb-1.5">
+                                            City / Region
+                                        </label>
+                                        <div className="relative group">
+                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                <MapPin className="h-5 w-5 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
+                                            </div>
+                                            <input
+                                                type="text"
+                                                value={aiCity}
+                                                onChange={(e) => setAiCity(e.target.value)}
+                                                placeholder="e.g. Sikar, Kota, Jaipur"
+                                                className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="md:col-span-8">
+                                        <label className="block text-sm font-bold text-slate-700 dark:text-zinc-300 mb-1.5 flex items-center justify-between">
+                                            <span>Official Website URL</span>
+                                            <span className="text-[11px] font-normal text-slate-500 dark:text-zinc-400">
+                                                (Optional – Live scrape of verified YouTube, Instagram, Facebook, Phone & Email)
+                                            </span>
+                                        </label>
+                                        <div className="relative group">
+                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                <Globe className="h-5 w-5 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
+                                            </div>
+                                            <input
+                                                type="url"
+                                                value={aiWebsite}
+                                                onChange={(e) => {
+                                                    setAiWebsite(e.target.value);
+                                                    setFormData(prev => ({ ...prev, website: e.target.value }));
+                                                }}
+                                                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAiResearch(); } }}
+                                                placeholder="e.g. https://www.matrixedu.in or https://gurukripa.ac.in"
+                                                className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="md:col-span-4 flex items-end">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleAiResearch()}
+                                            disabled={isAiResearching || (!aiPromptName.trim() && !formData.name.trim())}
+                                            className="w-full h-[48px] inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-black font-extrabold text-sm rounded-full shadow-lg shadow-amber-500/25 transition-all active:scale-[0.98]"
+                                        >
+                                            {isAiResearching ? (
+                                                <>
+                                                    <Loader2 size={16} className="animate-spin" />
+                                                    <span>Researching & Scraping...</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Sparkles size={16} />
+                                                    <span>Re-Research & Update</span>
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Live Step Progress */}
+                                {isAiResearching && (
+                                    <div className="mt-4 pt-3.5 border-t border-amber-500/20">
+                                        <div className="flex items-center gap-2.5 text-xs font-semibold text-amber-700 dark:text-amber-400 animate-pulse">
+                                            <Loader2 size={15} className="animate-spin shrink-0 text-amber-500" />
+                                            <span>{aiStepMessage}</span>
+                                        </div>
+                                        <div className="w-full bg-amber-200/50 dark:bg-amber-950/50 h-1.5 rounded-full overflow-hidden mt-2.5">
+                                            <div className="bg-amber-500 h-full w-3/4 rounded-full animate-pulse" />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Success Notice */}
+                                {aiSuccessMessage && !isAiResearching && (
+                                    <div className="mt-4 p-3.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 rounded-md flex items-start gap-2.5 text-xs text-emerald-800 dark:text-emerald-300">
+                                        <CheckCircle size={16} className="shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400" />
+                                        <div className="flex-1">
+                                            <p className="font-bold">{aiSuccessMessage}</p>
+                                            {verifiedSources.length > 0 && (
+                                                <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
+                                                    <span className="font-semibold text-[11px] text-emerald-900 dark:text-emerald-200">Verified From Official Sources:</span>
+                                                    {verifiedSources.map((source, i) => (
+                                                        <span key={i} className="inline-flex items-center px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/50 text-[11px] font-medium text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700">
+                                                            ✓ {source}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            <p className="mt-1 opacity-90">Short overview, deep about guide, verified phone, website, and official social handles auto-fill ho chuke hain.</p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Error Notice */}
+                                {aiError && !isAiResearching && (
+                                    <div className="mt-4 p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 rounded-md flex items-start gap-2.5 text-xs text-rose-800 dark:text-rose-300">
+                                        <AlertCircle size={16} className="shrink-0 mt-0.5 text-rose-600 dark:text-rose-400" />
+                                        <div className="flex-1">
+                                            <p className="font-bold">{aiError}</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
                             {/* Basic Info Section */}
                             <div>
                                 <h3 className="text-xl font-extrabold text-slate-900 dark:text-white mb-6 flex items-center">
@@ -208,7 +590,18 @@ export default function Edit({ auth, business }) {
                                 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="md:col-span-2">
-                                        <label className="block text-sm font-bold text-slate-700 dark:text-zinc-300 mb-1.5">Business/Institute Name *</label>
+                                        <div className="flex items-center justify-between mb-1.5">
+                                            <label className="block text-sm font-bold text-slate-700 dark:text-zinc-300">Business/Institute Name *</label>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleAiResearch(formData.name || aiPromptName)}
+                                                disabled={isAiResearching || (!formData.name?.trim() && !aiPromptName?.trim())}
+                                                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 hover:bg-amber-500/25 text-xs font-extrabold text-amber-700 dark:text-amber-400 border border-amber-500/30 transition-all disabled:opacity-50"
+                                            >
+                                                <Sparkles size={13} className="text-amber-500" />
+                                                <span>{isAiResearching ? 'Researching...' : '✨ Deep Research & Auto-Fill Rest of Fields'}</span>
+                                            </button>
+                                        </div>
                                         <div className="relative group">
                                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                                 <Building className="h-5 w-5 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
@@ -217,9 +610,18 @@ export default function Edit({ auth, business }) {
                                                 type="text"
                                                 name="name"
                                                 value={formData.name}
-                                                onChange={handleChange}
+                                                onChange={(e) => {
+                                                    handleChange(e);
+                                                    setAiPromptName(e.target.value);
+                                                }}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        e.preventDefault();
+                                                        handleAiResearch(formData.name);
+                                                    }
+                                                }}
                                                 required
-                                                placeholder="e.g. Acme Corporation"
+                                                placeholder="e.g. Matrix Academy Sikar, PCP Sikar, Allen Sikar..."
                                                 className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
                                             />
                                         </div>
@@ -241,7 +643,7 @@ export default function Edit({ auth, business }) {
                                                 className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
                                             />
                                         </div>
-                                        <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1.5 ml-2">This will be your unique business URL: coachinginsikar.com/biz/<strong>{formData.slug ? formData.slug.toLowerCase().replace(/[^a-z0-9-]/g, '-') : 'your-username'}</strong></p>
+                                        <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1.5 ml-2">This will be your unique business URL: coachingsinsikar.com/business/{formData.category || business.category || 'coaching-institutes'}/<strong>{formData.slug ? formData.slug.toLowerCase().replace(/[^a-z0-9-]/g, '-') : 'your-username'}</strong></p>
                                         {errors.slug && <p className="text-rose-500 text-xs mt-1.5 font-semibold">{errors.slug[0]}</p>}
                                     </div>
 
@@ -266,29 +668,43 @@ export default function Edit({ auth, business }) {
                                     </div>
                                     
                                     <div className="md:col-span-2">
-                                        <label className="block text-sm font-bold text-slate-700 dark:text-zinc-300 mb-1.5">Description *</label>
+                                        <div className="flex items-center justify-between mb-1.5">
+                                            <label className="block text-sm font-bold text-slate-700 dark:text-zinc-300">
+                                                Short Description (Card Overview / Tagline) *
+                                            </label>
+                                            <span className="text-xs text-slate-500 dark:text-zinc-400 font-mono">
+                                                {formData.description ? formData.description.trim().split(/\s+/).filter(Boolean).length : 0} words (Target: 40–70 words)
+                                            </span>
+                                        </div>
                                         <textarea
                                             name="description"
                                             value={formData.description}
                                             onChange={handleChange}
                                             required
-                                            rows="4"
-                                            placeholder="Tell us about your business, services, or courses..."
-                                            className="block w-full px-5 py-4 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-3xl text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500 resize-y"
+                                            rows="3"
+                                            placeholder="Short & crisp overview (40-70 words): Key competitive exams, results, and faculty specialization..."
+                                            className="block w-full px-5 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-2xl text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500 resize-y"
                                         ></textarea>
-                                        <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1.5 ml-2">A brief overview of your business (max 1000 characters)</p>
+                                        <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1.5 ml-2">Short summary: Ye listing cards aur search results me 2 lines me dikhega. Yahan short & concise data aata hai.</p>
                                         {errors.description && <p className="text-rose-500 text-xs mt-1.5 font-semibold">{errors.description[0]}</p>}
                                     </div>
-                                    
+
                                     <div className="md:col-span-2">
-                                        <label className="block text-sm font-bold text-slate-700 dark:text-zinc-300 mb-1.5">Detailed Description (About Us)</label>
+                                        <div className="flex items-center justify-between mb-1.5">
+                                            <label className="block text-sm font-bold text-slate-700 dark:text-zinc-300">
+                                                Long Detailed Description (Comprehensive About Us / Full Guide)
+                                            </label>
+                                            <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                                                {formData.detailed_description ? `${formData.detailed_description.replace(/<[^>]+>/g, ' ').trim().split(/\s+/).filter(Boolean).length} Words (Full Rich Guide)` : 'Full Rich HTML'}
+                                            </span>
+                                        </div>
                                         <div className="bg-slate-100 dark:bg-zinc-800/80 rounded-2xl overflow-hidden border border-transparent hover:border-amber-500 transition-all">
                                             <TipTapEditor
                                                 value={formData.detailed_description}
                                                 onChange={(content) => setFormData(prev => ({ ...prev, detailed_description: content }))}
                                             />
                                         </div>
-                                        <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1.5 ml-2">Provide detailed information about your company, history, and offerings. This supports rich text.</p>
+                                        <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1.5 ml-2">Profile ke 'About Us' tab me ye pura deep guide aayega jisme Faculty, Hostels, Pedagogy, DPPs aur Test Series shamil hain.</p>
                                         {errors.detailed_description && <p className="text-rose-500 text-xs mt-1.5 font-semibold">{errors.detailed_description[0]}</p>}
                                     </div>
                                 </div>
@@ -302,7 +718,23 @@ export default function Edit({ auth, business }) {
                                 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label className="block text-sm font-bold text-slate-700 dark:text-zinc-300 mb-1.5">Website *</label>
+                                        <div className="flex items-center justify-between mb-1.5">
+                                            <label className="block text-sm font-bold text-slate-700 dark:text-zinc-300">Website *</label>
+                                            {formData.website && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleScrapeWebsite(formData.website)}
+                                                    disabled={isScrapingWebsite}
+                                                    className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600 dark:text-amber-400 hover:underline disabled:opacity-50"
+                                                >
+                                                    {isScrapingWebsite ? (
+                                                        <><Loader2 className="w-3 h-3 animate-spin" /> Fetching...</>
+                                                    ) : (
+                                                        <>⚡ Fetch Social Handles</>
+                                                    )}
+                                                </button>
+                                            )}
+                                        </div>
                                         <div className="relative group">
                                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                                 <Globe className="h-5 w-5 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
@@ -389,6 +821,160 @@ export default function Edit({ auth, business }) {
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Official Handles & Verified Social Links Section */}
+                            <div className="pt-4 border-t border-slate-100 dark:border-zinc-800">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                                    <div>
+                                        <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                            <div className="w-8 h-8 rounded-md bg-amber-500/10 text-amber-500 flex items-center justify-center">
+                                                <Globe size={18} />
+                                            </div>
+                                            Official Handles & Social Links (Verified)
+                                        </h3>
+                                        <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
+                                            Institute ke verified official links (YouTube, Instagram, Facebook, Telegram, Twitter, LinkedIn).
+                                        </p>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleScrapeWebsite(formData.website)}
+                                            disabled={isScrapingWebsite || !formData.website}
+                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm transition-all"
+                                            title={formData.website ? "Website se official social handles fetch karein" : "Pehle Website URL daalein"}
+                                        >
+                                            {isScrapingWebsite ? (
+                                                <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Scraping Website...</>
+                                            ) : (
+                                                <>⚡ Auto-Fetch from Website</>
+                                            )}
+                                        </button>
+                                        {verifiedSources.length > 0 && (
+                                            <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-md border border-emerald-300 dark:border-emerald-800">
+                                                ✓ Verified Handles
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {scrapeMessage && (
+                                    <div className="mb-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/40 text-xs text-amber-800 dark:text-amber-300 flex items-center justify-between">
+                                        <span>{scrapeMessage}</span>
+                                        <button type="button" onClick={() => setScrapeMessage('')} className="text-amber-600 hover:text-amber-800 font-bold ml-2">✕</button>
+                                    </div>
+                                )}
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <div>
+                                        <label className="block text-sm font-bold text-slate-700 dark:text-zinc-300 mb-1.5 flex items-center gap-1.5">
+                                            <span className="text-red-500 font-bold">▶</span> Official YouTube Channel
+                                        </label>
+                                        <div className="relative group">
+                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                <span className="text-red-500 font-extrabold text-sm">▶</span>
+                                            </div>
+                                            <input
+                                                type="url"
+                                                value={formData.social_links?.youtube || ''}
+                                                onChange={(e) => handleSocialChange('youtube', e.target.value)}
+                                                placeholder="https://www.youtube.com/@InstituteHandle"
+                                                className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-bold text-slate-700 dark:text-zinc-300 mb-1.5 flex items-center gap-1.5">
+                                            <span className="text-pink-500 font-bold">📷</span> Official Instagram Profile
+                                        </label>
+                                        <div className="relative group">
+                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                <span className="text-pink-500 font-extrabold text-sm">📷</span>
+                                            </div>
+                                            <input
+                                                type="url"
+                                                value={formData.social_links?.instagram || ''}
+                                                onChange={(e) => handleSocialChange('instagram', e.target.value)}
+                                                placeholder="https://www.instagram.com/institute_handle"
+                                                className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-bold text-slate-700 dark:text-zinc-300 mb-1.5 flex items-center gap-1.5">
+                                            <span className="text-blue-600 font-bold">f</span> Official Facebook Page
+                                        </label>
+                                        <div className="relative group">
+                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                <span className="text-blue-600 font-extrabold text-sm">f</span>
+                                            </div>
+                                            <input
+                                                type="url"
+                                                value={formData.social_links?.facebook || ''}
+                                                onChange={(e) => handleSocialChange('facebook', e.target.value)}
+                                                placeholder="https://www.facebook.com/institute_handle"
+                                                className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-bold text-slate-700 dark:text-zinc-300 mb-1.5 flex items-center gap-1.5">
+                                            <span className="text-sky-500 font-bold">✈</span> Official Telegram Channel
+                                        </label>
+                                        <div className="relative group">
+                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                <span className="text-sky-500 font-extrabold text-sm">✈</span>
+                                            </div>
+                                            <input
+                                                type="url"
+                                                value={formData.social_links?.telegram || ''}
+                                                onChange={(e) => handleSocialChange('telegram', e.target.value)}
+                                                placeholder="https://t.me/institute_channel"
+                                                className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-bold text-slate-700 dark:text-zinc-300 mb-1.5 flex items-center gap-1.5">
+                                            <span className="text-slate-800 dark:text-zinc-200 font-bold">𝕏</span> Official X (Twitter) Profile
+                                        </label>
+                                        <div className="relative group">
+                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                <span className="text-slate-800 dark:text-zinc-200 font-extrabold text-sm">𝕏</span>
+                                            </div>
+                                            <input
+                                                type="url"
+                                                value={formData.social_links?.twitter || ''}
+                                                onChange={(e) => handleSocialChange('twitter', e.target.value)}
+                                                placeholder="https://twitter.com/institute_handle"
+                                                className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-bold text-slate-700 dark:text-zinc-300 mb-1.5 flex items-center gap-1.5">
+                                            <span className="text-blue-700 font-bold">in</span> Official LinkedIn Profile
+                                        </label>
+                                        <div className="relative group">
+                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                <span className="text-blue-700 font-extrabold text-sm">in</span>
+                                            </div>
+                                            <input
+                                                type="url"
+                                                value={formData.social_links?.linkedin || ''}
+                                                onChange={(e) => handleSocialChange('linkedin', e.target.value)}
+                                                placeholder="https://www.linkedin.com/company/institute_handle"
+                                                className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             
                             {/* Media Uploads Section */}
                             <div className="pt-4 border-t border-slate-100 dark:border-zinc-800">
@@ -396,15 +982,44 @@ export default function Edit({ auth, business }) {
                                     <div className="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-indigo-500"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
                                     </div>
-                                    Media & Branding
+                                    Media & Branding (Logo & Background Cover)
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label className="block text-sm font-bold text-slate-700 dark:text-zinc-300 mb-1.5">Business Logo (Optional)</label>
-                                        {(formData.logo || business.logo) && (
-                                            <div className="mb-3">
-                                                <img src={formData.logo ? URL.createObjectURL(formData.logo) : business.logo} alt="Current Logo" className="w-16 h-16 rounded-xl object-cover border border-slate-200" />
-                                                <p className="text-xs text-slate-500 mt-1">{formData.logo ? 'New logo selected' : 'Current logo'}</p>
+                                        <div className="flex items-center justify-between mb-1.5">
+                                            <label className="block text-sm font-bold text-slate-700 dark:text-zinc-300">Business Logo (Optional)</label>
+                                            {formData.logo_url && !formData.logo && (
+                                                <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">
+                                                    ⚡ Auto-fetched from website
+                                                </span>
+                                            )}
+                                        </div>
+                                        {(formData.logo || formData.logo_url || business.logo) && (
+                                            <div className="mb-3 p-3 rounded-2xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700 flex items-center gap-3">
+                                                <img
+                                                    src={formData.logo ? URL.createObjectURL(formData.logo) : (formData.logo_url || business.logo)}
+                                                    alt="Logo preview"
+                                                    className="w-14 h-14 rounded-xl object-contain bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 p-1 shadow-sm"
+                                                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                                />
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-xs font-semibold text-slate-800 dark:text-zinc-200 truncate">
+                                                        {formData.logo ? formData.logo.name : (formData.logo_url ? 'Auto-fetched Logo' : 'Current Logo')}
+                                                    </p>
+                                                    <p className="text-[11px] text-slate-500 dark:text-zinc-400">
+                                                        {formData.logo ? 'New file selected' : (formData.logo_url ? 'Auto-detected from official website' : 'Saved in database')}
+                                                    </p>
+                                                </div>
+                                                {(formData.logo || formData.logo_url) && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setFormData(prev => ({ ...prev, logo: null, logo_url: '' }))}
+                                                        className="text-xs text-rose-500 hover:text-rose-700 font-bold px-2 py-1 rounded-md hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                                                        title="Reset logo"
+                                                    >
+                                                        Clear
+                                                    </button>
+                                                )}
                                             </div>
                                         )}
                                         <input
@@ -414,13 +1029,44 @@ export default function Edit({ auth, business }) {
                                             onChange={handleFileChange}
                                             className="block w-full text-sm text-slate-500 dark:text-zinc-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 dark:file:bg-indigo-900/20 dark:file:text-indigo-400 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-900/40 cursor-pointer border border-slate-200 dark:border-zinc-700 rounded-3xl p-2 bg-slate-50 dark:bg-zinc-800/50"
                                         />
+                                        <p className="text-[11px] text-slate-400 mt-1 ml-2">PNG, JPG, WebP ya SVG. Naya file upload karke auto-fetched logo ko override kar sakte hain.</p>
                                     </div>
+
                                     <div>
-                                        <label className="block text-sm font-bold text-slate-700 dark:text-zinc-300 mb-1.5">Cover Image (Optional)</label>
-                                        {(formData.cover_image || business.coverImage || business.cover_image) && (
-                                            <div className="mb-3">
-                                                <img src={formData.cover_image ? URL.createObjectURL(formData.cover_image) : (business.coverImage || business.cover_image)} alt="Current Cover" className="w-32 h-16 rounded-xl object-cover border border-slate-200" />
-                                                <p className="text-xs text-slate-500 mt-1">{formData.cover_image ? 'New cover image selected' : 'Current cover image'}</p>
+                                        <div className="flex items-center justify-between mb-1.5">
+                                            <label className="block text-sm font-bold text-slate-700 dark:text-zinc-300">Cover Image (Optional)</label>
+                                            {formData.cover_image_url && !formData.cover_image && (
+                                                <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">
+                                                    ⚡ Auto-fetched from website
+                                                </span>
+                                            )}
+                                        </div>
+                                        {(formData.cover_image || formData.cover_image_url || business.coverImage || business.cover_image) && (
+                                            <div className="mb-3 p-3 rounded-2xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700 flex items-center gap-3">
+                                                <img
+                                                    src={formData.cover_image ? URL.createObjectURL(formData.cover_image) : (formData.cover_image_url || business.coverImage || business.cover_image)}
+                                                    alt="Cover preview"
+                                                    className="w-24 h-14 rounded-xl object-cover bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 shadow-sm"
+                                                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                                />
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-xs font-semibold text-slate-800 dark:text-zinc-200 truncate">
+                                                        {formData.cover_image ? formData.cover_image.name : (formData.cover_image_url ? 'Auto-fetched Banner' : 'Current Cover Banner')}
+                                                    </p>
+                                                    <p className="text-[11px] text-slate-500 dark:text-zinc-400">
+                                                        {formData.cover_image ? 'New file selected' : (formData.cover_image_url ? 'Auto-detected from official website' : 'Saved in database')}
+                                                    </p>
+                                                </div>
+                                                {(formData.cover_image || formData.cover_image_url) && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setFormData(prev => ({ ...prev, cover_image: null, cover_image_url: '' }))}
+                                                        className="text-xs text-rose-500 hover:text-rose-700 font-bold px-2 py-1 rounded-md hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                                                        title="Reset cover"
+                                                    >
+                                                        Clear
+                                                    </button>
+                                                )}
                                             </div>
                                         )}
                                         <input
@@ -430,6 +1076,7 @@ export default function Edit({ auth, business }) {
                                             onChange={handleFileChange}
                                             className="block w-full text-sm text-slate-500 dark:text-zinc-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 dark:file:bg-indigo-900/20 dark:file:text-indigo-400 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-900/40 cursor-pointer border border-slate-200 dark:border-zinc-700 rounded-3xl p-2 bg-slate-50 dark:bg-zinc-800/50"
                                         />
+                                        <p className="text-[11px] text-slate-400 mt-1 ml-2">Recommended: 1200x630 banner. Naya file upload karke auto-fetched banner ko override kar sakte hain.</p>
                                     </div>
                                 </div>
                             </div>
@@ -446,7 +1093,7 @@ export default function Edit({ auth, business }) {
                                     <button
                                         type="button"
                                         onClick={addService}
-                                        className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full text-sm font-bold bg-amber-500 hover:bg-amber-400 text-black shadow-md transition-all active:scale-[0.98]"
+                                        className="inline-flex items-center gap-1.5 px-5 py-2 rounded-md text-sm font-bold bg-amber-500 hover:bg-amber-400 text-black shadow-md transition-all active:scale-[0.98]"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
                                         Add Service
@@ -515,7 +1162,7 @@ export default function Edit({ auth, business }) {
                                     <button
                                         type="button"
                                         onClick={addFaq}
-                                        className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full text-sm font-bold bg-amber-500 hover:bg-amber-400 text-black shadow-md transition-all active:scale-[0.98]"
+                                        className="inline-flex items-center gap-1.5 px-5 py-2 rounded-md text-sm font-bold bg-amber-500 hover:bg-amber-400 text-black shadow-md transition-all active:scale-[0.98]"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
                                         Add FAQ
@@ -593,14 +1240,14 @@ export default function Edit({ auth, business }) {
                             <button
                                 type="button"
                                 onClick={() => window.history.back()}
-                                className="px-6 py-3.5 mr-3 rounded-full text-sm font-bold text-slate-600 dark:text-zinc-300 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-200 dark:hover:bg-zinc-700 transition-all active:scale-[0.98]"
+                                className="px-6 py-3.5 mr-3 rounded-md text-sm font-bold text-slate-600 dark:text-zinc-300 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-200 dark:hover:bg-zinc-700 transition-all active:scale-[0.98]"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="group relative inline-flex items-center justify-center px-8 py-3.5 bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-sm rounded-full transition-all focus:outline-none focus:ring-4 focus:ring-amber-500/30 disabled:opacity-70 disabled:cursor-not-allowed shadow-lg shadow-amber-500/20 overflow-hidden active:scale-[0.98]"
+                                className="group relative inline-flex items-center justify-center px-8 py-3.5 bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-sm rounded-md transition-all focus:outline-none focus:ring-4 focus:ring-amber-500/30 disabled:opacity-70 disabled:cursor-not-allowed shadow-lg shadow-amber-500/20 overflow-hidden active:scale-[0.98]"
                             >
                                 <span className="relative z-10 flex items-center gap-2">
                                     {loading ? (

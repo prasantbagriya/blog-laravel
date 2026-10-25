@@ -64,17 +64,19 @@ class OptimizeImagesCommand extends Command
                     $newSize = filesize($newPath);
                     $savedBytes += ($oldSize - $newSize);
                     
-                    // Update Database references
-                    $oldUrl = asset('uploads/' . $file->getFilename());
-                    $newUrl = asset('uploads/' . basename($newPath));
+                    // Update Database references (both relative and absolute URL formats)
+                    $oldFilename = $file->getFilename();
+                    $newFilename = basename($newPath);
 
-                    if ($oldUrl !== $newUrl) {
-                        \App\Models\Post::where('coverImage', $oldUrl)->update(['coverImage' => $newUrl]);
-                        \App\Models\Post::where('authorImage', $oldUrl)->update(['authorImage' => $newUrl]);
-                        \App\Models\Story::where('posterImage', $oldUrl)->update(['posterImage' => $newUrl]);
-                        \App\Models\Slider::where('image_url', $oldUrl)->update(['image_url' => $newUrl]);
-                        \App\Models\Slider::where('mobile_image_url', $oldUrl)->update(['mobile_image_url' => $newUrl]);
-                    }
+                    $oldRelative = '/uploads/' . $oldFilename;
+                    $newRelative = '/uploads/' . $newFilename;
+                    $oldFull = asset('uploads/' . $oldFilename);
+
+                    \App\Models\Post::whereIn('coverImage', [$oldRelative, $oldFull])->update(['coverImage' => $newRelative]);
+                    \App\Models\Post::whereIn('authorImage', [$oldRelative, $oldFull])->update(['authorImage' => $newRelative]);
+                    \App\Models\Story::whereIn('posterImage', [$oldRelative, $oldFull])->update(['posterImage' => $newRelative]);
+                    \App\Models\Slider::whereIn('image_url', [$oldRelative, $oldFull])->update(['image_url' => $newRelative]);
+                    \App\Models\Slider::whereIn('mobile_image_url', [$oldRelative, $oldFull])->update(['mobile_image_url' => $newRelative]);
 
                     // delete original file if successfully converted and it wasn't a webp already
                     if ($originalPath !== $newPath) {

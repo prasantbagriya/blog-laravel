@@ -26,7 +26,7 @@ export default function Dashboard({ auth, userBusinesses = [], userCommunities =
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-white font-sans transition-colors">
-            <Head title="Dashboard | CoachingInSikar" />
+            <Head title="Dashboard | CoachingsInSikar" />
 
             {/* ── MOBILE TOPBAR ── */}
             <header className="md:hidden sticky top-0 z-40 h-16 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border-b border-slate-200 dark:border-zinc-800 flex items-center justify-between px-4 shadow-sm">
@@ -87,6 +87,11 @@ export default function Dashboard({ auth, userBusinesses = [], userCommunities =
 
                             <div className="pt-4 mt-4 border-t border-slate-200 dark:border-zinc-800">
                                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 px-2">Navigation</div>
+                                {user.is_admin && (
+                                    <a href="/admin" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-4 py-3 mb-1 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-xl font-bold">
+                                        <ShieldCheck size={17} /> Admin Panel
+                                    </a>
+                                )}
                                 <a href="/" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800/50 rounded-xl font-medium">
                                     <Home size={17} /> Back to Home
                                 </a>
@@ -132,6 +137,11 @@ export default function Dashboard({ auth, userBusinesses = [], userCommunities =
 
                         <div className="pt-6 mt-6 border-t border-slate-200 dark:border-zinc-800">
                             <div className="text-[11px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest mb-4 px-2">Navigation</div>
+                            {user.is_admin && (
+                                <a href="/admin" className="flex items-center gap-3 px-4 py-3 mb-1 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-xl font-bold transition-all">
+                                    <ShieldCheck size={18} /> Admin Panel
+                                </a>
+                            )}
                             <a href="/" className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800/50 hover:text-slate-900 dark:hover:text-white rounded-xl font-medium transition-all">
                                 <Home size={18} /> Back to Home
                             </a>
@@ -210,10 +220,11 @@ export default function Dashboard({ auth, userBusinesses = [], userCommunities =
                                     <input
                                         type="email"
                                         value={data.email}
-                                        className="block w-full px-4 sm:px-5 py-3 sm:py-3.5 bg-slate-200 dark:bg-zinc-800 border border-transparent rounded-full text-sm font-medium text-slate-500 dark:text-zinc-500 cursor-not-allowed"
-                                        disabled
+                                        onChange={(e) => setData('email', e.target.value)}
+                                        className="block w-full px-4 sm:px-5 py-3 sm:py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent rounded-full text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
+                                        required
                                     />
-                                    <p className="text-xs text-slate-400 font-medium mt-1.5">Email cannot be changed directly.</p>
+                                    {errors.email && <p className="text-rose-500 text-xs font-semibold mt-1.5">{errors.email}</p>}
                                 </div>
 
                                 <div>
