@@ -345,6 +345,15 @@ $dbUpgradeRunner = function () {
             }
         } catch (\Throwable $ignore) {}
 
+        try {
+            // Clean up old expired sessions to prevent session table bloat and connection locks
+            if (\Illuminate\Support\Facades\Schema::hasTable('sessions')) {
+                \Illuminate\Support\Facades\DB::table('sessions')
+                    ->where('last_activity', '<', now()->subDays(7)->getTimestamp())
+                    ->delete();
+            }
+        } catch (\Throwable $ignore) {}
+
         \Illuminate\Support\Facades\Artisan::call('optimize:clear');
         $clearOutput = \Illuminate\Support\Facades\Artisan::output();
 

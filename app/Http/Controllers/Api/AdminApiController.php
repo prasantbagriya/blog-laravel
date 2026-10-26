@@ -334,7 +334,9 @@ class AdminApiController extends Controller
     // --- Businesses ---
     public function getBusinesses()
     {
-        return response()->json(\App\Models\Business::orderBy('created_at', 'desc')->get());
+        return response()->json(\App\Models\Business::select([
+            'id', 'name', 'slug', 'logo', 'category', 'category_name', 'trust_score', 'review_count', 'created_at'
+        ])->orderBy('created_at', 'desc')->get());
     }
 
     public function deleteBusiness(Request $request)
