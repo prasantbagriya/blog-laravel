@@ -170,6 +170,8 @@ class XTweetService
 
             if ($status === 401) {
                 $err = "X Authentication Failed (401): Access token invalid or expired. Please re-authenticate your X account in Admin > X Hub. ({$err})";
+            } elseif (stripos($err, 'credits depleted') !== false || $status === 402) {
+                $err = "X API Credits Depleted: Aapke X (Twitter) Developer Account ke monthly tweet credits/balance khatam ho gaye hain. developer.x.com par ja kar apna API usage aur credits check karein. ({$err})";
             } elseif ($status === 403) {
                 if (stripos($err, 'duplicate') !== false) {
                     $err = "X Duplicate Tweet (403): You have already posted this exact tweet recently. Please change the tweet wording slightly. ({$err})";
