@@ -552,9 +552,9 @@ Route::fallback(function () {
         $currentPath = '/' . trim(strtolower(request()->path()), '/');
         $canonicalPath = '/' . trim(strtolower($post->url_path), '/');
         
-        // Strict URL enforcement: A post must ONLY open at its configured url_path
+        // Canonical URL enforcement: Redirect non-canonical URLs to canonical URL (301)
         if ($currentPath !== $canonicalPath) {
-            abort(404);
+            return redirect($canonicalPath, 301);
         }
 
         return app(\App\Http\Controllers\BlogController::class)->show(request(), $lastSegment);

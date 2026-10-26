@@ -131,13 +131,14 @@ class BlogController extends Controller
             abort(404);
         }
 
-        // Strict canonical URL enforcement:
-        // A post must ONLY open at its configured url_path (e.g. /blog/{slug}, /news/{slug}, etc.)
+        // Canonical URL enforcement:
+        // A post must open at its configured url_path (e.g. /blog/{slug}, /news/{slug}, or direct /{slug}).
+        // If accessed at a legacy/alternate path, permanently redirect (301) to the canonical path.
         $currentPath = '/' . trim(strtolower($request->path()), '/');
         $canonicalPath = '/' . trim(strtolower($post->url_path), '/');
 
         if ($currentPath !== $canonicalPath) {
-            abort(404);
+            return redirect($canonicalPath, 301);
         }
 
         // Dynamically serve optimized .webp images instead of .png/.jpg from uploads across all fields

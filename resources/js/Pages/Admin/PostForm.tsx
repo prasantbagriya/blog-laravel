@@ -326,7 +326,8 @@ const deepWorkTitleStyle: React.CSSProperties = { width: '100%', fontSize: '64px
 const tocItemStyle: React.CSSProperties = { fontSize: '12.5px', fontWeight: 600, color: '#64748b', cursor: 'pointer', padding: '6px 0', transition: 'all 0.2s' };
 
 
-const MiniScore = ({ label, value, color = '#2563eb' }: any) => (
+const MiniScore = ({ label, value, color = '#2563eb' }: any) =>
+                     (
    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0', minWidth: '65px' }}>
       <span style={{ fontSize: '10px', fontWeight: 900, color: '#64748b', letterSpacing: '0.5px', marginBottom: '4px' }}>{label}</span>
       <span style={{ fontSize: '18px', fontWeight: 900, color }}>{value}%</span>
@@ -1806,12 +1807,20 @@ export default function PostForm({ post }: PostFormProps) {
             .replace(/[^\w\s-]/g, '')
             .replace(/[\s_-]+/g, '-')
             .replace(/^-+|-+$/g, '');
+
+         let finalUrlFormat = urlFormat;
+         if (selectedBasePage === 'direct') {
+            finalUrlFormat = '{slug}';
+         } else if (!finalUrlFormat || finalUrlFormat === '{slug}' || finalUrlFormat === 'direct') {
+            finalUrlFormat = `${selectedBasePage}/{slug}`;
+         }
+
          const updatedPost: Post = {
             ...post,
             id: postId,
             title,
             slug: cleanSlug,
-            url_format: urlFormat,
+            url_format: finalUrlFormat,
             schema_type: schemaType,
             content: editor.getHTML(),
             metaDescription,
@@ -2489,6 +2498,31 @@ export default function PostForm({ post }: PostFormProps) {
                                <span>View Live ↗</span>
                             </a>
                          )}
+                          <button
+                             type="button"
+                             onClick={() => handleSave(true, false)}
+                             disabled={isPending}
+                             style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "5px",
+                                padding: "4px 12px",
+                                borderRadius: "6px",
+                                background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                                color: "#ffffff",
+                                border: "none",
+                                fontWeight: 800,
+                                fontSize: "11.5px",
+                                cursor: "pointer",
+                                boxShadow: "0 2px 6px rgba(37, 99, 235, 0.35)",
+                                flexShrink: 0,
+                                transition: "all 0.15s ease"
+                             }}
+                             title="Save and update this post immediately"
+                          >
+                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                             <span>{isPending ? "Saving..." : "Save Post"}</span>
+                          </button>
                          <button
                             type="button"
                             onClick={() => { setActiveTab('facebook'); if (!fbCaption) generateFbDraft(); }}
@@ -2520,6 +2554,81 @@ export default function PostForm({ post }: PostFormProps) {
                 </div>
 
                <div style={{ ...editorWrapperStyle, padding: isMobile ? '16px' : '40px 24px' }}>
+                    {/* Quick Permalinks & Direct URL Routing Banner */}
+                    <div style={{
+                       display: "flex",
+                       flexWrap: "wrap",
+                       alignItems: "center",
+                       justifyContent: "space-between",
+                       gap: "12px",
+                       padding: "12px 16px",
+                       background: selectedBasePage === "direct" ? "#f0fdf4" : "#f8fafc",
+                       border: "1.5px solid " + (selectedBasePage === "direct" ? "#bbf7d0" : "#e2e8f0"),
+                       borderRadius: "14px",
+                       marginBottom: "24px",
+                       fontSize: "13px",
+                       boxShadow: "0 2px 8px -2px rgba(0,0,0,0.03)"
+                    }}>
+                       <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                          <span style={{ fontWeight: 800, color: "#334155", display: "flex", alignItems: "center", gap: "5px", fontSize: "12px" }}>
+                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={selectedBasePage === "direct" ? "#16a34a" : "#2563eb"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                             URL Section:
+                          </span>
+                          <select
+                             value={selectedBasePage}
+                             onChange={e => {
+                                const newBase = e.target.value;
+                                setSelectedBasePage(newBase);
+                                if (newBase === "direct") setUrlFormat("{slug}");
+                                else setUrlFormat(`${newBase}/{slug}`);
+                             }}
+                             style={{
+                                padding: "6px 12px",
+                                borderRadius: "8px",
+                                border: "1.5px solid " + (selectedBasePage === "direct" ? "#10b981" : "#cbd5e1"),
+                                background: selectedBasePage === "direct" ? "#ecfdf5" : "#ffffff",
+                                color: selectedBasePage === "direct" ? "#047857" : "#1e293b",
+                                fontWeight: 800,
+                                fontSize: "12px",
+                                cursor: "pointer",
+                                outline: "none"
+                             }}
+                          >
+                             <option value="direct">⚡ Direct URL (domain.com/{slug || "post-slug"})</option>
+                             <option value="blog">📝 Blog Section (/blog/{slug || "post-slug"})</option>
+                             <option value="news">📰 News Section (/news/{slug || "post-slug"})</option>
+                             {availablePages?.filter(p => p.slug !== "blog" && p.slug !== "news").map(p => (
+                                <option key={p.id || p.slug} value={p.slug}>{p.title} (/{p.slug})</option>
+                             ))}
+                          </select>
+                       </div>
+
+                       <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", fontSize: "12px" }}>
+                          <span style={{ color: "#64748b", fontWeight: 600 }}>Active Public URL:</span>
+                          <a
+                             href={selectedBasePage === "direct" ? `/${slug || post?.slug || "article-slug"}` : `/${selectedBasePage}/${slug || post?.slug || "article-slug"}`}
+                             target="_blank"
+                             rel="noopener noreferrer"
+                             style={{
+                                color: selectedBasePage === "direct" ? "#047857" : "#2563eb",
+                                fontWeight: 700,
+                                textDecoration: "none",
+                                background: selectedBasePage === "direct" ? "#dcfce7" : "#eff6ff",
+                                padding: "4px 10px",
+                                borderRadius: "6px",
+                                border: "1px solid " + (selectedBasePage === "direct" ? "#86efac" : "#bfdbfe"),
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "4px",
+                                transition: "all 0.15s ease"
+                             }}
+                             title="Preview target URL in new tab"
+                          >
+                             <span>/{selectedBasePage === "direct" ? (slug || post?.slug || "article-slug") : `${selectedBasePage}/${slug || post?.slug || "article-slug"}`}</span>
+                             <span style={{ fontSize: "11px", fontWeight: 900 }}>↗</span>
+                          </a>
+                       </div>
+                    </div>
                    <BubbleMenu editor={editor} shouldShow={({ editor, state }) => {
                       // Check NodeSelection for atom nodes (contenteditable:false)
                       const { selection } = state;

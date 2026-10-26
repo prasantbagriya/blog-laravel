@@ -252,6 +252,32 @@ function AdminPage() {
 			},
 			children: "UNCATEGORIZED"
 		});
+		if (urlFormat.startsWith("{slug}") || urlFormat === "direct") return /* @__PURE__ */ jsxs("span", {
+			style: {
+				background: "#ecfdf5",
+				color: "#047857",
+				padding: "2px 8px",
+				borderRadius: "4px",
+				fontSize: "10px",
+				fontWeight: 800,
+				whiteSpace: "nowrap",
+				display: "inline-flex",
+				alignItems: "center",
+				gap: "4px",
+				border: "1px solid #a7f3d0"
+			},
+			children: [/* @__PURE__ */ jsx("svg", {
+				width: "12",
+				height: "12",
+				viewBox: "0 0 24 24",
+				fill: "none",
+				stroke: "currentColor",
+				strokeWidth: "2.5",
+				strokeLinecap: "round",
+				strokeLinejoin: "round",
+				children: /* @__PURE__ */ jsx("path", { d: "M13 2L3 14h9l-1 8 10-12h-9l1-8z" })
+			}), " DIRECT ROOT"]
+		});
 		if (urlFormat.includes("news")) return /* @__PURE__ */ jsxs("span", {
 			style: {
 				background: "#fee2e2",
@@ -315,47 +341,6 @@ function AdminPage() {
 					})
 				]
 			}), " BLOG"]
-		});
-		if (urlFormat.startsWith("{slug}")) return /* @__PURE__ */ jsxs("span", {
-			style: {
-				background: "#f3e8ff",
-				color: "#9333ea",
-				padding: "2px 8px",
-				borderRadius: "4px",
-				fontSize: "10px",
-				fontWeight: 800,
-				whiteSpace: "nowrap",
-				display: "inline-flex",
-				alignItems: "center",
-				gap: "4px"
-			},
-			children: [/* @__PURE__ */ jsxs("svg", {
-				width: "12",
-				height: "12",
-				viewBox: "0 0 24 24",
-				fill: "none",
-				stroke: "currentColor",
-				strokeWidth: "2",
-				strokeLinecap: "round",
-				strokeLinejoin: "round",
-				children: [
-					/* @__PURE__ */ jsx("path", { d: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" }),
-					/* @__PURE__ */ jsx("polyline", { points: "14 2 14 8 20 8" }),
-					/* @__PURE__ */ jsx("line", {
-						x1: "16",
-						y1: "13",
-						x2: "8",
-						y2: "13"
-					}),
-					/* @__PURE__ */ jsx("line", {
-						x1: "16",
-						y1: "17",
-						x2: "8",
-						y2: "17"
-					}),
-					/* @__PURE__ */ jsx("polyline", { points: "10 9 9 9 8 9" })
-				]
-			}), " PAGE"]
 		});
 		return /* @__PURE__ */ jsxs("span", {
 			style: {

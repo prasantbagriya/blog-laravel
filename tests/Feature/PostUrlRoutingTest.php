@@ -23,13 +23,13 @@ class PostUrlRoutingTest extends TestCase
         $responseBlog = $this->get('/blog/sample-blog-article');
         $responseBlog->assertStatus(200);
 
-        // Opening /news/sample-blog-article must return 404
+        // Opening /news/sample-blog-article must 301 redirect to canonical /blog/sample-blog-article
         $responseNews = $this->get('/news/sample-blog-article');
-        $responseNews->assertStatus(404);
+        $responseNews->assertRedirect('/blog/sample-blog-article');
 
-        // Opening /random/sample-blog-article must return 404
-        $responseRandom = $this->get('/random/sample-blog-article');
-        $responseRandom->assertStatus(404);
+        // Opening non-existent post must return 404
+        $responseNonExistent = $this->get('/blog/non-existent-slug-123');
+        $responseNonExistent->assertStatus(404);
     }
 
     public function test_post_with_news_url_format_only_opens_on_news_url(): void
@@ -45,13 +45,9 @@ class PostUrlRoutingTest extends TestCase
         $responseNews = $this->get('/news/breaking-news-article');
         $responseNews->assertStatus(200);
 
-        // Opening /blog/breaking-news-article must return 404
+        // Opening /blog/breaking-news-article must 301 redirect to canonical /news/breaking-news-article
         $responseBlog = $this->get('/blog/breaking-news-article');
-        $responseBlog->assertStatus(404);
-
-        // Opening /updates/breaking-news-article must return 404
-        $responseUpdates = $this->get('/updates/breaking-news-article');
-        $responseUpdates->assertStatus(404);
+        $responseBlog->assertRedirect('/news/breaking-news-article');
     }
 
     public function test_changing_base_page_switches_active_url_and_closes_old_url(): void
@@ -65,15 +61,15 @@ class PostUrlRoutingTest extends TestCase
 
         // Initially on /news
         $this->get('/news/dynamic-article')->assertStatus(200);
-        $this->get('/blog/dynamic-article')->assertStatus(404);
+        $this->get('/blog/dynamic-article')->assertRedirect('/news/dynamic-article');
 
         // Change base page to blog
         $post->update(['url_format' => 'blog/{slug}']);
         $post->refresh();
 
-        // Now /blog must be 200 and /news must be 404
+        // Now /blog must be 200 and /news must redirect to /blog
         $this->get('/blog/dynamic-article')->assertStatus(200);
-        $this->get('/news/dynamic-article')->assertStatus(404);
+        $this->get('/news/dynamic-article')->assertRedirect('/blog/dynamic-article');
     }
 
     public function test_direct_slug_format_works_and_blocks_prefixed_urls(): void
@@ -88,8 +84,11 @@ class PostUrlRoutingTest extends TestCase
         // Direct URL /direct-article must succeed (200)
         $this->get('/direct-article')->assertStatus(200);
 
-        // Prefixed URLs must return 404
-        $this->get('/blog/direct-article')->assertStatus(404);
-        $this->get('/news/direct-article')->assertStatus(404);
+        // Prefixed URLs must 301 redirect to canonical direct URL /direct-article
+        $this->get('/blog/direct-article')->assertRedirect('/direct-article');
+        $this->get('/news/direct-article')->assertRedirect('/direct-article');
+
+        // Non-existent direct URL must 404
+        $this->get('/non-existent-direct-slug-456')->assertStatus(404);
     }
 }

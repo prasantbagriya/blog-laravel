@@ -2227,12 +2227,15 @@ function PostForm({ post }) {
 		if (!editor) return;
 		startTransition(async () => {
 			const cleanSlug = (slug || title).toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "");
+			let finalUrlFormat = urlFormat;
+			if (selectedBasePage === "direct") finalUrlFormat = "{slug}";
+			else if (!finalUrlFormat || finalUrlFormat === "{slug}" || finalUrlFormat === "direct") finalUrlFormat = `${selectedBasePage}/{slug}`;
 			const updatedPost = {
 				...post,
 				id: postId,
 				title,
 				slug: cleanSlug,
-				url_format: urlFormat,
+				url_format: finalUrlFormat,
 				schema_type: schemaType,
 				content: editor.getHTML(),
 				metaDescription,
@@ -4864,6 +4867,43 @@ function PostForm({ post }) {
 												]
 											}), /* @__PURE__ */ jsx("span", { children: "View Live ↗" })]
 										}),
+										/* @__PURE__ */ jsxs("button", {
+											type: "button",
+											onClick: () => handleSave(true, false),
+											disabled: isPending,
+											style: {
+												display: "flex",
+												alignItems: "center",
+												gap: "5px",
+												padding: "4px 12px",
+												borderRadius: "6px",
+												background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+												color: "#ffffff",
+												border: "none",
+												fontWeight: 800,
+												fontSize: "11.5px",
+												cursor: "pointer",
+												boxShadow: "0 2px 6px rgba(37, 99, 235, 0.35)",
+												flexShrink: 0,
+												transition: "all 0.15s ease"
+											},
+											title: "Save and update this post immediately",
+											children: [/* @__PURE__ */ jsxs("svg", {
+												width: "12",
+												height: "12",
+												viewBox: "0 0 24 24",
+												fill: "none",
+												stroke: "currentColor",
+												strokeWidth: "2.5",
+												strokeLinecap: "round",
+												strokeLinejoin: "round",
+												children: [
+													/* @__PURE__ */ jsx("path", { d: "M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" }),
+													/* @__PURE__ */ jsx("polyline", { points: "17 21 17 13 7 13 7 21" }),
+													/* @__PURE__ */ jsx("polyline", { points: "7 3 7 8 15 8" })
+												]
+											}), /* @__PURE__ */ jsx("span", { children: isPending ? "Saving..." : "Save Post" })]
+										}),
 										/* @__PURE__ */ jsx("button", {
 											type: "button",
 											onClick: () => {
@@ -4960,79 +5000,172 @@ function PostForm({ post }) {
 							...editorWrapperStyle,
 							padding: isMobile ? "16px" : "40px 24px"
 						},
-						children: [/* @__PURE__ */ jsx(BubbleMenu, {
-							editor,
-							shouldShow: ({ editor, state }) => {
-								const { selection } = state;
-								if (selection && selection.node) {
-									const nodeType = selection.node.type.name;
-									return nodeType === "faqBlock" || nodeType === "imageSlider" || nodeType === "image" || nodeType === "quizBlock" || nodeType === "pollBlock";
-								}
-								return editor.isActive("image") || editor.isActive("imageSlider") || editor.isActive("faqBlock") || editor.isActive("quizBlock") || editor.isActive("pollBlock");
-							},
-							children: /* @__PURE__ */ jsx("div", {
-								style: bubbleMenuStyle,
-								children: (() => {
-									const { selection } = editor.state;
-									const selectedNodeType = selection.node?.type?.name;
-									if (selectedNodeType === "imageSlider" || editor.isActive("imageSlider")) return /* @__PURE__ */ jsxs(SovereignToolBtn, {
-										onClick: handleOpenSliderModal,
-										title: "Slider Settings",
+						children: [
+							/* @__PURE__ */ jsxs("div", {
+								style: {
+									display: "flex",
+									flexWrap: "wrap",
+									alignItems: "center",
+									justifyContent: "space-between",
+									gap: "12px",
+									padding: "12px 16px",
+									background: selectedBasePage === "direct" ? "#f0fdf4" : "#f8fafc",
+									border: "1.5px solid " + (selectedBasePage === "direct" ? "#bbf7d0" : "#e2e8f0"),
+									borderRadius: "14px",
+									marginBottom: "24px",
+									fontSize: "13px",
+									boxShadow: "0 2px 8px -2px rgba(0,0,0,0.03)"
+								},
+								children: [/* @__PURE__ */ jsxs("div", {
+									style: {
+										display: "flex",
+										alignItems: "center",
+										gap: "10px",
+										flexWrap: "wrap"
+									},
+									children: [/* @__PURE__ */ jsxs("span", {
+										style: {
+											fontWeight: 800,
+											color: "#334155",
+											display: "flex",
+											alignItems: "center",
+											gap: "5px",
+											fontSize: "12px"
+										},
 										children: [/* @__PURE__ */ jsxs("svg", {
-											xmlns: "http://www.w3.org/2000/svg",
-											width: "24",
-											height: "24",
+											width: "14",
+											height: "14",
 											viewBox: "0 0 24 24",
 											fill: "none",
-											stroke: "currentColor",
-											strokeWidth: 2,
+											stroke: selectedBasePage === "direct" ? "#16a34a" : "#2563eb",
+											strokeWidth: "2.5",
 											strokeLinecap: "round",
 											strokeLinejoin: "round",
-											className: "lucide",
-											style: {
-												width: "14px",
-												height: "14px"
-											},
 											children: [
-												/* @__PURE__ */ jsx("rect", {
-													width: "18",
-													height: "18",
-													x: "3",
-													y: "3",
-													rx: "2",
-													ry: "2"
+												/* @__PURE__ */ jsx("circle", {
+													cx: "12",
+													cy: "12",
+													r: "10"
 												}),
-												/* @__PURE__ */ jsx("line", {
-													x1: "9",
-													y1: "3",
-													x2: "9",
-													y2: "21"
-												}),
-												/* @__PURE__ */ jsx("line", {
-													x1: "15",
-													y1: "3",
-													x2: "15",
-													y2: "21"
-												})
+												/* @__PURE__ */ jsx("path", { d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" }),
+												/* @__PURE__ */ jsx("path", { d: "M2 12h20" })
 											]
-										}), /* @__PURE__ */ jsx("span", {
+										}), "URL Section:"]
+									}), /* @__PURE__ */ jsxs("select", {
+										value: selectedBasePage,
+										onChange: (e) => {
+											const newBase = e.target.value;
+											setSelectedBasePage(newBase);
+											if (newBase === "direct") setUrlFormat("{slug}");
+											else setUrlFormat(`${newBase}/{slug}`);
+										},
+										style: {
+											padding: "6px 12px",
+											borderRadius: "8px",
+											border: "1.5px solid " + (selectedBasePage === "direct" ? "#10b981" : "#cbd5e1"),
+											background: selectedBasePage === "direct" ? "#ecfdf5" : "#ffffff",
+											color: selectedBasePage === "direct" ? "#047857" : "#1e293b",
+											fontWeight: 800,
+											fontSize: "12px",
+											cursor: "pointer",
+											outline: "none"
+										},
+										children: [
+											/* @__PURE__ */ jsxs("option", {
+												value: "direct",
+												children: [
+													"⚡ Direct URL (domain.com/",
+													slug || "post-slug",
+													")"
+												]
+											}),
+											/* @__PURE__ */ jsxs("option", {
+												value: "blog",
+												children: [
+													"📝 Blog Section (/blog/",
+													slug || "post-slug",
+													")"
+												]
+											}),
+											/* @__PURE__ */ jsxs("option", {
+												value: "news",
+												children: [
+													"📰 News Section (/news/",
+													slug || "post-slug",
+													")"
+												]
+											}),
+											availablePages?.filter((p) => p.slug !== "blog" && p.slug !== "news").map((p) => /* @__PURE__ */ jsxs("option", {
+												value: p.slug,
+												children: [
+													p.title,
+													" (/",
+													p.slug,
+													")"
+												]
+											}, p.id || p.slug))
+										]
+									})]
+								}), /* @__PURE__ */ jsxs("div", {
+									style: {
+										display: "flex",
+										alignItems: "center",
+										gap: "8px",
+										flexWrap: "wrap",
+										fontSize: "12px"
+									},
+									children: [/* @__PURE__ */ jsx("span", {
+										style: {
+											color: "#64748b",
+											fontWeight: 600
+										},
+										children: "Active Public URL:"
+									}), /* @__PURE__ */ jsxs("a", {
+										href: selectedBasePage === "direct" ? `/${slug || post?.slug || "article-slug"}` : `/${selectedBasePage}/${slug || post?.slug || "article-slug"}`,
+										target: "_blank",
+										rel: "noopener noreferrer",
+										style: {
+											color: selectedBasePage === "direct" ? "#047857" : "#2563eb",
+											fontWeight: 700,
+											textDecoration: "none",
+											background: selectedBasePage === "direct" ? "#dcfce7" : "#eff6ff",
+											padding: "4px 10px",
+											borderRadius: "6px",
+											border: "1px solid " + (selectedBasePage === "direct" ? "#86efac" : "#bfdbfe"),
+											display: "inline-flex",
+											alignItems: "center",
+											gap: "4px",
+											transition: "all 0.15s ease"
+										},
+										title: "Preview target URL in new tab",
+										children: [/* @__PURE__ */ jsxs("span", { children: ["/", selectedBasePage === "direct" ? slug || post?.slug || "article-slug" : `${selectedBasePage}/${slug || post?.slug || "article-slug"}`] }), /* @__PURE__ */ jsx("span", {
 											style: {
 												fontSize: "11px",
-												fontWeight: 700,
-												marginLeft: "6px"
+												fontWeight: 900
 											},
-											children: "EDIT SLIDER"
+											children: "↗"
 										})]
-									});
-									if (selectedNodeType === "faqBlock" || editor.isActive("faqBlock")) return /* @__PURE__ */ jsxs("div", {
-										style: {
-											display: "flex",
-											gap: "4px",
-											alignItems: "center"
-										},
-										children: [/* @__PURE__ */ jsxs(SovereignToolBtn, {
-											onClick: handleOpenFaqModal,
-											title: "Edit FAQ Block",
+									})]
+								})]
+							}),
+							/* @__PURE__ */ jsx(BubbleMenu, {
+								editor,
+								shouldShow: ({ editor, state }) => {
+									const { selection } = state;
+									if (selection && selection.node) {
+										const nodeType = selection.node.type.name;
+										return nodeType === "faqBlock" || nodeType === "imageSlider" || nodeType === "image" || nodeType === "quizBlock" || nodeType === "pollBlock";
+									}
+									return editor.isActive("image") || editor.isActive("imageSlider") || editor.isActive("faqBlock") || editor.isActive("quizBlock") || editor.isActive("pollBlock");
+								},
+								children: /* @__PURE__ */ jsx("div", {
+									style: bubbleMenuStyle,
+									children: (() => {
+										const { selection } = editor.state;
+										const selectedNodeType = selection.node?.type?.name;
+										if (selectedNodeType === "imageSlider" || editor.isActive("imageSlider")) return /* @__PURE__ */ jsxs(SovereignToolBtn, {
+											onClick: handleOpenSliderModal,
+											title: "Slider Settings",
 											children: [/* @__PURE__ */ jsxs("svg", {
 												xmlns: "http://www.w3.org/2000/svg",
 												width: "24",
@@ -5049,13 +5182,26 @@ function PostForm({ post }) {
 													height: "14px"
 												},
 												children: [
-													/* @__PURE__ */ jsx("circle", {
-														cx: "12",
-														cy: "12",
-														r: "10"
+													/* @__PURE__ */ jsx("rect", {
+														width: "18",
+														height: "18",
+														x: "3",
+														y: "3",
+														rx: "2",
+														ry: "2"
 													}),
-													/* @__PURE__ */ jsx("path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" }),
-													/* @__PURE__ */ jsx("path", { d: "M12 17h.01" })
+													/* @__PURE__ */ jsx("line", {
+														x1: "9",
+														y1: "3",
+														x2: "9",
+														y2: "21"
+													}),
+													/* @__PURE__ */ jsx("line", {
+														x1: "15",
+														y1: "3",
+														x2: "15",
+														y2: "21"
+													})
 												]
 											}), /* @__PURE__ */ jsx("span", {
 												style: {
@@ -5063,12 +5209,124 @@ function PostForm({ post }) {
 													fontWeight: 700,
 													marginLeft: "6px"
 												},
-												children: "EDIT FAQ"
+												children: "EDIT SLIDER"
 											})]
-										}), /* @__PURE__ */ jsxs(SovereignToolBtn, {
-											onClick: () => editor.chain().focus().deleteSelection().run(),
-											title: "Delete FAQ Block",
-											color: "#ef4444",
+										});
+										if (selectedNodeType === "faqBlock" || editor.isActive("faqBlock")) return /* @__PURE__ */ jsxs("div", {
+											style: {
+												display: "flex",
+												gap: "4px",
+												alignItems: "center"
+											},
+											children: [/* @__PURE__ */ jsxs(SovereignToolBtn, {
+												onClick: handleOpenFaqModal,
+												title: "Edit FAQ Block",
+												children: [/* @__PURE__ */ jsxs("svg", {
+													xmlns: "http://www.w3.org/2000/svg",
+													width: "24",
+													height: "24",
+													viewBox: "0 0 24 24",
+													fill: "none",
+													stroke: "currentColor",
+													strokeWidth: 2,
+													strokeLinecap: "round",
+													strokeLinejoin: "round",
+													className: "lucide",
+													style: {
+														width: "14px",
+														height: "14px"
+													},
+													children: [
+														/* @__PURE__ */ jsx("circle", {
+															cx: "12",
+															cy: "12",
+															r: "10"
+														}),
+														/* @__PURE__ */ jsx("path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" }),
+														/* @__PURE__ */ jsx("path", { d: "M12 17h.01" })
+													]
+												}), /* @__PURE__ */ jsx("span", {
+													style: {
+														fontSize: "11px",
+														fontWeight: 700,
+														marginLeft: "6px"
+													},
+													children: "EDIT FAQ"
+												})]
+											}), /* @__PURE__ */ jsxs(SovereignToolBtn, {
+												onClick: () => editor.chain().focus().deleteSelection().run(),
+												title: "Delete FAQ Block",
+												color: "#ef4444",
+												children: [/* @__PURE__ */ jsxs("svg", {
+													xmlns: "http://www.w3.org/2000/svg",
+													width: "24",
+													height: "24",
+													viewBox: "0 0 24 24",
+													fill: "none",
+													stroke: "currentColor",
+													strokeWidth: 2,
+													strokeLinecap: "round",
+													strokeLinejoin: "round",
+													className: "lucide",
+													style: {
+														width: "14px",
+														height: "14px"
+													},
+													children: [
+														/* @__PURE__ */ jsx("path", { d: "M3 6h18" }),
+														/* @__PURE__ */ jsx("path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" }),
+														/* @__PURE__ */ jsx("path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" })
+													]
+												}), /* @__PURE__ */ jsx("span", {
+													style: {
+														fontSize: "11px",
+														fontWeight: 700,
+														marginLeft: "6px",
+														color: "#ef4444"
+													},
+													children: "DELETE"
+												})]
+											})]
+										});
+										if (selectedNodeType === "quizBlock" || editor.isActive("quizBlock")) return /* @__PURE__ */ jsxs(SovereignToolBtn, {
+											onClick: handleOpenQuizModal,
+											title: "Edit Quiz Block",
+											children: [/* @__PURE__ */ jsx("span", {
+												style: {
+													fontSize: "14px",
+													lineHeight: 1
+												},
+												children: "🧩"
+											}), /* @__PURE__ */ jsx("span", {
+												style: {
+													fontSize: "11px",
+													fontWeight: 700,
+													marginLeft: "6px"
+												},
+												children: "EDIT QUIZ"
+											})]
+										});
+										if (selectedNodeType === "pollBlock" || editor.isActive("pollBlock")) return /* @__PURE__ */ jsxs(SovereignToolBtn, {
+											onClick: handleOpenPollModal,
+											title: "Edit Poll Block",
+											children: [/* @__PURE__ */ jsx("span", {
+												style: {
+													fontSize: "14px",
+													lineHeight: 1
+												},
+												children: "📊"
+											}), /* @__PURE__ */ jsx("span", {
+												style: {
+													fontSize: "11px",
+													fontWeight: 700,
+													marginLeft: "6px"
+												},
+												children: "EDIT POLL"
+											})]
+										});
+										return /* @__PURE__ */ jsxs(SovereignToolBtn, {
+											onClick: handleOpenImageModal,
+											title: "Image Settings",
 											children: [/* @__PURE__ */ jsxs("svg", {
 												xmlns: "http://www.w3.org/2000/svg",
 												width: "24",
@@ -5084,96 +5342,28 @@ function PostForm({ post }) {
 													width: "14px",
 													height: "14px"
 												},
-												children: [
-													/* @__PURE__ */ jsx("path", { d: "M3 6h18" }),
-													/* @__PURE__ */ jsx("path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" }),
-													/* @__PURE__ */ jsx("path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" })
-												]
+												children: [/* @__PURE__ */ jsx("path", { d: "M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" }), /* @__PURE__ */ jsx("circle", {
+													cx: "12",
+													cy: "12",
+													r: "3"
+												})]
 											}), /* @__PURE__ */ jsx("span", {
 												style: {
 													fontSize: "11px",
 													fontWeight: 700,
-													marginLeft: "6px",
-													color: "#ef4444"
+													marginLeft: "6px"
 												},
-												children: "DELETE"
+												children: "ALT TEXT"
 											})]
-										})]
-									});
-									if (selectedNodeType === "quizBlock" || editor.isActive("quizBlock")) return /* @__PURE__ */ jsxs(SovereignToolBtn, {
-										onClick: handleOpenQuizModal,
-										title: "Edit Quiz Block",
-										children: [/* @__PURE__ */ jsx("span", {
-											style: {
-												fontSize: "14px",
-												lineHeight: 1
-											},
-											children: "🧩"
-										}), /* @__PURE__ */ jsx("span", {
-											style: {
-												fontSize: "11px",
-												fontWeight: 700,
-												marginLeft: "6px"
-											},
-											children: "EDIT QUIZ"
-										})]
-									});
-									if (selectedNodeType === "pollBlock" || editor.isActive("pollBlock")) return /* @__PURE__ */ jsxs(SovereignToolBtn, {
-										onClick: handleOpenPollModal,
-										title: "Edit Poll Block",
-										children: [/* @__PURE__ */ jsx("span", {
-											style: {
-												fontSize: "14px",
-												lineHeight: 1
-											},
-											children: "📊"
-										}), /* @__PURE__ */ jsx("span", {
-											style: {
-												fontSize: "11px",
-												fontWeight: 700,
-												marginLeft: "6px"
-											},
-											children: "EDIT POLL"
-										})]
-									});
-									return /* @__PURE__ */ jsxs(SovereignToolBtn, {
-										onClick: handleOpenImageModal,
-										title: "Image Settings",
-										children: [/* @__PURE__ */ jsxs("svg", {
-											xmlns: "http://www.w3.org/2000/svg",
-											width: "24",
-											height: "24",
-											viewBox: "0 0 24 24",
-											fill: "none",
-											stroke: "currentColor",
-											strokeWidth: 2,
-											strokeLinecap: "round",
-											strokeLinejoin: "round",
-											className: "lucide",
-											style: {
-												width: "14px",
-												height: "14px"
-											},
-											children: [/* @__PURE__ */ jsx("path", { d: "M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" }), /* @__PURE__ */ jsx("circle", {
-												cx: "12",
-												cy: "12",
-												r: "3"
-											})]
-										}), /* @__PURE__ */ jsx("span", {
-											style: {
-												fontSize: "11px",
-												fontWeight: 700,
-												marginLeft: "6px"
-											},
-											children: "ALT TEXT"
-										})]
-									});
-								})()
+										});
+									})()
+								})
+							}),
+							/* @__PURE__ */ jsx(EditorContent, {
+								editor,
+								className: "tiptap-content"
 							})
-						}), /* @__PURE__ */ jsx(EditorContent, {
-							editor,
-							className: "tiptap-content"
-						})]
+						]
 					})]
 				}), /* @__PURE__ */ jsxs("aside", {
 					style: {

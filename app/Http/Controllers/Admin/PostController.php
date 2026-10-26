@@ -114,6 +114,23 @@ class PostController extends Controller
             $data['status'] = $data['published'] ? 'published' : 'draft';
         }
 
+        // Normalize url_format
+        if (isset($data['url_format'])) {
+            $uf = trim($data['url_format']);
+            if ($uf === 'direct' || $uf === '/' || $uf === '{slug}' || $uf === '/{slug}') {
+                $data['url_format'] = '{slug}';
+            }
+        }
+
+        // Dynamically ensure required columns exist (auto-heal for live MySQL environments)
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('posts') && !\Illuminate\Support\Facades\Schema::hasColumn('posts', 'url_format')) {
+                \Illuminate\Support\Facades\Schema::table('posts', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->string('url_format')->nullable()->default('blog/{slug}');
+                });
+            }
+        } catch (\Throwable $e) {}
+
         // Dynamically filter out fields that do not exist in the database schema
         $safeData = [];
         try {
