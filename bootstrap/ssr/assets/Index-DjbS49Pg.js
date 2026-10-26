@@ -1,5 +1,5 @@
 import AdminLayout from "./AdminLayout-bqQMnFMH.js";
-import PageSpeedTab from "./PageSpeedTab-CnCWHdwk.js";
+import PageSpeedTab from "./PageSpeedTab-DGxY82Wg.js";
 import { Head, router } from "@inertiajs/react";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import { useEffect, useMemo, useState } from "react";
@@ -16,6 +16,7 @@ function SearchConsoleIndex({ settings: initialSettings, localSitemaps = [], ini
 	const [inspecting, setInspecting] = useState(false);
 	const [inspectionResult, setInspectionResult] = useState(null);
 	const [inspectError, setInspectError] = useState(null);
+	const [pageSpeedTargetUrl, setPageSpeedTargetUrl] = useState("");
 	const [indexUrlInput, setIndexUrlInput] = useState("");
 	const [indexAction, setIndexAction] = useState("URL_UPDATED");
 	const [indexing, setIndexing] = useState(false);
@@ -800,13 +801,25 @@ function SearchConsoleIndex({ settings: initialSettings, localSitemaps = [], ini
 												}),
 												/* @__PURE__ */ jsx("td", {
 													className: "p-3 text-right",
-													children: /* @__PURE__ */ jsx("button", {
-														onClick: () => {
-															setInspectUrlInput(pUrl);
-															setActiveTab("inspector");
-														},
-														className: "px-2 py-1 rounded bg-slate-100 dark:bg-zinc-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-slate-700 dark:text-zinc-300 hover:text-blue-600 text-[11px] font-bold cursor-pointer",
-														children: "Inspect"
+													children: /* @__PURE__ */ jsxs("div", {
+														className: "flex items-center justify-end gap-1.5",
+														children: [/* @__PURE__ */ jsx("button", {
+															onClick: () => {
+																setInspectUrlInput(pUrl);
+																setActiveTab("inspector");
+															},
+															className: "px-2 py-1 rounded bg-slate-100 dark:bg-zinc-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-slate-700 dark:text-zinc-300 hover:text-blue-600 text-[11px] font-bold cursor-pointer",
+															title: "Inspect Googlebot Index Coverage",
+															children: "Inspect"
+														}), /* @__PURE__ */ jsxs("button", {
+															onClick: () => {
+																setPageSpeedTargetUrl(pUrl);
+																setActiveTab("pagespeed");
+															},
+															className: "px-2 py-1 rounded bg-slate-100 dark:bg-zinc-800 hover:bg-amber-50 dark:hover:bg-amber-950/40 text-slate-700 dark:text-zinc-300 hover:text-amber-600 dark:hover:text-amber-400 text-[11px] font-bold cursor-pointer flex items-center gap-1",
+															title: "Audit Core Web Vitals & PageSpeed",
+															children: [/* @__PURE__ */ jsx(Gauge, { className: "w-3 h-3 text-amber-500" }), /* @__PURE__ */ jsx("span", { children: "Speed" })]
+														})]
 													})
 												})
 											]
@@ -880,20 +893,32 @@ function SearchConsoleIndex({ settings: initialSettings, localSitemaps = [], ini
 							children: inspectionResult.inspectionUrl
 						})] }), /* @__PURE__ */ jsxs("div", {
 							className: "flex items-center gap-2",
-							children: [inspectionResult.indexStatusResult?.verdict === "PASS" ? /* @__PURE__ */ jsxs("span", {
-								className: "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 border border-emerald-300",
-								children: [/* @__PURE__ */ jsx(CheckCircle2, { className: "w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" }), /* @__PURE__ */ jsx("span", { children: "Indexed (Pass)" })]
-							}) : /* @__PURE__ */ jsxs("span", {
-								className: "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border border-amber-300",
-								children: [/* @__PURE__ */ jsx(AlertTriangle, { className: "w-3.5 h-3.5 text-amber-600 dark:text-amber-400" }), /* @__PURE__ */ jsx("span", { children: inspectionResult.indexStatusResult?.verdict || "Not Indexed" })]
-							}), /* @__PURE__ */ jsxs("button", {
-								onClick: () => {
-									setIndexUrlInput(inspectionResult.inspectionUrl);
-									setActiveTab("indexing");
-								},
-								className: "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold cursor-pointer transition-colors",
-								children: [/* @__PURE__ */ jsx(Zap, { className: "w-3.5 h-3.5" }), /* @__PURE__ */ jsx("span", { children: "Push for Instant Re-Index" })]
-							})]
+							children: [
+								inspectionResult.indexStatusResult?.verdict === "PASS" ? /* @__PURE__ */ jsxs("span", {
+									className: "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 border border-emerald-300",
+									children: [/* @__PURE__ */ jsx(CheckCircle2, { className: "w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" }), /* @__PURE__ */ jsx("span", { children: "Indexed (Pass)" })]
+								}) : /* @__PURE__ */ jsxs("span", {
+									className: "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border border-amber-300",
+									children: [/* @__PURE__ */ jsx(AlertTriangle, { className: "w-3.5 h-3.5 text-amber-600 dark:text-amber-400" }), /* @__PURE__ */ jsx("span", { children: inspectionResult.indexStatusResult?.verdict || "Not Indexed" })]
+								}),
+								/* @__PURE__ */ jsxs("button", {
+									onClick: () => {
+										setIndexUrlInput(inspectionResult.inspectionUrl);
+										setActiveTab("indexing");
+									},
+									className: "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold cursor-pointer transition-colors",
+									children: [/* @__PURE__ */ jsx(Zap, { className: "w-3.5 h-3.5" }), /* @__PURE__ */ jsx("span", { children: "Push for Instant Re-Index" })]
+								}),
+								/* @__PURE__ */ jsxs("button", {
+									onClick: () => {
+										setPageSpeedTargetUrl(inspectionResult.inspectionUrl);
+										setActiveTab("pagespeed");
+									},
+									className: "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-bold cursor-pointer transition-colors border border-slate-200 dark:border-zinc-700",
+									title: "Audit PageSpeed & Core Web Vitals for this URL",
+									children: [/* @__PURE__ */ jsx(Gauge, { className: "w-3.5 h-3.5 text-blue-500" }), /* @__PURE__ */ jsx("span", { children: "Audit PageSpeed & CWV" })]
+								})
+							]
 						})]
 					}),
 					/* @__PURE__ */ jsxs("div", {
@@ -1264,7 +1289,16 @@ function SearchConsoleIndex({ settings: initialSettings, localSitemaps = [], ini
 		}),
 		activeTab === "pagespeed" && /* @__PURE__ */ jsx(PageSpeedTab, {
 			pageSpeedData,
-			defaultUrls: pageSpeedData.defaultUrls || []
+			defaultUrls: pageSpeedData.defaultUrls || [],
+			targetUrl: pageSpeedTargetUrl,
+			onInspectUrl: (url) => {
+				setInspectUrlInput(url);
+				setActiveTab("inspector");
+			},
+			onPushIndex: (url) => {
+				setIndexUrlInput(url);
+				setActiveTab("indexing");
+			}
 		}),
 		activeTab === "sitemaps" && /* @__PURE__ */ jsxs("div", {
 			className: "space-y-6",

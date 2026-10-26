@@ -28,6 +28,9 @@ export default function SearchConsoleIndex({
   const [inspectionResult, setInspectionResult] = useState(null);
   const [inspectError, setInspectError] = useState(null);
 
+  // PageSpeed Audit State
+  const [pageSpeedTargetUrl, setPageSpeedTargetUrl] = useState('');
+
   // Instant Indexing State
   const [indexUrlInput, setIndexUrlInput] = useState('');
   const [indexAction, setIndexAction] = useState('URL_UPDATED');
@@ -699,12 +702,23 @@ export default function SearchConsoleIndex({
                           <td className="p-3 text-right font-bold text-blue-600 dark:text-blue-400">{row.clicks?.toLocaleString()}</td>
                           <td className="p-3 text-right text-slate-600 dark:text-zinc-300">{row.impressions?.toLocaleString()}</td>
                           <td className="p-3 text-right">
-                            <button
-                              onClick={() => { setInspectUrlInput(pUrl); setActiveTab('inspector'); }}
-                              className="px-2 py-1 rounded bg-slate-100 dark:bg-zinc-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-slate-700 dark:text-zinc-300 hover:text-blue-600 text-[11px] font-bold cursor-pointer"
-                            >
-                              Inspect
-                            </button>
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                onClick={() => { setInspectUrlInput(pUrl); setActiveTab('inspector'); }}
+                                className="px-2 py-1 rounded bg-slate-100 dark:bg-zinc-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-slate-700 dark:text-zinc-300 hover:text-blue-600 text-[11px] font-bold cursor-pointer"
+                                title="Inspect Googlebot Index Coverage"
+                              >
+                                Inspect
+                              </button>
+                              <button
+                                onClick={() => { setPageSpeedTargetUrl(pUrl); setActiveTab('pagespeed'); }}
+                                className="px-2 py-1 rounded bg-slate-100 dark:bg-zinc-800 hover:bg-amber-50 dark:hover:bg-amber-950/40 text-slate-700 dark:text-zinc-300 hover:text-amber-600 dark:hover:text-amber-400 text-[11px] font-bold cursor-pointer flex items-center gap-1"
+                                title="Audit Core Web Vitals & PageSpeed"
+                              >
+                                <Gauge className="w-3 h-3 text-amber-500" />
+                                <span>Speed</span>
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );
@@ -799,6 +813,15 @@ export default function SearchConsoleIndex({
                   >
                     <Zap className="w-3.5 h-3.5" />
                     <span>Push for Instant Re-Index</span>
+                  </button>
+
+                  <button
+                    onClick={() => { setPageSpeedTargetUrl(inspectionResult.inspectionUrl); setActiveTab('pagespeed'); }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-bold cursor-pointer transition-colors border border-slate-200 dark:border-zinc-700"
+                    title="Audit PageSpeed & Core Web Vitals for this URL"
+                  >
+                    <Gauge className="w-3.5 h-3.5 text-blue-500" />
+                    <span>Audit PageSpeed & CWV</span>
                   </button>
                 </div>
               </div>
@@ -1172,6 +1195,15 @@ export default function SearchConsoleIndex({
         <PageSpeedTab
           pageSpeedData={pageSpeedData}
           defaultUrls={pageSpeedData.defaultUrls || []}
+          targetUrl={pageSpeedTargetUrl}
+          onInspectUrl={(url) => {
+            setInspectUrlInput(url);
+            setActiveTab('inspector');
+          }}
+          onPushIndex={(url) => {
+            setIndexUrlInput(url);
+            setActiveTab('indexing');
+          }}
         />
       )}
 
