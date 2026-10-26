@@ -104,6 +104,8 @@ class LinkedInAuthService
         $personUrn = str_starts_with($sub, 'urn:li:person:') ? $sub : "urn:li:person:{$sub}";
         $name = $user['name'] ?? trim(($user['given_name'] ?? '') . ' ' . ($user['family_name'] ?? ''));
 
+        LinkedInAccount::ensureSchema();
+
         $account = LinkedInAccount::updateOrCreate(
             ['linkedin_person_id' => $personUrn],
             [
@@ -124,7 +126,7 @@ class LinkedInAuthService
         $savedOrgId = config('services.linkedin.organization_id') ?: env('LINKEDIN_ORGANIZATION_ID');
         $savedOrgName = config('services.linkedin.organization_name', 'Coachings in Sikar');
         if (!empty($savedOrgId)) {
-            $account->update([
+            $account->safeUpdate([
                 'organization_id' => $savedOrgId,
                 'organization_name' => $savedOrgName,
                 'post_as' => 'organization',
@@ -150,7 +152,7 @@ class LinkedInAuthService
 
                         if ($detailsRes->successful()) {
                             $orgData = $detailsRes->json();
-                            $account->update([
+                            $account->safeUpdate([
                                 'organization_id' => $targetUrn,
                                 'organization_name' => $orgData['localizedName'] ?? 'LinkedIn Company Page',
                                 'organization_vanity_name' => $orgData['vanityName'] ?? null,

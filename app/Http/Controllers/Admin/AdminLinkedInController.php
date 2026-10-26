@@ -41,18 +41,8 @@ class AdminLinkedInController extends Controller
         $errorMessage = null;
 
         try {
-            // Auto-check & auto-migrate if LinkedIn tables are missing
-            if (!Schema::hasTable('linkedin_accounts') || !Schema::hasTable('linkedin_post_shares')) {
-                $needsMigration = true;
-                try {
-                    Artisan::call('migrate', ['--force' => true]);
-                    if (Schema::hasTable('linkedin_accounts') && Schema::hasTable('linkedin_post_shares')) {
-                        $needsMigration = false;
-                    }
-                } catch (\Throwable $e) {
-                    Log::warning('LinkedIn auto-migrate attempt failed: ' . $e->getMessage());
-                }
-            }
+            // Auto-check & auto-heal LinkedIn database schema
+            LinkedInAccount::ensureSchema();
 
             $account = null;
             if (Schema::hasTable('linkedin_accounts')) {
@@ -121,11 +111,14 @@ class AdminLinkedInController extends Controller
             $savedOrgName = config('services.linkedin.organization_name') ?: ($account?->organization_name ?: 'Coachings in Sikar');
 
             if ($account && empty($account->organization_id) && !empty($savedOrgId)) {
-                $account->update([
-                    'organization_id' => $savedOrgId,
-                    'organization_name' => $savedOrgName,
-                    'post_as' => 'organization',
-                ]);
+                try {
+                    $cols = Schema::getColumnListing('linkedin_accounts');
+                    $up = [];
+                    if (in_array('organization_id', $cols)) $up['organization_id'] = $savedOrgId;
+                    if (in_array('organization_name', $cols)) $up['organization_name'] = $savedOrgName;
+                    if (in_array('post_as', $cols)) $up['post_as'] = 'organization';
+                    if (!empty($up)) $account->update($up);
+                } catch (\Throwable $e) {}
             }
 
             return Inertia::render('Admin/LinkedIn/Index', [
@@ -227,6 +220,8 @@ class AdminLinkedInController extends Controller
             'post_as' => 'required|in:organization,person',
         ]);
 
+        LinkedInAccount::ensureSchema();
+
         $account = LinkedInAccount::active() ?: LinkedInAccount::latest()->first();
         $rawOrg = trim((string) $request->input('organization_id'));
         $orgName = $request->input('organization_name');
@@ -270,21 +265,28 @@ class AdminLinkedInController extends Controller
             }
         }
 
-        if (!$account) {
-            $account = LinkedInAccount::create([
-                'linkedin_person_id' => 'urn:li:person:pending_' . uniqid(),
-                'name' => $orgName ?: 'Coachings in Sikar',
-                'organization_id' => $orgUrn,
-                'organization_name' => $orgName ?: 'Coachings in Sikar',
-                'post_as' => $request->input('post_as', 'organization'),
-                'is_active' => true,
-            ]);
-        } else {
-            $account->update([
-                'organization_id' => $orgUrn,
-                'organization_name' => $orgName ?: $account->organization_name,
-                'post_as' => $request->input('post_as', 'organization'),
-            ]);
+        try {
+            if (!$account) {
+                $availableCols = Schema::getColumnListing('linkedin_accounts');
+                $initialData = [
+                    'linkedin_person_id' => 'urn:li:person:pending_' . uniqid(),
+                    'name' => $orgName ?: 'Coachings in Sikar',
+                    'is_active' => true,
+                ];
+                if (in_array('organization_id', $availableCols)) $initialData['organization_id'] = $orgUrn;
+                if (in_array('organization_name', $availableCols)) $initialData['organization_name'] = $orgName ?: 'Coachings in Sikar';
+                if (in_array('post_as', $availableCols)) $initialData['post_as'] = $request->input('post_as', 'organization');
+
+                $account = LinkedInAccount::create($initialData);
+            } else {
+                $account->safeUpdate([
+                    'organization_id' => $orgUrn,
+                    'organization_name' => $orgName ?: $account->organization_name,
+                    'post_as' => $request->input('post_as', 'organization'),
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Saving LinkedIn page settings to database failed: ' . $e->getMessage());
         }
 
         // Permanently persist to .env so it never gets lost even after reconnecting or logging out
@@ -380,7 +382,7 @@ class AdminLinkedInController extends Controller
 
             if (!empty($pages)) {
                 $primary = $pages[0];
-                $account->update([
+                $account->safeUpdate([
                     'organization_id' => $primary['urn'],
                     'organization_name' => $primary['name'],
                     'organization_vanity_name' => $primary['vanity_name'],

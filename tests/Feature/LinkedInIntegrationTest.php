@@ -347,4 +347,32 @@ class LinkedInIntegrationTest extends TestCase
         $this->assertNotNull($pinShare);
         $this->assertEquals('Top NEET Coaching Institutes in Piprali Road Sikar 2027', $pinShare->title);
     }
+
+    public function test_admin_can_save_page_settings_successfully()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+            'is_admin' => true,
+        ]);
+
+        $account = LinkedInAccount::create([
+            'linkedin_person_id' => 'urn:li:person:admin_save_page',
+            'name' => 'Admin Test',
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($admin)->post('/admin/linkedin/page-settings', [
+            'organization_id' => '144851335',
+            'organization_name' => 'Coachings in Sikar',
+            'post_as' => 'organization',
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('linkedin_accounts', [
+            'id' => $account->id,
+            'organization_id' => 'urn:li:organization:144851335',
+            'organization_name' => 'Coachings in Sikar',
+            'post_as' => 'organization',
+        ]);
+    }
 }
