@@ -323,7 +323,7 @@ $dbUpgradeRunner = function () {
                 ->exists();
         } catch (\Throwable $ignore) {}
 
-        if (request()->boolean('reset') || request()->input('reset') === '1' || !$migrationRecorded) {
+        if (request()->boolean('reset') || request()->input('reset') === '1') {
             \Illuminate\Support\Facades\Schema::dropIfExists('gsc_inspections');
             \Illuminate\Support\Facades\Schema::dropIfExists('gsc_indexing_logs');
             \Illuminate\Support\Facades\Schema::dropIfExists('gsc_search_analytics');
