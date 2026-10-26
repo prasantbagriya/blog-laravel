@@ -191,9 +191,16 @@ class LinkedInPublishService
                 $personAuthor = $account->linkedin_person_id;
                 Log::warning("Posting as organization ({$author}) rejected by LinkedIn ({$err}). Automatically retrying as connected member ({$personAuthor})...");
 
-                // If image upload had failed because owner was organization, retry image upload with personAuthor
-                $retryShareContent = $shareContent;
-                if (!$assetUrn && !empty($imageUrl)) {
+                // Build a fresh shareContent for personAuthor.
+                // We MUST re-register the image under personAuthor because LinkedIn requires
+                // that the media asset owner strictly matches the post author.
+                $retryShareContent = [
+                    'shareCommentary' => [
+                        'text' => $commentary,
+                    ],
+                ];
+
+                if (!empty($imageUrl)) {
                     try {
                         $pMeta = $this->registerImageUpload($account, $personAuthor);
                         if ($this->uploadImageBinary($pMeta['upload_url'], $imageUrl)) {
@@ -207,7 +214,25 @@ class LinkedInPublishService
                                 ],
                             ];
                         }
-                    } catch (\Throwable $ex) {}
+                    } catch (\Throwable $ex) {
+                        Log::warning('Fallback person image upload failed, reverting to article link: ' . $ex->getMessage());
+                    }
+                }
+
+                if (empty($retryShareContent['shareMediaCategory'])) {
+                    if (!empty($targetLink)) {
+                        $retryShareContent['shareMediaCategory'] = 'ARTICLE';
+                        $retryShareContent['media'] = [
+                            [
+                                'status' => 'READY',
+                                'description' => ['text' => Str::limit($commentary, 200)],
+                                'originalUrl' => $targetLink,
+                                'title' => ['text' => $title ?: 'Coachings in Sikar'],
+                            ],
+                        ];
+                    } else {
+                        $retryShareContent['shareMediaCategory'] = 'NONE';
+                    }
                 }
 
                 $retryPayload = [

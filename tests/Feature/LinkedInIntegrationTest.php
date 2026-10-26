@@ -418,4 +418,82 @@ class LinkedInIntegrationTest extends TestCase
         $this->assertEquals('urn:li:share:fallback_success_789', $result['share_urn']);
         $this->assertEquals('person_fallback', $result['published_as']);
     }
+
+    public function test_publish_post_reregisters_image_asset_when_falling_back_to_person()
+    {
+        $uploadedAssets = [];
+        Http::fake([
+            'https://api.linkedin.com/v2/assets?action=registerUpload' => function ($request) use (&$uploadedAssets) {
+                $owner = $request->data()['registerUploadRequest']['owner'];
+                $uploadedAssets[] = $owner;
+                return Http::response([
+                    'value' => [
+                        'asset' => "urn:li:digitalmediaAsset:asset_for_" . md5($owner),
+                        'uploadMechanism' => [
+                            'com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest' => [
+                                'uploadUrl' => 'https://linkedin.upload.mock/s3',
+                            ],
+                        ],
+                    ],
+                ], 200);
+            },
+            'https://linkedin.upload.mock/s3' => Http::response('', 201),
+            'https://api.linkedin.com/v2/ugcPosts' => function ($request) {
+                $body = $request->data();
+                $author = $body['author'];
+                $media = $body['specificContent']['com.linkedin.ugc.ShareContent']['media'][0]['media'] ?? null;
+                
+                if ($author === 'urn:li:organization:rejected_org_888') {
+                    return Http::response([
+                        'message' => 'Field Value validation failed in REQUEST_BODY: Data Processing Exception while processing fields [/author]'
+                    ], 400);
+                }
+                
+                if ($author === 'urn:li:person:good_person_999') {
+                    $expectedAsset = "urn:li:digitalmediaAsset:asset_for_" . md5('urn:li:person:good_person_999');
+                    if ($media !== $expectedAsset) {
+                        return Http::response([
+                            'message' => 'One or more of the contents is not owned by the author. All contents must be owned by the author'
+                        ], 400);
+                    }
+                    return Http::response([
+                        'id' => 'urn:li:share:clean_image_share_111',
+                    ], 201);
+                }
+                return Http::response(['message' => 'Unexpected author URN'], 400);
+            },
+        ]);
+
+        $account = LinkedInAccount::create([
+            'linkedin_person_id' => 'urn:li:person:good_person_999',
+            'organization_id' => 'urn:li:organization:rejected_org_888',
+            'organization_name' => 'Coachings in Sikar',
+            'post_as' => 'organization',
+            'name' => 'Good Member',
+            'access_token' => 'mock_token_img_fallback',
+            'is_active' => true,
+        ]);
+
+        $testImagePath = public_path('test_image_fallback.webp');
+        file_put_contents($testImagePath, 'fake_image_bytes');
+
+        try {
+            $publishService = app(LinkedInPublishService::class);
+            $result = $publishService->publishPost(
+                $account,
+                'Educational image insights with strict ownership match.',
+                url('test_image_fallback.webp'),
+                'https://coachingsinsikar.com/blog/sample',
+                'Test Image Fallback'
+            );
+
+            $this->assertTrue($result['success']);
+            $this->assertEquals('urn:li:share:clean_image_share_111', $result['share_urn']);
+            $this->assertEquals('person_fallback', $result['published_as']);
+        } finally {
+            if (file_exists($testImagePath)) {
+                unlink($testImagePath);
+            }
+        }
+    }
 }
