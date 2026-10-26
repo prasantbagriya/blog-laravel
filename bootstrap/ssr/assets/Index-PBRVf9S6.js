@@ -1,5 +1,5 @@
 import AdminLayout from "./AdminLayout-bqQMnFMH.js";
-import { t as MediaPicker } from "./MediaPicker-B0-VNQfE.js";
+import { t as MediaPicker } from "./MediaPicker-zN4UKBzt.js";
 import DeleteButton from "./DeleteButton-4pbNZztV.js";
 import { Head } from "@inertiajs/react";
 import { jsx, jsxs } from "react/jsx-runtime";

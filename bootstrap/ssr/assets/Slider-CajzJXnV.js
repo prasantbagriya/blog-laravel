@@ -3,7 +3,7 @@ import { jsx, jsxs } from "react/jsx-runtime";
 import React, { Suspense, useEffect, useState } from "react";
 //#region resources/js/Pages/Admin/Settings/Slider.jsx
 var AdminLayout = React.lazy(() => import("./AdminLayout-bqQMnFMH.js"));
-var MediaPicker = React.lazy(() => import("./MediaPicker-B0-VNQfE.js").then((n) => n.n));
+var MediaPicker = React.lazy(() => import("./MediaPicker-zN4UKBzt.js").then((n) => n.n));
 function SliderManager() {
 	const [slides, setSlides] = useState([]);
 	const [pages, setPages] = useState([]);

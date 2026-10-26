@@ -53,35 +53,6 @@ function MediaPicker({ onSelect, onClose, open = true }) {
 			setUploading(false);
 		}
 	};
-	const handleReplace = async (e, oldFilename) => {
-		const file = e.target.files?.[0];
-		if (!file) return;
-		if (!window.confirm(`Are you sure you want to replace ${oldFilename}? This will update the image everywhere it's used.`)) {
-			e.target.value = "";
-			return;
-		}
-		setLoading(true);
-		const formData = new FormData();
-		formData.append("file", file);
-		formData.append("oldFilename", oldFilename);
-		try {
-			const csrfToken = document.querySelector("meta[name=\"csrf-token\"]")?.getAttribute("content") || "";
-			const basePath = typeof window !== "undefined" && window.BASE_PATH ? window.BASE_PATH : "";
-			if ((await fetch(basePath + "/api/admin/media", {
-				method: "POST",
-				headers: { "X-CSRF-TOKEN": csrfToken },
-				body: formData
-			})).ok) {
-				const data = await (await fetch((typeof window !== "undefined" && window.BASE_PATH ? window.BASE_PATH : "") + "/api/admin/media")).json();
-				if (Array.isArray(data)) setMedia(data);
-			} else alert("Failed to replace image. It might be too large or invalid format.");
-		} catch (err) {
-			alert("Network error replacing image.");
-		} finally {
-			setLoading(false);
-			e.target.value = "";
-		}
-	};
 	const formatSize = (bytes) => {
 		if (bytes === 0) return "0 B";
 		const k = 1024;
@@ -685,78 +656,41 @@ function MediaPicker({ onSelect, onClose, open = true }) {
 									width: "100%",
 									paddingBottom: "100%",
 									position: "relative",
-									background: "repeating-conic-gradient(#f8fafc 0% 25%, #f1f5f9 0% 50%) 50% / 16px 16px"
+									background: "#f1f5f9"
 								},
 								children: /* @__PURE__ */ jsx("img", {
 									loading: "lazy",
 									decoding: "async",
 									src: item.url,
 									alt: item.name,
-									onError: (e) => {
-										e.currentTarget.style.display = "none";
-										if (e.currentTarget.parentElement) e.currentTarget.parentElement.style.background = "#fef2f2";
-									},
 									style: {
 										position: "absolute",
 										top: 0,
 										left: 0,
 										width: "100%",
 										height: "100%",
-										objectFit: "contain"
+										objectFit: "cover"
 									}
 								})
 							}), /* @__PURE__ */ jsxs("div", {
-								style: {
-									padding: "12px",
-									display: "flex",
-									justifyContent: "space-between",
-									alignItems: "center"
-								},
-								children: [/* @__PURE__ */ jsxs("div", {
+								style: { padding: "12px" },
+								children: [/* @__PURE__ */ jsx("div", {
 									style: {
-										overflow: "hidden",
-										flex: 1,
-										paddingRight: "8px"
-									},
-									children: [/* @__PURE__ */ jsx("div", {
-										style: {
-											fontSize: "12px",
-											fontWeight: 700,
-											color: "#0f172a",
-											whiteSpace: "nowrap",
-											overflow: "hidden",
-											textOverflow: "ellipsis"
-										},
-										children: item.name
-									}), /* @__PURE__ */ jsx("div", {
-										style: {
-											fontSize: "11px",
-											color: "#64748b",
-											marginTop: "4px"
-										},
-										children: formatSize(item.sizeBytes)
-									})]
-								}), /* @__PURE__ */ jsxs("label", {
-									onClick: (e) => e.stopPropagation(),
-									style: {
-										cursor: "pointer",
-										background: "#f1f5f9",
-										padding: "4px 8px",
-										borderRadius: "6px",
-										fontSize: "11px",
+										fontSize: "12px",
 										fontWeight: 700,
-										color: "#2563eb",
-										border: "1px solid #e2e8f0",
-										transition: "all 0.1s ease"
+										color: "#0f172a",
+										whiteSpace: "nowrap",
+										overflow: "hidden",
+										textOverflow: "ellipsis"
 									},
-									onMouseEnter: (e) => e.currentTarget.style.background = "#e2e8f0",
-									onMouseLeave: (e) => e.currentTarget.style.background = "#f1f5f9",
-									children: ["Replace", /* @__PURE__ */ jsx("input", {
-										type: "file",
-										accept: "image/*",
-										style: { display: "none" },
-										onChange: (e) => handleReplace(e, item.name)
-									})]
+									children: item.name
+								}), /* @__PURE__ */ jsx("div", {
+									style: {
+										fontSize: "11px",
+										color: "#64748b",
+										marginTop: "4px"
+									},
+									children: formatSize(item.sizeBytes)
 								})]
 							})]
 						}, item.id))
@@ -824,41 +758,14 @@ function MediaPicker({ onSelect, onClose, open = true }) {
 										children: new Date(item.createdAt).toLocaleDateString()
 									})]
 								}),
-								/* @__PURE__ */ jsxs("div", {
+								/* @__PURE__ */ jsx("div", {
 									style: {
-										display: "flex",
-										alignItems: "center",
-										gap: "16px"
+										fontSize: "13px",
+										color: "#475569",
+										fontWeight: 600,
+										paddingRight: "12px"
 									},
-									children: [/* @__PURE__ */ jsx("div", {
-										style: {
-											fontSize: "13px",
-											color: "#475569",
-											fontWeight: 600
-										},
-										children: formatSize(item.sizeBytes)
-									}), /* @__PURE__ */ jsxs("label", {
-										onClick: (e) => e.stopPropagation(),
-										style: {
-											cursor: "pointer",
-											background: "#f1f5f9",
-											padding: "6px 12px",
-											borderRadius: "6px",
-											fontSize: "12px",
-											fontWeight: 700,
-											color: "#2563eb",
-											border: "1px solid #e2e8f0",
-											transition: "all 0.1s ease"
-										},
-										onMouseEnter: (e) => e.currentTarget.style.background = "#e2e8f0",
-										onMouseLeave: (e) => e.currentTarget.style.background = "#f1f5f9",
-										children: ["Replace", /* @__PURE__ */ jsx("input", {
-											type: "file",
-											accept: "image/*",
-											style: { display: "none" },
-											onChange: (e) => handleReplace(e, item.name)
-										})]
-									})]
+									children: formatSize(item.sizeBytes)
 								})
 							]
 						}, item.id))

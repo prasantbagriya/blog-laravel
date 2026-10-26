@@ -1,9 +1,9 @@
 import { jsx } from "react/jsx-runtime";
 import React, { Suspense } from "react";
-//#region resources/js/Pages/Admin/Stories/New.jsx
-var StoryForm = React.lazy(() => import("./StoryForm-CGFmlCnm.js"));
+//#region resources/js/Pages/Admin/Stories/Edit.jsx
+var StoryForm = React.lazy(() => import("./StoryForm-lTNo9Xkv.js"));
 var AdminLayout = React.lazy(() => import("./AdminLayout-bqQMnFMH.js"));
-function NewStoryPage() {
+function EditStoryPage({ story }) {
 	return /* @__PURE__ */ jsx(Suspense, {
 		fallback: /* @__PURE__ */ jsx("div", {
 			style: {
@@ -12,10 +12,10 @@ function NewStoryPage() {
 			},
 			children: "Loading Editor..."
 		}),
-		children: /* @__PURE__ */ jsx(StoryForm, {})
+		children: /* @__PURE__ */ jsx(StoryForm, { story })
 	});
 }
-NewStoryPage.layout = (page) => /* @__PURE__ */ jsx(Suspense, {
+EditStoryPage.layout = (page) => /* @__PURE__ */ jsx(Suspense, {
 	fallback: /* @__PURE__ */ jsx("div", {
 		style: {
 			minHeight: "100vh",
@@ -28,4 +28,4 @@ NewStoryPage.layout = (page) => /* @__PURE__ */ jsx(Suspense, {
 	children: /* @__PURE__ */ jsx(AdminLayout, { children: page })
 });
 //#endregion
-export { NewStoryPage as default };
+export { EditStoryPage as default };
