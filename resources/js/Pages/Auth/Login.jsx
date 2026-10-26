@@ -52,18 +52,18 @@ export default function Login({ status, canResetPassword }) {
                     <form className="space-y-5" onSubmit={submit}>
                         <div>
                             <label className="block text-sm font-bold text-slate-700 dark:text-zinc-300 mb-1.5">
-                                Email Address
+                                Email Address or Username
                             </label>
                             <div className="relative group">
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                     <Mail className="h-5 w-5 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
                                 </div>
                                 <input
-                                    type="email"
+                                    type="text"
                                     value={data.email}
                                     onChange={(e) => setData('email', e.target.value)}
                                     className="block w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-xl text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
-                                    placeholder="you@example.com"
+                                    placeholder="admin@coachingsinsikar.com or admin"
                                     required
                                     autoFocus
                                 />

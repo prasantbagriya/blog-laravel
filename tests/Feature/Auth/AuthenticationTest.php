@@ -51,4 +51,42 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
         $response->assertRedirect('/');
     }
+
+    public function test_admin_user_can_login_with_email_and_redirects_to_admin(): void
+    {
+        $admin = User::factory()->create([
+            'email' => 'admin@coachingsinsikar.com',
+            'username' => 'admin',
+            'password' => bcrypt('Admin@12345'),
+            'role' => 'super_admin',
+            'is_admin' => true,
+        ]);
+
+        $response = $this->post('/login', [
+            'email' => 'admin@coachingsinsikar.com',
+            'password' => 'Admin@12345',
+        ]);
+
+        $this->assertAuthenticatedAs($admin);
+        $response->assertRedirect(route('admin.index', absolute: false));
+    }
+
+    public function test_admin_user_can_login_with_username(): void
+    {
+        $admin = User::factory()->create([
+            'email' => 'admin@coachingsinsikar.com',
+            'username' => 'admin',
+            'password' => bcrypt('Admin@12345'),
+            'role' => 'super_admin',
+            'is_admin' => true,
+        ]);
+
+        $response = $this->post('/login', [
+            'email' => 'admin',
+            'password' => 'Admin@12345',
+        ]);
+
+        $this->assertAuthenticatedAs($admin);
+        $response->assertRedirect(route('admin.index', absolute: false));
+    }
 }

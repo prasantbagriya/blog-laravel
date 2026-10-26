@@ -30,6 +30,7 @@ createInertiaApp({
                 './Pages/Story/Index.jsx',
                 './Pages/User/Show.jsx',
                 './Pages/Admin/SearchConsole/Index.jsx',
+                './Pages/Admin/Bing/Index.jsx',
                 './Pages/Admin/Facebook/Index.jsx',
                 './Pages/Admin/X/Index.jsx',
                 './Pages/Admin/Pinterest/Index.jsx',

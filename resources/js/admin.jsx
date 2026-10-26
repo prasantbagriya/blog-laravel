@@ -14,6 +14,7 @@ createInertiaApp({
             import.meta.glob([
                 './Pages/Admin/Index.jsx',
                 './Pages/Admin/Authors/{Edit,Index,New}.jsx',
+                './Pages/Admin/Bing/Index.jsx',
                 './Pages/Admin/Businesses/Index.jsx',
                 './Pages/Admin/Categories/Index.jsx',
                 './Pages/Admin/Communities/{Edit,Index}.jsx',

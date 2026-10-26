@@ -35,7 +35,7 @@ return [
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),
-            'database' => env('DB_SQLITE_PATH', (env('DB_CONNECTION') === 'sqlite' && file_exists(env('DB_DATABASE', ''))) ? env('DB_DATABASE') : database_path('database.sqlite')),
+            'database' => env('DB_SQLITE_PATH') ?: (env('DB_DATABASE') === ':memory:' ? ':memory:' : ((env('DB_CONNECTION') === 'sqlite' && file_exists(env('DB_DATABASE', ''))) ? env('DB_DATABASE') : database_path('database.sqlite'))),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
             'busy_timeout' => null,
