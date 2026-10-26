@@ -54,6 +54,11 @@ class Post extends Model
         return '/' . ltrim($path, '/');
     }
 
+    public function getFocusKeywordAttribute()
+    {
+        return $this->attributes['focusKeyword'] ?? $this->attributes['focus_keyword'] ?? null;
+    }
+
     protected static function booted()
     {
         static::saved(function ($post) {

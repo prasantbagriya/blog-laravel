@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
 use App\Models\Post;
 use App\Models\Community;
@@ -12,6 +13,29 @@ use App\Models\Category;
 
 class SearchController extends Controller
 {
+    protected static ?array $postSearchableColumns = null;
+
+    /**
+     * Get valid searchable columns on the posts table that actually exist in the database.
+     */
+    protected function getPostSearchableColumns(): array
+    {
+        if (static::$postSearchableColumns !== null) {
+            return static::$postSearchableColumns;
+        }
+
+        try {
+            $allColumns = Schema::getColumnListing('posts');
+            $candidates = ['title', 'content', 'category', 'excerpt', 'keywords', 'focusKeyword', 'focus_keyword'];
+            $valid = array_values(array_intersect($candidates, $allColumns));
+
+            static::$postSearchableColumns = !empty($valid) ? $valid : ['title', 'content', 'category', 'excerpt'];
+        } catch (\Throwable $e) {
+            static::$postSearchableColumns = ['title', 'content', 'category', 'excerpt'];
+        }
+
+        return static::$postSearchableColumns;
+    }
     /**
      * Parse raw search query into clean tokens, stop words, and core keywords.
      */
@@ -180,22 +204,24 @@ class SearchController extends Controller
             return collect();
         }
 
-        $query->where(function ($sub) use ($clean, $searchTerms) {
-            $sub->where('title', 'like', "%{$clean}%")
-                ->orWhere('content', 'like', "%{$clean}%")
-                ->orWhere('category', 'like', "%{$clean}%")
-                ->orWhere('excerpt', 'like', "%{$clean}%")
-                ->orWhere('keywords', 'like', "%{$clean}%")
-                ->orWhere('focus_keyword', 'like', "%{$clean}%");
+        $searchableCols = $this->getPostSearchableColumns();
+
+        $query->where(function ($sub) use ($clean, $searchTerms, $searchableCols) {
+            $isFirst = true;
+            foreach ($searchableCols as $col) {
+                if ($isFirst) {
+                    $sub->where($col, 'like', "%{$clean}%");
+                    $isFirst = false;
+                } else {
+                    $sub->orWhere($col, 'like', "%{$clean}%");
+                }
+            }
 
             foreach ($searchTerms as $term) {
                 if (mb_strlen($term) < 2) continue;
-                $sub->orWhere('title', 'like', "%{$term}%")
-                    ->orWhere('content', 'like', "%{$term}%")
-                    ->orWhere('category', 'like', "%{$term}%")
-                    ->orWhere('excerpt', 'like', "%{$term}%")
-                    ->orWhere('keywords', 'like', "%{$term}%")
-                    ->orWhere('focus_keyword', 'like', "%{$term}%");
+                foreach ($searchableCols as $col) {
+                    $sub->orWhere($col, 'like', "%{$term}%");
+                }
             }
         });
 
@@ -207,7 +233,7 @@ class SearchController extends Controller
             $contentLower = mb_strtolower($post->content ?? '');
             $catLower = mb_strtolower($post->category ?? '');
             $excerptLower = mb_strtolower($post->excerpt ?? '');
-            $focusLower = mb_strtolower($post->focus_keyword ?? '');
+            $focusLower = mb_strtolower($post->focusKeyword ?? $post->focus_keyword ?? '');
             $keywordsLower = mb_strtolower($post->keywords ?? '');
 
             if ($titleLower === $lower) $score += 200;

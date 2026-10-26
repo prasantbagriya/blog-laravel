@@ -97,5 +97,10 @@ class SearchEngineRelevanceTest extends TestCase
         $blogData = $blogSuggest->json();
         $this->assertNotEmpty($blogData['blogs']);
         $this->assertEquals('Top 10 Best NEET Coaching in Sikar 2026', $blogData['blogs'][0]['title']);
+
+        // Test 6: Verify exact query that previously crashed with Unknown column 'focus_keyword'
+        $jeeSearchResponse = $this->get('/search?q=jee');
+        $jeeSearchResponse->assertStatus(200);
+        $jeeSearchResponse->assertInertia(fn ($page) => $page->component('Search/Index'));
     }
 }
