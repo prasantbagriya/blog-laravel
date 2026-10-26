@@ -114,19 +114,17 @@ class PostController extends Controller
             $data['status'] = $data['published'] ? 'published' : 'draft';
         }
 
-        // Normalize url_format (defaults to direct root format {slug})
+        // Normalize url_format
         if (isset($data['url_format'])) {
             $uf = trim($data['url_format']);
-            if ($uf === 'direct' || $uf === '/' || $uf === '{slug}' || $uf === '/{slug}' || $uf === '') {
+            if ($uf === 'direct' || $uf === '/' || $uf === '{slug}' || $uf === '/{slug}') {
                 $data['url_format'] = '{slug}';
             }
-        } else {
-            $data['url_format'] = '{slug}';
         }
 
         // Dynamically ensure required columns exist in MySQL / SQLite
         try {
-            \Illuminate\Support\Facades\DB::statement("ALTER TABLE `posts` ADD COLUMN `url_format` VARCHAR(255) NULL DEFAULT '{slug}'");
+            \Illuminate\Support\Facades\DB::statement("ALTER TABLE `posts` ADD COLUMN `url_format` VARCHAR(255) NULL DEFAULT 'blog/{slug}'");
         } catch (\Throwable $e) {}
         try {
             \Illuminate\Support\Facades\DB::statement("ALTER TABLE `posts` ADD COLUMN `focus_keyword` VARCHAR(255) NULL");

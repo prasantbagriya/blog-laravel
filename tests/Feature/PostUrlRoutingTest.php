@@ -103,17 +103,17 @@ class PostUrlRoutingTest extends TestCase
         $this->get('/non-existent-direct-slug-456')->assertStatus(404);
     }
 
-    public function test_post_without_url_format_defaults_to_direct_root(): void
+    public function test_post_without_url_format_defaults_to_blog_path(): void
     {
         $post = Post::factory()->create([
-            'title' => 'Default Direct Post',
-            'slug' => 'default-direct-post',
+            'title' => 'Default Blog Post',
+            'slug' => 'default-blog-post',
             'url_format' => null,
             'published' => true,
         ]);
 
-        $this->assertEquals('/default-direct-post', $post->url_path);
-        $this->get('/default-direct-post')->assertStatus(200);
+        $this->assertEquals('/blog/default-blog-post', $post->url_path);
+        $this->get('/blog/default-blog-post')->assertStatus(200);
     }
 
     public function test_post_controller_stores_direct_url_format(): void

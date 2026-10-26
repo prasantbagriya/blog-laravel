@@ -828,15 +828,7 @@ function PostForm({ post }) {
 	}, [isResizing]);
 	const [title, setTitle] = useState(post?.title || "");
 	const [slug, setSlug] = useState(post?.slug || "");
-	const getInitialBasePage = (format) => {
-		if (!format || format === "{slug}" || format === "direct" || format === "/" || format === "/{slug}") return "direct";
-		return format.split("/")[0];
-	};
-	const [selectedBasePage, setSelectedBasePage] = useState(getInitialBasePage(post?.url_format));
-	const [urlFormat, setUrlFormat] = useState(() => {
-		if (!post?.url_format || post.url_format === "direct" || post.url_format === "/" || post.url_format === "/{slug}" || post.url_format === "{slug}") return "{slug}";
-		return post.url_format;
-	});
+	const [urlFormat, setUrlFormat] = useState(post?.url_format || "blog/{slug}");
 	const [schemaType, setSchemaType] = useState(post?.schema_type || "Article");
 	const [deployModalOpen, setDeployModalOpen] = useState(false);
 	const [deployStep, setDeployStep] = useState(1);
@@ -849,6 +841,12 @@ function PostForm({ post }) {
 	const [availableAuthors, setAvailableAuthors] = useState([]);
 	const [availableCategories, setAvailableCategories] = useState([]);
 	const [availablePages, setAvailablePages] = useState([]);
+	const getInitialBasePage = (format) => {
+		if (!format) return "blog";
+		if (format.startsWith("{")) return "direct";
+		return format.split("/")[0];
+	};
+	const [selectedBasePage, setSelectedBasePage] = useState(getInitialBasePage(post?.url_format || "blog/{slug}"));
 	const [focusKeyword, setFocusKeyword] = useState(post?.focusKeyword || "");
 	const [category, setCategory] = useState(post?.category || "General");
 	const [tags, setTags] = useState(post?.tags || []);
@@ -2224,21 +2222,17 @@ function PostForm({ post }) {
 		setHumanScore(88);
 		setSeoTips(newTips);
 	}, [entities.length]);
-	const handleSave = async (published = true, isAutoSave = false, targetBase) => {
+	const handleSave = async (published = true, isAutoSave = false) => {
 		if (!isAutoSave) setIsPublished(published);
 		if (!editor) return;
 		startTransition(async () => {
 			const cleanSlug = (slug || title).toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "");
-			const effectiveBase = targetBase !== void 0 ? targetBase : selectedBasePage || "direct";
-			let finalUrlFormat = "{slug}";
-			if (effectiveBase === "direct") finalUrlFormat = "{slug}";
-			else finalUrlFormat = `${effectiveBase}/{slug}`;
 			const updatedPost = {
 				...post,
 				id: postId,
 				title,
 				slug: cleanSlug,
-				url_format: finalUrlFormat,
+				url_format: urlFormat,
 				schema_type: schemaType,
 				content: editor.getHTML(),
 				metaDescription,
@@ -4872,53 +4866,6 @@ function PostForm({ post }) {
 										}),
 										/* @__PURE__ */ jsx("button", {
 											type: "button",
-											onClick: () => handleSave(true, false, selectedBasePage),
-											disabled: isPending,
-											style: {
-												display: "flex",
-												alignItems: "center",
-												gap: "5px",
-												padding: "5px 14px",
-												borderRadius: "8px",
-												background: selectedBasePage === "direct" ? "linear-gradient(135deg, #059669, #047857)" : "linear-gradient(135deg, #2563eb, #1d4ed8)",
-												color: "#ffffff",
-												border: "none",
-												fontWeight: 800,
-												fontSize: "12px",
-												cursor: "pointer",
-												boxShadow: selectedBasePage === "direct" ? "0 2px 8px rgba(5, 150, 105, 0.4)" : "0 2px 8px rgba(37, 99, 235, 0.35)",
-												flexShrink: 0,
-												transition: "all 0.15s ease"
-											},
-											title: selectedBasePage === "direct" ? "Save & Publish Direct at domain.com/slug" : "Save & Publish in " + selectedBasePage,
-											children: selectedBasePage === "direct" ? /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx("svg", {
-												width: "13",
-												height: "13",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: "2.5",
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												children: /* @__PURE__ */ jsx("polygon", { points: "13 2 3 14 12 14 11 22 21 10 12 10 13 2" })
-											}), /* @__PURE__ */ jsx("span", { children: isPending ? "Publishing..." : "⚡ Publish Direct" })] }) : /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsxs("svg", {
-												width: "13",
-												height: "13",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: "2.5",
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												children: [
-													/* @__PURE__ */ jsx("path", { d: "M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" }),
-													/* @__PURE__ */ jsx("polyline", { points: "17 21 17 13 7 13 7 21" }),
-													/* @__PURE__ */ jsx("polyline", { points: "7 3 7 8 15 8" })
-												]
-											}), /* @__PURE__ */ jsx("span", { children: isPending ? "Saving..." : "Save Post" })] })
-										}),
-										/* @__PURE__ */ jsx("button", {
-											type: "button",
 											onClick: () => {
 												setActiveTab("facebook");
 												if (!fbCaption) generateFbDraft();
@@ -5013,172 +4960,79 @@ function PostForm({ post }) {
 							...editorWrapperStyle,
 							padding: isMobile ? "16px" : "40px 24px"
 						},
-						children: [
-							/* @__PURE__ */ jsxs("div", {
-								style: {
-									display: "flex",
-									flexWrap: "wrap",
-									alignItems: "center",
-									justifyContent: "space-between",
-									gap: "12px",
-									padding: "12px 16px",
-									background: selectedBasePage === "direct" ? "#f0fdf4" : "#f8fafc",
-									border: "1.5px solid " + (selectedBasePage === "direct" ? "#bbf7d0" : "#e2e8f0"),
-									borderRadius: "14px",
-									marginBottom: "24px",
-									fontSize: "13px",
-									boxShadow: "0 2px 8px -2px rgba(0,0,0,0.03)"
-								},
-								children: [/* @__PURE__ */ jsxs("div", {
-									style: {
-										display: "flex",
-										alignItems: "center",
-										gap: "10px",
-										flexWrap: "wrap"
-									},
-									children: [/* @__PURE__ */ jsxs("span", {
-										style: {
-											fontWeight: 800,
-											color: "#334155",
-											display: "flex",
-											alignItems: "center",
-											gap: "5px",
-											fontSize: "12px"
-										},
+						children: [/* @__PURE__ */ jsx(BubbleMenu, {
+							editor,
+							shouldShow: ({ editor, state }) => {
+								const { selection } = state;
+								if (selection && selection.node) {
+									const nodeType = selection.node.type.name;
+									return nodeType === "faqBlock" || nodeType === "imageSlider" || nodeType === "image" || nodeType === "quizBlock" || nodeType === "pollBlock";
+								}
+								return editor.isActive("image") || editor.isActive("imageSlider") || editor.isActive("faqBlock") || editor.isActive("quizBlock") || editor.isActive("pollBlock");
+							},
+							children: /* @__PURE__ */ jsx("div", {
+								style: bubbleMenuStyle,
+								children: (() => {
+									const { selection } = editor.state;
+									const selectedNodeType = selection.node?.type?.name;
+									if (selectedNodeType === "imageSlider" || editor.isActive("imageSlider")) return /* @__PURE__ */ jsxs(SovereignToolBtn, {
+										onClick: handleOpenSliderModal,
+										title: "Slider Settings",
 										children: [/* @__PURE__ */ jsxs("svg", {
-											width: "14",
-											height: "14",
+											xmlns: "http://www.w3.org/2000/svg",
+											width: "24",
+											height: "24",
 											viewBox: "0 0 24 24",
 											fill: "none",
-											stroke: selectedBasePage === "direct" ? "#16a34a" : "#2563eb",
-											strokeWidth: "2.5",
+											stroke: "currentColor",
+											strokeWidth: 2,
 											strokeLinecap: "round",
 											strokeLinejoin: "round",
+											className: "lucide",
+											style: {
+												width: "14px",
+												height: "14px"
+											},
 											children: [
-												/* @__PURE__ */ jsx("circle", {
-													cx: "12",
-													cy: "12",
-													r: "10"
+												/* @__PURE__ */ jsx("rect", {
+													width: "18",
+													height: "18",
+													x: "3",
+													y: "3",
+													rx: "2",
+													ry: "2"
 												}),
-												/* @__PURE__ */ jsx("path", { d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" }),
-												/* @__PURE__ */ jsx("path", { d: "M2 12h20" })
+												/* @__PURE__ */ jsx("line", {
+													x1: "9",
+													y1: "3",
+													x2: "9",
+													y2: "21"
+												}),
+												/* @__PURE__ */ jsx("line", {
+													x1: "15",
+													y1: "3",
+													x2: "15",
+													y2: "21"
+												})
 											]
-										}), "URL Section:"]
-									}), /* @__PURE__ */ jsxs("select", {
-										value: selectedBasePage,
-										onChange: (e) => {
-											const newBase = e.target.value;
-											setSelectedBasePage(newBase);
-											if (newBase === "direct") setUrlFormat("{slug}");
-											else setUrlFormat(`${newBase}/{slug}`);
-										},
-										style: {
-											padding: "6px 12px",
-											borderRadius: "8px",
-											border: "1.5px solid " + (selectedBasePage === "direct" ? "#10b981" : "#cbd5e1"),
-											background: selectedBasePage === "direct" ? "#ecfdf5" : "#ffffff",
-											color: selectedBasePage === "direct" ? "#047857" : "#1e293b",
-											fontWeight: 800,
-											fontSize: "12px",
-											cursor: "pointer",
-											outline: "none"
-										},
-										children: [
-											/* @__PURE__ */ jsxs("option", {
-												value: "direct",
-												children: [
-													"⚡ Direct URL (domain.com/",
-													slug || "post-slug",
-													")"
-												]
-											}),
-											/* @__PURE__ */ jsxs("option", {
-												value: "blog",
-												children: [
-													"📝 Blog Section (/blog/",
-													slug || "post-slug",
-													")"
-												]
-											}),
-											/* @__PURE__ */ jsxs("option", {
-												value: "news",
-												children: [
-													"📰 News Section (/news/",
-													slug || "post-slug",
-													")"
-												]
-											}),
-											availablePages?.filter((p) => p.slug !== "blog" && p.slug !== "news").map((p) => /* @__PURE__ */ jsxs("option", {
-												value: p.slug,
-												children: [
-													p.title,
-													" (/",
-													p.slug,
-													")"
-												]
-											}, p.id || p.slug))
-										]
-									})]
-								}), /* @__PURE__ */ jsxs("div", {
-									style: {
-										display: "flex",
-										alignItems: "center",
-										gap: "8px",
-										flexWrap: "wrap",
-										fontSize: "12px"
-									},
-									children: [/* @__PURE__ */ jsx("span", {
-										style: {
-											color: "#64748b",
-											fontWeight: 600
-										},
-										children: "Active Public URL:"
-									}), /* @__PURE__ */ jsxs("a", {
-										href: selectedBasePage === "direct" ? `/${slug || post?.slug || "article-slug"}` : `/${selectedBasePage}/${slug || post?.slug || "article-slug"}`,
-										target: "_blank",
-										rel: "noopener noreferrer",
-										style: {
-											color: selectedBasePage === "direct" ? "#047857" : "#2563eb",
-											fontWeight: 700,
-											textDecoration: "none",
-											background: selectedBasePage === "direct" ? "#dcfce7" : "#eff6ff",
-											padding: "4px 10px",
-											borderRadius: "6px",
-											border: "1px solid " + (selectedBasePage === "direct" ? "#86efac" : "#bfdbfe"),
-											display: "inline-flex",
-											alignItems: "center",
-											gap: "4px",
-											transition: "all 0.15s ease"
-										},
-										title: "Preview target URL in new tab",
-										children: [/* @__PURE__ */ jsxs("span", { children: ["/", selectedBasePage === "direct" ? slug || post?.slug || "article-slug" : `${selectedBasePage}/${slug || post?.slug || "article-slug"}`] }), /* @__PURE__ */ jsx("span", {
+										}), /* @__PURE__ */ jsx("span", {
 											style: {
 												fontSize: "11px",
-												fontWeight: 900
+												fontWeight: 700,
+												marginLeft: "6px"
 											},
-											children: "↗"
+											children: "EDIT SLIDER"
 										})]
-									})]
-								})]
-							}),
-							/* @__PURE__ */ jsx(BubbleMenu, {
-								editor,
-								shouldShow: ({ editor, state }) => {
-									const { selection } = state;
-									if (selection && selection.node) {
-										const nodeType = selection.node.type.name;
-										return nodeType === "faqBlock" || nodeType === "imageSlider" || nodeType === "image" || nodeType === "quizBlock" || nodeType === "pollBlock";
-									}
-									return editor.isActive("image") || editor.isActive("imageSlider") || editor.isActive("faqBlock") || editor.isActive("quizBlock") || editor.isActive("pollBlock");
-								},
-								children: /* @__PURE__ */ jsx("div", {
-									style: bubbleMenuStyle,
-									children: (() => {
-										const { selection } = editor.state;
-										const selectedNodeType = selection.node?.type?.name;
-										if (selectedNodeType === "imageSlider" || editor.isActive("imageSlider")) return /* @__PURE__ */ jsxs(SovereignToolBtn, {
-											onClick: handleOpenSliderModal,
-											title: "Slider Settings",
+									});
+									if (selectedNodeType === "faqBlock" || editor.isActive("faqBlock")) return /* @__PURE__ */ jsxs("div", {
+										style: {
+											display: "flex",
+											gap: "4px",
+											alignItems: "center"
+										},
+										children: [/* @__PURE__ */ jsxs(SovereignToolBtn, {
+											onClick: handleOpenFaqModal,
+											title: "Edit FAQ Block",
 											children: [/* @__PURE__ */ jsxs("svg", {
 												xmlns: "http://www.w3.org/2000/svg",
 												width: "24",
@@ -5195,26 +5049,13 @@ function PostForm({ post }) {
 													height: "14px"
 												},
 												children: [
-													/* @__PURE__ */ jsx("rect", {
-														width: "18",
-														height: "18",
-														x: "3",
-														y: "3",
-														rx: "2",
-														ry: "2"
+													/* @__PURE__ */ jsx("circle", {
+														cx: "12",
+														cy: "12",
+														r: "10"
 													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "9",
-														y1: "3",
-														x2: "9",
-														y2: "21"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "15",
-														y1: "3",
-														x2: "15",
-														y2: "21"
-													})
+													/* @__PURE__ */ jsx("path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" }),
+													/* @__PURE__ */ jsx("path", { d: "M12 17h.01" })
 												]
 											}), /* @__PURE__ */ jsx("span", {
 												style: {
@@ -5222,124 +5063,12 @@ function PostForm({ post }) {
 													fontWeight: 700,
 													marginLeft: "6px"
 												},
-												children: "EDIT SLIDER"
+												children: "EDIT FAQ"
 											})]
-										});
-										if (selectedNodeType === "faqBlock" || editor.isActive("faqBlock")) return /* @__PURE__ */ jsxs("div", {
-											style: {
-												display: "flex",
-												gap: "4px",
-												alignItems: "center"
-											},
-											children: [/* @__PURE__ */ jsxs(SovereignToolBtn, {
-												onClick: handleOpenFaqModal,
-												title: "Edit FAQ Block",
-												children: [/* @__PURE__ */ jsxs("svg", {
-													xmlns: "http://www.w3.org/2000/svg",
-													width: "24",
-													height: "24",
-													viewBox: "0 0 24 24",
-													fill: "none",
-													stroke: "currentColor",
-													strokeWidth: 2,
-													strokeLinecap: "round",
-													strokeLinejoin: "round",
-													className: "lucide",
-													style: {
-														width: "14px",
-														height: "14px"
-													},
-													children: [
-														/* @__PURE__ */ jsx("circle", {
-															cx: "12",
-															cy: "12",
-															r: "10"
-														}),
-														/* @__PURE__ */ jsx("path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" }),
-														/* @__PURE__ */ jsx("path", { d: "M12 17h.01" })
-													]
-												}), /* @__PURE__ */ jsx("span", {
-													style: {
-														fontSize: "11px",
-														fontWeight: 700,
-														marginLeft: "6px"
-													},
-													children: "EDIT FAQ"
-												})]
-											}), /* @__PURE__ */ jsxs(SovereignToolBtn, {
-												onClick: () => editor.chain().focus().deleteSelection().run(),
-												title: "Delete FAQ Block",
-												color: "#ef4444",
-												children: [/* @__PURE__ */ jsxs("svg", {
-													xmlns: "http://www.w3.org/2000/svg",
-													width: "24",
-													height: "24",
-													viewBox: "0 0 24 24",
-													fill: "none",
-													stroke: "currentColor",
-													strokeWidth: 2,
-													strokeLinecap: "round",
-													strokeLinejoin: "round",
-													className: "lucide",
-													style: {
-														width: "14px",
-														height: "14px"
-													},
-													children: [
-														/* @__PURE__ */ jsx("path", { d: "M3 6h18" }),
-														/* @__PURE__ */ jsx("path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" }),
-														/* @__PURE__ */ jsx("path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" })
-													]
-												}), /* @__PURE__ */ jsx("span", {
-													style: {
-														fontSize: "11px",
-														fontWeight: 700,
-														marginLeft: "6px",
-														color: "#ef4444"
-													},
-													children: "DELETE"
-												})]
-											})]
-										});
-										if (selectedNodeType === "quizBlock" || editor.isActive("quizBlock")) return /* @__PURE__ */ jsxs(SovereignToolBtn, {
-											onClick: handleOpenQuizModal,
-											title: "Edit Quiz Block",
-											children: [/* @__PURE__ */ jsx("span", {
-												style: {
-													fontSize: "14px",
-													lineHeight: 1
-												},
-												children: "🧩"
-											}), /* @__PURE__ */ jsx("span", {
-												style: {
-													fontSize: "11px",
-													fontWeight: 700,
-													marginLeft: "6px"
-												},
-												children: "EDIT QUIZ"
-											})]
-										});
-										if (selectedNodeType === "pollBlock" || editor.isActive("pollBlock")) return /* @__PURE__ */ jsxs(SovereignToolBtn, {
-											onClick: handleOpenPollModal,
-											title: "Edit Poll Block",
-											children: [/* @__PURE__ */ jsx("span", {
-												style: {
-													fontSize: "14px",
-													lineHeight: 1
-												},
-												children: "📊"
-											}), /* @__PURE__ */ jsx("span", {
-												style: {
-													fontSize: "11px",
-													fontWeight: 700,
-													marginLeft: "6px"
-												},
-												children: "EDIT POLL"
-											})]
-										});
-										return /* @__PURE__ */ jsxs(SovereignToolBtn, {
-											onClick: handleOpenImageModal,
-											title: "Image Settings",
+										}), /* @__PURE__ */ jsxs(SovereignToolBtn, {
+											onClick: () => editor.chain().focus().deleteSelection().run(),
+											title: "Delete FAQ Block",
+											color: "#ef4444",
 											children: [/* @__PURE__ */ jsxs("svg", {
 												xmlns: "http://www.w3.org/2000/svg",
 												width: "24",
@@ -5355,28 +5084,96 @@ function PostForm({ post }) {
 													width: "14px",
 													height: "14px"
 												},
-												children: [/* @__PURE__ */ jsx("path", { d: "M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" }), /* @__PURE__ */ jsx("circle", {
-													cx: "12",
-													cy: "12",
-													r: "3"
-												})]
+												children: [
+													/* @__PURE__ */ jsx("path", { d: "M3 6h18" }),
+													/* @__PURE__ */ jsx("path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" }),
+													/* @__PURE__ */ jsx("path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" })
+												]
 											}), /* @__PURE__ */ jsx("span", {
 												style: {
 													fontSize: "11px",
 													fontWeight: 700,
-													marginLeft: "6px"
+													marginLeft: "6px",
+													color: "#ef4444"
 												},
-												children: "ALT TEXT"
+												children: "DELETE"
 											})]
-										});
-									})()
-								})
-							}),
-							/* @__PURE__ */ jsx(EditorContent, {
-								editor,
-								className: "tiptap-content"
+										})]
+									});
+									if (selectedNodeType === "quizBlock" || editor.isActive("quizBlock")) return /* @__PURE__ */ jsxs(SovereignToolBtn, {
+										onClick: handleOpenQuizModal,
+										title: "Edit Quiz Block",
+										children: [/* @__PURE__ */ jsx("span", {
+											style: {
+												fontSize: "14px",
+												lineHeight: 1
+											},
+											children: "🧩"
+										}), /* @__PURE__ */ jsx("span", {
+											style: {
+												fontSize: "11px",
+												fontWeight: 700,
+												marginLeft: "6px"
+											},
+											children: "EDIT QUIZ"
+										})]
+									});
+									if (selectedNodeType === "pollBlock" || editor.isActive("pollBlock")) return /* @__PURE__ */ jsxs(SovereignToolBtn, {
+										onClick: handleOpenPollModal,
+										title: "Edit Poll Block",
+										children: [/* @__PURE__ */ jsx("span", {
+											style: {
+												fontSize: "14px",
+												lineHeight: 1
+											},
+											children: "📊"
+										}), /* @__PURE__ */ jsx("span", {
+											style: {
+												fontSize: "11px",
+												fontWeight: 700,
+												marginLeft: "6px"
+											},
+											children: "EDIT POLL"
+										})]
+									});
+									return /* @__PURE__ */ jsxs(SovereignToolBtn, {
+										onClick: handleOpenImageModal,
+										title: "Image Settings",
+										children: [/* @__PURE__ */ jsxs("svg", {
+											xmlns: "http://www.w3.org/2000/svg",
+											width: "24",
+											height: "24",
+											viewBox: "0 0 24 24",
+											fill: "none",
+											stroke: "currentColor",
+											strokeWidth: 2,
+											strokeLinecap: "round",
+											strokeLinejoin: "round",
+											className: "lucide",
+											style: {
+												width: "14px",
+												height: "14px"
+											},
+											children: [/* @__PURE__ */ jsx("path", { d: "M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" }), /* @__PURE__ */ jsx("circle", {
+												cx: "12",
+												cy: "12",
+												r: "3"
+											})]
+										}), /* @__PURE__ */ jsx("span", {
+											style: {
+												fontSize: "11px",
+												fontWeight: 700,
+												marginLeft: "6px"
+											},
+											children: "ALT TEXT"
+										})]
+									});
+								})()
 							})
-						]
+						}), /* @__PURE__ */ jsx(EditorContent, {
+							editor,
+							className: "tiptap-content"
+						})]
 					})]
 				}), /* @__PURE__ */ jsxs("aside", {
 					style: {
@@ -7694,21 +7491,17 @@ function PostForm({ post }) {
 												},
 												style: metaInputStyle,
 												children: [
-													/* @__PURE__ */ jsxs("option", {
-														value: "direct",
-														children: [
-															"⚡ Direct Root (domain.com/",
-															slug || "post-slug",
-															")"
-														]
-													}),
 													/* @__PURE__ */ jsx("option", {
 														value: "blog",
-														children: "📝 Blog Section (/blog)"
+														children: "Blog (/blog)"
 													}),
 													/* @__PURE__ */ jsx("option", {
 														value: "news",
-														children: "📰 News Section (/news)"
+														children: "News (/news)"
+													}),
+													/* @__PURE__ */ jsx("option", {
+														value: "direct",
+														children: "Direct (No Prefix /slug)"
 													}),
 													availablePages?.filter((p) => p.slug !== "blog" && p.slug !== "news").map((p) => /* @__PURE__ */ jsxs("option", {
 														value: p.slug,
@@ -9994,7 +9787,7 @@ function PostForm({ post }) {
 				children: /* @__PURE__ */ jsxs("div", {
 					style: {
 						...modalContentStyle,
-						maxWidth: "520px"
+						maxWidth: "500px"
 					},
 					children: [
 						/* @__PURE__ */ jsxs("div", {
@@ -10008,13 +9801,17 @@ function PostForm({ post }) {
 								children: [/* @__PURE__ */ jsx("span", {
 									style: { fontSize: "24px" },
 									children: "🚀"
-								}), /* @__PURE__ */ jsx("h2", {
+								}), /* @__PURE__ */ jsxs("h2", {
 									style: {
 										fontSize: "16px",
 										fontWeight: 700,
 										margin: 0
 									},
-									children: "Deploy & Publish Post"
+									children: [
+										"Deploy Step ",
+										deployStep,
+										" of 2"
+									]
 								})]
 							}), /* @__PURE__ */ jsx("button", {
 								onClick: () => {
@@ -10054,296 +9851,240 @@ function PostForm({ post }) {
 						/* @__PURE__ */ jsxs("div", {
 							style: {
 								padding: "24px",
-								overflowY: "auto",
-								display: "flex",
-								flexDirection: "column",
-								gap: "18px"
+								overflowY: "auto"
 							},
-							children: [
-								/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("label", {
+							children: [deployStep === 1 && /* @__PURE__ */ jsxs("div", {
+								style: {
+									display: "flex",
+									flexDirection: "column",
+									gap: "16px",
+									marginBottom: "8px"
+								},
+								children: [/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("h3", {
 									style: {
-										fontSize: "11.5px",
-										fontWeight: 800,
-										color: "#334155",
-										textTransform: "uppercase",
-										letterSpacing: "0.5px",
-										marginBottom: "8px",
-										display: "block"
+										margin: "0 0 4px 0",
+										fontSize: "14px",
+										fontWeight: 700,
+										color: "#0f172a"
 									},
-									children: "Choose Publish URL Type"
-								}), /* @__PURE__ */ jsxs("div", {
+									children: "Page Context & Schema"
+								}), /* @__PURE__ */ jsx("p", {
+									style: {
+										fontSize: "12px",
+										color: "#64748b",
+										margin: "0 0 12px 0"
+									},
+									children: "Define the semantic structure of this page before deploying."
+								})] }), /* @__PURE__ */ jsxs("div", {
 									style: {
 										display: "flex",
 										flexDirection: "column",
 										gap: "8px"
 									},
 									children: [
-										/* @__PURE__ */ jsxs("div", {
-											onClick: () => {
-												setSelectedBasePage("direct");
-												setUrlFormat("{slug}");
-											},
-											style: {
-												display: "flex",
-												alignItems: "center",
-												justifyContent: "space-between",
-												padding: "12px 14px",
-												borderRadius: "10px",
-												border: selectedBasePage === "direct" ? "2px solid #10b981" : "1px solid #e2e8f0",
-												background: selectedBasePage === "direct" ? "#ecfdf5" : "#ffffff",
-												cursor: "pointer",
-												transition: "all 0.15s ease"
-											},
-											children: [/* @__PURE__ */ jsxs("div", {
-												style: {
-													display: "flex",
-													alignItems: "center",
-													gap: "10px"
-												},
-												children: [/* @__PURE__ */ jsx("div", {
-													style: {
-														width: "28px",
-														height: "28px",
-														borderRadius: "6px",
-														background: selectedBasePage === "direct" ? "#d1fae5" : "#f1f5f9",
-														display: "flex",
-														alignItems: "center",
-														justifyContent: "center",
-														color: selectedBasePage === "direct" ? "#047857" : "#64748b",
-														fontSize: "14px",
-														fontWeight: 800
-													},
-													children: "⚡"
-												}), /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("div", {
-													style: {
-														fontSize: "13px",
-														fontWeight: 800,
-														color: selectedBasePage === "direct" ? "#065f46" : "#1e293b"
-													},
-													children: "Direct Root URL (Recommended)"
-												}), /* @__PURE__ */ jsxs("div", {
-													style: {
-														fontSize: "11px",
-														color: "#64748b"
-													},
-													children: ["coachingsinsikar.com/", slug || "post-slug"]
-												})] })]
-											}), /* @__PURE__ */ jsx("input", {
-												type: "radio",
-												checked: selectedBasePage === "direct",
-												onChange: () => {},
-												style: {
-													accentColor: "#10b981",
-													width: "16px",
-													height: "16px",
-													cursor: "pointer"
-												}
-											})]
+										/* @__PURE__ */ jsx("label", {
+											style: metaLabelStyle,
+											children: "SCHEMA TYPE (SIGMA)"
 										}),
-										/* @__PURE__ */ jsxs("div", {
-											onClick: () => {
-												setSelectedBasePage("blog");
-												setUrlFormat("blog/{slug}");
-											},
-											style: {
-												display: "flex",
-												alignItems: "center",
-												justifyContent: "space-between",
-												padding: "12px 14px",
-												borderRadius: "10px",
-												border: selectedBasePage === "blog" ? "2px solid #2563eb" : "1px solid #e2e8f0",
-												background: selectedBasePage === "blog" ? "#eff6ff" : "#ffffff",
-												cursor: "pointer",
-												transition: "all 0.15s ease"
-											},
-											children: [/* @__PURE__ */ jsxs("div", {
-												style: {
-													display: "flex",
-													alignItems: "center",
-													gap: "10px"
-												},
-												children: [/* @__PURE__ */ jsx("div", {
-													style: {
-														width: "28px",
-														height: "28px",
-														borderRadius: "6px",
-														background: selectedBasePage === "blog" ? "#dbeafe" : "#f1f5f9",
-														display: "flex",
-														alignItems: "center",
-														justifyContent: "center",
-														color: selectedBasePage === "blog" ? "#1d4ed8" : "#64748b",
-														fontSize: "14px",
-														fontWeight: 800
-													},
-													children: "📝"
-												}), /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("div", {
-													style: {
-														fontSize: "13px",
-														fontWeight: 800,
-														color: selectedBasePage === "blog" ? "#1e40af" : "#1e293b"
-													},
-													children: "Blog Section (/blog)"
-												}), /* @__PURE__ */ jsxs("div", {
-													style: {
-														fontSize: "11px",
-														color: "#64748b"
-													},
-													children: ["coachingsinsikar.com/blog/", slug || "post-slug"]
-												})] })]
-											}), /* @__PURE__ */ jsx("input", {
-												type: "radio",
-												checked: selectedBasePage === "blog",
-												onChange: () => {},
-												style: {
-													accentColor: "#2563eb",
-													width: "16px",
-													height: "16px",
-													cursor: "pointer"
-												}
-											})]
+										/* @__PURE__ */ jsxs("select", {
+											value: schemaType,
+											onChange: (e) => setSchemaType(e.target.value),
+											style: metaInputStyle,
+											children: [
+												/* @__PURE__ */ jsx("option", {
+													value: "Article",
+													children: "Article (Standard)"
+												}),
+												/* @__PURE__ */ jsx("option", {
+													value: "NewsArticle",
+													children: "News Article"
+												}),
+												/* @__PURE__ */ jsx("option", {
+													value: "BlogPosting",
+													children: "Blog Post"
+												}),
+												/* @__PURE__ */ jsx("option", {
+													value: "EducationalArticle",
+													children: "Educational/Course Article"
+												}),
+												/* @__PURE__ */ jsx("option", {
+													value: "Report",
+													children: "Report / Whitepaper"
+												}),
+												/* @__PURE__ */ jsx("option", {
+													value: "WebPage",
+													children: "Static Web Page"
+												}),
+												/* @__PURE__ */ jsx("option", {
+													value: "FAQPage",
+													children: "FAQ Page"
+												})
+											]
 										}),
-										/* @__PURE__ */ jsxs("div", {
-											onClick: () => {
-												setSelectedBasePage("news");
-												setUrlFormat("news/{slug}");
-											},
+										/* @__PURE__ */ jsx("p", {
 											style: {
-												display: "flex",
-												alignItems: "center",
-												justifyContent: "space-between",
-												padding: "12px 14px",
-												borderRadius: "10px",
-												border: selectedBasePage === "news" ? "2px solid #8b5cf6" : "1px solid #e2e8f0",
-												background: selectedBasePage === "news" ? "#f5f3ff" : "#ffffff",
-												cursor: "pointer",
-												transition: "all 0.15s ease"
+												fontSize: "12px",
+												color: "#64748b",
+												margin: "4px 0 0 0"
 											},
-											children: [/* @__PURE__ */ jsxs("div", {
-												style: {
-													display: "flex",
-													alignItems: "center",
-													gap: "10px"
-												},
-												children: [/* @__PURE__ */ jsx("div", {
-													style: {
-														width: "28px",
-														height: "28px",
-														borderRadius: "6px",
-														background: selectedBasePage === "news" ? "#ede9fe" : "#f1f5f9",
-														display: "flex",
-														alignItems: "center",
-														justifyContent: "center",
-														color: selectedBasePage === "news" ? "#6d28d9" : "#64748b",
-														fontSize: "14px",
-														fontWeight: 800
-													},
-													children: "📰"
-												}), /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("div", {
-													style: {
-														fontSize: "13px",
-														fontWeight: 800,
-														color: selectedBasePage === "news" ? "#5b21b6" : "#1e293b"
-													},
-													children: "News Section (/news)"
-												}), /* @__PURE__ */ jsxs("div", {
-													style: {
-														fontSize: "11px",
-														color: "#64748b"
-													},
-													children: ["coachingsinsikar.com/news/", slug || "post-slug"]
-												})] })]
-											}), /* @__PURE__ */ jsx("input", {
-												type: "radio",
-												checked: selectedBasePage === "news",
-												onChange: () => {},
-												style: {
-													accentColor: "#8b5cf6",
-													width: "16px",
-													height: "16px",
-													cursor: "pointer"
-												}
-											})]
+											children: "Select the correct schema to ensure rich snippets in Google Search."
 										})
 									]
-								})] }),
-								/* @__PURE__ */ jsxs("div", {
+								})]
+							}), deployStep === 2 && /* @__PURE__ */ jsxs("div", {
+								style: {
+									display: "flex",
+									flexDirection: "column",
+									gap: "16px",
+									marginBottom: "8px"
+								},
+								children: [/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("h3", {
 									style: {
-										background: selectedBasePage === "direct" ? "#f0fdf4" : "#eff6ff",
-										border: "1px solid " + (selectedBasePage === "direct" ? "#bbf7d0" : "#bfdbfe"),
-										padding: "10px 14px",
-										borderRadius: "10px",
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "space-between",
-										fontSize: "12px"
+										margin: "0 0 4px 0",
+										fontSize: "14px",
+										fontWeight: 700,
+										color: "#0f172a"
 									},
-									children: [/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("span", {
-										style: {
-											color: "#64748b",
-											fontWeight: 600
-										},
-										children: "Target URL: "
-									}), /* @__PURE__ */ jsxs("strong", {
-										style: { color: selectedBasePage === "direct" ? "#047857" : "#1d4ed8" },
-										children: ["/", selectedBasePage === "direct" ? slug || "post-slug" : `${selectedBasePage}/${slug || "post-slug"}`]
-									})] }), /* @__PURE__ */ jsx("a", {
-										href: selectedBasePage === "direct" ? `/${slug || "article-name"}` : `/${selectedBasePage}/${slug || "article-name"}`,
-										target: "_blank",
-										rel: "noopener noreferrer",
-										style: {
-											color: selectedBasePage === "direct" ? "#047857" : "#1d4ed8",
-											fontWeight: 800,
-											textDecoration: "none"
-										},
-										children: "Preview ↗"
-									})]
-								}),
-								/* @__PURE__ */ jsxs("div", {
+									children: "URL Structure"
+								}), /* @__PURE__ */ jsx("p", {
+									style: {
+										fontSize: "12px",
+										color: "#64748b",
+										margin: "0 0 12px 0"
+									},
+									children: "Where should this post be published?"
+								})] }), /* @__PURE__ */ jsxs("div", {
 									style: {
 										display: "flex",
 										flexDirection: "column",
-										gap: "6px"
+										gap: "16px"
 									},
-									children: [/* @__PURE__ */ jsx("label", {
-										style: metaLabelStyle,
-										children: "SCHEMA TYPE"
-									}), /* @__PURE__ */ jsxs("select", {
-										value: schemaType,
-										onChange: (e) => setSchemaType(e.target.value),
-										style: metaInputStyle,
+									children: [/* @__PURE__ */ jsxs("div", {
+										style: {
+											display: "flex",
+											flexDirection: "column",
+											gap: "8px"
+										},
 										children: [
-											/* @__PURE__ */ jsx("option", {
-												value: "Article",
-												children: "Article (Standard)"
+											/* @__PURE__ */ jsx("label", {
+												style: metaLabelStyle,
+												children: "BASE PAGE"
 											}),
-											/* @__PURE__ */ jsx("option", {
-												value: "NewsArticle",
-												children: "News Article"
+											/* @__PURE__ */ jsxs("select", {
+												value: selectedBasePage,
+												onChange: (e) => {
+													const newBase = e.target.value;
+													setSelectedBasePage(newBase);
+													if (newBase === "direct") setUrlFormat("{slug}");
+													else setUrlFormat(`${newBase}/{slug}`);
+												},
+												style: metaInputStyle,
+												children: [
+													/* @__PURE__ */ jsx("option", {
+														value: "blog",
+														children: "Blog (/blog)"
+													}),
+													/* @__PURE__ */ jsx("option", {
+														value: "news",
+														children: "News (/news)"
+													}),
+													/* @__PURE__ */ jsx("option", {
+														value: "direct",
+														children: "Direct (No Base Page)"
+													}),
+													availablePages?.filter((p) => p.slug !== "blog" && p.slug !== "news").map((p) => /* @__PURE__ */ jsxs("option", {
+														value: p.slug,
+														children: [
+															p.title,
+															" (/",
+															p.slug,
+															")"
+														]
+													}, p.id || p.slug))
+												]
 											}),
-											/* @__PURE__ */ jsx("option", {
-												value: "BlogPosting",
-												children: "Blog Post"
+											/* @__PURE__ */ jsxs("a", {
+												href: selectedBasePage === "direct" ? `/${slug || "article-name"}` : `/${selectedBasePage}/${slug || "article-name"}`,
+												target: "_blank",
+												rel: "noopener noreferrer",
+												style: {
+													fontSize: "11px",
+													color: "#1e40af",
+													background: "#eff6ff",
+													padding: "6px 10px",
+													borderRadius: "6px",
+													border: "1px solid #bfdbfe",
+													marginTop: "6px",
+													wordBreak: "break-all",
+													display: "flex",
+													alignItems: "center",
+													justifyContent: "space-between",
+													textDecoration: "none"
+												},
+												title: "Preview target URL in new tab",
+												children: [/* @__PURE__ */ jsxs("span", { children: [
+													/* @__PURE__ */ jsx("strong", { children: "Target URL:" }),
+													" /",
+													selectedBasePage === "direct" ? slug || "article-name" : `${selectedBasePage}/${slug || "article-name"}`
+												] }), /* @__PURE__ */ jsx("span", {
+													style: {
+														fontWeight: 800,
+														color: "#2563eb",
+														marginLeft: "6px"
+													},
+													children: "Open ↗"
+												})]
+											})
+										]
+									}), /* @__PURE__ */ jsxs("div", {
+										style: {
+											display: "flex",
+											flexDirection: "column",
+											gap: "8px"
+										},
+										children: [
+											/* @__PURE__ */ jsx("label", {
+												style: metaLabelStyle,
+												children: "URL FORMAT"
 											}),
-											/* @__PURE__ */ jsx("option", {
-												value: "EducationalArticle",
-												children: "Educational/Course Article"
+											/* @__PURE__ */ jsx("select", {
+												value: urlFormat,
+												onChange: (e) => setUrlFormat(e.target.value),
+												style: metaInputStyle,
+												children: selectedBasePage === "direct" ? /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx("option", {
+													value: "{slug}",
+													children: "domain.com/article-name"
+												}), /* @__PURE__ */ jsx("option", {
+													value: "{category}/{slug}",
+													children: "domain.com/category/article-name"
+												})] }) : /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsxs("option", {
+													value: `${selectedBasePage}/{slug}`,
+													children: [
+														"domain.com/",
+														selectedBasePage,
+														"/article-name"
+													]
+												}), /* @__PURE__ */ jsxs("option", {
+													value: `${selectedBasePage}/{category}/{slug}`,
+													children: [
+														"domain.com/",
+														selectedBasePage,
+														"/category/article-name"
+													]
+												})] })
 											}),
-											/* @__PURE__ */ jsx("option", {
-												value: "Report",
-												children: "Report / Whitepaper"
-											}),
-											/* @__PURE__ */ jsx("option", {
-												value: "WebPage",
-												children: "Static Web Page"
-											}),
-											/* @__PURE__ */ jsx("option", {
-												value: "FAQPage",
-												children: "FAQ Page"
+											/* @__PURE__ */ jsx("p", {
+												style: {
+													fontSize: "12px",
+													color: "#64748b",
+													margin: "4px 0 0 0"
+												},
+												children: "Choose the URL structure for this post before publishing."
 											})
 										]
 									})]
-								})
-							]
+								})]
+							})]
 						}),
 						/* @__PURE__ */ jsxs("div", {
 							style: {
@@ -10371,23 +10112,36 @@ function PostForm({ post }) {
 									cursor: "pointer"
 								},
 								children: "Cancel"
-							}), /* @__PURE__ */ jsx("button", {
-								onClick: () => {
-									setDeployModalOpen(false);
-									handleSave(true, false, selectedBasePage);
-								},
-								disabled: isPending,
+							}), deployStep === 1 ? /* @__PURE__ */ jsx("button", {
+								onClick: () => setDeployStep(2),
 								style: {
-									background: selectedBasePage === "direct" ? "linear-gradient(135deg, #059669, #047857)" : "linear-gradient(135deg, #2563eb, #1d4ed8)",
+									background: "#2563eb",
 									color: "#fff",
 									border: "none",
 									padding: "10px 24px",
 									borderRadius: "10px",
-									fontWeight: 800,
-									cursor: "pointer",
-									boxShadow: selectedBasePage === "direct" ? "0 4px 12px rgba(5, 150, 105, 0.35)" : "0 4px 12px rgba(37, 99, 235, 0.3)"
+									fontWeight: 700,
+									cursor: "pointer"
 								},
-								children: isPending ? "Publishing..." : selectedBasePage === "direct" ? "⚡ Publish Direct Now" : "Publish Post Now 🚀"
+								children: "Next Step →"
+							}) : /* @__PURE__ */ jsx("button", {
+								onClick: () => {
+									setDeployModalOpen(false);
+									setDeployStep(1);
+									handleSave(true, false);
+								},
+								disabled: isPending,
+								style: {
+									background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+									color: "#fff",
+									border: "none",
+									padding: "10px 24px",
+									borderRadius: "10px",
+									fontWeight: 700,
+									cursor: "pointer",
+									boxShadow: "0 4px 12px rgba(37, 99, 235, 0.3)"
+								},
+								children: isPending ? "Publishing..." : "Publish Now"
 							})]
 						})
 					]
