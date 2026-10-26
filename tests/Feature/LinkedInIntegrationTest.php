@@ -375,4 +375,47 @@ class LinkedInIntegrationTest extends TestCase
             'post_as' => 'organization',
         ]);
     }
+
+    public function test_publish_post_falls_back_to_person_if_organization_author_rejected()
+    {
+        Http::fake([
+            'https://api.linkedin.com/v2/ugcPosts' => function ($request) {
+                $body = $request->data();
+                if ($body['author'] === 'urn:li:organization:invalid_org_123') {
+                    return Http::response([
+                        'message' => 'Field Value validation failed in REQUEST_BODY: Data Processing Exception while processing fields [/author]'
+                    ], 400);
+                }
+                if ($body['author'] === 'urn:li:person:fallback_member_456') {
+                    return Http::response([
+                        'id' => 'urn:li:share:fallback_success_789',
+                    ], 201);
+                }
+                return Http::response(['message' => 'Unexpected author URN'], 400);
+            },
+        ]);
+
+        $account = LinkedInAccount::create([
+            'linkedin_person_id' => 'urn:li:person:fallback_member_456',
+            'organization_id' => 'urn:li:organization:invalid_org_123',
+            'organization_name' => 'Coachings in Sikar',
+            'post_as' => 'organization',
+            'name' => 'Test Member',
+            'access_token' => 'mock_token_fallback',
+            'is_active' => true,
+        ]);
+
+        $publishService = app(LinkedInPublishService::class);
+        $result = $publishService->publishPost(
+            $account,
+            'Educational insights with automatic member fallback.',
+            null,
+            'https://coachingsinsikar.com/blog/sample',
+            'Test Fallback'
+        );
+
+        $this->assertTrue($result['success']);
+        $this->assertEquals('urn:li:share:fallback_success_789', $result['share_urn']);
+        $this->assertEquals('person_fallback', $result['published_as']);
+    }
 }

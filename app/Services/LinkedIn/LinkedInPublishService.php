@@ -13,9 +13,9 @@ class LinkedInPublishService
     /**
      * Register a media asset for upload on LinkedIn.
      */
-    public function registerImageUpload(LinkedInAccount $account): array
+    public function registerImageUpload(LinkedInAccount $account, ?string $overrideAuthor = null): array
     {
-        $author = $account->effective_author_urn;
+        $author = $overrideAuthor ?: $account->effective_author_urn;
 
         $response = Http::withToken($account->access_token)
             ->timeout(20)
@@ -179,7 +179,77 @@ class LinkedInPublishService
 
         if (!$response->successful()) {
             $err = $response->json('message') ?: $response->body();
+
+            // If organization author was rejected (e.g. no Community Management API or member not admin),
+            // and we have a valid personal account, automatically retry as the connected member profile
+            $canFallbackToPerson = str_starts_with($author, 'urn:li:organization:')
+                && !empty($account->linkedin_person_id)
+                && !str_contains($account->linkedin_person_id, 'pending_')
+                && (str_contains($err, '[/author]') || str_contains($err, 'permissions') || str_contains($err, 'ACCESS_DENIED'));
+
+            if ($canFallbackToPerson) {
+                $personAuthor = $account->linkedin_person_id;
+                Log::warning("Posting as organization ({$author}) rejected by LinkedIn ({$err}). Automatically retrying as connected member ({$personAuthor})...");
+
+                // If image upload had failed because owner was organization, retry image upload with personAuthor
+                $retryShareContent = $shareContent;
+                if (!$assetUrn && !empty($imageUrl)) {
+                    try {
+                        $pMeta = $this->registerImageUpload($account, $personAuthor);
+                        if ($this->uploadImageBinary($pMeta['upload_url'], $imageUrl)) {
+                            $retryShareContent['shareMediaCategory'] = 'IMAGE';
+                            $retryShareContent['media'] = [
+                                [
+                                    'status' => 'READY',
+                                    'description' => ['text' => $title ?: Str::limit($commentary, 100)],
+                                    'media' => $pMeta['asset'],
+                                    'title' => ['text' => $title ?: 'Coachings in Sikar Update'],
+                                ],
+                            ];
+                        }
+                    } catch (\Throwable $ex) {}
+                }
+
+                $retryPayload = [
+                    'author' => $personAuthor,
+                    'lifecycleState' => 'PUBLISHED',
+                    'specificContent' => [
+                        'com.linkedin.ugc.ShareContent' => $retryShareContent,
+                    ],
+                    'visibility' => [
+                        'com.linkedin.ugc.MemberNetworkVisibility' => 'PUBLIC',
+                    ],
+                ];
+
+                $retryResponse = Http::withToken($account->access_token)
+                    ->timeout(25)
+                    ->withHeaders([
+                        'X-Restli-Protocol-Version' => '2.0.0',
+                        'Content-Type' => 'application/json',
+                    ])
+                    ->post('https://api.linkedin.com/v2/ugcPosts', $retryPayload);
+
+                if ($retryResponse->successful()) {
+                    $shareId = $retryResponse->json('id');
+                    $permalink = $shareId ? "https://www.linkedin.com/feed/update/{$shareId}/" : "https://www.linkedin.com/feed/";
+                    return [
+                        'success' => true,
+                        'share_urn' => $shareId,
+                        'permalink' => $permalink,
+                        'media_category' => $retryShareContent['shareMediaCategory'],
+                        'published_as' => 'person_fallback',
+                    ];
+                }
+
+                $err = $retryResponse->json('message') ?: $retryResponse->body();
+            }
+
             Log::error('LinkedIn UGC Post failed: ' . $err);
+
+            if (str_contains($err, '[/author]')) {
+                throw new Exception("LinkedIn rejected author ({$author}). Company page par post karne ke liye aapka account us page ka Admin hona chahiye aur LinkedIn Developer App me 'Community Management API' approved hona chahiye. Turant post karne ke liye LinkedIn Page Settings me 'Post As' ko 'Personal Profile' chunein.");
+            }
+
             throw new Exception("LinkedIn publishing failed: " . $err);
         }
 
