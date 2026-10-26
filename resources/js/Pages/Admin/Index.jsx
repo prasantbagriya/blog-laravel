@@ -421,6 +421,29 @@ export default function AdminPage() {
                   <polyline points="9 18 15 12 9 6"/>
                 </svg>
               </Link>
+
+              <Link
+                href={`${BASE}/admin/bing`}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '0.625rem 1.125rem',
+                  borderRadius: '10px',
+                  background: '#0284c7',
+                  color: '#fff',
+                  fontSize: '0.8125rem',
+                  fontWeight: 700,
+                  textDecoration: 'none',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 4px 12px rgba(2, 132, 199, 0.4)'
+                }}
+              >
+                <span>Bing Webmaster Hub</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </Link>
             </div>
           </div>
           

@@ -29,6 +29,10 @@ class XCaptionGeneratorService
             $cleanUrl = $canonicalBase . '/' . $path;
         }
 
+        if (!str_contains($cleanUrl, 'utm_source=')) {
+            $cleanUrl .= (str_contains($cleanUrl, '?') ? '&' : '?') . 'utm_source=twitter&utm_medium=social&utm_campaign=tweet';
+        }
+
         // 1. Generate targeted hashtags
         $hashtags = $this->generateHashtags($post);
         $hashtagString = !empty($hashtags) ? implode(' ', array_slice($hashtags, 0, 3)) : '#Sikar #Education';

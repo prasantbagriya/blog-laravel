@@ -118,7 +118,7 @@ class SocialAutoDraftService
                     'post_id' => (string) $post->id,
                     'instagram_account_id' => $account?->id,
                     'caption' => $draft['caption'] ?? $post->title,
-                    'image_url' => $post->coverImage ?: $post->metaImage,
+                    'image_url' => $post->coverImage ?: ($post->metaImage ?: ''),
                     'status' => 'pending_approval',
                 ]);
                 $results['instagram'] = true;

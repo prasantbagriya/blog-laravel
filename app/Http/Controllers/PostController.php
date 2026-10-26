@@ -99,6 +99,15 @@ class PostController extends Controller
             'is_live_discussion' => $request->boolean('is_live_discussion', false),
         ]);
 
+        \Illuminate\Support\Facades\DB::table('votes')->insert([
+            'user_id' => auth()->id(),
+            'votable_type' => Post::class,
+            'votable_id' => $post->id,
+            'value' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
         $community = Community::find($validated['community_id']);
 
         return redirect()->route('community.show', $community->name);

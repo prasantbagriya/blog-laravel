@@ -84,3 +84,5 @@ interface Window {
   BASE_PATH?: string;
 }
 
+declare module "*.css";
+

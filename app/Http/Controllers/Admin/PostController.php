@@ -198,6 +198,17 @@ class PostController extends Controller
                         app(\App\Services\Google\GoogleIndexingService::class)->publishUrl($postUrl, 'URL_UPDATED', 'auto_post_publish');
                     }
                 } catch (\Throwable $ignore) {}
+
+                // Auto-ping Bing Webmaster & IndexNow if post is published
+                try {
+                    $bingSettings = \App\Models\BingWebmasterSetting::current();
+                    if ($bingSettings->auto_index_posts) {
+                        $siteBase = rtrim(config('services.bing.site_url', 'https://coachingsinsikar.com'), '/');
+                        $postUrl = $siteBase . '/' . ltrim($post->url_path, '/');
+                        app(\App\Services\Bing\BingWebmasterService::class)->submitUrl($postUrl);
+                        app(\App\Services\Bing\BingWebmasterService::class)->submitIndexNow([$postUrl]);
+                    }
+                } catch (\Throwable $ignore) {}
             }
 
             // Auto-generate pending social post drafts (LinkedIn, Pinterest, Facebook, Instagram, X)

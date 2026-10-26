@@ -69,6 +69,13 @@ class VoteController extends Controller
             }
         });
 
+        if ($request->expectsJson() && ! $request->header('X-Inertia')) {
+            return response()->json([
+                'success' => true,
+                'score' => $model->fresh()->score,
+            ]);
+        }
+
         return back();
     }
 }

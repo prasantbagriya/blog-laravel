@@ -199,6 +199,17 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/api/admin/pagespeed/history', [\App\Http\Controllers\Admin\SearchConsoleController::class, 'getPageSpeedHistory']);
     Route::post('/api/admin/pagespeed/api-key', [\App\Http\Controllers\Admin\SearchConsoleController::class, 'savePageSpeedApiKey']);
 
+    // Microsoft Bing Webmaster Tools & IndexNow Hub
+    Route::get('/admin/bing', [\App\Http\Controllers\Admin\BingWebmasterController::class, 'index'])->name('admin.bing.index');
+    Route::get('/api/admin/bing/analytics', [\App\Http\Controllers\Admin\BingWebmasterController::class, 'getAnalytics']);
+    Route::get('/api/admin/bing/crawl-stats', [\App\Http\Controllers\Admin\BingWebmasterController::class, 'getCrawlStats']);
+    Route::post('/api/admin/bing/submit', [\App\Http\Controllers\Admin\BingWebmasterController::class, 'submitUrl']);
+    Route::post('/api/admin/bing/submit-batch', [\App\Http\Controllers\Admin\BingWebmasterController::class, 'submitBatch']);
+    Route::get('/api/admin/bing/sitemaps', [\App\Http\Controllers\Admin\BingWebmasterController::class, 'getSitemaps']);
+    Route::post('/api/admin/bing/sitemaps/submit', [\App\Http\Controllers\Admin\BingWebmasterController::class, 'submitSitemap']);
+    Route::post('/api/admin/bing/settings', [\App\Http\Controllers\Admin\BingWebmasterController::class, 'saveSettings']);
+    Route::post('/api/admin/bing/disconnect', [\App\Http\Controllers\Admin\BingWebmasterController::class, 'disconnect']);
+
     // Facebook Hub & Page Management
     Route::get('/admin/facebook', [\App\Http\Controllers\Admin\AdminFacebookController::class, 'index'])->name('admin.facebook.index');
     Route::post('/admin/facebook/default-page/{pageId}', [\App\Http\Controllers\Admin\AdminFacebookController::class, 'setDefaultPage'])->name('admin.facebook.set_default');
@@ -295,6 +306,12 @@ Route::get('/auth/linkedin', [\App\Http\Controllers\LinkedInController::class, '
 Route::match(['get', 'post'], '/auth/linkedin/callback', [\App\Http\Controllers\LinkedInController::class, 'handleCallback'])->name('linkedin.callback');
 Route::match(['get', 'post'], '/api/linkedin/callback', [\App\Http\Controllers\LinkedInController::class, 'handleCallback'])->name('linkedin.callback.api');
 
+// Bing Webmaster Tools OAuth Login & Callbacks
+Route::get('/auth/bing', [\App\Http\Controllers\Admin\BingWebmasterController::class, 'redirectToBing'])->name('login.bing');
+Route::match(['get', 'post'], '/auth/bing/callback', [\App\Http\Controllers\Admin\BingWebmasterController::class, 'handleCallback'])->name('bing.callback');
+Route::match(['get', 'post'], '/admin/bing/callback', [\App\Http\Controllers\Admin\BingWebmasterController::class, 'handleCallback'])->name('admin.bing.callback');
+Route::match(['get', 'post'], '/api/bing/callback', [\App\Http\Controllers\Admin\BingWebmasterController::class, 'handleCallback'])->name('bing.callback.api');
+
 // 🚀 ModSecurity-Safe Database & System Upgrade Runner
 $dbUpgradeRunner = function () {
     $code = request()->input('code') ?: (request()->input('pin') ?: (request()->input('key') ?: request()->input('v')));
@@ -373,7 +390,7 @@ $dbUpgradeRunner = function () {
             "<h4 style='margin:0 0 10px 0;color:#38bdf8;'>🧹 System Cache Clear Results:</h4>".
             "<pre style='margin:0;color:#cbd5e1;white-space:pre-wrap;font-family:inherit;'>".htmlspecialchars(trim($clearOutput))."</pre>".
             "</div>".
-            "<p style='margin-top:24px;'><a href='/admin' style='color:#60a5fa;text-decoration:none;font-weight:bold;'>← Return to Admin Panel</a> | <a href='/admin/google-search' style='color:#38bdf8;text-decoration:none;font-weight:bold;margin-left:12px;'>Open Search Console Hub →</a> | <a href='/admin/pagespeed' style='color:#38bdf8;text-decoration:none;font-weight:bold;margin-left:12px;'>Open PageSpeed & CWV ⚡ →</a> | <a href='/admin/facebook' style='color:#1877f2;text-decoration:none;font-weight:bold;margin-left:12px;'>Open Facebook Hub →</a> | <a href='/admin/x' style='color:#f8fafc;background:#000;border:1px solid #334155;padding:3px 8px;border-radius:6px;text-decoration:none;font-weight:bold;margin-left:12px;'>Open X Hub 𝕏 →</a> | <a href='/admin/pinterest' style='color:#fff;background:#e60023;padding:3px 8px;border-radius:6px;text-decoration:none;font-weight:bold;margin-left:12px;'>Open Pinterest Hub 📌 →</a> | <a href='/admin/instagram' style='color:#fff;background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);padding:3px 8px;border-radius:6px;text-decoration:none;font-weight:bold;margin-left:12px;'>Open Instagram Hub 📸 →</a> | <a href='/admin/linkedin' style='color:#fff;background:#0a66c2;padding:3px 8px;border-radius:6px;text-decoration:none;font-weight:bold;margin-left:12px;'>Open LinkedIn Hub 💼 →</a></p>".
+            "<p style='margin-top:24px;'><a href='/admin' style='color:#60a5fa;text-decoration:none;font-weight:bold;'>← Return to Admin Panel</a> | <a href='/admin/google-search' style='color:#38bdf8;text-decoration:none;font-weight:bold;margin-left:12px;'>Open Search Console Hub →</a> | <a href='/admin/pagespeed' style='color:#38bdf8;text-decoration:none;font-weight:bold;margin-left:12px;'>Open PageSpeed & CWV ⚡ →</a> | <a href='/admin/bing' style='color:#0ea5e9;background:#0369a120;border:1px solid #0284c7;padding:3px 8px;border-radius:6px;text-decoration:none;font-weight:bold;margin-left:12px;'>Open Bing Webmaster 🌐 →</a> | <a href='/admin/facebook' style='color:#1877f2;text-decoration:none;font-weight:bold;margin-left:12px;'>Open Facebook Hub →</a> | <a href='/admin/x' style='color:#f8fafc;background:#000;border:1px solid #334155;padding:3px 8px;border-radius:6px;text-decoration:none;font-weight:bold;margin-left:12px;'>Open X Hub 𝕏 →</a> | <a href='/admin/pinterest' style='color:#fff;background:#e60023;padding:3px 8px;border-radius:6px;text-decoration:none;font-weight:bold;margin-left:12px;'>Open Pinterest Hub 📌 →</a> | <a href='/admin/instagram' style='color:#fff;background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);padding:3px 8px;border-radius:6px;text-decoration:none;font-weight:bold;margin-left:12px;'>Open Instagram Hub 📸 →</a> | <a href='/admin/linkedin' style='color:#fff;background:#0a66c2;padding:3px 8px;border-radius:6px;text-decoration:none;font-weight:bold;margin-left:12px;'>Open LinkedIn Hub 💼 →</a></p>".
             "</body></html>", 200, ['Content-Type' => 'text/html; charset=UTF-8']);
     } catch (\Throwable $e) {
         return response("<!DOCTYPE html><html><head><title>Upgrade Error</title></head><body style='margin:0;background:#180606;color:#f8fafc;padding:32px;font-family:ui-monospace,Menlo,monospace;'>".

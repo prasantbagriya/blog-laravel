@@ -49,6 +49,14 @@ return [
         'pagespeed_api_key' => env('PAGESPEED_API_KEY', env('GOOGLE_API_KEY')),
     ],
 
+    'bing' => [
+        'client_id' => env('BING_CLIENT_ID'),
+        'client_secret' => env('BING_CLIENT_SECRET'),
+        'redirect_uri' => env('BING_REDIRECT_URI', 'https://coachingsinsikar.com/auth/bing/callback'),
+        'site_url' => env('BING_SITE_URL', 'https://coachingsinsikar.com/'),
+        'api_key' => env('BING_API_KEY'),
+    ],
+
     'facebook' => [
         'client_id' => env('FACEBOOK_APP_ID') ?: env('FACEBOOK_CLIENT_ID'),
         'client_secret' => env('FACEBOOK_APP_SECRET') ?: env('FACEBOOK_CLIENT_SECRET'),

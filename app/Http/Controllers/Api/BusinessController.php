@@ -291,6 +291,17 @@ class BusinessController extends Controller
                 }
             } catch (\Throwable $ignore) {}
 
+            try {
+                $bingSettings = \App\Models\BingWebmasterSetting::current();
+                if ($bingSettings->auto_index_posts) {
+                    $siteBase = rtrim(config('services.bing.site_url', 'https://coachingsinsikar.com'), '/');
+                    $cat = $business->category ?: 'coaching-institutes';
+                    $bizUrl = $siteBase . '/business/' . $cat . '/' . ($business->slug ?: $business->id);
+                    app(\App\Services\Bing\BingWebmasterService::class)->submitUrl($bizUrl);
+                    app(\App\Services\Bing\BingWebmasterService::class)->submitIndexNow([$bizUrl]);
+                }
+            } catch (\Throwable $ignore) {}
+
             return response()->json($business->publicPayload($request->user()), 201);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Business listing creation error: ' . $e->getMessage());
@@ -436,6 +447,17 @@ class BusinessController extends Controller
                     $cat = $business->category ?: 'coaching-institutes';
                     $bizUrl = $siteBase . '/business/' . $cat . '/' . ($business->slug ?: $business->id);
                     app(\App\Services\Google\GoogleIndexingService::class)->publishUrl($bizUrl, 'URL_UPDATED', 'auto_business_publish');
+                }
+            } catch (\Throwable $ignore) {}
+
+            try {
+                $bingSettings = \App\Models\BingWebmasterSetting::current();
+                if ($bingSettings->auto_index_posts) {
+                    $siteBase = rtrim(config('services.bing.site_url', 'https://coachingsinsikar.com'), '/');
+                    $cat = $business->category ?: 'coaching-institutes';
+                    $bizUrl = $siteBase . '/business/' . $cat . '/' . ($business->slug ?: $business->id);
+                    app(\App\Services\Bing\BingWebmasterService::class)->submitUrl($bizUrl);
+                    app(\App\Services\Bing\BingWebmasterService::class)->submitIndexNow([$bizUrl]);
                 }
             } catch (\Throwable $ignore) {}
 
