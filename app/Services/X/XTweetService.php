@@ -84,19 +84,56 @@ class XTweetService
     }
 
     /**
-     * Post a new tweet (optionally with media and link) via Twitter API v2.
+     * Post a new tweet (guaranteeing post URL inclusion and <= 280 char limit) via Twitter API v2.
      */
     public function createTweet(XAccount $account, string $text, ?string $mediaUrl = null, ?string $targetLink = null): array
     {
         $token = $this->getValidToken($account);
 
-        // Append link to text if provided and not already included
-        $finalText = trim($text);
-        if ($targetLink && !str_contains($finalText, $targetLink)) {
-            $finalText .= "\n" . $targetLink;
+        $canonicalBase = rtrim(config('services.x.site_url') ?: (config('services.google.site_url') ?: 'https://coachingsinsikar.com'), '/');
+
+        // Normalize target link to canonical live URL
+        if (!empty($targetLink)) {
+            $targetLink = preg_replace('#^https?://(localhost|127\.0\.0\.1)(:\d+)?#i', $canonicalBase, trim($targetLink));
+            if (!preg_match('#^https?://#i', $targetLink)) {
+                $targetLink = $canonicalBase . '/' . ltrim($targetLink, '/');
+            }
         }
 
-        // Upload media if present
+        $finalText = trim($text);
+
+        // Ensure post URL is included in the tweet
+        if (!empty($targetLink)) {
+            $urlHost = parse_url($targetLink, PHP_URL_HOST);
+            $hasLink = ($urlHost && str_contains($finalText, $urlHost)) || str_contains($finalText, $targetLink);
+
+            if (!$hasLink) {
+                $separator = "\n\n🔗 ";
+                $linkBudget = mb_strlen($separator . $targetLink);
+                $maxTextLen = max(30, 280 - $linkBudget);
+
+                if (mb_strlen($finalText) > $maxTextLen) {
+                    $finalText = \Illuminate\Support\Str::limit($finalText, $maxTextLen - 3, '...');
+                }
+
+                $finalText = $finalText . $separator . $targetLink;
+            }
+        }
+
+        // Final safety guard: strictly cap at 280 chars so Twitter API v2 never rejects with "length greater than 280"
+        if (mb_strlen($finalText) > 280) {
+            if (!empty($targetLink) && str_contains($finalText, $targetLink)) {
+                $parts = explode($targetLink, $finalText);
+                $prefix = $parts[0] ?? '';
+                $suffix = $parts[1] ?? '';
+                $availPrefix = max(20, 280 - mb_strlen($targetLink) - mb_strlen($suffix) - 5);
+                $finalText = mb_substr($prefix, 0, $availPrefix) . '... ' . $targetLink . $suffix;
+            } else {
+                $finalText = mb_substr($finalText, 0, 277) . '...';
+            }
+        }
+
+        // Upload media if present (gracefully falls back if media upload fails)
         $mediaId = null;
         if (!empty($mediaUrl)) {
             $mediaId = $this->uploadMedia($account, $mediaUrl);
@@ -113,7 +150,7 @@ class XTweetService
         }
 
         $tweetUrl = 'https://api.twitter.com/2/tweets';
-        $httpRequest = Http::timeout(20);
+        $httpRequest = Http::timeout(25);
 
         if ($account->auth_mode === 'oauth1' || !empty($account->access_token_secret)) {
             $authHeader = $this->authService->buildOAuth1Header('POST', $tweetUrl, [], $account->access_token, $account->access_token_secret);
@@ -126,8 +163,24 @@ class XTweetService
         $response = $httpRequest->post($tweetUrl, $payload);
 
         if (!$response->successful()) {
-            $err = $response->json('detail') ?: ($response->json('title') ?: $response->body());
-            Log::error("X Tweet creation failed: {$err}");
+            $status = $response->status();
+            $body = $response->json();
+            $err = $body['detail'] 
+                ?? ($body['errors'][0]['message'] ?? ($body['title'] ?? ($body['error'] ?? $response->body())));
+
+            if ($status === 401) {
+                $err = "X Authentication Failed (401): Access token invalid or expired. Please re-authenticate your X account in Admin > X Hub. ({$err})";
+            } elseif ($status === 403) {
+                if (stripos($err, 'duplicate') !== false) {
+                    $err = "X Duplicate Tweet (403): You have already posted this exact tweet recently. Please change the tweet wording slightly. ({$err})";
+                } elseif (stripos($err, 'write') !== false || stripos($err, 'permission') !== false || stripos($err, 'access') !== false) {
+                    $err = "X Permissions Error (403): Your X Developer App does not have 'Write' permissions. Open developer.twitter.com > User authentication settings and set permissions to 'Read and write'. ({$err})";
+                } else {
+                    $err = "X API 403 Forbidden: {$err}";
+                }
+            }
+
+            Log::error("X Tweet creation failed [HTTP {$status}]: {$err}");
             throw new Exception("X API Tweet failed: {$err}");
         }
 

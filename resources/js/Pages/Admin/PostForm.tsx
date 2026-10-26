@@ -1111,46 +1111,76 @@ export default function PostForm({ post }: PostFormProps) {
       setIsGeneratingXDraft(true);
       try {
          const targetId = post?.id || slug || 'draft';
+         const postUrl = getPostFullUrl();
          const queryParams = new URLSearchParams({
             title: title || '',
             slug: slug || '',
             category: category || '',
             excerpt: excerpt || metaDescription || '',
             coverImage: coverImage || '',
+            post_url: postUrl,
          });
          const res = await fetch(`/api/admin/x/draft/${targetId}?${queryParams.toString()}`);
          const data = await res.json();
-         if (data.success && data.draft && data.draft.text) {
-            setXTweetText(data.draft.text);
+         const draftText = data.draft?.text || data.draft?.tweet_text;
+         if (data.success && draftText) {
+            setXTweetText(draftText);
             setTwitterTitle((title || '').slice(0, 70));
-            setTwitterDescription(data.draft.text);
+            setTwitterDescription(draftText);
          } else {
-            const fallbackText = `📢 ${title || 'Latest Education Update in Sikar'}\n\n🔗 ${getPostFullUrl()}\n\n#Sikar #Education #JEE #NEET`;
-            setXTweetText(fallbackText.slice(0, 280));
+            const fallbackText = `📢 ${title || 'Latest Education Update in Sikar'}\n\n🔗 ${postUrl}\n\n#Sikar #Education #JEE #NEET`;
+            const safeText = fallbackText.length > 280 ? `📢 ${(title || 'Latest Update').slice(0, 100)}\n\n🔗 ${postUrl}\n\n#Sikar #Education` : fallbackText;
+            setXTweetText(safeText);
             setTwitterTitle((title || '').slice(0, 70));
-            setTwitterDescription(fallbackText.slice(0, 280));
+            setTwitterDescription(safeText);
          }
       } catch (e) {
-         const fallbackText = `📢 ${title || 'Latest Education Update in Sikar'}\n\n🔗 ${getPostFullUrl()}\n\n#Sikar #Education #JEE #NEET`;
-         setXTweetText(fallbackText.slice(0, 280));
+         const postUrl = getPostFullUrl();
+         const fallbackText = `📢 ${title || 'Latest Education Update in Sikar'}\n\n🔗 ${postUrl}\n\n#Sikar #Education #JEE #NEET`;
+         const safeText = fallbackText.length > 280 ? `📢 ${(title || 'Latest Update').slice(0, 100)}\n\n🔗 ${postUrl}\n\n#Sikar #Education` : fallbackText;
+         setXTweetText(safeText);
          setTwitterTitle((title || '').slice(0, 70));
-         setTwitterDescription(fallbackText.slice(0, 280));
+         setTwitterDescription(safeText);
       } finally {
          setIsGeneratingXDraft(false);
       }
    };
 
    const publishToX = async () => {
-      if (!xTweetText.trim() || xTweetText.length > 280) {
-         alert('Please check your tweet text (must be 1-280 characters).');
+      if (!xTweetText.trim()) {
+         alert('Please enter or generate a tweet first.');
          return;
       }
+
       setIsPublishingX(true);
       try {
+         const postUrl = getPostFullUrl();
+         let textToSend = xTweetText.trim();
+
+         // Guarantee post URL is included in the tweet if not already present
+         if (postUrl && !textToSend.includes('http://') && !textToSend.includes('https://') && !textToSend.includes(postUrl)) {
+            const separator = '\n\n🔗 ';
+            const maxMsgLen = 280 - separator.length - postUrl.length;
+            if (textToSend.length > maxMsgLen) {
+               textToSend = textToSend.slice(0, Math.max(20, maxMsgLen - 3)) + '...';
+            }
+            textToSend = `${textToSend}${separator}${postUrl}`;
+            setXTweetText(textToSend);
+         }
+
+         if (textToSend.length > 280) {
+            alert(`Your tweet text is ${textToSend.length} characters (max 280). Please shorten it slightly.`);
+            setIsPublishingX(false);
+            return;
+         }
+
          const targetId = post?.id || slug || 'draft';
-         const draftRes = await fetch(`/api/admin/x/draft/${targetId}`);
-         const draftData = await draftRes.json();
-         const shareId = draftData.share_id || (draftData.share ? draftData.share.id : null);
+         let shareId = null;
+         try {
+            const draftRes = await fetch(`/api/admin/x/draft/${targetId}?post_url=${encodeURIComponent(postUrl)}`);
+            const draftData = await draftRes.json();
+            shareId = draftData.share_id || (draftData.share ? draftData.share.id : null);
+         } catch (e) {}
 
          const res = await fetch('/api/admin/x/approve-publish', {
             method: 'POST',
@@ -1160,20 +1190,21 @@ export default function PostForm({ post }: PostFormProps) {
             },
             body: JSON.stringify({
                share_id: shareId,
-               text: xTweetText,
+               post_id: post?.id || null,
+               text: textToSend,
                media_url: coverImage ? (coverImage.startsWith('http') ? coverImage : window.location.origin + coverImage) : null,
-               target_link: getPostFullUrl()
+               target_link: postUrl
             })
          });
          const data = await res.json();
          if (data.success) {
             setXPublishedPermalink(data.permalink);
-            alert('Successfully published to 𝕏!');
+            alert('Successfully published to 𝕏 (Twitter)!');
          } else {
             alert(data.message || 'Publishing to X failed.');
          }
       } catch (e: any) {
-         alert('Error: ' + e.message);
+         alert('Error publishing to X: ' + e.message);
       } finally {
          setIsPublishingX(false);
       }

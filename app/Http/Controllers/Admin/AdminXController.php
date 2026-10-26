@@ -217,13 +217,17 @@ class AdminXController extends Controller
     /**
      * Auto-generate a 280-char draft for a blog post.
      */
+    /**
+     * Auto-generate a 280-char draft for a blog post.
+     */
     public function generateDraft(Request $request, $postId)
     {
         $post = Post::find($postId) ?: Post::where('slug', $postId)->first();
         $account = XAccount::active();
+        $explicitUrl = $request->input('post_url') ?: $request->input('target_link');
 
         if ($post) {
-            $draft = $this->captionService->generateForPost($post);
+            $draft = $this->captionService->generateForPost($post, $explicitUrl);
 
             // Check if pending share already exists
             $share = XPostShare::where('post_id', $post->id)
@@ -238,6 +242,12 @@ class AdminXController extends Controller
                     'media_url' => $draft['image_url'],
                     'target_link' => $draft['target_link'],
                     'status' => 'pending_approval',
+                ]);
+            } else {
+                $share->update([
+                    'text' => $draft['text'],
+                    'media_url' => $draft['image_url'],
+                    'target_link' => $draft['target_link'],
                 ]);
             }
 
@@ -267,13 +277,23 @@ class AdminXController extends Controller
             'url_format' => 'blog/{slug}',
         ]);
 
-        $draft = $this->captionService->generateForPost($tempPost);
+        $draft = $this->captionService->generateForPost($tempPost, $explicitUrl);
+
+        // Pre-create pending share so share_id is never null
+        $share = XPostShare::create([
+            'post_id' => null,
+            'x_account_id' => $account?->id,
+            'text' => $draft['text'],
+            'media_url' => $draft['image_url'],
+            'target_link' => $draft['target_link'],
+            'status' => 'pending_approval',
+        ]);
 
         return response()->json([
             'success' => true,
-            'share_id' => null,
+            'share_id' => $share?->id,
             'draft' => $draft,
-            'share' => null,
+            'share' => $share,
             'account' => $account ? [
                 'id' => $account->id,
                 'username' => $account->username,
@@ -287,23 +307,66 @@ class AdminXController extends Controller
     public function approveAndPublish(Request $request)
     {
         $request->validate([
-            'share_id' => 'required',
-            'text' => 'required|string|max:280',
+            'text' => 'required|string',
+            'share_id' => 'nullable',
+            'post_id' => 'nullable',
+            'media_url' => 'nullable|string',
+            'target_link' => 'nullable|string',
         ]);
 
-        $share = XPostShare::findOrFail($request->input('share_id'));
-        $account = $share->account ?: XAccount::active();
+        // 1. Resolve Share Record
+        $shareId = $request->input('share_id');
+        $share = (!empty($shareId) && is_numeric($shareId)) ? XPostShare::find($shareId) : null;
 
-        if (!$account || !$account->access_token) {
+        $postId = $request->input('post_id');
+        if (!$share && !empty($postId)) {
+            $share = XPostShare::where('post_id', (string) $postId)->latest()->first();
+        }
+
+        // 2. Resolve Active Account
+        $account = $share?->account ?: XAccount::active();
+        if (!$account) {
+            $account = XAccount::whereNotNull('access_token')->latest()->first();
+            if ($account) {
+                $account->update(['is_active' => true]);
+            }
+        }
+
+        // Auto-configure from .env if credentials are provided directly
+        if (!$account && config('services.x.access_token')) {
+            try {
+                $account = XAccount::updateOrCreate(
+                    ['username' => 'coachingsinsikar'],
+                    [
+                        'access_token' => config('services.x.access_token'),
+                        'access_token_secret' => config('services.x.access_token_secret'),
+                        'auth_mode' => 'oauth1',
+                        'is_active' => true,
+                    ]
+                );
+            } catch (\Throwable $e) {}
+        }
+
+        if (!$account || empty($account->access_token)) {
             return response()->json([
                 'success' => false,
-                'message' => 'No active X account connected. Connect with X first.',
+                'message' => 'No active X account connected. Please connect your X account at /admin/x first.',
             ], 422);
         }
 
+        $canonicalBase = rtrim(config('services.x.site_url') ?: (config('services.google.site_url') ?: 'https://coachingsinsikar.com'), '/');
+
+        // Resolve target post URL
+        $targetLink = $request->input('target_link') ?: $share?->target_link;
+        if (empty($targetLink) && $share?->post) {
+            $targetLink = $canonicalBase . '/' . ltrim($share->post->url_path, '/');
+        }
+        if (!empty($targetLink)) {
+            $targetLink = preg_replace('#^https?://(localhost|127\.0\.0\.1)(:\d+)?#i', $canonicalBase, trim($targetLink));
+        }
+
         $finalText = $request->input('text');
-        $mediaUrl = $request->input('media_url') ?: $share->media_url;
-        $targetLink = $request->input('target_link') ?: $share->target_link;
+        $mediaUrl = $request->input('media_url') ?: $share?->media_url;
 
         try {
             $result = $this->tweetService->createTweet(
@@ -313,16 +376,24 @@ class AdminXController extends Controller
                 $targetLink
             );
 
-            $share->update([
+            if (!$share) {
+                $share = new XPostShare([
+                    'post_id' => $postId ?: null,
+                    'x_account_id' => $account->id,
+                ]);
+            }
+
+            $share->fill([
                 'status' => 'published',
-                'text' => $finalText,
+                'text' => $result['text'] ?? $finalText,
                 'tweet_id' => $result['tweet_id'],
                 'tweet_permalink' => $result['permalink'],
-                'x_media_id' => $result['media_id'],
+                'x_media_id' => $result['media_id'] ?? null,
+                'target_link' => $targetLink,
                 'published_by' => auth()->id(),
                 'published_at' => now(),
                 'error_message' => null,
-            ]);
+            ])->save();
 
             return response()->json([
                 'success' => true,
@@ -331,10 +402,12 @@ class AdminXController extends Controller
                 'permalink' => $result['permalink'],
             ]);
         } catch (\Throwable $e) {
-            $share->update([
-                'status' => 'failed',
-                'error_message' => $e->getMessage(),
-            ]);
+            if ($share) {
+                $share->update([
+                    'status' => 'failed',
+                    'error_message' => $e->getMessage(),
+                ]);
+            }
 
             return response()->json([
                 'success' => false,

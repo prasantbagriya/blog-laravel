@@ -135,11 +135,16 @@ class SocialAutoDraftService
                 $draft = $captionService->generateForPost($post);
                 $account = XAccount::active();
 
+                $canonicalBase = rtrim(config('services.google.site_url', 'https://coachingsinsikar.com'), '/');
+                $canonicalUrl = $draft['target_link'] ?? ($canonicalBase . '/' . ltrim($post->url_path, '/'));
+                $finalText = $draft['text'] ?? ($draft['tweet_text'] ?? Str::limit($post->title . "\n\n🔗 " . $canonicalUrl, 280));
+
                 XPostShare::create([
                     'post_id' => (string) $post->id,
                     'x_account_id' => $account?->id,
-                    'tweet_text' => $draft['tweet_text'] ?? Str::limit($post->title . ' ' . url($post->url_path), 280),
-                    'media_url' => $post->coverImage ?: $post->metaImage,
+                    'text' => $finalText,
+                    'media_url' => $draft['image_url'] ?? ($post->coverImage ?: $post->metaImage),
+                    'target_link' => $canonicalUrl,
                     'status' => 'pending_approval',
                 ]);
                 $results['x'] = true;

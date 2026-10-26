@@ -1470,43 +1470,66 @@ function PostForm({ post }) {
 		setIsGeneratingXDraft(true);
 		try {
 			const targetId = post?.id || slug || "draft";
+			const postUrl = getPostFullUrl();
 			const queryParams = new URLSearchParams({
 				title: title || "",
 				slug: slug || "",
 				category: category || "",
 				excerpt: excerpt || metaDescription || "",
-				coverImage: coverImage || ""
+				coverImage: coverImage || "",
+				post_url: postUrl
 			});
 			const data = await (await fetch(`/api/admin/x/draft/${targetId}?${queryParams.toString()}`)).json();
-			if (data.success && data.draft && data.draft.text) {
-				setXTweetText(data.draft.text);
+			const draftText = data.draft?.text || data.draft?.tweet_text;
+			if (data.success && draftText) {
+				setXTweetText(draftText);
 				setTwitterTitle((title || "").slice(0, 70));
-				setTwitterDescription(data.draft.text);
+				setTwitterDescription(draftText);
 			} else {
-				const fallbackText = `📢 ${title || "Latest Education Update in Sikar"}\n\n🔗 ${getPostFullUrl()}\n\n#Sikar #Education #JEE #NEET`;
-				setXTweetText(fallbackText.slice(0, 280));
+				const fallbackText = `📢 ${title || "Latest Education Update in Sikar"}\n\n🔗 ${postUrl}\n\n#Sikar #Education #JEE #NEET`;
+				const safeText = fallbackText.length > 280 ? `📢 ${(title || "Latest Update").slice(0, 100)}\n\n🔗 ${postUrl}\n\n#Sikar #Education` : fallbackText;
+				setXTweetText(safeText);
 				setTwitterTitle((title || "").slice(0, 70));
-				setTwitterDescription(fallbackText.slice(0, 280));
+				setTwitterDescription(safeText);
 			}
 		} catch (e) {
-			const fallbackText = `📢 ${title || "Latest Education Update in Sikar"}\n\n🔗 ${getPostFullUrl()}\n\n#Sikar #Education #JEE #NEET`;
-			setXTweetText(fallbackText.slice(0, 280));
+			const postUrl = getPostFullUrl();
+			const fallbackText = `📢 ${title || "Latest Education Update in Sikar"}\n\n🔗 ${postUrl}\n\n#Sikar #Education #JEE #NEET`;
+			const safeText = fallbackText.length > 280 ? `📢 ${(title || "Latest Update").slice(0, 100)}\n\n🔗 ${postUrl}\n\n#Sikar #Education` : fallbackText;
+			setXTweetText(safeText);
 			setTwitterTitle((title || "").slice(0, 70));
-			setTwitterDescription(fallbackText.slice(0, 280));
+			setTwitterDescription(safeText);
 		} finally {
 			setIsGeneratingXDraft(false);
 		}
 	};
 	const publishToX = async () => {
-		if (!xTweetText.trim() || xTweetText.length > 280) {
-			alert("Please check your tweet text (must be 1-280 characters).");
+		if (!xTweetText.trim()) {
+			alert("Please enter or generate a tweet first.");
 			return;
 		}
 		setIsPublishingX(true);
 		try {
+			const postUrl = getPostFullUrl();
+			let textToSend = xTweetText.trim();
+			if (postUrl && !textToSend.includes("http://") && !textToSend.includes("https://") && !textToSend.includes(postUrl)) {
+				const separator = "\n\n🔗 ";
+				const maxMsgLen = 275 - postUrl.length;
+				if (textToSend.length > maxMsgLen) textToSend = textToSend.slice(0, Math.max(20, maxMsgLen - 3)) + "...";
+				textToSend = `${textToSend}${separator}${postUrl}`;
+				setXTweetText(textToSend);
+			}
+			if (textToSend.length > 280) {
+				alert(`Your tweet text is ${textToSend.length} characters (max 280). Please shorten it slightly.`);
+				setIsPublishingX(false);
+				return;
+			}
 			const targetId = post?.id || slug || "draft";
-			const draftData = await (await fetch(`/api/admin/x/draft/${targetId}`)).json();
-			const shareId = draftData.share_id || (draftData.share ? draftData.share.id : null);
+			let shareId = null;
+			try {
+				const draftData = await (await fetch(`/api/admin/x/draft/${targetId}?post_url=${encodeURIComponent(postUrl)}`)).json();
+				shareId = draftData.share_id || (draftData.share ? draftData.share.id : null);
+			} catch (e) {}
 			const data = await (await fetch("/api/admin/x/approve-publish", {
 				method: "POST",
 				headers: {
@@ -1515,17 +1538,18 @@ function PostForm({ post }) {
 				},
 				body: JSON.stringify({
 					share_id: shareId,
-					text: xTweetText,
+					post_id: post?.id || null,
+					text: textToSend,
 					media_url: coverImage ? coverImage.startsWith("http") ? coverImage : window.location.origin + coverImage : null,
-					target_link: getPostFullUrl()
+					target_link: postUrl
 				})
 			})).json();
 			if (data.success) {
 				setXPublishedPermalink(data.permalink);
-				alert("Successfully published to 𝕏!");
+				alert("Successfully published to 𝕏 (Twitter)!");
 			} else alert(data.message || "Publishing to X failed.");
 		} catch (e) {
-			alert("Error: " + e.message);
+			alert("Error publishing to X: " + e.message);
 		} finally {
 			setIsPublishingX(false);
 		}

@@ -77,18 +77,24 @@ class XAuthService
             Log::warning('X OAuth state/verifier validation mismatch, proceeding with available verifier.');
         }
 
-        $response = Http::asForm()
-            ->withBasicAuth($this->clientId, $this->clientSecret)
-            ->post('https://api.twitter.com/2/oauth2/token', [
-                'code' => $code,
-                'grant_type' => 'authorization_code',
-                'client_id' => $this->clientId,
-                'redirect_uri' => $this->redirectUri,
-                'code_verifier' => $codeVerifier ?: $state,
-            ]);
+        $http = Http::asForm();
+        $payload = [
+            'code' => $code,
+            'grant_type' => 'authorization_code',
+            'redirect_uri' => $this->redirectUri,
+            'code_verifier' => $codeVerifier ?: $state,
+        ];
+
+        if (!empty($this->clientSecret)) {
+            $http = $http->withBasicAuth($this->clientId, $this->clientSecret);
+        } else {
+            $payload['client_id'] = $this->clientId;
+        }
+
+        $response = $http->post('https://api.twitter.com/2/oauth2/token', $payload);
 
         if (!$response->successful()) {
-            $err = $response->json('error_description') ?: $response->body();
+            $err = $response->json('error_description') ?: ($response->json('error') ?: $response->body());
             Log::error('X Token exchange failed: ' . $err);
             throw new Exception("Failed to exchange authorization code with X: " . $err);
         }
@@ -110,13 +116,19 @@ class XAuthService
             return (string) $account->access_token;
         }
 
-        $response = Http::asForm()
-            ->withBasicAuth($this->clientId, $this->clientSecret)
-            ->post('https://api.twitter.com/2/oauth2/token', [
-                'refresh_token' => $account->refresh_token,
-                'grant_type' => 'refresh_token',
-                'client_id' => $this->clientId,
-            ]);
+        $http = Http::asForm();
+        $payload = [
+            'refresh_token' => $account->refresh_token,
+            'grant_type' => 'refresh_token',
+        ];
+
+        if (!empty($this->clientSecret)) {
+            $http = $http->withBasicAuth($this->clientId, $this->clientSecret);
+        } else {
+            $payload['client_id'] = $this->clientId;
+        }
+
+        $response = $http->post('https://api.twitter.com/2/oauth2/token', $payload);
 
         if (!$response->successful()) {
             Log::error('X Refresh Token exchange failed: ' . $response->body());
