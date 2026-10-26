@@ -193,7 +193,8 @@ class PostController extends Controller
                 try {
                     $gscSettings = \App\Models\GscSetting::instance();
                     if ($gscSettings->is_connected && $gscSettings->auto_index_posts) {
-                        $postUrl = url($post->url_path);
+                        $siteBase = rtrim(config('services.google.site_url', 'https://coachingsinsikar.com'), '/');
+                        $postUrl = $siteBase . '/' . ltrim($post->url_path, '/');
                         app(\App\Services\Google\GoogleIndexingService::class)->publishUrl($postUrl, 'URL_UPDATED', 'auto_post_publish');
                     }
                 } catch (\Throwable $ignore) {}

@@ -284,8 +284,9 @@ class BusinessController extends Controller
             try {
                 $gscSettings = \App\Models\GscSetting::instance();
                 if ($gscSettings->is_connected && $gscSettings->auto_index_businesses) {
+                    $siteBase = rtrim(config('services.google.site_url', 'https://coachingsinsikar.com'), '/');
                     $cat = $business->category ?: 'coaching-institutes';
-                    $bizUrl = url('/business/' . $cat . '/' . ($business->slug ?: $business->id));
+                    $bizUrl = $siteBase . '/business/' . $cat . '/' . ($business->slug ?: $business->id);
                     app(\App\Services\Google\GoogleIndexingService::class)->publishUrl($bizUrl, 'URL_UPDATED', 'auto_business_publish');
                 }
             } catch (\Throwable $ignore) {}
@@ -431,8 +432,9 @@ class BusinessController extends Controller
             try {
                 $gscSettings = \App\Models\GscSetting::instance();
                 if ($gscSettings->is_connected && $gscSettings->auto_index_businesses) {
+                    $siteBase = rtrim(config('services.google.site_url', 'https://coachingsinsikar.com'), '/');
                     $cat = $business->category ?: 'coaching-institutes';
-                    $bizUrl = url('/business/' . $cat . '/' . ($business->slug ?: $business->id));
+                    $bizUrl = $siteBase . '/business/' . $cat . '/' . ($business->slug ?: $business->id);
                     app(\App\Services\Google\GoogleIndexingService::class)->publishUrl($bizUrl, 'URL_UPDATED', 'auto_business_publish');
                 }
             } catch (\Throwable $ignore) {}

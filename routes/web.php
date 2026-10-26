@@ -189,6 +189,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/api/admin/gsc/sitemaps/submit', [\App\Http\Controllers\Admin\SearchConsoleController::class, 'submitSitemap']);
     Route::delete('/api/admin/gsc/sitemaps/delete', [\App\Http\Controllers\Admin\SearchConsoleController::class, 'deleteSitemap']);
     Route::post('/api/admin/gsc/index-url', [\App\Http\Controllers\Admin\SearchConsoleController::class, 'indexUrl']);
+    Route::post('/api/admin/gsc/test-indexing', [\App\Http\Controllers\Admin\SearchConsoleController::class, 'testIndexing']);
     Route::get('/api/admin/gsc/indexing-logs', [\App\Http\Controllers\Admin\SearchConsoleController::class, 'getIndexingLogs']);
     Route::get('/api/admin/gsc/opportunities', [\App\Http\Controllers\Admin\SearchConsoleController::class, 'getKeywordOpportunities']);
 

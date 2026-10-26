@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
-import { Search, Globe, Send, Key, Lock, Link as LinkIcon, Terminal, ArrowRight, ShieldCheck, CheckCircle2, AlertTriangle, RefreshCw, FileText, BarChart3, Zap, Settings, Sparkles, Smartphone, TrendingUp, Database, Target, Trash2, ExternalLink, Check, Clock } from 'lucide-react';
+import { Search, Globe, Send, Key, Lock, Link as LinkIcon, Terminal, ArrowRight, ShieldCheck, CheckCircle2, AlertTriangle, RefreshCw, FileText, BarChart3, Zap, Settings, Sparkles, Smartphone, TrendingUp, Database, Target, Trash2, ExternalLink, Check, Clock, Copy, Info } from 'lucide-react';
 
 export default function SearchConsoleIndex({
   settings: initialSettings,
@@ -31,6 +31,10 @@ export default function SearchConsoleIndex({
   const [indexing, setIndexing] = useState(false);
   const [indexLogs, setIndexLogs] = useState(recentLogs || []);
   const [indexMessage, setIndexMessage] = useState(null);
+  const [testingIndexing, setTestingIndexing] = useState(false);
+  const [testIndexingResult, setTestIndexingResult] = useState(null);
+  const [copiedEmail, setCopiedEmail] = useState(false);
+  const [loadingIndexLogs, setLoadingIndexLogs] = useState(false);
 
   // Sitemaps State
   const [sitemaps, setSitemaps] = useState(initialSitemaps || []);
@@ -170,6 +174,48 @@ export default function SearchConsoleIndex({
     }
   };
 
+  // Copy helper
+  const handleCopyEmail = (email) => {
+    if (!email) return;
+    navigator.clipboard?.writeText(email);
+    setCopiedEmail(true);
+    setTimeout(() => setCopiedEmail(false), 2000);
+  };
+
+  // Test Indexing API connectivity & permissions
+  const handleTestIndexing = async () => {
+    setTestingIndexing(true);
+    setTestIndexingResult(null);
+    try {
+      const res = await fetch('/api/admin/gsc/test-indexing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
+      });
+      const data = await res.json();
+      setTestIndexingResult(data);
+    } catch (err) {
+      setTestIndexingResult({ success: false, error: err.message });
+    } finally {
+      setTestingIndexing(false);
+    }
+  };
+
+  // Refresh Indexing Logs
+  const fetchIndexingLogs = async () => {
+    setLoadingIndexLogs(true);
+    try {
+      const logsRes = await fetch('/api/admin/gsc/indexing-logs');
+      const logsData = await logsRes.json();
+      if (logsData.success) {
+        setIndexLogs(logsData.logs);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingIndexLogs(false);
+    }
+  };
+
   // Handle Instant Indexing
   const handlePublishIndex = async (e) => {
     e?.preventDefault();
@@ -187,12 +233,23 @@ export default function SearchConsoleIndex({
       });
       const data = await res.json();
       if (data.success) {
-        setIndexMessage({ type: 'success', text: `Successfully submitted ${urls.length} URL(s) to Googlebot!` });
-        setIndexUrlInput('');
-        // Refresh logs
-        const logsRes = await fetch('/api/admin/gsc/indexing-logs');
-        const logsData = await logsRes.json();
-        if (logsData.success) setIndexLogs(logsData.logs);
+        const results = data.results || [];
+        const failedItems = results.filter(r => !r.success || r.status === 'failed' || r.http_code === 403);
+
+        if (failedItems.length > 0) {
+          const firstMsg = failedItems[0].message || 'Some URLs failed ownership verification.';
+          setIndexMessage({
+            type: 'error',
+            text: `${failedItems.length} of ${urls.length} URL(s) failed. Google response: ${firstMsg}`,
+          });
+        } else {
+          setIndexMessage({
+            type: 'success',
+            text: `Successfully submitted ${urls.length} URL(s) to Googlebot!`,
+          });
+          setIndexUrlInput('');
+        }
+        fetchIndexingLogs();
       } else {
         setIndexMessage({ type: 'error', text: data.error || 'Failed to publish URLs.' });
       }
@@ -813,15 +870,132 @@ export default function SearchConsoleIndex({
       {/* ========================================================= */}
       {activeTab === 'indexing' && (
         <div className="space-y-6">
-          <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm">
-            <h3 className="text-lg font-extrabold text-slate-900 dark:text-white mb-1">
-              Google Instant Indexing API (Fast-Track Push)
-            </h3>
-            <p className="text-sm text-slate-500 dark:text-zinc-400 mb-6">
-              Instruct Googlebot to immediately crawl new or modified URLs within minutes using Google's official Indexing API v3.
-            </p>
+          {/* Indexing API Status & Diagnostics Banner */}
+          <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">
+                    Google Instant Indexing API (Fast-Track Push)
+                  </h3>
+                  <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                    settings.auth_mode === 'service_account' 
+                      ? 'bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300' 
+                      : 'bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300'
+                  }`}>
+                    {settings.auth_mode === 'service_account' ? 'Service Account' : 'OAuth 2.0'}
+                  </span>
+                </div>
+                <p className="text-sm text-slate-500 dark:text-zinc-400 mt-1">
+                  Instruct Googlebot to immediately crawl new or modified URLs within minutes using Google's official Indexing API v3.
+                </p>
+              </div>
 
-            <form onSubmit={handlePublishIndex} className="space-y-4">
+              <button
+                type="button"
+                onClick={handleTestIndexing}
+                disabled={testingIndexing}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 text-xs font-bold transition shadow-sm cursor-pointer shrink-0"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${testingIndexing ? 'animate-spin text-blue-600' : ''}`} />
+                <span>{testingIndexing ? 'Testing Google Connection...' : 'Test Indexing Connection'}</span>
+              </button>
+            </div>
+
+            {/* Test Connection Results Alert */}
+            {testIndexingResult && (
+              <div className={`p-4 rounded-xl text-xs font-medium border ${
+                testIndexingResult.success 
+                  ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300' 
+                  : 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300'
+              }`}>
+                <div className="flex items-start gap-2.5">
+                  {testIndexingResult.success ? (
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                  ) : (
+                    <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                  )}
+                  <div className="space-y-1 flex-1">
+                    <p className="font-bold text-sm">
+                      {testIndexingResult.success ? 'Google Indexing API Active & Ready' : testIndexingResult.error || 'Indexing API Test Failed'}
+                    </p>
+                    {testIndexingResult.solution && (
+                      <p className="text-xs">{testIndexingResult.solution}</p>
+                    )}
+                    {testIndexingResult.link && (
+                      <div className="mt-2">
+                        <a
+                          href={testIndexingResult.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs no-underline shadow-sm"
+                        >
+                          <span>Open Required Google Page</span>
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      </div>
+                    )}
+                    {testIndexingResult.raw && (
+                      <p className="font-mono text-[11px] opacity-80 pt-1">
+                        Google API response: {testIndexingResult.raw}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Service Account Ownership Guidance */}
+            {settings.auth_mode === 'service_account' && settings.service_account_email && (
+              <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200 text-xs space-y-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                    <span className="font-bold">Service Account Email:</span>
+                    <code className="px-2 py-0.5 rounded bg-white dark:bg-zinc-900 border border-amber-300 dark:border-amber-700 font-mono text-[11px] select-all">
+                      {settings.service_account_email}
+                    </code>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyEmail(settings.service_account_email)}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-200/70 hover:bg-amber-200 dark:bg-amber-900/60 dark:hover:bg-amber-900 text-amber-900 dark:text-amber-200 font-bold text-[11px] transition cursor-pointer self-start sm:self-auto"
+                  >
+                    {copiedEmail ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedEmail ? 'Copied!' : 'Copy Email'}</span>
+                  </button>
+                </div>
+
+                <div className="text-[11px] leading-relaxed text-amber-800 dark:text-amber-300/90 pt-1 space-y-1">
+                  <p>
+                    <strong>Why you see "403 failed":</strong> Google Indexing API strictly requires that this Service Account email is added as an <strong>Owner</strong> in Google Search Console. Full or Restricted user permissions are not enough and will cause a 403 error.
+                  </p>
+                  <div className="flex flex-wrap gap-3 pt-1">
+                    <a
+                      href={`https://search.google.com/search-console/users?resource_id=${encodeURIComponent(settings.property_id || 'https://coachingsinsikar.com/')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 font-bold underline hover:text-amber-950 dark:hover:text-amber-100"
+                    >
+                      <span>1. Add as Owner in Search Console (Settings &gt; Users)</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                    <a
+                      href="https://console.cloud.google.com/apis/library/indexing.googleapis.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 font-bold underline hover:text-amber-950 dark:hover:text-amber-100"
+                    >
+                      <span>2. Enable Web Search Indexing API in Cloud Console</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Submission Form */}
+            <form onSubmit={handlePublishIndex} className="space-y-4 pt-2">
               <div>
                 <label className="block text-xs font-bold uppercase text-slate-600 dark:text-zinc-400 mb-1">
                   Target URLs (one per line for bulk push):
@@ -829,11 +1003,14 @@ export default function SearchConsoleIndex({
                 <textarea
                   rows={4}
                   required
-                  placeholder="https://coachingsinsikar.com/blog/best-coaching&#10;https://coachingsinsikar.com/business/matrix-academy"
+                  placeholder="https://coachingsinsikar.com/blog/best-neet-coachings-in-sikar&#10;https://coachingsinsikar.com/business/matrix-academy"
                   value={indexUrlInput}
                   onChange={(e) => setIndexUrlInput(e.target.value)}
                   className="w-full p-4 rounded-2xl border border-transparent outline-none bg-slate-100 dark:bg-zinc-800/80 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 font-mono text-xs"
                 />
+                <span className="text-[11px] text-slate-500 mt-1 block">
+                  URLs will automatically be canonicalized to https://coachingsinsikar.com/... to prevent protocol mismatches.
+                </span>
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-4">
@@ -871,7 +1048,7 @@ export default function SearchConsoleIndex({
             </form>
 
             {indexMessage && (
-              <div className={`mt-4 p-4 rounded-xl text-xs font-semibold ${indexMessage.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`}>
+              <div className={`mt-4 p-4 rounded-xl text-xs font-semibold ${indexMessage.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800' : 'bg-rose-50 text-rose-800 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800'}`}>
                 {indexMessage.text}
               </div>
             )}
@@ -880,8 +1057,19 @@ export default function SearchConsoleIndex({
           {/* Submission Audit Log */}
           <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 overflow-hidden shadow-sm">
             <div className="p-4 border-b border-slate-200 dark:border-zinc-800 flex items-center justify-between">
-              <h3 className="font-extrabold text-slate-900 dark:text-white text-base">Indexing Submission Audit Logs</h3>
-              <span className="text-xs text-slate-500 font-medium">Standard quota: 200 URLs/day</span>
+              <div>
+                <h3 className="font-extrabold text-slate-900 dark:text-white text-base">Indexing Submission Audit Logs</h3>
+                <span className="text-xs text-slate-500 font-medium">Standard Google quota: 200 URLs/day</span>
+              </div>
+              <button
+                type="button"
+                onClick={fetchIndexingLogs}
+                disabled={loadingIndexLogs}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 text-xs font-bold transition cursor-pointer"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${loadingIndexLogs ? 'animate-spin text-blue-500' : ''}`} />
+                <span>{loadingIndexLogs ? 'Refreshing...' : 'Refresh Logs'}</span>
+              </button>
             </div>
 
             <div className="overflow-x-auto">
@@ -889,7 +1077,7 @@ export default function SearchConsoleIndex({
                 <thead className="bg-slate-50 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 uppercase font-bold">
                   <tr>
                     <th className="p-3">Timestamp</th>
-                    <th className="p-3">Submitted URL</th>
+                    <th className="p-3">Submitted URL & Diagnosis</th>
                     <th className="p-3">Action</th>
                     <th className="p-3">Status</th>
                     <th className="p-3">Triggered By</th>
@@ -897,25 +1085,70 @@ export default function SearchConsoleIndex({
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-zinc-800">
                   {indexLogs.length > 0 ? (
-                    indexLogs.map((log) => (
-                      <tr key={log.id} className="hover:bg-slate-50 dark:hover:bg-zinc-800/40">
-                        <td className="p-3 text-slate-500 font-mono text-[11px]">
-                          {new Date(log.created_at).toLocaleString()}
-                        </td>
-                        <td className="p-3 font-semibold text-slate-900 dark:text-white max-w-[280px] truncate" title={log.url}>
-                          {log.url}
-                        </td>
-                        <td className="p-3 font-mono font-bold text-blue-600 dark:text-blue-400 text-[11px]">
-                          {log.action}
-                        </td>
-                        <td className="p-3">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${log.status === 'success' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
-                            {log.http_code} {log.status}
-                          </span>
-                        </td>
-                        <td className="p-3 text-slate-500 capitalize">{log.triggered_by.replace(/_/g, ' ')}</td>
-                      </tr>
-                    ))
+                    indexLogs.map((log) => {
+                      const is403 = Number(log.http_code) === 403;
+                      const isSuccess = log.status === 'success';
+
+                      return (
+                        <tr key={log.id} className="hover:bg-slate-50 dark:hover:bg-zinc-800/40">
+                          <td className="p-3 text-slate-500 font-mono text-[11px] whitespace-nowrap align-top">
+                            {new Date(log.created_at).toLocaleString()}
+                          </td>
+                          <td className="p-3 align-top max-w-[420px]">
+                            <div className="font-semibold text-slate-900 dark:text-white font-mono text-xs truncate" title={log.url}>
+                              {log.url}
+                            </div>
+                            {log.response_message && (
+                              <div className={`mt-1.5 p-2 rounded-lg text-[11px] leading-relaxed ${
+                                isSuccess 
+                                  ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60' 
+                                  : 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60'
+                              }`}>
+                                <div className="font-medium">{log.response_message}</div>
+                                {is403 && (
+                                  <div className="mt-1.5 flex flex-wrap gap-2 pt-1 border-t border-rose-200/60 dark:border-rose-800/40">
+                                    <a
+                                      href={`https://search.google.com/search-console/users?resource_id=${encodeURIComponent(settings.property_id || 'https://coachingsinsikar.com/')}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-1 font-bold underline text-rose-700 dark:text-rose-300 hover:text-rose-900"
+                                    >
+                                      <span>Fix: Add as Owner in Search Console</span>
+                                      <ExternalLink className="w-3 h-3" />
+                                    </a>
+                                    <a
+                                      href="https://console.cloud.google.com/apis/library/indexing.googleapis.com"
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-1 font-bold underline text-rose-700 dark:text-rose-300 hover:text-rose-900"
+                                    >
+                                      <span>Enable Indexing API</span>
+                                      <ExternalLink className="w-3 h-3" />
+                                    </a>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </td>
+                          <td className="p-3 font-mono font-bold text-blue-600 dark:text-blue-400 text-[11px] whitespace-nowrap align-top">
+                            {log.action}
+                          </td>
+                          <td className="p-3 whitespace-nowrap align-top">
+                            <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold inline-flex items-center gap-1 ${
+                              isSuccess 
+                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' 
+                                : 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300'
+                            }`}>
+                              {isSuccess ? <CheckCircle2 className="w-3 h-3" /> : <AlertTriangle className="w-3 h-3" />}
+                              <span>{log.http_code} {log.status}</span>
+                            </span>
+                          </td>
+                          <td className="p-3 text-slate-500 capitalize whitespace-nowrap align-top">
+                            {log.triggered_by.replace(/_/g, ' ')}
+                          </td>
+                        </tr>
+                      );
+                    })
                   ) : (
                     <tr>
                       <td colSpan={5} className="p-6 text-center text-slate-500">No indexing submissions recorded yet.</td>

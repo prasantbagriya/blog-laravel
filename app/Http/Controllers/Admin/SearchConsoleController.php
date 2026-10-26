@@ -94,6 +94,16 @@ class SearchConsoleController extends Controller
             }
         } catch (\Throwable $e) {}
 
+        $serviceAccountEmail = null;
+        $projectId = null;
+        if (!empty($settings->service_account_json)) {
+            $sa = is_array($settings->service_account_json) 
+                ? $settings->service_account_json 
+                : json_decode($settings->service_account_json, true);
+            $serviceAccountEmail = $sa['client_email'] ?? null;
+            $projectId = $sa['project_id'] ?? null;
+        }
+
         return Inertia::render('Admin/SearchConsole/Index', [
             'settings' => [
                 'property_id' => $settings->property_id,
@@ -102,6 +112,8 @@ class SearchConsoleController extends Controller
                 'redirect_uri' => $settings->redirect_uri ?: config('services.google.redirect_uri', 'https://coachingsinsikar.com/auth/callback'),
                 'is_connected' => (bool) $settings->is_connected,
                 'auth_mode' => $settings->auth_mode,
+                'service_account_email' => $serviceAccountEmail,
+                'project_id' => $projectId,
                 'auto_index_posts' => (bool) $settings->auto_index_posts,
                 'auto_index_businesses' => (bool) $settings->auto_index_businesses,
                 'auto_index_stories' => (bool) $settings->auto_index_stories,
@@ -597,6 +609,22 @@ class SearchConsoleController extends Controller
             return response()->json(['success' => true, 'results' => $results]);
         } catch (\Throwable $e) {
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Test Google Indexing API connectivity & permissions.
+     */
+    public function testIndexing()
+    {
+        try {
+            $result = $this->indexingService->testConnection();
+            return response()->json($result);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 
