@@ -9,26 +9,32 @@ use App\Models\GscSetting;
 use App\Models\GscSearchAnalytic;
 use App\Models\GscIndexingLog;
 use App\Models\GscInspection;
+use App\Models\PageSpeedAudit;
 use App\Services\Google\GoogleAuthService;
 use App\Services\Google\GoogleSearchConsoleService;
 use App\Services\Google\GoogleIndexingService;
+use App\Services\Google\GooglePageSpeedService;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class SearchConsoleController extends Controller
 {
     protected GoogleAuthService $authService;
     protected GoogleSearchConsoleService $gscService;
     protected GoogleIndexingService $indexingService;
+    protected GooglePageSpeedService $pageSpeedService;
 
     public function __construct(
         GoogleAuthService $authService,
         GoogleSearchConsoleService $gscService,
-        GoogleIndexingService $indexingService
+        GoogleIndexingService $indexingService,
+        GooglePageSpeedService $pageSpeedService
     ) {
         $this->authService = $authService;
         $this->gscService = $gscService;
         $this->indexingService = $indexingService;
+        $this->pageSpeedService = $pageSpeedService;
     }
 
     /**
@@ -104,6 +110,15 @@ class SearchConsoleController extends Controller
             $projectId = $sa['project_id'] ?? null;
         }
 
+        // Auto-heal PageSpeed schema
+        PageSpeedAudit::ensureSchema();
+
+        $pageSpeedApiKey = $this->pageSpeedService->getApiKey();
+        $recentPageSpeedAudits = [];
+        try {
+            $recentPageSpeedAudits = $this->pageSpeedService->getRecentAudits(10);
+        } catch (\Throwable $e) {}
+
         return Inertia::render('Admin/SearchConsole/Index', [
             'settings' => [
                 'property_id' => $settings->property_id,
@@ -125,6 +140,18 @@ class SearchConsoleController extends Controller
                     url('/admin/gsc/callback'),
                 ],
             ],
+            'pageSpeedData' => [
+                'hasApiKey' => !empty($pageSpeedApiKey),
+                'apiKey' => $pageSpeedApiKey,
+                'recentAudits' => $recentPageSpeedAudits,
+                'defaultUrls' => [
+                    ['label' => 'Homepage', 'url' => url('/')],
+                    ['label' => 'Blog Feed', 'url' => url('/blog')],
+                    ['label' => 'Top NEET Article', 'url' => url('/blog/5-best-neet-coachings-in-sikar-based-on-google-reviews')],
+                    ['label' => 'Business Directory', 'url' => url('/category/coaching-institutes')],
+                ],
+            ],
+            'initialTab' => $request->is('admin/pagespeed*') ? 'pagespeed' : $request->get('tab', 'performance'),
             'localSitemaps' => $localSitemaps,
             'initialSitemaps' => $initialSitemaps,
             'cachedQueries' => $cachedTopQueries,
@@ -657,5 +684,75 @@ class SearchConsoleController extends Controller
             'striking_distance' => $strikingDistance,
             'low_ctr' => $lowCtr,
         ]);
+    }
+
+    /**
+     * Run a live Google PageSpeed Insights & Core Web Vitals audit.
+     */
+    public function runPageSpeedAudit(Request $request)
+    {
+        $request->validate([
+            'url' => 'required|string',
+            'strategy' => 'nullable|string|in:mobile,desktop',
+            'forceRefresh' => 'nullable|boolean',
+        ]);
+
+        $url = trim($request->input('url'));
+        $strategy = $request->input('strategy', 'mobile');
+        $force = $request->boolean('forceRefresh');
+
+        try {
+            $audit = $this->pageSpeedService->runAudit($url, $strategy, $force, auth()->id());
+            return response()->json([
+                'success' => true,
+                'audit' => $audit,
+                'message' => 'PageSpeed audit completed successfully!',
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('PageSpeed audit error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    /**
+     * Get recent PageSpeed audit history.
+     */
+    public function getPageSpeedHistory(Request $request)
+    {
+        try {
+            $history = $this->pageSpeedService->getRecentAudits(30);
+            return response()->json([
+                'success' => true,
+                'history' => $history,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Save Google PageSpeed API Key permanently to .env.
+     */
+    public function savePageSpeedApiKey(Request $request)
+    {
+        $request->validate([
+            'api_key' => 'required|string|min:10',
+        ]);
+
+        $saved = $this->pageSpeedService->saveApiKey($request->input('api_key'));
+        if ($saved) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Google PageSpeed Insights API Key saved successfully!',
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'error' => 'Failed to write API key to .env file.',
+        ], 500);
     }
 }

@@ -193,6 +193,12 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/api/admin/gsc/indexing-logs', [\App\Http\Controllers\Admin\SearchConsoleController::class, 'getIndexingLogs']);
     Route::get('/api/admin/gsc/opportunities', [\App\Http\Controllers\Admin\SearchConsoleController::class, 'getKeywordOpportunities']);
 
+    // Google PageSpeed Insights & Core Web Vitals Hub
+    Route::get('/admin/pagespeed', [\App\Http\Controllers\Admin\SearchConsoleController::class, 'index'])->name('admin.pagespeed.index');
+    Route::post('/api/admin/pagespeed/audit', [\App\Http\Controllers\Admin\SearchConsoleController::class, 'runPageSpeedAudit']);
+    Route::get('/api/admin/pagespeed/history', [\App\Http\Controllers\Admin\SearchConsoleController::class, 'getPageSpeedHistory']);
+    Route::post('/api/admin/pagespeed/api-key', [\App\Http\Controllers\Admin\SearchConsoleController::class, 'savePageSpeedApiKey']);
+
     // Facebook Hub & Page Management
     Route::get('/admin/facebook', [\App\Http\Controllers\Admin\AdminFacebookController::class, 'index'])->name('admin.facebook.index');
     Route::post('/admin/facebook/default-page/{pageId}', [\App\Http\Controllers\Admin\AdminFacebookController::class, 'setDefaultPage'])->name('admin.facebook.set_default');

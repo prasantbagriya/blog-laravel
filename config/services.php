@@ -46,6 +46,7 @@ return [
         'redirect_uri' => env('GOOGLE_REDIRECT_URI', 'https://coachingsinsikar.com/auth/callback'),
         'site_url' => env('GOOGLE_SEARCH_CONSOLE_SITE_URL', 'https://coachingsinsikar.com/'),
         'refresh_token' => env('GOOGLE_REFRESH_TOKEN'),
+        'pagespeed_api_key' => env('PAGESPEED_API_KEY', env('GOOGLE_API_KEY')),
     ],
 
     'facebook' => [

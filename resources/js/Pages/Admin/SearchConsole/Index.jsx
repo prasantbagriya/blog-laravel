@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
-import { Search, Globe, Send, Key, Lock, Link as LinkIcon, Terminal, ArrowRight, ShieldCheck, CheckCircle2, AlertTriangle, RefreshCw, FileText, BarChart3, Zap, Settings, Sparkles, Smartphone, TrendingUp, Database, Target, Trash2, ExternalLink, Check, Clock, Copy, Info } from 'lucide-react';
+import { Search, Globe, Send, Key, Lock, Link as LinkIcon, Terminal, ArrowRight, ShieldCheck, CheckCircle2, AlertTriangle, RefreshCw, FileText, BarChart3, Zap, Settings, Sparkles, Smartphone, TrendingUp, Database, Target, Trash2, ExternalLink, Check, Clock, Copy, Info, Gauge } from 'lucide-react';
+import PageSpeedTab from './PageSpeedTab';
 
 export default function SearchConsoleIndex({
   settings: initialSettings,
@@ -11,8 +12,10 @@ export default function SearchConsoleIndex({
   recentLogs = [],
   callbackSuccess = false,
   callbackError = null,
+  pageSpeedData = {},
+  initialTab = 'performance',
 }) {
-  const [activeTab, setActiveTab] = useState('performance');
+  const [activeTab, setActiveTab] = useState(initialTab || 'performance');
   const [settings, setSettings] = useState(initialSettings || {});
   const [loadingAnalytics, setLoadingAnalytics] = useState(false);
   const [analyticsData, setAnalyticsData] = useState(null);
@@ -495,6 +498,7 @@ export default function SearchConsoleIndex({
             { id: 'performance', label: 'Performance', icon: BarChart3, desc: 'Clicks & Rankings' },
             { id: 'inspector', label: 'URL Inspector', icon: Search, desc: 'Live Index Diagnostics' },
             { id: 'indexing', label: 'Instant Indexing', icon: Zap, desc: 'Push to Googlebot' },
+            { id: 'pagespeed', label: 'PageSpeed & CWV', icon: Gauge, desc: 'Core Web Vitals & Audits' },
             { id: 'sitemaps', label: 'Sitemaps', icon: Globe, desc: 'Crawl & Submission' },
             { id: 'opportunities', label: 'Opportunities', icon: Sparkles, desc: 'High Impact Keywords' },
             { id: 'settings', label: 'Settings', icon: Settings, desc: 'API & Auth Setup' },
@@ -1159,6 +1163,16 @@ export default function SearchConsoleIndex({
             </div>
           </div>
         </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* TAB: GOOGLE PAGESPEED INSIGHTS & CORE WEB VITALS */}
+      {/* ========================================================= */}
+      {activeTab === 'pagespeed' && (
+        <PageSpeedTab
+          pageSpeedData={pageSpeedData}
+          defaultUrls={pageSpeedData.defaultUrls || []}
+        />
       )}
 
       {/* ========================================================= */}
