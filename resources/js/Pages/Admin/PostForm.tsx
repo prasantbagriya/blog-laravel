@@ -447,6 +447,18 @@ export default function PostForm({ post }: PostFormProps) {
    const [tags, setTags] = useState<string[]>(post?.tags || []);
    const [tagInput, setTagInput] = useState('');
 
+   const getPostFullUrl = () => {
+      if (typeof window === 'undefined') return '/';
+      const cleanSlug = slug || 'update';
+      const format = urlFormat || 'blog/{slug}';
+      let path = format.replace('{slug}', cleanSlug);
+      if (path.includes('{category}')) {
+         const catSlug = (category || 'general').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+         path = path.replace('{category}', catSlug);
+      }
+      return `${window.location.origin}/${path.replace(/^\//, '')}`;
+   };
+
    // Advanced SEO States
    const [seoTitle, setSeoTitle] = useState(post?.seoTitle || '');
    const [ogTitle, setOgTitle] = useState(post?.ogTitle || '');
@@ -734,6 +746,34 @@ export default function PostForm({ post }: PostFormProps) {
          editor.commands.setContent(aiGeneratedPost.content);
       }
 
+      // Auto-populate 280-char X (Twitter) Tweet from AI Research
+      const aiTitle = aiGeneratedPost.title || title || 'Latest Update in Sikar';
+      const aiSlug = aiGeneratedPost.slug || slug || 'update';
+      const format = urlFormat || 'blog/{slug}';
+      const targetPath = format.replace('{slug}', aiSlug).replace(/^\//, '');
+      const targetUrl = typeof window !== 'undefined' ? `${window.location.origin}/${targetPath}` : `https://coachingsinsikar.com/${targetPath}`;
+      const aiExcerpt = (aiGeneratedPost.excerpt || aiGeneratedPost.metaDescription || '').slice(0, 100);
+
+      const draftTweet = `📢 ${aiTitle}\n\n${aiExcerpt ? aiExcerpt + '...\n\n' : ''}🔗 ${targetUrl}\n\n#Sikar #Education #JEE #NEET`;
+      const finalTweet = draftTweet.length > 280 ? `📢 ${aiTitle.slice(0, 80)}\n\n🔗 ${targetUrl}\n\n#Sikar #Education #JEE #NEET` : draftTweet;
+
+      setXTweetText(finalTweet.slice(0, 280));
+      setTwitterTitle(aiTitle.slice(0, 70));
+      setTwitterDescription(finalTweet.slice(0, 280));
+
+      // Also auto-populate Facebook Caption
+      setFbCaption(`📢 ${aiTitle}\n\n${aiGeneratedPost.excerpt || aiGeneratedPost.metaDescription || ''}\n\n👉 Read complete article here: ${targetUrl}\n\n#CoachingsInSikar #Sikar #Education`);
+
+      // Also auto-populate Pinterest Pin
+      setPinTitle(aiTitle.slice(0, 100));
+      setPinDescription(`Discover the latest updates on ${aiTitle}. Read full guide & rankings: ${targetUrl}\n\n#Sikar #Education #JEE #NEET`);
+
+      // Also auto-populate Instagram Caption
+      setIgCaption(`📢 ${aiTitle}\n\n${aiGeneratedPost.excerpt || aiGeneratedPost.metaDescription || ''}\n\n📍 Sikar, Rajasthan\n👉 Tap link in bio for full review!\n\n#CoachingsInSikar #SikarEducation #JEE #NEET`);
+
+      // Also auto-populate LinkedIn Commentary
+      setLiCommentary(`🎓 ${aiTitle}\n\nKey Insights:\n• ${aiGeneratedPost.keyTakeaways?.[0] || 'In-depth factual comparison'}\n• ${aiGeneratedPost.keyTakeaways?.[1] || 'Verified fee structure & faculty insights'}\n\n👉 Read complete review: ${targetUrl}\n\n#Education #CareerGuidance #SikarEducationHub`);
+
       setIsAiAssisted(true);
       setAiStudioOpen(false);
    };
@@ -838,7 +878,7 @@ export default function PostForm({ post }: PostFormProps) {
    const [isPublishingFb, setIsPublishingFb] = useState(false);
    const [fbPublishedPermalink, setFbPublishedPermalink] = useState<string | null>(null);
 
-   const [xTweetText, setXTweetText] = useState('');
+   const [xTweetText, setXTweetText] = useState(post?.twitterDescription || '');
    const [isGeneratingXDraft, setIsGeneratingXDraft] = useState(false);
    const [isPublishingX, setIsPublishingX] = useState(false);
    const [xPublishedPermalink, setXPublishedPermalink] = useState<string | null>(null);
@@ -866,11 +906,11 @@ export default function PostForm({ post }: PostFormProps) {
             }
          } else {
             setPinTitle((title || 'Best Coaching & Education Updates in Sikar').slice(0, 100));
-            setPinDescription(`Discover the latest updates, top coaching institutes, fee structures, and admissions guides in Sikar. Read full review: ${window.location.origin}/${url_format || 'blog'}/${slug || ''}\n\n#Sikar #Education #JEE #NEET`);
+            setPinDescription(`Discover the latest updates, top coaching institutes, fee structures, and admissions guides in Sikar. Read full review: ${getPostFullUrl()}\n\n#Sikar #Education #JEE #NEET`);
          }
       } catch (e) {
          setPinTitle((title || 'Best Coaching & Education Updates in Sikar').slice(0, 100));
-         setPinDescription(`Discover the latest updates, top coaching institutes, fee structures, and admissions guides in Sikar. Read full review: ${window.location.origin}/${url_format || 'blog'}/${slug || ''}\n\n#Sikar #Education #JEE #NEET`);
+         setPinDescription(`Discover the latest updates, top coaching institutes, fee structures, and admissions guides in Sikar. Read full review: ${getPostFullUrl()}\n\n#Sikar #Education #JEE #NEET`);
       } finally {
          setIsGeneratingPinDraft(false);
       }
@@ -910,7 +950,7 @@ export default function PostForm({ post }: PostFormProps) {
                title: pinTitle,
                description: pinDescription,
                image_url: finalImage,
-               target_link: window.location.origin + '/' + (url_format ? (url_format.endsWith('/') ? url_format : url_format + '/') : 'blog/') + (slug || '')
+               target_link: getPostFullUrl()
             })
          });
          const data = await res.json();
@@ -1003,15 +1043,21 @@ export default function PostForm({ post }: PostFormProps) {
       setIsGeneratingLiDraft(true);
       try {
          const targetId = post?.id || slug || 'draft';
-         const res = await fetch(`/api/admin/linkedin/draft/${targetId}`);
+         const queryParams = new URLSearchParams({
+            title: title || '',
+            slug: slug || '',
+            category: category || '',
+            excerpt: excerpt || metaDescription || '',
+         });
+         const res = await fetch(`/api/admin/linkedin/draft/${targetId}?${queryParams.toString()}`);
          const data = await res.json();
          if (data.success && data.draft) {
             setLiCommentary(data.draft.commentary || '');
          } else {
-            setLiCommentary(`🎓 ${title || 'Top Coaching & Education Update in Sikar'}\n\nKey Takeaways for Students & Parents:\n• Verified benchmarks on student-to-faculty ratios\n• Transparent admissions deadlines & criteria\n\n👉 Read complete review: ${window.location.origin}/${url_format || 'blog'}/${slug || ''}\n\n#Education #CareerGuidance #SikarEducationHub #IITJEE #NEETUG`);
+            setLiCommentary(`🎓 ${title || 'Top Coaching & Education Update in Sikar'}\n\nKey Takeaways for Students & Parents:\n• Verified benchmarks on student-to-faculty ratios\n• Transparent admissions deadlines & criteria\n\n👉 Read complete review: ${getPostFullUrl()}\n\n#Education #CareerGuidance #SikarEducationHub #IITJEE #NEETUG`);
          }
       } catch (e) {
-         setLiCommentary(`🎓 ${title || 'Top Coaching & Education Update in Sikar'}\n\nKey Takeaways for Students & Parents:\n• Verified benchmarks on student-to-faculty ratios\n• Transparent admissions deadlines & criteria\n\n👉 Read complete review: ${window.location.origin}/${url_format || 'blog'}/${slug || ''}\n\n#Education #CareerGuidance #SikarEducationHub #IITJEE #NEETUG`);
+         setLiCommentary(`🎓 ${title || 'Top Coaching & Education Update in Sikar'}\n\nKey Takeaways for Students & Parents:\n• Verified benchmarks on student-to-faculty ratios\n• Transparent admissions deadlines & criteria\n\n👉 Read complete review: ${getPostFullUrl()}\n\n#Education #CareerGuidance #SikarEducationHub #IITJEE #NEETUG`);
       } finally {
          setIsGeneratingLiDraft(false);
       }
@@ -1030,7 +1076,7 @@ export default function PostForm({ post }: PostFormProps) {
          const shareId = draftData.share_id || (draftData.share ? draftData.share.id : null);
 
          const finalImage = coverImage ? (coverImage.startsWith('http') ? coverImage : window.location.origin + coverImage) : null;
-         const finalLink = window.location.origin + '/' + (url_format ? (url_format.endsWith('/') ? url_format : url_format + '/') : 'blog/') + (slug || '');
+         const finalLink = getPostFullUrl();
 
          const res = await fetch('/api/admin/linkedin/approve-publish', {
             method: 'POST',
@@ -1065,15 +1111,30 @@ export default function PostForm({ post }: PostFormProps) {
       setIsGeneratingXDraft(true);
       try {
          const targetId = post?.id || slug || 'draft';
-         const res = await fetch(`/api/admin/x/draft/${targetId}`);
+         const queryParams = new URLSearchParams({
+            title: title || '',
+            slug: slug || '',
+            category: category || '',
+            excerpt: excerpt || metaDescription || '',
+            coverImage: coverImage || '',
+         });
+         const res = await fetch(`/api/admin/x/draft/${targetId}?${queryParams.toString()}`);
          const data = await res.json();
-         if (data.success && data.draft) {
+         if (data.success && data.draft && data.draft.text) {
             setXTweetText(data.draft.text);
+            setTwitterTitle((title || '').slice(0, 70));
+            setTwitterDescription(data.draft.text);
          } else {
-            setXTweetText(`📢 ${title || 'Latest Update'}\n\n🔗 ${window.location.origin}/${url_format || 'blog'}/${slug || ''}\n\n#Sikar #Education`);
+            const fallbackText = `📢 ${title || 'Latest Education Update in Sikar'}\n\n🔗 ${getPostFullUrl()}\n\n#Sikar #Education #JEE #NEET`;
+            setXTweetText(fallbackText.slice(0, 280));
+            setTwitterTitle((title || '').slice(0, 70));
+            setTwitterDescription(fallbackText.slice(0, 280));
          }
       } catch (e) {
-         setXTweetText(`📢 ${title || 'Latest Update'}\n\n🔗 ${window.location.origin}/${url_format || 'blog'}/${slug || ''}\n\n#Sikar #Education`);
+         const fallbackText = `📢 ${title || 'Latest Education Update in Sikar'}\n\n🔗 ${getPostFullUrl()}\n\n#Sikar #Education #JEE #NEET`;
+         setXTweetText(fallbackText.slice(0, 280));
+         setTwitterTitle((title || '').slice(0, 70));
+         setTwitterDescription(fallbackText.slice(0, 280));
       } finally {
          setIsGeneratingXDraft(false);
       }
@@ -1101,7 +1162,7 @@ export default function PostForm({ post }: PostFormProps) {
                share_id: shareId,
                text: xTweetText,
                media_url: coverImage ? (coverImage.startsWith('http') ? coverImage : window.location.origin + coverImage) : null,
-               target_link: window.location.origin + '/' + (url_format ? (url_format.endsWith('/') ? url_format : url_format + '/') : 'blog/') + (slug || '')
+               target_link: getPostFullUrl()
             })
          });
          const data = await res.json();
@@ -1122,7 +1183,13 @@ export default function PostForm({ post }: PostFormProps) {
       setIsGeneratingFbCaption(true);
       try {
          const targetId = post?.id || slug || 'draft';
-         const res = await fetch(`/api/admin/facebook/draft/${targetId}`);
+         const queryParams = new URLSearchParams({
+            title: title || '',
+            slug: slug || '',
+            category: category || '',
+            excerpt: excerpt || metaDescription || '',
+         });
+         const res = await fetch(`/api/admin/facebook/draft/${targetId}?${queryParams.toString()}`);
          const data = await res.json();
          if (data.success && data.draft) {
             setFbCaption(data.draft.caption);
@@ -1132,11 +1199,11 @@ export default function PostForm({ post }: PostFormProps) {
             }
          } else {
             const tags = ['#CoachingsinSikar', '#SikarEducation', '#JEE', '#NEET'];
-            setFbCaption(`📢 ${title || 'Latest Update'}\n\n👉 Read complete details here: ${window.location.origin}/${url_format || 'blog'}/${slug || ''}\n\n${tags.join(' ')}`);
+            setFbCaption(`📢 ${title || 'Latest Update'}\n\n👉 Read complete details here: ${getPostFullUrl()}\n\n${tags.join(' ')}`);
          }
       } catch (e) {
          const tags = ['#CoachingsinSikar', '#SikarEducation', '#JEE', '#NEET'];
-         setFbCaption(`📢 ${title || 'Latest Update'}\n\n👉 Read complete details here: ${window.location.origin}/${url_format || 'blog'}/${slug || ''}\n\n${tags.join(' ')}`);
+         setFbCaption(`📢 ${title || 'Latest Update'}\n\n👉 Read complete details here: ${getPostFullUrl()}\n\n${tags.join(' ')}`);
       } finally {
          setIsGeneratingFbCaption(false);
       }
@@ -1160,7 +1227,7 @@ export default function PostForm({ post }: PostFormProps) {
                facebook_page_id: fbPageId,
                caption: fbCaption,
                image_url: coverImage ? (coverImage.startsWith('http') ? coverImage : window.location.origin + coverImage) : null,
-               target_link: window.location.origin + '/' + (url_format ? (url_format.endsWith('/') ? url_format : url_format + '/') : 'blog/') + (slug || '')
+               target_link: getPostFullUrl()
             })
          });
          const data = await res.json();
@@ -1753,7 +1820,9 @@ export default function PostForm({ post }: PostFormProps) {
             authorImage,
             authorSocials,
             seoTitle, ogTitle, ogDescription, canonicalUrl, keywords,
-            twitterCard, twitterTitle, twitterDescription,
+            twitterCard,
+            twitterTitle: twitterTitle || (title ? title.slice(0, 70) : undefined),
+            twitterDescription: xTweetText || twitterDescription || excerpt || metaDescription,
             category, tags, faqs, howToSteps, localBusiness, seoRating,
             published,
             date: post?.date || new Date().toISOString().split('T')[0],
@@ -3294,15 +3363,27 @@ export default function PostForm({ post }: PostFormProps) {
                            <div>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
                                  <label style={metaLabelStyle}>EDIT TWEET (MAX 280 CHARACTERS)</label>
-                                 <span
-                                    style={{
-                                       fontSize: '11px',
-                                       fontWeight: 800,
-                                       color: xTweetText.length > 280 ? '#ef4444' : (xTweetText.length > 250 ? '#f59e0b' : '#64748b'),
-                                    }}
-                                 >
-                                    {xTweetText.length} / 280
-                                 </span>
+                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    {!xTweetText && (
+                                       <button
+                                          type="button"
+                                          onClick={(e) => { e.preventDefault(); generateXDraft(); }}
+                                          disabled={isGeneratingXDraft}
+                                          style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 700, cursor: 'pointer' }}
+                                       >
+                                          {isGeneratingXDraft ? 'Generating...' : '✨ Generate AI Tweet'}
+                                       </button>
+                                    )}
+                                    <span
+                                       style={{
+                                          fontSize: '11px',
+                                          fontWeight: 800,
+                                          color: xTweetText.length > 280 ? '#ef4444' : (xTweetText.length > 250 ? '#f59e0b' : '#64748b'),
+                                       }}
+                                    >
+                                       {xTweetText.length} / 280
+                                    </span>
+                                 </div>
                               </div>
                               <textarea
                                  rows={5}

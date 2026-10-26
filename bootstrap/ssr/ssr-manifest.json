@@ -4,7 +4,7 @@
   ],
   "node_modules/laravel-vite-plugin/inertia-helpers/index.js": [],
   "resources/css/app.css": [
-    "/build/assets/PostForm-C_ilqH5U.js",
+    "/build/assets/PostForm-DIVYTMMw.js",
     "/build/assets/PostForm-Dc5sDyQE.css",
     "/build/assets/outfit-latin-ext-400-normal-5tcqmc2S.woff2",
     "/build/assets/outfit-latin-ext-400-normal-DHm7mdGe.woff",
@@ -149,7 +149,7 @@
     "/build/assets/Index-BE3e5FtJ.js"
   ],
   "resources/js/Pages/Admin/PostForm.tsx": [
-    "/build/assets/PostForm-C_ilqH5U.js",
+    "/build/assets/PostForm-DIVYTMMw.js",
     "/build/assets/PostForm-Dc5sDyQE.css",
     "/build/assets/outfit-latin-ext-400-normal-5tcqmc2S.woff2",
     "/build/assets/outfit-latin-ext-400-normal-DHm7mdGe.woff",
@@ -165,10 +165,10 @@
     "/build/assets/outfit-latin-700-normal-D4itBLBr.woff"
   ],
   "resources/js/Pages/Admin/Posts/Edit.jsx": [
-    "/build/assets/Edit-BJ2B2VKs.js"
+    "/build/assets/Edit-DJfHLWel.js"
   ],
   "resources/js/Pages/Admin/Posts/New.jsx": [
-    "/build/assets/New-1G73EVLv.js"
+    "/build/assets/New-BfhTkHMt.js"
   ],
   "resources/js/Pages/Admin/SearchConsole/Index.jsx": [
     "/build/assets/Index-CrlyHdhj.js"

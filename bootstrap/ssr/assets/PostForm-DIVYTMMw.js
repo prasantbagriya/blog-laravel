@@ -851,6 +851,16 @@ function PostForm({ post }) {
 	const [category, setCategory] = useState(post?.category || "General");
 	const [tags, setTags] = useState(post?.tags || []);
 	const [tagInput, setTagInput] = useState("");
+	const getPostFullUrl = () => {
+		if (typeof window === "undefined") return "/";
+		const cleanSlug = slug || "update";
+		let path = (urlFormat || "blog/{slug}").replace("{slug}", cleanSlug);
+		if (path.includes("{category}")) {
+			const catSlug = (category || "general").toLowerCase().replace(/[^a-z0-9]+/g, "-");
+			path = path.replace("{category}", catSlug);
+		}
+		return `${window.location.origin}/${path.replace(/^\//, "")}`;
+	};
 	const [seoTitle, setSeoTitle] = useState(post?.seoTitle || "");
 	const [ogTitle, setOgTitle] = useState(post?.ogTitle || "");
 	const [ogDescription, setOgDescription] = useState(post?.ogDescription || "");
@@ -1163,6 +1173,21 @@ function PostForm({ post }) {
 		if (aiGeneratedPost.faqs && Array.isArray(aiGeneratedPost.faqs)) setFaqs(aiGeneratedPost.faqs);
 		if (aiGeneratedPost.sources && Array.isArray(aiGeneratedPost.sources)) setSources(aiGeneratedPost.sources);
 		if (aiGeneratedPost.content && editor) editor.commands.setContent(aiGeneratedPost.content);
+		const aiTitle = aiGeneratedPost.title || title || "Latest Update in Sikar";
+		const aiSlug = aiGeneratedPost.slug || slug || "update";
+		const targetPath = (urlFormat || "blog/{slug}").replace("{slug}", aiSlug).replace(/^\//, "");
+		const targetUrl = typeof window !== "undefined" ? `${window.location.origin}/${targetPath}` : `https://coachingsinsikar.com/${targetPath}`;
+		const aiExcerpt = (aiGeneratedPost.excerpt || aiGeneratedPost.metaDescription || "").slice(0, 100);
+		const draftTweet = `📢 ${aiTitle}\n\n${aiExcerpt ? aiExcerpt + "...\n\n" : ""}🔗 ${targetUrl}\n\n#Sikar #Education #JEE #NEET`;
+		const finalTweet = draftTweet.length > 280 ? `📢 ${aiTitle.slice(0, 80)}\n\n🔗 ${targetUrl}\n\n#Sikar #Education #JEE #NEET` : draftTweet;
+		setXTweetText(finalTweet.slice(0, 280));
+		setTwitterTitle(aiTitle.slice(0, 70));
+		setTwitterDescription(finalTweet.slice(0, 280));
+		setFbCaption(`📢 ${aiTitle}\n\n${aiGeneratedPost.excerpt || aiGeneratedPost.metaDescription || ""}\n\n👉 Read complete article here: ${targetUrl}\n\n#CoachingsInSikar #Sikar #Education`);
+		setPinTitle(aiTitle.slice(0, 100));
+		setPinDescription(`Discover the latest updates on ${aiTitle}. Read full guide & rankings: ${targetUrl}\n\n#Sikar #Education #JEE #NEET`);
+		setIgCaption(`📢 ${aiTitle}\n\n${aiGeneratedPost.excerpt || aiGeneratedPost.metaDescription || ""}\n\n📍 Sikar, Rajasthan\n👉 Tap link in bio for full review!\n\n#CoachingsInSikar #SikarEducation #JEE #NEET`);
+		setLiCommentary(`🎓 ${aiTitle}\n\nKey Insights:\n• ${aiGeneratedPost.keyTakeaways?.[0] || "In-depth factual comparison"}\n• ${aiGeneratedPost.keyTakeaways?.[1] || "Verified fee structure & faculty insights"}\n\n👉 Read complete review: ${targetUrl}\n\n#Education #CareerGuidance #SikarEducationHub`);
 		setIsAiAssisted(true);
 		setAiStudioOpen(false);
 	};
@@ -1247,7 +1272,7 @@ function PostForm({ post }) {
 	const [isGeneratingFbCaption, setIsGeneratingFbCaption] = useState(false);
 	const [isPublishingFb, setIsPublishingFb] = useState(false);
 	const [fbPublishedPermalink, setFbPublishedPermalink] = useState(null);
-	const [xTweetText, setXTweetText] = useState("");
+	const [xTweetText, setXTweetText] = useState(post?.twitterDescription || "");
 	const [isGeneratingXDraft, setIsGeneratingXDraft] = useState(false);
 	const [isPublishingX, setIsPublishingX] = useState(false);
 	const [xPublishedPermalink, setXPublishedPermalink] = useState(null);
@@ -1272,11 +1297,11 @@ function PostForm({ post }) {
 				}
 			} else {
 				setPinTitle((title || "Best Coaching & Education Updates in Sikar").slice(0, 100));
-				setPinDescription(`Discover the latest updates, top coaching institutes, fee structures, and admissions guides in Sikar. Read full review: ${window.location.origin}/${url_format || "blog"}/${slug || ""}\n\n#Sikar #Education #JEE #NEET`);
+				setPinDescription(`Discover the latest updates, top coaching institutes, fee structures, and admissions guides in Sikar. Read full review: ${getPostFullUrl()}\n\n#Sikar #Education #JEE #NEET`);
 			}
 		} catch (e) {
 			setPinTitle((title || "Best Coaching & Education Updates in Sikar").slice(0, 100));
-			setPinDescription(`Discover the latest updates, top coaching institutes, fee structures, and admissions guides in Sikar. Read full review: ${window.location.origin}/${url_format || "blog"}/${slug || ""}\n\n#Sikar #Education #JEE #NEET`);
+			setPinDescription(`Discover the latest updates, top coaching institutes, fee structures, and admissions guides in Sikar. Read full review: ${getPostFullUrl()}\n\n#Sikar #Education #JEE #NEET`);
 		} finally {
 			setIsGeneratingPinDraft(false);
 		}
@@ -1313,7 +1338,7 @@ function PostForm({ post }) {
 					title: pinTitle,
 					description: pinDescription,
 					image_url: finalImage,
-					target_link: window.location.origin + "/" + (url_format ? url_format.endsWith("/") ? url_format : url_format + "/" : "blog/") + (slug || "")
+					target_link: getPostFullUrl()
 				})
 			})).json();
 			if (data.success) {
@@ -1389,11 +1414,17 @@ function PostForm({ post }) {
 		setIsGeneratingLiDraft(true);
 		try {
 			const targetId = post?.id || slug || "draft";
-			const data = await (await fetch(`/api/admin/linkedin/draft/${targetId}`)).json();
+			const queryParams = new URLSearchParams({
+				title: title || "",
+				slug: slug || "",
+				category: category || "",
+				excerpt: excerpt || metaDescription || ""
+			});
+			const data = await (await fetch(`/api/admin/linkedin/draft/${targetId}?${queryParams.toString()}`)).json();
 			if (data.success && data.draft) setLiCommentary(data.draft.commentary || "");
-			else setLiCommentary(`🎓 ${title || "Top Coaching & Education Update in Sikar"}\n\nKey Takeaways for Students & Parents:\n• Verified benchmarks on student-to-faculty ratios\n• Transparent admissions deadlines & criteria\n\n👉 Read complete review: ${window.location.origin}/${url_format || "blog"}/${slug || ""}\n\n#Education #CareerGuidance #SikarEducationHub #IITJEE #NEETUG`);
+			else setLiCommentary(`🎓 ${title || "Top Coaching & Education Update in Sikar"}\n\nKey Takeaways for Students & Parents:\n• Verified benchmarks on student-to-faculty ratios\n• Transparent admissions deadlines & criteria\n\n👉 Read complete review: ${getPostFullUrl()}\n\n#Education #CareerGuidance #SikarEducationHub #IITJEE #NEETUG`);
 		} catch (e) {
-			setLiCommentary(`🎓 ${title || "Top Coaching & Education Update in Sikar"}\n\nKey Takeaways for Students & Parents:\n• Verified benchmarks on student-to-faculty ratios\n• Transparent admissions deadlines & criteria\n\n👉 Read complete review: ${window.location.origin}/${url_format || "blog"}/${slug || ""}\n\n#Education #CareerGuidance #SikarEducationHub #IITJEE #NEETUG`);
+			setLiCommentary(`🎓 ${title || "Top Coaching & Education Update in Sikar"}\n\nKey Takeaways for Students & Parents:\n• Verified benchmarks on student-to-faculty ratios\n• Transparent admissions deadlines & criteria\n\n👉 Read complete review: ${getPostFullUrl()}\n\n#Education #CareerGuidance #SikarEducationHub #IITJEE #NEETUG`);
 		} finally {
 			setIsGeneratingLiDraft(false);
 		}
@@ -1409,7 +1440,7 @@ function PostForm({ post }) {
 			const draftData = await (await fetch(`/api/admin/linkedin/draft/${targetId}`)).json();
 			const shareId = draftData.share_id || (draftData.share ? draftData.share.id : null);
 			const finalImage = coverImage ? coverImage.startsWith("http") ? coverImage : window.location.origin + coverImage : null;
-			const finalLink = window.location.origin + "/" + (url_format ? url_format.endsWith("/") ? url_format : url_format + "/" : "blog/") + (slug || "");
+			const finalLink = getPostFullUrl();
 			const data = await (await fetch("/api/admin/linkedin/approve-publish", {
 				method: "POST",
 				headers: {
@@ -1439,11 +1470,29 @@ function PostForm({ post }) {
 		setIsGeneratingXDraft(true);
 		try {
 			const targetId = post?.id || slug || "draft";
-			const data = await (await fetch(`/api/admin/x/draft/${targetId}`)).json();
-			if (data.success && data.draft) setXTweetText(data.draft.text);
-			else setXTweetText(`📢 ${title || "Latest Update"}\n\n🔗 ${window.location.origin}/${url_format || "blog"}/${slug || ""}\n\n#Sikar #Education`);
+			const queryParams = new URLSearchParams({
+				title: title || "",
+				slug: slug || "",
+				category: category || "",
+				excerpt: excerpt || metaDescription || "",
+				coverImage: coverImage || ""
+			});
+			const data = await (await fetch(`/api/admin/x/draft/${targetId}?${queryParams.toString()}`)).json();
+			if (data.success && data.draft && data.draft.text) {
+				setXTweetText(data.draft.text);
+				setTwitterTitle((title || "").slice(0, 70));
+				setTwitterDescription(data.draft.text);
+			} else {
+				const fallbackText = `📢 ${title || "Latest Education Update in Sikar"}\n\n🔗 ${getPostFullUrl()}\n\n#Sikar #Education #JEE #NEET`;
+				setXTweetText(fallbackText.slice(0, 280));
+				setTwitterTitle((title || "").slice(0, 70));
+				setTwitterDescription(fallbackText.slice(0, 280));
+			}
 		} catch (e) {
-			setXTweetText(`📢 ${title || "Latest Update"}\n\n🔗 ${window.location.origin}/${url_format || "blog"}/${slug || ""}\n\n#Sikar #Education`);
+			const fallbackText = `📢 ${title || "Latest Education Update in Sikar"}\n\n🔗 ${getPostFullUrl()}\n\n#Sikar #Education #JEE #NEET`;
+			setXTweetText(fallbackText.slice(0, 280));
+			setTwitterTitle((title || "").slice(0, 70));
+			setTwitterDescription(fallbackText.slice(0, 280));
 		} finally {
 			setIsGeneratingXDraft(false);
 		}
@@ -1468,7 +1517,7 @@ function PostForm({ post }) {
 					share_id: shareId,
 					text: xTweetText,
 					media_url: coverImage ? coverImage.startsWith("http") ? coverImage : window.location.origin + coverImage : null,
-					target_link: window.location.origin + "/" + (url_format ? url_format.endsWith("/") ? url_format : url_format + "/" : "blog/") + (slug || "")
+					target_link: getPostFullUrl()
 				})
 			})).json();
 			if (data.success) {
@@ -1485,21 +1534,27 @@ function PostForm({ post }) {
 		setIsGeneratingFbCaption(true);
 		try {
 			const targetId = post?.id || slug || "draft";
-			const data = await (await fetch(`/api/admin/facebook/draft/${targetId}`)).json();
+			const queryParams = new URLSearchParams({
+				title: title || "",
+				slug: slug || "",
+				category: category || "",
+				excerpt: excerpt || metaDescription || ""
+			});
+			const data = await (await fetch(`/api/admin/facebook/draft/${targetId}?${queryParams.toString()}`)).json();
 			if (data.success && data.draft) {
 				setFbCaption(data.draft.caption);
 				if (data.page) {
 					setFbPageName(data.page.name);
 					setFbPageId(data.page.id);
 				}
-			} else setFbCaption(`📢 ${title || "Latest Update"}\n\n👉 Read complete details here: ${window.location.origin}/${url_format || "blog"}/${slug || ""}\n\n${[
+			} else setFbCaption(`📢 ${title || "Latest Update"}\n\n👉 Read complete details here: ${getPostFullUrl()}\n\n${[
 				"#CoachingsinSikar",
 				"#SikarEducation",
 				"#JEE",
 				"#NEET"
 			].join(" ")}`);
 		} catch (e) {
-			setFbCaption(`📢 ${title || "Latest Update"}\n\n👉 Read complete details here: ${window.location.origin}/${url_format || "blog"}/${slug || ""}\n\n${[
+			setFbCaption(`📢 ${title || "Latest Update"}\n\n👉 Read complete details here: ${getPostFullUrl()}\n\n${[
 				"#CoachingsinSikar",
 				"#SikarEducation",
 				"#JEE",
@@ -1527,7 +1582,7 @@ function PostForm({ post }) {
 					facebook_page_id: fbPageId,
 					caption: fbCaption,
 					image_url: coverImage ? coverImage.startsWith("http") ? coverImage : window.location.origin + coverImage : null,
-					target_link: window.location.origin + "/" + (url_format ? url_format.endsWith("/") ? url_format : url_format + "/" : "blog/") + (slug || "")
+					target_link: getPostFullUrl()
 				})
 			})).json();
 			if (data.success) {
@@ -2192,8 +2247,8 @@ function PostForm({ post }) {
 				canonicalUrl,
 				keywords,
 				twitterCard,
-				twitterTitle,
-				twitterDescription,
+				twitterTitle: twitterTitle || (title ? title.slice(0, 70) : void 0),
+				twitterDescription: xTweetText || twitterDescription || excerpt || metaDescription,
 				category,
 				tags,
 				faqs,
@@ -8180,13 +8235,38 @@ function PostForm({ post }) {
 											children: [/* @__PURE__ */ jsx("label", {
 												style: metaLabelStyle,
 												children: "EDIT TWEET (MAX 280 CHARACTERS)"
-											}), /* @__PURE__ */ jsxs("span", {
+											}), /* @__PURE__ */ jsxs("div", {
 												style: {
-													fontSize: "11px",
-													fontWeight: 800,
-													color: xTweetText.length > 280 ? "#ef4444" : xTweetText.length > 250 ? "#f59e0b" : "#64748b"
+													display: "flex",
+													alignItems: "center",
+													gap: "8px"
 												},
-												children: [xTweetText.length, " / 280"]
+												children: [!xTweetText && /* @__PURE__ */ jsx("button", {
+													type: "button",
+													onClick: (e) => {
+														e.preventDefault();
+														generateXDraft();
+													},
+													disabled: isGeneratingXDraft,
+													style: {
+														background: "#2563eb",
+														color: "#fff",
+														border: "none",
+														padding: "2px 8px",
+														borderRadius: "4px",
+														fontSize: "10px",
+														fontWeight: 700,
+														cursor: "pointer"
+													},
+													children: isGeneratingXDraft ? "Generating..." : "✨ Generate AI Tweet"
+												}), /* @__PURE__ */ jsxs("span", {
+													style: {
+														fontSize: "11px",
+														fontWeight: 800,
+														color: xTweetText.length > 280 ? "#ef4444" : xTweetText.length > 250 ? "#f59e0b" : "#64748b"
+													},
+													children: [xTweetText.length, " / 280"]
+												})]
 											})]
 										}), /* @__PURE__ */ jsx("textarea", {
 											rows: 5,

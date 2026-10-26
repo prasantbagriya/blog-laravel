@@ -219,31 +219,65 @@ class AdminXController extends Controller
      */
     public function generateDraft(Request $request, $postId)
     {
-        $post = Post::findOrFail($postId);
-        $draft = $this->captionService->generateForPost($post);
+        $post = Post::find($postId) ?: Post::where('slug', $postId)->first();
+        $account = XAccount::active();
 
-        // Check if pending share already exists
-        $share = XPostShare::where('post_id', $postId)
-            ->where('status', 'pending_approval')
-            ->first();
+        if ($post) {
+            $draft = $this->captionService->generateForPost($post);
 
-        if (!$share) {
-            $account = XAccount::active();
-            $share = XPostShare::create([
-                'post_id' => $post->id,
-                'x_account_id' => $account?->id,
-                'text' => $draft['text'],
-                'media_url' => $draft['image_url'],
-                'target_link' => $draft['target_link'],
-                'status' => 'pending_approval',
+            // Check if pending share already exists
+            $share = XPostShare::where('post_id', $post->id)
+                ->where('status', 'pending_approval')
+                ->first();
+
+            if (!$share) {
+                $share = XPostShare::create([
+                    'post_id' => $post->id,
+                    'x_account_id' => $account?->id,
+                    'text' => $draft['text'],
+                    'media_url' => $draft['image_url'],
+                    'target_link' => $draft['target_link'],
+                    'status' => 'pending_approval',
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'share_id' => $share?->id,
+                'draft' => $draft,
+                'share' => $share,
+                'account' => $account ? [
+                    'id' => $account->id,
+                    'username' => $account->username,
+                ] : null,
             ]);
         }
 
+        // Graceful fallback for new / unsaved post drafts
+        $title = $request->input('title', 'Latest Update in Sikar');
+        $slug = $request->input('slug', 'update');
+        $category = $request->input('category', 'Education');
+        $coverImage = $request->input('coverImage') ?: $request->input('cover_image');
+
+        $tempPost = new Post([
+            'title' => $title,
+            'slug' => $slug,
+            'category' => $category,
+            'coverImage' => $coverImage,
+            'url_format' => 'blog/{slug}',
+        ]);
+
+        $draft = $this->captionService->generateForPost($tempPost);
+
         return response()->json([
             'success' => true,
-            'share_id' => $share->id,
+            'share_id' => null,
             'draft' => $draft,
-            'share' => $share,
+            'share' => null,
+            'account' => $account ? [
+                'id' => $account->id,
+                'username' => $account->username,
+            ] : null,
         ]);
     }
 

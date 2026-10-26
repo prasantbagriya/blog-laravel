@@ -131,6 +131,26 @@ class XIntegrationTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_generate_draft_for_unsaved_post()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+            'is_admin' => true,
+        ]);
+
+        $response = $this->actingAs($admin)->getJson("/api/admin/x/draft/draft?title=Top+JEE+Coaching+in+Sikar&slug=top-jee-coaching-sikar&category=Engineering");
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+        ]);
+        $response->assertJsonStructure([
+            'success',
+            'draft' => ['title', 'text', 'target_link'],
+        ]);
+        $this->assertNotEmpty($response->json('draft.text'));
+        $this->assertLessThanOrEqual(280, mb_strlen($response->json('draft.text')));
+    }
+
     public function test_admin_can_approve_and_publish_tweet()
     {
         Http::fake([
