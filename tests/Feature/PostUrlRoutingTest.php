@@ -102,4 +102,41 @@ class PostUrlRoutingTest extends TestCase
         // Non-existent direct URL must 404
         $this->get('/non-existent-direct-slug-456')->assertStatus(404);
     }
+
+    public function test_post_without_url_format_defaults_to_direct_root(): void
+    {
+        $post = Post::factory()->create([
+            'title' => 'Default Direct Post',
+            'slug' => 'default-direct-post',
+            'url_format' => null,
+            'published' => true,
+        ]);
+
+        $this->assertEquals('/default-direct-post', $post->url_path);
+        $this->get('/default-direct-post')->assertStatus(200);
+    }
+
+    public function test_post_controller_stores_direct_url_format(): void
+    {
+        $admin = \App\Models\User::factory()->create([
+            'role' => 'super_admin',
+            'is_admin' => true,
+        ]);
+
+        $response = $this->actingAs($admin)->postJson('/api/admin/posts', [
+            'title' => 'Direct Published Institute Post',
+            'slug' => 'direct-published-institute-post',
+            'url_format' => 'direct',
+            'published' => true,
+            'content' => '<p>Post content directly published.</p>',
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('posts', [
+            'slug' => 'direct-published-institute-post',
+            'url_format' => '{slug}',
+        ]);
+
+        $this->get('/direct-published-institute-post')->assertStatus(200);
+    }
 }

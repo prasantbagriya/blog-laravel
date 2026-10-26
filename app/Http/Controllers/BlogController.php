@@ -153,19 +153,23 @@ class BlogController extends Controller
         $currentUrl = url()->current();
         $finalCanonicalUrl = !empty($post->canonicalUrl) ? $post->canonicalUrl : $currentUrl;
         
-        $pathSegments = explode('/', trim($canonicalPath, '/'));
-        $basePageSlug = count($pathSegments) > 1 ? $pathSegments[0] : 'blog';
-        $pageType = ucfirst($basePageSlug);
+        $pathSegments = array_values(array_filter(explode('/', trim($canonicalPath, '/'))));
+        $isDirectRoot = count($pathSegments) <= 1;
+        $basePageSlug = !$isDirectRoot ? $pathSegments[0] : 'blog';
+        $pageType = $isDirectRoot ? 'Article' : ucfirst($basePageSlug);
 
         $schemas = [];
         
         // 1. Breadcrumb Schema
         $breadcrumbItems = [
-            ["@type" => "ListItem", "position" => 1, "name" => "Home", "item" => url('/')],
-            ["@type" => "ListItem", "position" => 2, "name" => $pageType, "item" => url('/' . $basePageSlug)]
+            ["@type" => "ListItem", "position" => 1, "name" => "Home", "item" => url('/')]
         ];
         
-        $position = 3;
+        $position = 2;
+        if (!$isDirectRoot) {
+            $breadcrumbItems[] = ["@type" => "ListItem", "position" => $position, "name" => $pageType, "item" => url('/' . $basePageSlug)];
+            $position++;
+        }
         $categoryName = $post->category;
 
         if (!empty($categoryName)) {

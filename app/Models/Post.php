@@ -43,9 +43,9 @@ class Post extends Model
 
     public function getUrlPathAttribute()
     {
-        $format = !empty($this->url_format) ? trim($this->url_format) : 'blog/{slug}';
+        $format = !empty($this->url_format) ? trim($this->url_format) : '{slug}';
         if ($format === 'direct' || $format === '/' || $format === '{slug}' || $format === '/{slug}') {
-            $format = '{slug}';
+            return '/' . ltrim($this->slug ?? '', '/');
         }
         
         $path = str_replace('{slug}', $this->slug ?? '', $format);

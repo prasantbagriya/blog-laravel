@@ -828,7 +828,15 @@ function PostForm({ post }) {
 	}, [isResizing]);
 	const [title, setTitle] = useState(post?.title || "");
 	const [slug, setSlug] = useState(post?.slug || "");
-	const [urlFormat, setUrlFormat] = useState(post?.url_format || "blog/{slug}");
+	const getInitialBasePage = (format) => {
+		if (!format || format === "{slug}" || format === "direct" || format === "/" || format === "/{slug}") return "direct";
+		return format.split("/")[0];
+	};
+	const [selectedBasePage, setSelectedBasePage] = useState(getInitialBasePage(post?.url_format));
+	const [urlFormat, setUrlFormat] = useState(() => {
+		if (!post?.url_format || post.url_format === "direct" || post.url_format === "/" || post.url_format === "/{slug}" || post.url_format === "{slug}") return "{slug}";
+		return post.url_format;
+	});
 	const [schemaType, setSchemaType] = useState(post?.schema_type || "Article");
 	const [deployModalOpen, setDeployModalOpen] = useState(false);
 	const [deployStep, setDeployStep] = useState(1);
@@ -841,12 +849,6 @@ function PostForm({ post }) {
 	const [availableAuthors, setAvailableAuthors] = useState([]);
 	const [availableCategories, setAvailableCategories] = useState([]);
 	const [availablePages, setAvailablePages] = useState([]);
-	const getInitialBasePage = (format) => {
-		if (!format) return "blog";
-		if (format.startsWith("{")) return "direct";
-		return format.split("/")[0];
-	};
-	const [selectedBasePage, setSelectedBasePage] = useState(getInitialBasePage(post?.url_format || "blog/{slug}"));
 	const [focusKeyword, setFocusKeyword] = useState(post?.focusKeyword || "");
 	const [category, setCategory] = useState(post?.category || "General");
 	const [tags, setTags] = useState(post?.tags || []);
@@ -2222,14 +2224,15 @@ function PostForm({ post }) {
 		setHumanScore(88);
 		setSeoTips(newTips);
 	}, [entities.length]);
-	const handleSave = async (published = true, isAutoSave = false) => {
+	const handleSave = async (published = true, isAutoSave = false, targetBase) => {
 		if (!isAutoSave) setIsPublished(published);
 		if (!editor) return;
 		startTransition(async () => {
 			const cleanSlug = (slug || title).toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "");
-			let finalUrlFormat = urlFormat;
-			if (selectedBasePage === "direct") finalUrlFormat = "{slug}";
-			else if (!finalUrlFormat || finalUrlFormat === "{slug}" || finalUrlFormat === "direct") finalUrlFormat = `${selectedBasePage}/{slug}`;
+			const effectiveBase = targetBase !== void 0 ? targetBase : selectedBasePage || "direct";
+			let finalUrlFormat = "{slug}";
+			if (effectiveBase === "direct") finalUrlFormat = "{slug}";
+			else finalUrlFormat = `${effectiveBase}/{slug}`;
 			const updatedPost = {
 				...post,
 				id: postId,
@@ -4867,30 +4870,40 @@ function PostForm({ post }) {
 												]
 											}), /* @__PURE__ */ jsx("span", { children: "View Live ↗" })]
 										}),
-										/* @__PURE__ */ jsxs("button", {
+										/* @__PURE__ */ jsx("button", {
 											type: "button",
-											onClick: () => handleSave(true, false),
+											onClick: () => handleSave(true, false, selectedBasePage),
 											disabled: isPending,
 											style: {
 												display: "flex",
 												alignItems: "center",
 												gap: "5px",
-												padding: "4px 12px",
-												borderRadius: "6px",
-												background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+												padding: "5px 14px",
+												borderRadius: "8px",
+												background: selectedBasePage === "direct" ? "linear-gradient(135deg, #059669, #047857)" : "linear-gradient(135deg, #2563eb, #1d4ed8)",
 												color: "#ffffff",
 												border: "none",
 												fontWeight: 800,
-												fontSize: "11.5px",
+												fontSize: "12px",
 												cursor: "pointer",
-												boxShadow: "0 2px 6px rgba(37, 99, 235, 0.35)",
+												boxShadow: selectedBasePage === "direct" ? "0 2px 8px rgba(5, 150, 105, 0.4)" : "0 2px 8px rgba(37, 99, 235, 0.35)",
 												flexShrink: 0,
 												transition: "all 0.15s ease"
 											},
-											title: "Save and update this post immediately",
-											children: [/* @__PURE__ */ jsxs("svg", {
-												width: "12",
-												height: "12",
+											title: selectedBasePage === "direct" ? "Save & Publish Direct at domain.com/slug" : "Save & Publish in " + selectedBasePage,
+											children: selectedBasePage === "direct" ? /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx("svg", {
+												width: "13",
+												height: "13",
+												viewBox: "0 0 24 24",
+												fill: "none",
+												stroke: "currentColor",
+												strokeWidth: "2.5",
+												strokeLinecap: "round",
+												strokeLinejoin: "round",
+												children: /* @__PURE__ */ jsx("polygon", { points: "13 2 3 14 12 14 11 22 21 10 12 10 13 2" })
+											}), /* @__PURE__ */ jsx("span", { children: isPending ? "Publishing..." : "⚡ Publish Direct" })] }) : /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsxs("svg", {
+												width: "13",
+												height: "13",
 												viewBox: "0 0 24 24",
 												fill: "none",
 												stroke: "currentColor",
@@ -4902,7 +4915,7 @@ function PostForm({ post }) {
 													/* @__PURE__ */ jsx("polyline", { points: "17 21 17 13 7 13 7 21" }),
 													/* @__PURE__ */ jsx("polyline", { points: "7 3 7 8 15 8" })
 												]
-											}), /* @__PURE__ */ jsx("span", { children: isPending ? "Saving..." : "Save Post" })]
+											}), /* @__PURE__ */ jsx("span", { children: isPending ? "Saving..." : "Save Post" })] })
 										}),
 										/* @__PURE__ */ jsx("button", {
 											type: "button",
@@ -7681,17 +7694,21 @@ function PostForm({ post }) {
 												},
 												style: metaInputStyle,
 												children: [
+													/* @__PURE__ */ jsxs("option", {
+														value: "direct",
+														children: [
+															"⚡ Direct Root (domain.com/",
+															slug || "post-slug",
+															")"
+														]
+													}),
 													/* @__PURE__ */ jsx("option", {
 														value: "blog",
-														children: "Blog (/blog)"
+														children: "📝 Blog Section (/blog)"
 													}),
 													/* @__PURE__ */ jsx("option", {
 														value: "news",
-														children: "News (/news)"
-													}),
-													/* @__PURE__ */ jsx("option", {
-														value: "direct",
-														children: "Direct (No Prefix /slug)"
+														children: "📰 News Section (/news)"
 													}),
 													availablePages?.filter((p) => p.slug !== "blog" && p.slug !== "news").map((p) => /* @__PURE__ */ jsxs("option", {
 														value: p.slug,
@@ -9977,7 +9994,7 @@ function PostForm({ post }) {
 				children: /* @__PURE__ */ jsxs("div", {
 					style: {
 						...modalContentStyle,
-						maxWidth: "500px"
+						maxWidth: "520px"
 					},
 					children: [
 						/* @__PURE__ */ jsxs("div", {
@@ -9991,17 +10008,13 @@ function PostForm({ post }) {
 								children: [/* @__PURE__ */ jsx("span", {
 									style: { fontSize: "24px" },
 									children: "🚀"
-								}), /* @__PURE__ */ jsxs("h2", {
+								}), /* @__PURE__ */ jsx("h2", {
 									style: {
 										fontSize: "16px",
 										fontWeight: 700,
 										margin: 0
 									},
-									children: [
-										"Deploy Step ",
-										deployStep,
-										" of 2"
-									]
+									children: "Deploy & Publish Post"
 								})]
 							}), /* @__PURE__ */ jsx("button", {
 								onClick: () => {
@@ -10041,240 +10054,296 @@ function PostForm({ post }) {
 						/* @__PURE__ */ jsxs("div", {
 							style: {
 								padding: "24px",
-								overflowY: "auto"
+								overflowY: "auto",
+								display: "flex",
+								flexDirection: "column",
+								gap: "18px"
 							},
-							children: [deployStep === 1 && /* @__PURE__ */ jsxs("div", {
-								style: {
-									display: "flex",
-									flexDirection: "column",
-									gap: "16px",
-									marginBottom: "8px"
-								},
-								children: [/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("h3", {
+							children: [
+								/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("label", {
 									style: {
-										margin: "0 0 4px 0",
-										fontSize: "14px",
-										fontWeight: 700,
-										color: "#0f172a"
+										fontSize: "11.5px",
+										fontWeight: 800,
+										color: "#334155",
+										textTransform: "uppercase",
+										letterSpacing: "0.5px",
+										marginBottom: "8px",
+										display: "block"
 									},
-									children: "Page Context & Schema"
-								}), /* @__PURE__ */ jsx("p", {
-									style: {
-										fontSize: "12px",
-										color: "#64748b",
-										margin: "0 0 12px 0"
-									},
-									children: "Define the semantic structure of this page before deploying."
-								})] }), /* @__PURE__ */ jsxs("div", {
+									children: "Choose Publish URL Type"
+								}), /* @__PURE__ */ jsxs("div", {
 									style: {
 										display: "flex",
 										flexDirection: "column",
 										gap: "8px"
 									},
 									children: [
-										/* @__PURE__ */ jsx("label", {
-											style: metaLabelStyle,
-											children: "SCHEMA TYPE (SIGMA)"
-										}),
-										/* @__PURE__ */ jsxs("select", {
-											value: schemaType,
-											onChange: (e) => setSchemaType(e.target.value),
-											style: metaInputStyle,
-											children: [
-												/* @__PURE__ */ jsx("option", {
-													value: "Article",
-													children: "Article (Standard)"
-												}),
-												/* @__PURE__ */ jsx("option", {
-													value: "NewsArticle",
-													children: "News Article"
-												}),
-												/* @__PURE__ */ jsx("option", {
-													value: "BlogPosting",
-													children: "Blog Post"
-												}),
-												/* @__PURE__ */ jsx("option", {
-													value: "EducationalArticle",
-													children: "Educational/Course Article"
-												}),
-												/* @__PURE__ */ jsx("option", {
-													value: "Report",
-													children: "Report / Whitepaper"
-												}),
-												/* @__PURE__ */ jsx("option", {
-													value: "WebPage",
-													children: "Static Web Page"
-												}),
-												/* @__PURE__ */ jsx("option", {
-													value: "FAQPage",
-													children: "FAQ Page"
-												})
-											]
-										}),
-										/* @__PURE__ */ jsx("p", {
-											style: {
-												fontSize: "12px",
-												color: "#64748b",
-												margin: "4px 0 0 0"
+										/* @__PURE__ */ jsxs("div", {
+											onClick: () => {
+												setSelectedBasePage("direct");
+												setUrlFormat("{slug}");
 											},
-											children: "Select the correct schema to ensure rich snippets in Google Search."
+											style: {
+												display: "flex",
+												alignItems: "center",
+												justifyContent: "space-between",
+												padding: "12px 14px",
+												borderRadius: "10px",
+												border: selectedBasePage === "direct" ? "2px solid #10b981" : "1px solid #e2e8f0",
+												background: selectedBasePage === "direct" ? "#ecfdf5" : "#ffffff",
+												cursor: "pointer",
+												transition: "all 0.15s ease"
+											},
+											children: [/* @__PURE__ */ jsxs("div", {
+												style: {
+													display: "flex",
+													alignItems: "center",
+													gap: "10px"
+												},
+												children: [/* @__PURE__ */ jsx("div", {
+													style: {
+														width: "28px",
+														height: "28px",
+														borderRadius: "6px",
+														background: selectedBasePage === "direct" ? "#d1fae5" : "#f1f5f9",
+														display: "flex",
+														alignItems: "center",
+														justifyContent: "center",
+														color: selectedBasePage === "direct" ? "#047857" : "#64748b",
+														fontSize: "14px",
+														fontWeight: 800
+													},
+													children: "⚡"
+												}), /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("div", {
+													style: {
+														fontSize: "13px",
+														fontWeight: 800,
+														color: selectedBasePage === "direct" ? "#065f46" : "#1e293b"
+													},
+													children: "Direct Root URL (Recommended)"
+												}), /* @__PURE__ */ jsxs("div", {
+													style: {
+														fontSize: "11px",
+														color: "#64748b"
+													},
+													children: ["coachingsinsikar.com/", slug || "post-slug"]
+												})] })]
+											}), /* @__PURE__ */ jsx("input", {
+												type: "radio",
+												checked: selectedBasePage === "direct",
+												onChange: () => {},
+												style: {
+													accentColor: "#10b981",
+													width: "16px",
+													height: "16px",
+													cursor: "pointer"
+												}
+											})]
+										}),
+										/* @__PURE__ */ jsxs("div", {
+											onClick: () => {
+												setSelectedBasePage("blog");
+												setUrlFormat("blog/{slug}");
+											},
+											style: {
+												display: "flex",
+												alignItems: "center",
+												justifyContent: "space-between",
+												padding: "12px 14px",
+												borderRadius: "10px",
+												border: selectedBasePage === "blog" ? "2px solid #2563eb" : "1px solid #e2e8f0",
+												background: selectedBasePage === "blog" ? "#eff6ff" : "#ffffff",
+												cursor: "pointer",
+												transition: "all 0.15s ease"
+											},
+											children: [/* @__PURE__ */ jsxs("div", {
+												style: {
+													display: "flex",
+													alignItems: "center",
+													gap: "10px"
+												},
+												children: [/* @__PURE__ */ jsx("div", {
+													style: {
+														width: "28px",
+														height: "28px",
+														borderRadius: "6px",
+														background: selectedBasePage === "blog" ? "#dbeafe" : "#f1f5f9",
+														display: "flex",
+														alignItems: "center",
+														justifyContent: "center",
+														color: selectedBasePage === "blog" ? "#1d4ed8" : "#64748b",
+														fontSize: "14px",
+														fontWeight: 800
+													},
+													children: "📝"
+												}), /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("div", {
+													style: {
+														fontSize: "13px",
+														fontWeight: 800,
+														color: selectedBasePage === "blog" ? "#1e40af" : "#1e293b"
+													},
+													children: "Blog Section (/blog)"
+												}), /* @__PURE__ */ jsxs("div", {
+													style: {
+														fontSize: "11px",
+														color: "#64748b"
+													},
+													children: ["coachingsinsikar.com/blog/", slug || "post-slug"]
+												})] })]
+											}), /* @__PURE__ */ jsx("input", {
+												type: "radio",
+												checked: selectedBasePage === "blog",
+												onChange: () => {},
+												style: {
+													accentColor: "#2563eb",
+													width: "16px",
+													height: "16px",
+													cursor: "pointer"
+												}
+											})]
+										}),
+										/* @__PURE__ */ jsxs("div", {
+											onClick: () => {
+												setSelectedBasePage("news");
+												setUrlFormat("news/{slug}");
+											},
+											style: {
+												display: "flex",
+												alignItems: "center",
+												justifyContent: "space-between",
+												padding: "12px 14px",
+												borderRadius: "10px",
+												border: selectedBasePage === "news" ? "2px solid #8b5cf6" : "1px solid #e2e8f0",
+												background: selectedBasePage === "news" ? "#f5f3ff" : "#ffffff",
+												cursor: "pointer",
+												transition: "all 0.15s ease"
+											},
+											children: [/* @__PURE__ */ jsxs("div", {
+												style: {
+													display: "flex",
+													alignItems: "center",
+													gap: "10px"
+												},
+												children: [/* @__PURE__ */ jsx("div", {
+													style: {
+														width: "28px",
+														height: "28px",
+														borderRadius: "6px",
+														background: selectedBasePage === "news" ? "#ede9fe" : "#f1f5f9",
+														display: "flex",
+														alignItems: "center",
+														justifyContent: "center",
+														color: selectedBasePage === "news" ? "#6d28d9" : "#64748b",
+														fontSize: "14px",
+														fontWeight: 800
+													},
+													children: "📰"
+												}), /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("div", {
+													style: {
+														fontSize: "13px",
+														fontWeight: 800,
+														color: selectedBasePage === "news" ? "#5b21b6" : "#1e293b"
+													},
+													children: "News Section (/news)"
+												}), /* @__PURE__ */ jsxs("div", {
+													style: {
+														fontSize: "11px",
+														color: "#64748b"
+													},
+													children: ["coachingsinsikar.com/news/", slug || "post-slug"]
+												})] })]
+											}), /* @__PURE__ */ jsx("input", {
+												type: "radio",
+												checked: selectedBasePage === "news",
+												onChange: () => {},
+												style: {
+													accentColor: "#8b5cf6",
+													width: "16px",
+													height: "16px",
+													cursor: "pointer"
+												}
+											})]
 										})
 									]
-								})]
-							}), deployStep === 2 && /* @__PURE__ */ jsxs("div", {
-								style: {
-									display: "flex",
-									flexDirection: "column",
-									gap: "16px",
-									marginBottom: "8px"
-								},
-								children: [/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("h3", {
+								})] }),
+								/* @__PURE__ */ jsxs("div", {
 									style: {
-										margin: "0 0 4px 0",
-										fontSize: "14px",
-										fontWeight: 700,
-										color: "#0f172a"
+										background: selectedBasePage === "direct" ? "#f0fdf4" : "#eff6ff",
+										border: "1px solid " + (selectedBasePage === "direct" ? "#bbf7d0" : "#bfdbfe"),
+										padding: "10px 14px",
+										borderRadius: "10px",
+										display: "flex",
+										alignItems: "center",
+										justifyContent: "space-between",
+										fontSize: "12px"
 									},
-									children: "URL Structure"
-								}), /* @__PURE__ */ jsx("p", {
-									style: {
-										fontSize: "12px",
-										color: "#64748b",
-										margin: "0 0 12px 0"
-									},
-									children: "Where should this post be published?"
-								})] }), /* @__PURE__ */ jsxs("div", {
+									children: [/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("span", {
+										style: {
+											color: "#64748b",
+											fontWeight: 600
+										},
+										children: "Target URL: "
+									}), /* @__PURE__ */ jsxs("strong", {
+										style: { color: selectedBasePage === "direct" ? "#047857" : "#1d4ed8" },
+										children: ["/", selectedBasePage === "direct" ? slug || "post-slug" : `${selectedBasePage}/${slug || "post-slug"}`]
+									})] }), /* @__PURE__ */ jsx("a", {
+										href: selectedBasePage === "direct" ? `/${slug || "article-name"}` : `/${selectedBasePage}/${slug || "article-name"}`,
+										target: "_blank",
+										rel: "noopener noreferrer",
+										style: {
+											color: selectedBasePage === "direct" ? "#047857" : "#1d4ed8",
+											fontWeight: 800,
+											textDecoration: "none"
+										},
+										children: "Preview ↗"
+									})]
+								}),
+								/* @__PURE__ */ jsxs("div", {
 									style: {
 										display: "flex",
 										flexDirection: "column",
-										gap: "16px"
+										gap: "6px"
 									},
-									children: [/* @__PURE__ */ jsxs("div", {
-										style: {
-											display: "flex",
-											flexDirection: "column",
-											gap: "8px"
-										},
+									children: [/* @__PURE__ */ jsx("label", {
+										style: metaLabelStyle,
+										children: "SCHEMA TYPE"
+									}), /* @__PURE__ */ jsxs("select", {
+										value: schemaType,
+										onChange: (e) => setSchemaType(e.target.value),
+										style: metaInputStyle,
 										children: [
-											/* @__PURE__ */ jsx("label", {
-												style: metaLabelStyle,
-												children: "BASE PAGE"
+											/* @__PURE__ */ jsx("option", {
+												value: "Article",
+												children: "Article (Standard)"
 											}),
-											/* @__PURE__ */ jsxs("select", {
-												value: selectedBasePage,
-												onChange: (e) => {
-													const newBase = e.target.value;
-													setSelectedBasePage(newBase);
-													if (newBase === "direct") setUrlFormat("{slug}");
-													else setUrlFormat(`${newBase}/{slug}`);
-												},
-												style: metaInputStyle,
-												children: [
-													/* @__PURE__ */ jsx("option", {
-														value: "blog",
-														children: "Blog (/blog)"
-													}),
-													/* @__PURE__ */ jsx("option", {
-														value: "news",
-														children: "News (/news)"
-													}),
-													/* @__PURE__ */ jsx("option", {
-														value: "direct",
-														children: "Direct (No Base Page)"
-													}),
-													availablePages?.filter((p) => p.slug !== "blog" && p.slug !== "news").map((p) => /* @__PURE__ */ jsxs("option", {
-														value: p.slug,
-														children: [
-															p.title,
-															" (/",
-															p.slug,
-															")"
-														]
-													}, p.id || p.slug))
-												]
+											/* @__PURE__ */ jsx("option", {
+												value: "NewsArticle",
+												children: "News Article"
 											}),
-											/* @__PURE__ */ jsxs("a", {
-												href: selectedBasePage === "direct" ? `/${slug || "article-name"}` : `/${selectedBasePage}/${slug || "article-name"}`,
-												target: "_blank",
-												rel: "noopener noreferrer",
-												style: {
-													fontSize: "11px",
-													color: "#1e40af",
-													background: "#eff6ff",
-													padding: "6px 10px",
-													borderRadius: "6px",
-													border: "1px solid #bfdbfe",
-													marginTop: "6px",
-													wordBreak: "break-all",
-													display: "flex",
-													alignItems: "center",
-													justifyContent: "space-between",
-													textDecoration: "none"
-												},
-												title: "Preview target URL in new tab",
-												children: [/* @__PURE__ */ jsxs("span", { children: [
-													/* @__PURE__ */ jsx("strong", { children: "Target URL:" }),
-													" /",
-													selectedBasePage === "direct" ? slug || "article-name" : `${selectedBasePage}/${slug || "article-name"}`
-												] }), /* @__PURE__ */ jsx("span", {
-													style: {
-														fontWeight: 800,
-														color: "#2563eb",
-														marginLeft: "6px"
-													},
-													children: "Open ↗"
-												})]
-											})
-										]
-									}), /* @__PURE__ */ jsxs("div", {
-										style: {
-											display: "flex",
-											flexDirection: "column",
-											gap: "8px"
-										},
-										children: [
-											/* @__PURE__ */ jsx("label", {
-												style: metaLabelStyle,
-												children: "URL FORMAT"
+											/* @__PURE__ */ jsx("option", {
+												value: "BlogPosting",
+												children: "Blog Post"
 											}),
-											/* @__PURE__ */ jsx("select", {
-												value: urlFormat,
-												onChange: (e) => setUrlFormat(e.target.value),
-												style: metaInputStyle,
-												children: selectedBasePage === "direct" ? /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx("option", {
-													value: "{slug}",
-													children: "domain.com/article-name"
-												}), /* @__PURE__ */ jsx("option", {
-													value: "{category}/{slug}",
-													children: "domain.com/category/article-name"
-												})] }) : /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsxs("option", {
-													value: `${selectedBasePage}/{slug}`,
-													children: [
-														"domain.com/",
-														selectedBasePage,
-														"/article-name"
-													]
-												}), /* @__PURE__ */ jsxs("option", {
-													value: `${selectedBasePage}/{category}/{slug}`,
-													children: [
-														"domain.com/",
-														selectedBasePage,
-														"/category/article-name"
-													]
-												})] })
+											/* @__PURE__ */ jsx("option", {
+												value: "EducationalArticle",
+												children: "Educational/Course Article"
 											}),
-											/* @__PURE__ */ jsx("p", {
-												style: {
-													fontSize: "12px",
-													color: "#64748b",
-													margin: "4px 0 0 0"
-												},
-												children: "Choose the URL structure for this post before publishing."
+											/* @__PURE__ */ jsx("option", {
+												value: "Report",
+												children: "Report / Whitepaper"
+											}),
+											/* @__PURE__ */ jsx("option", {
+												value: "WebPage",
+												children: "Static Web Page"
+											}),
+											/* @__PURE__ */ jsx("option", {
+												value: "FAQPage",
+												children: "FAQ Page"
 											})
 										]
 									})]
-								})]
-							})]
+								})
+							]
 						}),
 						/* @__PURE__ */ jsxs("div", {
 							style: {
@@ -10302,36 +10371,23 @@ function PostForm({ post }) {
 									cursor: "pointer"
 								},
 								children: "Cancel"
-							}), deployStep === 1 ? /* @__PURE__ */ jsx("button", {
-								onClick: () => setDeployStep(2),
-								style: {
-									background: "#2563eb",
-									color: "#fff",
-									border: "none",
-									padding: "10px 24px",
-									borderRadius: "10px",
-									fontWeight: 700,
-									cursor: "pointer"
-								},
-								children: "Next Step →"
-							}) : /* @__PURE__ */ jsx("button", {
+							}), /* @__PURE__ */ jsx("button", {
 								onClick: () => {
 									setDeployModalOpen(false);
-									setDeployStep(1);
-									handleSave(true, false);
+									handleSave(true, false, selectedBasePage);
 								},
 								disabled: isPending,
 								style: {
-									background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+									background: selectedBasePage === "direct" ? "linear-gradient(135deg, #059669, #047857)" : "linear-gradient(135deg, #2563eb, #1d4ed8)",
 									color: "#fff",
 									border: "none",
 									padding: "10px 24px",
 									borderRadius: "10px",
-									fontWeight: 700,
+									fontWeight: 800,
 									cursor: "pointer",
-									boxShadow: "0 4px 12px rgba(37, 99, 235, 0.3)"
+									boxShadow: selectedBasePage === "direct" ? "0 4px 12px rgba(5, 150, 105, 0.35)" : "0 4px 12px rgba(37, 99, 235, 0.3)"
 								},
-								children: isPending ? "Publishing..." : "Publish Now"
+								children: isPending ? "Publishing..." : selectedBasePage === "direct" ? "⚡ Publish Direct Now" : "Publish Post Now 🚀"
 							})]
 						})
 					]

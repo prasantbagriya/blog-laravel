@@ -422,7 +422,17 @@ export default function PostForm({ post }: PostFormProps) {
    }, [isResizing]);
    const [title, setTitle] = useState(post?.title || '');
    const [slug, setSlug] = useState(post?.slug || '');
-   const [urlFormat, setUrlFormat] = useState(post?.url_format || 'blog/{slug}');
+   const getInitialBasePage = (format?: string | null) => {
+      if (!format || format === '{slug}' || format === 'direct' || format === '/' || format === '/{slug}') return 'direct';
+      return format.split('/')[0];
+   };
+   const [selectedBasePage, setSelectedBasePage] = useState(getInitialBasePage(post?.url_format));
+   const [urlFormat, setUrlFormat] = useState(() => {
+      if (!post?.url_format || post.url_format === 'direct' || post.url_format === '/' || post.url_format === '/{slug}' || post.url_format === '{slug}') {
+         return '{slug}';
+      }
+      return post.url_format;
+   });
    const [schemaType, setSchemaType] = useState(post?.schema_type || 'Article');
    const [deployModalOpen, setDeployModalOpen] = useState(false);
    const [deployStep, setDeployStep] = useState(1);
@@ -435,13 +445,6 @@ export default function PostForm({ post }: PostFormProps) {
    const [availableAuthors, setAvailableAuthors] = useState<any[]>([]);
    const [availableCategories, setAvailableCategories] = useState<any[]>([]);
    const [availablePages, setAvailablePages] = useState<any[]>([]);
-   
-   const getInitialBasePage = (format: string) => {
-      if (!format) return 'blog';
-      if (format.startsWith('{')) return 'direct';
-      return format.split('/')[0];
-   };
-   const [selectedBasePage, setSelectedBasePage] = useState(getInitialBasePage(post?.url_format || 'blog/{slug}'));
 
    const [focusKeyword, setFocusKeyword] = useState(post?.focusKeyword || '');
    const [category, setCategory] = useState(post?.category || 'General');
@@ -1797,7 +1800,7 @@ export default function PostForm({ post }: PostFormProps) {
       setSeoTips(newTips);
    }, [entities.length]);
 
-   const handleSave = async (published: boolean = true, isAutoSave: boolean = false) => {
+   const handleSave = async (published: boolean = true, isAutoSave: boolean = false, targetBase?: string) => {
       if (!isAutoSave) setIsPublished(published);
       if (!editor) return;
       startTransition(async () => {
@@ -1808,11 +1811,12 @@ export default function PostForm({ post }: PostFormProps) {
             .replace(/[\s_-]+/g, '-')
             .replace(/^-+|-+$/g, '');
 
-         let finalUrlFormat = urlFormat;
-         if (selectedBasePage === 'direct') {
+         const effectiveBase = targetBase !== undefined ? targetBase : (selectedBasePage || 'direct');
+         let finalUrlFormat = '{slug}';
+         if (effectiveBase === 'direct') {
             finalUrlFormat = '{slug}';
-         } else if (!finalUrlFormat || finalUrlFormat === '{slug}' || finalUrlFormat === 'direct') {
-            finalUrlFormat = `${selectedBasePage}/{slug}`;
+         } else {
+            finalUrlFormat = `${effectiveBase}/{slug}`;
          }
 
          const updatedPost: Post = {
@@ -2500,28 +2504,37 @@ export default function PostForm({ post }: PostFormProps) {
                          )}
                           <button
                              type="button"
-                             onClick={() => handleSave(true, false)}
+                             onClick={() => handleSave(true, false, selectedBasePage)}
                              disabled={isPending}
                              style={{
                                 display: "flex",
                                 alignItems: "center",
                                 gap: "5px",
-                                padding: "4px 12px",
-                                borderRadius: "6px",
-                                background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                                padding: "5px 14px",
+                                borderRadius: "8px",
+                                background: selectedBasePage === "direct" ? "linear-gradient(135deg, #059669, #047857)" : "linear-gradient(135deg, #2563eb, #1d4ed8)",
                                 color: "#ffffff",
                                 border: "none",
                                 fontWeight: 800,
-                                fontSize: "11.5px",
+                                fontSize: "12px",
                                 cursor: "pointer",
-                                boxShadow: "0 2px 6px rgba(37, 99, 235, 0.35)",
+                                boxShadow: selectedBasePage === "direct" ? "0 2px 8px rgba(5, 150, 105, 0.4)" : "0 2px 8px rgba(37, 99, 235, 0.35)",
                                 flexShrink: 0,
                                 transition: "all 0.15s ease"
                              }}
-                             title="Save and update this post immediately"
+                             title={selectedBasePage === "direct" ? "Save & Publish Direct at domain.com/slug" : "Save & Publish in " + selectedBasePage}
                           >
-                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                             <span>{isPending ? "Saving..." : "Save Post"}</span>
+                             {selectedBasePage === "direct" ? (
+                                <>
+                                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                   <span>{isPending ? "Publishing..." : "⚡ Publish Direct"}</span>
+                                </>
+                             ) : (
+                                <>
+                                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                   <span>{isPending ? "Saving..." : "Save Post"}</span>
+                                </>
+                             )}
                           </button>
                          <button
                             type="button"
@@ -3199,9 +3212,9 @@ export default function PostForm({ post }: PostFormProps) {
                                  }} 
                                  style={metaInputStyle}
                               >
-                                 <option value="blog">Blog (/blog)</option>
-                                 <option value="news">News (/news)</option>
-                                 <option value="direct">Direct (No Prefix /slug)</option>
+                                 <option value="direct">⚡ Direct Root (domain.com/{slug || 'post-slug'})</option>
+                                 <option value="blog">📝 Blog Section (/blog)</option>
+                                 <option value="news">📰 News Section (/news)</option>
                                  {availablePages?.filter(p => p.slug !== 'blog' && p.slug !== 'news').map(p => (
                                     <option key={p.id || p.slug} value={p.slug}>{p.title} (/{p.slug})</option>
                                  ))}
@@ -4215,104 +4228,145 @@ export default function PostForm({ post }: PostFormProps) {
          {/* Deploy Modal */}
          {deployModalOpen && (
              <div style={modalBackdropStyle}>
-                 <div style={{ ...modalContentStyle, maxWidth: '500px' }}>
+                 <div style={{ ...modalContentStyle, maxWidth: '520px' }}>
                      <div style={modalHeaderStyle}>
                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                              <span style={{ fontSize: '24px' }}>🚀</span>
-                             <h2 style={{ fontSize: '16px', fontWeight: 700, margin: 0 }}>Deploy Step {deployStep} of 2</h2>
+                             <h2 style={{ fontSize: '16px', fontWeight: 700, margin: 0 }}>Deploy & Publish Post</h2>
                          </div>
                          <button onClick={() => { setDeployModalOpen(false); setDeployStep(1); }} style={closeModalBtn}>
                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '20px', height: '20px' }}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                          </button>
                      </div>
-                     <div style={{ padding: '24px', overflowY: 'auto' }}>
-                         {deployStep === 1 && (
-                             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '8px' }}>
-                                 <div>
-                                     <h3 style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>Page Context & Schema</h3>
-                                     <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 12px 0' }}>Define the semantic structure of this page before deploying.</p>
+                     <div style={{ padding: '24px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                         <div>
+                             <label style={{ fontSize: '11.5px', fontWeight: 800, color: '#334155', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px', display: 'block' }}>Choose Publish URL Type</label>
+                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                 {/* Direct URL Choice */}
+                                 <div
+                                     onClick={() => { setSelectedBasePage('direct'); setUrlFormat('{slug}'); }}
+                                     style={{
+                                         display: 'flex',
+                                         alignItems: 'center',
+                                         justifyContent: 'space-between',
+                                         padding: '12px 14px',
+                                         borderRadius: '10px',
+                                         border: selectedBasePage === 'direct' ? '2px solid #10b981' : '1px solid #e2e8f0',
+                                         background: selectedBasePage === 'direct' ? '#ecfdf5' : '#ffffff',
+                                         cursor: 'pointer',
+                                         transition: 'all 0.15s ease'
+                                     }}
+                                 >
+                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                         <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: selectedBasePage === 'direct' ? '#d1fae5' : '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: selectedBasePage === 'direct' ? '#047857' : '#64748b', fontSize: '14px', fontWeight: 800 }}>⚡</div>
+                                         <div>
+                                             <div style={{ fontSize: '13px', fontWeight: 800, color: selectedBasePage === 'direct' ? '#065f46' : '#1e293b' }}>Direct Root URL (Recommended)</div>
+                                             <div style={{ fontSize: '11px', color: '#64748b' }}>coachingsinsikar.com/{slug || 'post-slug'}</div>
+                                         </div>
+                                     </div>
+                                     <input type="radio" checked={selectedBasePage === 'direct'} onChange={() => {}} style={{ accentColor: '#10b981', width: '16px', height: '16px', cursor: 'pointer' }} />
                                  </div>
-                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                     <label style={metaLabelStyle}>SCHEMA TYPE (SIGMA)</label>
-                                     <select value={schemaType} onChange={e => setSchemaType(e.target.value)} style={metaInputStyle}>
-                                         <option value="Article">Article (Standard)</option>
-                                         <option value="NewsArticle">News Article</option>
-                                         <option value="BlogPosting">Blog Post</option>
-                                         <option value="EducationalArticle">Educational/Course Article</option>
-                                         <option value="Report">Report / Whitepaper</option>
-                                         <option value="WebPage">Static Web Page</option>
-                                         <option value="FAQPage">FAQ Page</option>
-                                     </select>
-                                     <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0' }}>Select the correct schema to ensure rich snippets in Google Search.</p>
-                                 </div>
-                             </div>
-                         )}
 
-                         {deployStep === 2 && (
-                             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '8px' }}>
-                                 <div>
-                                     <h3 style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>URL Structure</h3>
-                                     <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 12px 0' }}>Where should this post be published?</p>
+                                 {/* Blog Section Choice */}
+                                 <div
+                                     onClick={() => { setSelectedBasePage('blog'); setUrlFormat('blog/{slug}'); }}
+                                     style={{
+                                         display: 'flex',
+                                         alignItems: 'center',
+                                         justifyContent: 'space-between',
+                                         padding: '12px 14px',
+                                         borderRadius: '10px',
+                                         border: selectedBasePage === 'blog' ? '2px solid #2563eb' : '1px solid #e2e8f0',
+                                         background: selectedBasePage === 'blog' ? '#eff6ff' : '#ffffff',
+                                         cursor: 'pointer',
+                                         transition: 'all 0.15s ease'
+                                     }}
+                                 >
+                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                         <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: selectedBasePage === 'blog' ? '#dbeafe' : '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: selectedBasePage === 'blog' ? '#1d4ed8' : '#64748b', fontSize: '14px', fontWeight: 800 }}>📝</div>
+                                         <div>
+                                             <div style={{ fontSize: '13px', fontWeight: 800, color: selectedBasePage === 'blog' ? '#1e40af' : '#1e293b' }}>Blog Section (/blog)</div>
+                                             <div style={{ fontSize: '11px', color: '#64748b' }}>coachingsinsikar.com/blog/{slug || 'post-slug'}</div>
+                                         </div>
+                                     </div>
+                                     <input type="radio" checked={selectedBasePage === 'blog'} onChange={() => {}} style={{ accentColor: '#2563eb', width: '16px', height: '16px', cursor: 'pointer' }} />
                                  </div>
-                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                         <label style={metaLabelStyle}>BASE PAGE</label>
-                                         <select value={selectedBasePage} onChange={e => {
-                                             const newBase = e.target.value;
-                                             setSelectedBasePage(newBase);
-                                             if (newBase === 'direct') setUrlFormat('{slug}');
-                                             else setUrlFormat(`${newBase}/{slug}`);
-                                         }} style={metaInputStyle}>
-                                             <option value="blog">Blog (/blog)</option>
-                                             <option value="news">News (/news)</option>
-                                             <option value="direct">Direct (No Base Page)</option>
-                                             {availablePages?.filter(p => p.slug !== 'blog' && p.slug !== 'news').map(p => (
-                                                 <option key={p.id || p.slug} value={p.slug}>{p.title} (/{p.slug})</option>
-                                             ))}
-                                         </select>
-                                         <a 
-                                              href={selectedBasePage === 'direct' ? `/${slug || 'article-name'}` : `/${selectedBasePage}/${slug || 'article-name'}`}
-                                              target="_blank"
-                                              rel="noopener noreferrer"
-                                              style={{ fontSize: '11px', color: '#1e40af', background: '#eff6ff', padding: '6px 10px', borderRadius: '6px', border: '1px solid #bfdbfe', marginTop: '6px', wordBreak: 'break-all', display: 'flex', alignItems: 'center', justifyContent: 'space-between', textDecoration: 'none' }}
-                                              title="Preview target URL in new tab"
-                                          >
-                                              <span><strong>Target URL:</strong> /{selectedBasePage === 'direct' ? (slug || 'article-name') : `${selectedBasePage}/${slug || 'article-name'}`}</span>
-                                              <span style={{ fontWeight: 800, color: '#2563eb', marginLeft: '6px' }}>Open ↗</span>
-                                          </a>
+
+                                 {/* News Section Choice */}
+                                 <div
+                                     onClick={() => { setSelectedBasePage('news'); setUrlFormat('news/{slug}'); }}
+                                     style={{
+                                         display: 'flex',
+                                         alignItems: 'center',
+                                         justifyContent: 'space-between',
+                                         padding: '12px 14px',
+                                         borderRadius: '10px',
+                                         border: selectedBasePage === 'news' ? '2px solid #8b5cf6' : '1px solid #e2e8f0',
+                                         background: selectedBasePage === 'news' ? '#f5f3ff' : '#ffffff',
+                                         cursor: 'pointer',
+                                         transition: 'all 0.15s ease'
+                                     }}
+                                 >
+                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                         <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: selectedBasePage === 'news' ? '#ede9fe' : '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: selectedBasePage === 'news' ? '#6d28d9' : '#64748b', fontSize: '14px', fontWeight: 800 }}>📰</div>
+                                         <div>
+                                             <div style={{ fontSize: '13px', fontWeight: 800, color: selectedBasePage === 'news' ? '#5b21b6' : '#1e293b' }}>News Section (/news)</div>
+                                             <div style={{ fontSize: '11px', color: '#64748b' }}>coachingsinsikar.com/news/{slug || 'post-slug'}</div>
+                                         </div>
                                      </div>
-                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                         <label style={metaLabelStyle}>URL FORMAT</label>
-                                         <select value={urlFormat} onChange={e => setUrlFormat(e.target.value)} style={metaInputStyle}>
-                                             {selectedBasePage === 'direct' ? (
-                                                 <>
-                                                     <option value="{slug}">domain.com/article-name</option>
-                                                     <option value="{category}/{slug}">domain.com/category/article-name</option>
-                                                 </>
-                                             ) : (
-                                                 <>
-                                                     <option value={`${selectedBasePage}/{slug}`}>domain.com/{selectedBasePage}/article-name</option>
-                                                     <option value={`${selectedBasePage}/{category}/{slug}`}>domain.com/{selectedBasePage}/category/article-name</option>
-                                                 </>
-                                             )}
-                                         </select>
-                                         <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0' }}>Choose the URL structure for this post before publishing.</p>
-                                     </div>
+                                     <input type="radio" checked={selectedBasePage === 'news'} onChange={() => {}} style={{ accentColor: '#8b5cf6', width: '16px', height: '16px', cursor: 'pointer' }} />
                                  </div>
                              </div>
-                         )}
+                         </div>
+
+                         {/* Active Live Link Badge */}
+                         <div style={{ background: selectedBasePage === 'direct' ? '#f0fdf4' : '#eff6ff', border: '1px solid ' + (selectedBasePage === 'direct' ? '#bbf7d0' : '#bfdbfe'), padding: '10px 14px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12px' }}>
+                             <div>
+                                 <span style={{ color: '#64748b', fontWeight: 600 }}>Target URL: </span>
+                                 <strong style={{ color: selectedBasePage === 'direct' ? '#047857' : '#1d4ed8' }}>/{selectedBasePage === 'direct' ? (slug || 'post-slug') : `${selectedBasePage}/${slug || 'post-slug'}`}</strong>
+                             </div>
+                             <a
+                                 href={selectedBasePage === 'direct' ? `/${slug || 'article-name'}` : `/${selectedBasePage}/${slug || 'article-name'}`}
+                                 target="_blank"
+                                 rel="noopener noreferrer"
+                                 style={{ color: selectedBasePage === 'direct' ? '#047857' : '#1d4ed8', fontWeight: 800, textDecoration: 'none' }}
+                             >
+                                 Preview ↗
+                             </a>
+                         </div>
+
+                         {/* Schema Selection */}
+                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                             <label style={metaLabelStyle}>SCHEMA TYPE</label>
+                             <select value={schemaType} onChange={e => setSchemaType(e.target.value)} style={metaInputStyle}>
+                                 <option value="Article">Article (Standard)</option>
+                                 <option value="NewsArticle">News Article</option>
+                                 <option value="BlogPosting">Blog Post</option>
+                                 <option value="EducationalArticle">Educational/Course Article</option>
+                                 <option value="Report">Report / Whitepaper</option>
+                                 <option value="WebPage">Static Web Page</option>
+                                 <option value="FAQPage">FAQ Page</option>
+                             </select>
+                         </div>
                      </div>
                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', padding: '16px 24px', borderTop: '1px solid #e2e8f0', background: '#f8fafc', borderBottomLeftRadius: '24px', borderBottomRightRadius: '24px' }}>
                          <button onClick={() => { setDeployModalOpen(false); setDeployStep(1); }} style={{ padding: '10px 16px', borderRadius: '10px', background: '#e2e8f0', color: '#475569', fontWeight: 700, border: 'none', cursor: 'pointer' }}>Cancel</button>
-                         {deployStep === 1 ? (
-                             <button onClick={() => setDeployStep(2)} style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '10px 24px', borderRadius: '10px', fontWeight: 700, cursor: 'pointer' }}>
-                                 Next Step →
-                             </button>
-                         ) : (
-                             <button onClick={() => { setDeployModalOpen(false); setDeployStep(1); handleSave(true, false); }} disabled={isPending} style={{ background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: '#fff', border: 'none', padding: '10px 24px', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)' }}>
-                                 {isPending ? 'Publishing...' : 'Publish Now'}
-                             </button>
-                         )}
+                         <button
+                             onClick={() => { setDeployModalOpen(false); handleSave(true, false, selectedBasePage); }}
+                             disabled={isPending}
+                             style={{
+                                 background: selectedBasePage === 'direct' ? 'linear-gradient(135deg, #059669, #047857)' : 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                                 color: '#fff',
+                                 border: 'none',
+                                 padding: '10px 24px',
+                                 borderRadius: '10px',
+                                 fontWeight: 800,
+                                 cursor: 'pointer',
+                                 boxShadow: selectedBasePage === 'direct' ? '0 4px 12px rgba(5, 150, 105, 0.35)' : '0 4px 12px rgba(37, 99, 235, 0.3)'
+                             }}
+                         >
+                             {isPending ? 'Publishing...' : (selectedBasePage === 'direct' ? '⚡ Publish Direct Now' : 'Publish Post Now 🚀')}
+                         </button>
                      </div>
                  </div>
              </div>

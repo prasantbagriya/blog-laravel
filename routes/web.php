@@ -542,8 +542,8 @@ Route::fallback(function () {
     $segments = explode('/', $path);
     $lastSegment = end($segments);
 
-    $postQuery = \App\Models\Post::where('slug', $lastSegment);
-    if (!auth()->check() || (!auth()->user()->isSuperAdmin() && !auth()->user()->isModerator())) {
+    $postQuery = \App\Models\Post::where('slug', $lastSegment)->orWhere('slug', strtolower($lastSegment));
+    if (!auth()->check() || (!auth()->user()->isSuperAdmin() && !auth()->user()->isModerator() && auth()->user()->role !== 'admin' && !auth()->user()->is_admin)) {
         $postQuery->where('published', true);
     }
     $post = $postQuery->first();

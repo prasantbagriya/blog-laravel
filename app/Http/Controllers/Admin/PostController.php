@@ -114,21 +114,22 @@ class PostController extends Controller
             $data['status'] = $data['published'] ? 'published' : 'draft';
         }
 
-        // Normalize url_format
+        // Normalize url_format (defaults to direct root format {slug})
         if (isset($data['url_format'])) {
             $uf = trim($data['url_format']);
-            if ($uf === 'direct' || $uf === '/' || $uf === '{slug}' || $uf === '/{slug}') {
+            if ($uf === 'direct' || $uf === '/' || $uf === '{slug}' || $uf === '/{slug}' || $uf === '') {
                 $data['url_format'] = '{slug}';
             }
+        } else {
+            $data['url_format'] = '{slug}';
         }
 
-        // Dynamically ensure required columns exist (auto-heal for live MySQL environments)
+        // Dynamically ensure required columns exist in MySQL / SQLite
         try {
-            if (\Illuminate\Support\Facades\Schema::hasTable('posts') && !\Illuminate\Support\Facades\Schema::hasColumn('posts', 'url_format')) {
-                \Illuminate\Support\Facades\Schema::table('posts', function (\Illuminate\Database\Schema\Blueprint $table) {
-                    $table->string('url_format')->nullable()->default('blog/{slug}');
-                });
-            }
+            \Illuminate\Support\Facades\DB::statement("ALTER TABLE `posts` ADD COLUMN `url_format` VARCHAR(255) NULL DEFAULT '{slug}'");
+        } catch (\Throwable $e) {}
+        try {
+            \Illuminate\Support\Facades\DB::statement("ALTER TABLE `posts` ADD COLUMN `focus_keyword` VARCHAR(255) NULL");
         } catch (\Throwable $e) {}
 
         // Dynamically filter out fields that do not exist in the database schema
@@ -179,6 +180,15 @@ class PostController extends Controller
             \Illuminate\Support\Facades\Cache::forget('blog_all_posts');
             \Illuminate\Support\Facades\Cache::forget('homepage_data_v6');
             \Illuminate\Support\Facades\Cache::forget('recent_posts_sidebar_v2');
+
+            // Invalidate full page cache variants so direct URL loads fresh immediately
+            try {
+                $slugVal = $post->slug;
+                \Illuminate\Support\Facades\Cache::forget('public_page_cache_v2_' . md5(url('/' . $slugVal) . '_0'));
+                \Illuminate\Support\Facades\Cache::forget('public_page_cache_v2_' . md5(url('/' . $slugVal) . '_1'));
+                \Illuminate\Support\Facades\Cache::forget('public_page_cache_v2_' . md5(url('/blog/' . $slugVal) . '_0'));
+                \Illuminate\Support\Facades\Cache::forget('public_page_cache_v2_' . md5(url('/blog/' . $slugVal) . '_1'));
+            } catch (\Throwable $ignore) {}
 
             // Auto-ping Google Instant Indexing API if post is published
             if (!empty($safeData['published'])) {

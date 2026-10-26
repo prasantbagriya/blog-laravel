@@ -52,7 +52,7 @@ class User extends Authenticatable
     public function isReviewer() { return $this->role === 'reviewer'; }
     public function isBusinessOwner() { return $this->role === 'business_owner'; }
     public function isModerator() { return $this->role === 'moderator'; }
-    public function isSuperAdmin() { return $this->role === 'super_admin' || $this->is_admin; }
+    public function isSuperAdmin() { return $this->role === 'super_admin' || $this->role === 'admin' || (bool)$this->is_admin; }
 
     protected function casts(): array
     {
