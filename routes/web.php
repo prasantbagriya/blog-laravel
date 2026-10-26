@@ -549,14 +549,6 @@ Route::fallback(function () {
     $post = $postQuery->first();
 
     if ($post) {
-        $currentPath = '/' . trim(strtolower(request()->path()), '/');
-        $canonicalPath = '/' . trim(strtolower($post->url_path), '/');
-        
-        // Canonical URL enforcement: Redirect non-canonical URLs to canonical URL (301)
-        if ($currentPath !== $canonicalPath) {
-            return redirect($canonicalPath, 301);
-        }
-
         return app(\App\Http\Controllers\BlogController::class)->show(request(), $lastSegment);
     }
 
