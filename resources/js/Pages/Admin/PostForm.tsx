@@ -297,17 +297,17 @@ const intelSidebarStyle: React.CSSProperties = { width: '340px', background: '#f
 const intelTabsStyle: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', background: '#f8fafc', padding: '6px', borderRadius: '16px', gap: '4px', border: '1px solid #e2e8f0' };
 const sidebarHeadingStyle: React.CSSProperties = { fontSize: '11px', fontWeight: 800, color: '#64748b', marginBottom: '16px', marginTop: '30px', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'inherit' };
 const hcuCardStyle: React.CSSProperties = { background: '#ffffff', padding: '24px', borderRadius: '24px', border: '1px solid rgba(226,232,240,0.8)', marginBottom: '24px', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.03)' };
-const metaLabelStyle: React.CSSProperties = { fontSize: '11.5px', fontWeight: 700, color: '#475569', marginBottom: '8px', display: 'block', letterSpacing: '0.5px', fontFamily: 'inherit' };
-const metaInputStyle: React.CSSProperties = { width: '100%', padding: '14px 18px', border: '1px solid #e2e8f0', borderRadius: '14px', fontSize: '14px', outline: 'none', background: '#fcfdfd', color: '#1e293b', fontWeight: 500, fontFamily: 'inherit', transition: 'border-color 0.2s, box-shadow 0.2s' };
+const metaLabelStyle: React.CSSProperties = { fontSize: '11px', fontWeight: 800, color: '#475569', marginBottom: '6px', display: 'block', letterSpacing: '0.4px', textTransform: 'uppercase', fontFamily: 'inherit' };
+const metaInputStyle: React.CSSProperties = { width: '100%', padding: '9px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '13px', outline: 'none', background: '#fff', color: '#0f172a', fontWeight: 500, fontFamily: 'inherit', boxSizing: 'border-box', transition: 'border-color 0.2s, box-shadow 0.2s' };
 const tipRowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: '10px', fontSize: '12.5px', color: '#334155', marginBottom: '10px', fontWeight: 600, fontFamily: 'inherit' };
 const eeatCheckStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', fontWeight: 600, color: '#475569', fontFamily: 'inherit' };
-const metaTextAreaStyle: React.CSSProperties = { width: '100%', padding: '14px 18px', border: '1px solid #e2e8f0', borderRadius: '14px', fontSize: '14px', minHeight: '110px', outline: 'none', background: '#fcfdfd', color: '#1e293b', fontWeight: 500, lineHeight: '1.6', fontFamily: 'inherit' };
+const metaTextAreaStyle: React.CSSProperties = { width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '13px', minHeight: '110px', outline: 'none', background: '#fff', color: '#0f172a', fontWeight: 500, lineHeight: '1.5', fontFamily: 'inherit', boxSizing: 'border-box', resize: 'vertical', transition: 'border-color 0.2s, box-shadow 0.2s' };
 const addNodeBtn: React.CSSProperties = { width: '100%', padding: '14px', background: '#ffffff', border: '1px dashed #cbd5e1', borderRadius: '14px', fontSize: '12.5px', fontWeight: 800, color: '#3b82f6', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s', textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: 'inherit' };
 const lsiTagStyle: React.CSSProperties = { background: 'linear-gradient(135deg, #eff6ff, #e0e7ff)', color: '#2563eb', padding: '6px 12px', borderRadius: '10px', fontSize: '11.5px', fontWeight: 700, border: '1px solid #bfdbfe', fontFamily: 'inherit' };
 const guardianCard: React.CSSProperties = { display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '30px', background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', borderRadius: '24px', border: '1px solid #bbf7d0', marginBottom: '20px' };
 const headerSelectWrapper: React.CSSProperties = { display: 'flex', alignItems: 'center', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '0 12px', margin: '0 4px', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.01)' };
 const headerSelectStyle: React.CSSProperties = { border: 'none', background: 'transparent', fontSize: '12.5px', fontWeight: 700, color: '#334155', outline: 'none', height: '36px', cursor: 'pointer', fontFamily: 'inherit' };
-const metaSelectStyle: React.CSSProperties = { width: '100%', padding: '14px', border: '1px solid #e2e8f0', borderRadius: '14px', fontSize: '14px', fontWeight: 600, background: '#fff', color: '#1e293b', fontFamily: 'inherit' };
+const metaSelectStyle: React.CSSProperties = { width: '100%', padding: '9px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '13px', fontWeight: 500, background: '#fff', color: '#0f172a', fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' };
 const editorWrapperStyle: React.CSSProperties = { background: '#fff', minHeight: '100vh', position: 'relative', maxWidth: '1200px', margin: '0 auto', width: '100%', borderRadius: '0', border: 'none', boxShadow: 'none' };
 const bubbleMenuStyle: React.CSSProperties = { background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '6px', display: 'flex', gap: '6px', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.1)', zIndex: 1000 };
 const floatingMenuStyle: React.CSSProperties = { background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '4px', display: 'flex', gap: '4px', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)', zIndex: 1000 };
@@ -4005,6 +4005,9 @@ export default function PostForm({ post }: PostFormProps) {
                                   }}
                                   placeholder="Helpful summary answering search intent, bullet points, CTA, and search hashtags..."
                                />
+                               <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+                                  💡 Structured format: Hook + 2 bullet points + Save CTA + 4-6 search hashtags.
+                               </div>
                             </div>
 
                             {/* Destination Link */}

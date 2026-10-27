@@ -449,25 +449,27 @@ var hcuCardStyle = {
 	boxShadow: "0 10px 30px -10px rgba(0,0,0,0.03)"
 };
 var metaLabelStyle = {
-	fontSize: "11.5px",
-	fontWeight: 700,
+	fontSize: "11px",
+	fontWeight: 800,
 	color: "#475569",
-	marginBottom: "8px",
+	marginBottom: "6px",
 	display: "block",
-	letterSpacing: "0.5px",
+	letterSpacing: "0.4px",
+	textTransform: "uppercase",
 	fontFamily: "inherit"
 };
 var metaInputStyle = {
 	width: "100%",
-	padding: "14px 18px",
-	border: "1px solid #e2e8f0",
-	borderRadius: "14px",
-	fontSize: "14px",
+	padding: "9px 12px",
+	border: "1px solid #cbd5e1",
+	borderRadius: "8px",
+	fontSize: "13px",
 	outline: "none",
-	background: "#fcfdfd",
-	color: "#1e293b",
+	background: "#fff",
+	color: "#0f172a",
 	fontWeight: 500,
 	fontFamily: "inherit",
+	boxSizing: "border-box",
 	transition: "border-color 0.2s, box-shadow 0.2s"
 };
 var tipRowStyle = {
@@ -491,17 +493,20 @@ var eeatCheckStyle = {
 };
 var metaTextAreaStyle = {
 	width: "100%",
-	padding: "14px 18px",
-	border: "1px solid #e2e8f0",
-	borderRadius: "14px",
-	fontSize: "14px",
+	padding: "10px 12px",
+	border: "1px solid #cbd5e1",
+	borderRadius: "8px",
+	fontSize: "13px",
 	minHeight: "110px",
 	outline: "none",
-	background: "#fcfdfd",
-	color: "#1e293b",
+	background: "#fff",
+	color: "#0f172a",
 	fontWeight: 500,
-	lineHeight: "1.6",
-	fontFamily: "inherit"
+	lineHeight: "1.5",
+	fontFamily: "inherit",
+	boxSizing: "border-box",
+	resize: "vertical",
+	transition: "border-color 0.2s, box-shadow 0.2s"
 };
 var addNodeBtn = {
 	width: "100%",
@@ -562,14 +567,16 @@ var headerSelectStyle = {
 };
 var metaSelectStyle = {
 	width: "100%",
-	padding: "14px",
-	border: "1px solid #e2e8f0",
-	borderRadius: "14px",
-	fontSize: "14px",
-	fontWeight: 600,
+	padding: "9px 12px",
+	border: "1px solid #cbd5e1",
+	borderRadius: "8px",
+	fontSize: "13px",
+	fontWeight: 500,
 	background: "#fff",
-	color: "#1e293b",
-	fontFamily: "inherit"
+	color: "#0f172a",
+	fontFamily: "inherit",
+	boxSizing: "border-box",
+	outline: "none"
 };
 var editorWrapperStyle = {
 	background: "#fff",
@@ -9068,41 +9075,52 @@ function PostForm({ post }) {
 											},
 											placeholder: "SEO-rich Pin title (under 100 characters)..."
 										})] }),
-										/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsxs("div", {
-											style: {
-												display: "flex",
-												justifyContent: "space-between",
-												alignItems: "center",
-												marginBottom: "4px"
-											},
-											children: [/* @__PURE__ */ jsxs("label", {
-												style: metaLabelStyle,
-												children: ["PIN DESCRIPTION (MAX 500 CHARS) ", /* @__PURE__ */ jsx("span", {
-													style: { color: "#ef4444" },
-													children: "*"
+										/* @__PURE__ */ jsxs("div", { children: [
+											/* @__PURE__ */ jsxs("div", {
+												style: {
+													display: "flex",
+													justifyContent: "space-between",
+													alignItems: "center",
+													marginBottom: "4px"
+												},
+												children: [/* @__PURE__ */ jsxs("label", {
+													style: metaLabelStyle,
+													children: ["PIN DESCRIPTION (MAX 500 CHARS) ", /* @__PURE__ */ jsx("span", {
+														style: { color: "#ef4444" },
+														children: "*"
+													})]
+												}), /* @__PURE__ */ jsxs("span", {
+													style: {
+														fontSize: "11px",
+														fontWeight: 800,
+														padding: "2px 8px",
+														borderRadius: "6px",
+														background: pinDescription.length > 500 ? "#fee2e2" : pinDescription.length > 480 ? "#fef3c7" : "#f1f5f9",
+														color: pinDescription.length > 500 ? "#dc2626" : pinDescription.length > 480 ? "#d97706" : "#64748b"
+													},
+													children: [pinDescription.length, " / 500"]
 												})]
-											}), /* @__PURE__ */ jsxs("span", {
+											}),
+											/* @__PURE__ */ jsx("textarea", {
+												rows: 5,
+												value: pinDescription,
+												onChange: (e) => setPinDescription(e.target.value),
+												style: {
+													...metaTextAreaStyle,
+													height: "110px",
+													border: pinDescription.length > 500 ? "2px solid #ef4444" : void 0
+												},
+												placeholder: "Helpful summary answering search intent, bullet points, CTA, and search hashtags..."
+											}),
+											/* @__PURE__ */ jsx("div", {
 												style: {
 													fontSize: "11px",
-													fontWeight: 800,
-													padding: "2px 8px",
-													borderRadius: "6px",
-													background: pinDescription.length > 500 ? "#fee2e2" : pinDescription.length > 480 ? "#fef3c7" : "#f1f5f9",
-													color: pinDescription.length > 500 ? "#dc2626" : pinDescription.length > 480 ? "#d97706" : "#64748b"
+													color: "#64748b",
+													marginTop: "4px"
 												},
-												children: [pinDescription.length, " / 500"]
-											})]
-										}), /* @__PURE__ */ jsx("textarea", {
-											rows: 5,
-											value: pinDescription,
-											onChange: (e) => setPinDescription(e.target.value),
-											style: {
-												...metaTextAreaStyle,
-												height: "110px",
-												border: pinDescription.length > 500 ? "2px solid #ef4444" : void 0
-											},
-											placeholder: "Helpful summary answering search intent, bullet points, CTA, and search hashtags..."
-										})] }),
+												children: "💡 Structured format: Hook + 2 bullet points + Save CTA + 4-6 search hashtags."
+											})
+										] }),
 										/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("label", {
 											style: metaLabelStyle,
 											children: "DESTINATION LINK (URL)"
