@@ -1,5 +1,5 @@
 import AdminLayout from "./AdminLayout-CeDz327F.js";
-import PageSpeedTab from "./PageSpeedTab-Dg-LRdER.js";
+import PageSpeedTab from "./PageSpeedTab-BRyjs2Fo.js";
 import { Head, router } from "@inertiajs/react";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import { useEffect, useMemo, useState } from "react";
@@ -45,6 +45,43 @@ function SearchConsoleIndex({ settings: initialSettings, localSitemaps = [], ini
 	const [savingSettings, setSavingSettings] = useState(false);
 	const [settingsSuccess, setSettingsSuccess] = useState(null);
 	const [settingsError, setSettingsError] = useState(null);
+	const [pageSpeedApiKey, setPageSpeedApiKey] = useState(pageSpeedData.apiKey || "");
+	const [savingPageSpeedKey, setSavingPageSpeedKey] = useState(false);
+	const [pageSpeedKeyMsg, setPageSpeedKeyMsg] = useState(null);
+	const handleSavePageSpeedKey = async (e) => {
+		e?.preventDefault();
+		if (!pageSpeedApiKey.trim()) return;
+		setSavingPageSpeedKey(true);
+		setPageSpeedKeyMsg(null);
+		try {
+			const data = await (await fetch("/api/admin/pagespeed/api-key", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					...csrfHeaders()
+				},
+				body: JSON.stringify({ api_key: pageSpeedApiKey.trim() })
+			})).json();
+			if (data.success) {
+				setPageSpeedKeyMsg({
+					type: "success",
+					text: data.message || "PageSpeed API Key saved successfully!"
+				});
+				pageSpeedData.hasApiKey = true;
+				pageSpeedData.apiKey = pageSpeedApiKey.trim();
+			} else setPageSpeedKeyMsg({
+				type: "error",
+				text: data.error || "Failed to save PageSpeed API key."
+			});
+		} catch (err) {
+			setPageSpeedKeyMsg({
+				type: "error",
+				text: err.message || "Network error saving API key."
+			});
+		} finally {
+			setSavingPageSpeedKey(false);
+		}
+	};
 	const [autoIndexPosts, setAutoIndexPosts] = useState(settings.auto_index_posts ?? true);
 	const [autoIndexBusinesses, setAutoIndexBusinesses] = useState(settings.auto_index_businesses ?? true);
 	const [queryFilter, setQueryFilter] = useState("");
@@ -1742,232 +1779,306 @@ function SearchConsoleIndex({ settings: initialSettings, localSitemaps = [], ini
 		}),
 		activeTab === "settings" && /* @__PURE__ */ jsxs("div", {
 			className: "space-y-6 max-w-4xl",
-			children: [/* @__PURE__ */ jsxs("div", {
-				className: "bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm space-y-6",
-				children: [
-					/* @__PURE__ */ jsxs("div", {
-						className: "flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-zinc-800",
-						children: [/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("h3", {
-							className: "text-lg font-extrabold text-slate-900 dark:text-white",
-							children: "API Credentials & Property Configuration"
-						}), /* @__PURE__ */ jsx("p", {
-							className: "text-xs text-slate-500 dark:text-zinc-400 mt-0.5",
-							children: "Connect via OAuth 2.0 Client credentials or upload a Google Cloud Service Account JSON file."
-						})] }), settings.is_connected && /* @__PURE__ */ jsx("button", {
-							onClick: handleDisconnect,
-							className: "px-4 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-600 text-xs font-bold hover:bg-rose-100 transition cursor-pointer",
-							children: "Disconnect Account"
-						})]
-					}),
-					settingsSuccess && /* @__PURE__ */ jsx("div", {
-						className: "p-4 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold",
-						children: settingsSuccess
-					}),
-					settingsError && /* @__PURE__ */ jsx("div", {
-						className: "p-4 rounded-xl bg-rose-50 text-rose-800 border border-rose-200 text-xs font-bold",
-						children: settingsError
-					}),
-					/* @__PURE__ */ jsxs("form", {
-						onSubmit: handleSaveSettings,
-						className: "space-y-5",
-						children: [
-							/* @__PURE__ */ jsxs("div", { children: [
-								/* @__PURE__ */ jsx("label", {
-									className: "block text-xs font-bold uppercase text-slate-600 dark:text-zinc-400 mb-1.5",
-									children: "Search Console Property Identifier:"
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									className: "relative group",
-									children: [/* @__PURE__ */ jsx("div", {
-										className: "absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none",
-										children: /* @__PURE__ */ jsx(Globe, { className: "h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" })
-									}), /* @__PURE__ */ jsx("input", {
-										type: "text",
-										required: true,
-										placeholder: "https://coachingsinsikar.com/ or sc-domain:coachingsinsikar.com",
-										value: propertyId,
-										onChange: (e) => setPropertyId(e.target.value),
-										className: "block w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-xl text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-blue-500"
-									})]
-								}),
-								/* @__PURE__ */ jsx("span", {
-									className: "text-[11px] text-slate-500 mt-1 block",
-									children: "Must match the exact verified site in your Google Search Console (e.g., https://coachingsinsikar.com/)."
-								})
-							] }),
-							/* @__PURE__ */ jsxs("div", {
-								className: "p-5 rounded-2xl bg-slate-50 dark:bg-zinc-800/40 border border-slate-200 dark:border-zinc-700",
-								children: [
+			children: [
+				/* @__PURE__ */ jsxs("div", {
+					className: "bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm space-y-6",
+					children: [
+						/* @__PURE__ */ jsxs("div", {
+							className: "flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-zinc-800",
+							children: [/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("h3", {
+								className: "text-lg font-extrabold text-slate-900 dark:text-white",
+								children: "API Credentials & Property Configuration"
+							}), /* @__PURE__ */ jsx("p", {
+								className: "text-xs text-slate-500 dark:text-zinc-400 mt-0.5",
+								children: "Connect via OAuth 2.0 Client credentials or upload a Google Cloud Service Account JSON file."
+							})] }), settings.is_connected && /* @__PURE__ */ jsx("button", {
+								onClick: handleDisconnect,
+								className: "px-4 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-600 text-xs font-bold hover:bg-rose-100 transition cursor-pointer",
+								children: "Disconnect Account"
+							})]
+						}),
+						settingsSuccess && /* @__PURE__ */ jsx("div", {
+							className: "p-4 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold",
+							children: settingsSuccess
+						}),
+						settingsError && /* @__PURE__ */ jsx("div", {
+							className: "p-4 rounded-xl bg-rose-50 text-rose-800 border border-rose-200 text-xs font-bold",
+							children: settingsError
+						}),
+						/* @__PURE__ */ jsxs("form", {
+							onSubmit: handleSaveSettings,
+							className: "space-y-5",
+							children: [
+								/* @__PURE__ */ jsxs("div", { children: [
 									/* @__PURE__ */ jsx("label", {
-										className: "block text-xs font-bold uppercase text-slate-700 dark:text-zinc-300 mb-2",
-										children: "Upload Credentials JSON (OAuth or Service Account):"
+										className: "block text-xs font-bold uppercase text-slate-600 dark:text-zinc-400 mb-1.5",
+										children: "Search Console Property Identifier:"
 									}),
-									/* @__PURE__ */ jsx("input", {
-										type: "file",
-										id: "gsc_credentials_file",
-										accept: ".json",
-										className: "text-xs text-slate-600 dark:text-zinc-300 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"
+									/* @__PURE__ */ jsxs("div", {
+										className: "relative group",
+										children: [/* @__PURE__ */ jsx("div", {
+											className: "absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none",
+											children: /* @__PURE__ */ jsx(Globe, { className: "h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" })
+										}), /* @__PURE__ */ jsx("input", {
+											type: "text",
+											required: true,
+											placeholder: "https://coachingsinsikar.com/ or sc-domain:coachingsinsikar.com",
+											value: propertyId,
+											onChange: (e) => setPropertyId(e.target.value),
+											className: "block w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-xl text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-blue-500"
+										})]
 									}),
 									/* @__PURE__ */ jsx("span", {
-										className: "text-[11px] text-slate-500 mt-2 block",
-										children: "Uploading client_secret_*.json will automatically extract Client ID, Client Secret, and Redirect URIs."
+										className: "text-[11px] text-slate-500 mt-1 block",
+										children: "Must match the exact verified site in your Google Search Console (e.g., https://coachingsinsikar.com/)."
 									})
-								]
-							}),
-							/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("label", {
-								className: "block text-xs font-bold uppercase text-slate-600 dark:text-zinc-400 mb-1.5",
-								children: "OAuth Client ID:"
-							}), /* @__PURE__ */ jsxs("div", {
-								className: "relative group",
-								children: [/* @__PURE__ */ jsx("div", {
-									className: "absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none",
-									children: /* @__PURE__ */ jsx(Key, { className: "h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" })
-								}), /* @__PURE__ */ jsx("input", {
-									type: "text",
-									placeholder: "123456789000-xxxx.apps.googleusercontent.com",
-									value: clientId,
-									onChange: (e) => setClientId(e.target.value),
-									className: "block w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-xl text-xs font-mono font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-blue-500"
-								})]
-							})] }),
-							/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("label", {
-								className: "block text-xs font-bold uppercase text-slate-600 dark:text-zinc-400 mb-1.5",
-								children: "OAuth Client Secret:"
-							}), /* @__PURE__ */ jsxs("div", {
-								className: "relative group",
-								children: [/* @__PURE__ */ jsx("div", {
-									className: "absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none",
-									children: /* @__PURE__ */ jsx(Lock, { className: "h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" })
-								}), /* @__PURE__ */ jsx("input", {
-									type: "password",
-									placeholder: settings.has_client_secret ? "•••••••••••••••••••• (Encrypted in DB)" : "Enter OAuth client secret",
-									value: clientSecret,
-									onChange: (e) => setClientSecret(e.target.value),
-									className: "block w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-xl text-xs font-mono font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-blue-500"
-								})]
-							})] }),
-							/* @__PURE__ */ jsxs("div", { children: [
-								/* @__PURE__ */ jsx("label", {
-									className: "block text-xs font-bold uppercase text-slate-600 dark:text-zinc-400 mb-1.5",
-									children: "Authorized Redirect URI:"
-								}),
+								] }),
 								/* @__PURE__ */ jsxs("div", {
+									className: "p-5 rounded-2xl bg-slate-50 dark:bg-zinc-800/40 border border-slate-200 dark:border-zinc-700",
+									children: [
+										/* @__PURE__ */ jsx("label", {
+											className: "block text-xs font-bold uppercase text-slate-700 dark:text-zinc-300 mb-2",
+											children: "Upload Credentials JSON (OAuth or Service Account):"
+										}),
+										/* @__PURE__ */ jsx("input", {
+											type: "file",
+											id: "gsc_credentials_file",
+											accept: ".json",
+											className: "text-xs text-slate-600 dark:text-zinc-300 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"
+										}),
+										/* @__PURE__ */ jsx("span", {
+											className: "text-[11px] text-slate-500 mt-2 block",
+											children: "Uploading client_secret_*.json will automatically extract Client ID, Client Secret, and Redirect URIs."
+										})
+									]
+								}),
+								/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("label", {
+									className: "block text-xs font-bold uppercase text-slate-600 dark:text-zinc-400 mb-1.5",
+									children: "OAuth Client ID:"
+								}), /* @__PURE__ */ jsxs("div", {
 									className: "relative group",
 									children: [/* @__PURE__ */ jsx("div", {
 										className: "absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none",
-										children: /* @__PURE__ */ jsx(Link$1, { className: "h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" })
+										children: /* @__PURE__ */ jsx(Key, { className: "h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" })
 									}), /* @__PURE__ */ jsx("input", {
 										type: "text",
-										value: redirectUri,
-										onChange: (e) => setRedirectUri(e.target.value),
+										placeholder: "123456789000-xxxx.apps.googleusercontent.com",
+										value: clientId,
+										onChange: (e) => setClientId(e.target.value),
 										className: "block w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-xl text-xs font-mono font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-blue-500"
 									})]
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									className: "mt-2 text-[11px] text-slate-500",
-									children: [/* @__PURE__ */ jsx("span", {
-										className: "font-bold",
-										children: "Add this URI to Google Cloud Console (OAuth Authorized redirect URIs):"
-									}), /* @__PURE__ */ jsx("div", {
-										className: "flex flex-wrap gap-2 mt-1",
-										children: settings.suggested_redirect_uris?.map((uri, idx) => /* @__PURE__ */ jsx("code", {
-											className: "bg-slate-100 dark:bg-zinc-800 px-2 py-0.5 rounded text-blue-600 dark:text-blue-400 font-mono text-[10px]",
-											children: uri
-										}, idx))
+								})] }),
+								/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("label", {
+									className: "block text-xs font-bold uppercase text-slate-600 dark:text-zinc-400 mb-1.5",
+									children: "OAuth Client Secret:"
+								}), /* @__PURE__ */ jsxs("div", {
+									className: "relative group",
+									children: [/* @__PURE__ */ jsx("div", {
+										className: "absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none",
+										children: /* @__PURE__ */ jsx(Lock, { className: "h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" })
+									}), /* @__PURE__ */ jsx("input", {
+										type: "password",
+										placeholder: settings.has_client_secret ? "•••••••••••••••••••• (Encrypted in DB)" : "Enter OAuth client secret",
+										value: clientSecret,
+										onChange: (e) => setClientSecret(e.target.value),
+										className: "block w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-xl text-xs font-mono font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-blue-500"
 									})]
-								})
-							] }),
-							/* @__PURE__ */ jsxs("div", {
-								className: "pt-4 border-t border-slate-200 dark:border-zinc-800 space-y-3",
-								children: [
-									/* @__PURE__ */ jsx("div", {
-										className: "text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300",
-										children: "Automation & Lifecycle Hooks"
+								})] }),
+								/* @__PURE__ */ jsxs("div", { children: [
+									/* @__PURE__ */ jsx("label", {
+										className: "block text-xs font-bold uppercase text-slate-600 dark:text-zinc-400 mb-1.5",
+										children: "Authorized Redirect URI:"
 									}),
-									/* @__PURE__ */ jsxs("label", {
-										className: "flex items-center gap-3 cursor-pointer",
-										children: [/* @__PURE__ */ jsx("input", {
-											type: "checkbox",
-											checked: autoIndexPosts,
-											onChange: (e) => setAutoIndexPosts(e.target.checked),
-											className: "w-4 h-4 text-blue-600 rounded"
-										}), /* @__PURE__ */ jsx("span", {
-											className: "text-xs font-semibold text-slate-700 dark:text-zinc-300",
-											children: "Automatically ping Google Indexing API when publishing or updating a blog post"
+									/* @__PURE__ */ jsxs("div", {
+										className: "relative group",
+										children: [/* @__PURE__ */ jsx("div", {
+											className: "absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none",
+											children: /* @__PURE__ */ jsx(Link$1, { className: "h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" })
+										}), /* @__PURE__ */ jsx("input", {
+											type: "text",
+											value: redirectUri,
+											onChange: (e) => setRedirectUri(e.target.value),
+											className: "block w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-xl text-xs font-mono font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-blue-500"
 										})]
 									}),
-									/* @__PURE__ */ jsxs("label", {
-										className: "flex items-center gap-3 cursor-pointer",
-										children: [/* @__PURE__ */ jsx("input", {
-											type: "checkbox",
-											checked: autoIndexBusinesses,
-											onChange: (e) => setAutoIndexBusinesses(e.target.checked),
-											className: "w-4 h-4 text-blue-600 rounded"
-										}), /* @__PURE__ */ jsx("span", {
-											className: "text-xs font-semibold text-slate-700 dark:text-zinc-300",
-											children: "Automatically ping Google Indexing API when adding or updating a verified business profile"
+									/* @__PURE__ */ jsxs("div", {
+										className: "mt-2 text-[11px] text-slate-500",
+										children: [/* @__PURE__ */ jsx("span", {
+											className: "font-bold",
+											children: "Add this URI to Google Cloud Console (OAuth Authorized redirect URIs):"
+										}), /* @__PURE__ */ jsx("div", {
+											className: "flex flex-wrap gap-2 mt-1",
+											children: settings.suggested_redirect_uris?.map((uri, idx) => /* @__PURE__ */ jsx("code", {
+												className: "bg-slate-100 dark:bg-zinc-800 px-2 py-0.5 rounded text-blue-600 dark:text-blue-400 font-mono text-[10px]",
+												children: uri
+											}, idx))
 										})]
 									})
-								]
+								] }),
+								/* @__PURE__ */ jsxs("div", {
+									className: "pt-4 border-t border-slate-200 dark:border-zinc-800 space-y-3",
+									children: [
+										/* @__PURE__ */ jsx("div", {
+											className: "text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300",
+											children: "Automation & Lifecycle Hooks"
+										}),
+										/* @__PURE__ */ jsxs("label", {
+											className: "flex items-center gap-3 cursor-pointer",
+											children: [/* @__PURE__ */ jsx("input", {
+												type: "checkbox",
+												checked: autoIndexPosts,
+												onChange: (e) => setAutoIndexPosts(e.target.checked),
+												className: "w-4 h-4 text-blue-600 rounded"
+											}), /* @__PURE__ */ jsx("span", {
+												className: "text-xs font-semibold text-slate-700 dark:text-zinc-300",
+												children: "Automatically ping Google Indexing API when publishing or updating a blog post"
+											})]
+										}),
+										/* @__PURE__ */ jsxs("label", {
+											className: "flex items-center gap-3 cursor-pointer",
+											children: [/* @__PURE__ */ jsx("input", {
+												type: "checkbox",
+												checked: autoIndexBusinesses,
+												onChange: (e) => setAutoIndexBusinesses(e.target.checked),
+												className: "w-4 h-4 text-blue-600 rounded"
+											}), /* @__PURE__ */ jsx("span", {
+												className: "text-xs font-semibold text-slate-700 dark:text-zinc-300",
+												children: "Automatically ping Google Indexing API when adding or updating a verified business profile"
+											})]
+										})
+									]
+								}),
+								/* @__PURE__ */ jsxs("div", {
+									className: "pt-4 flex flex-wrap items-center justify-between gap-3",
+									children: [/* @__PURE__ */ jsxs("button", {
+										type: "submit",
+										disabled: savingSettings,
+										className: "group relative flex justify-center items-center gap-2 py-3 px-6 rounded-xl text-xs font-extrabold text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/30 disabled:opacity-70 disabled:cursor-not-allowed transition-all active:scale-[0.98] shadow-md shadow-blue-500/20 cursor-pointer",
+										children: [/* @__PURE__ */ jsx("span", { children: savingSettings ? "Saving..." : "Save Settings" }), /* @__PURE__ */ jsx(ArrowRight, { className: "w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" })]
+									}), /* @__PURE__ */ jsxs("a", {
+										href: "/admin/gsc/auth",
+										className: "group relative flex justify-center items-center gap-2 py-3 px-6 rounded-xl text-xs font-extrabold text-white bg-emerald-600 hover:bg-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/30 shadow-md shadow-emerald-500/20 transition-all active:scale-[0.98] cursor-pointer no-underline",
+										children: [/* @__PURE__ */ jsx(ShieldCheck, { className: "w-4 h-4" }), /* @__PURE__ */ jsx("span", { children: "Authorize Google Account" })]
+									})]
+								})
+							]
+						})
+					]
+				}),
+				/* @__PURE__ */ jsxs("div", {
+					className: "bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm space-y-4",
+					children: [
+						/* @__PURE__ */ jsx("h4", {
+							className: "font-extrabold text-slate-900 dark:text-white text-sm",
+							children: "Alternative: Connect via Authorization Code"
+						}),
+						/* @__PURE__ */ jsxs("p", {
+							className: "text-xs text-slate-500",
+							children: [
+								"If your redirect URI points to another domain or localhost, copy the ",
+								/* @__PURE__ */ jsx("code", {
+									className: "bg-slate-100 dark:bg-zinc-800 px-1 py-0.5 rounded text-blue-600 font-mono",
+									children: "code=4/..."
+								}),
+								" parameter from the Google redirect URL and paste it here directly:"
+							]
+						}),
+						/* @__PURE__ */ jsxs("form", {
+							onSubmit: handleConnectWithCode,
+							className: "flex flex-col sm:flex-row gap-3",
+							children: [/* @__PURE__ */ jsxs("div", {
+								className: "relative flex-1 group",
+								children: [/* @__PURE__ */ jsx("div", {
+									className: "absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none",
+									children: /* @__PURE__ */ jsx(Terminal, { className: "h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" })
+								}), /* @__PURE__ */ jsx("input", {
+									type: "text",
+									placeholder: "4/0ASVkm...",
+									value: manualCode,
+									onChange: (e) => setManualCode(e.target.value),
+									className: "block w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-xl text-xs font-mono font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-blue-500"
+								})]
+							}), /* @__PURE__ */ jsxs("button", {
+								type: "submit",
+								disabled: savingSettings || !manualCode,
+								className: "group relative flex justify-center items-center gap-2 py-3 px-6 rounded-xl text-xs font-extrabold text-white bg-slate-900 hover:bg-black focus:outline-none focus:ring-4 focus:ring-slate-500/30 disabled:opacity-70 disabled:cursor-not-allowed transition-all active:scale-[0.98] shadow-md cursor-pointer shrink-0",
+								children: [/* @__PURE__ */ jsx("span", { children: "Exchange Code & Connect" }), /* @__PURE__ */ jsx(ArrowRight, { className: "w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" })]
+							})]
+						})
+					]
+				}),
+				/* @__PURE__ */ jsxs("div", {
+					className: "bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm space-y-4",
+					children: [/* @__PURE__ */ jsxs("div", {
+						className: "flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-zinc-800",
+						children: [/* @__PURE__ */ jsxs("div", {
+							className: "flex items-center gap-3",
+							children: [/* @__PURE__ */ jsx("div", {
+								className: "w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold",
+								children: /* @__PURE__ */ jsx(Gauge, { className: "w-5 h-5" })
+							}), /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsxs("div", {
+								className: "flex items-center gap-2",
+								children: [/* @__PURE__ */ jsx("h3", {
+									className: "text-lg font-extrabold text-slate-900 dark:text-white",
+									children: "Google PageSpeed Insights API Key"
+								}), pageSpeedData.hasApiKey ? /* @__PURE__ */ jsx("span", {
+									className: "text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800",
+									children: "Configured"
+								}) : /* @__PURE__ */ jsx("span", {
+									className: "text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400 border border-amber-300 dark:border-amber-800",
+									children: "Not Configured"
+								})]
+							}), /* @__PURE__ */ jsx("p", {
+								className: "text-xs text-slate-500 dark:text-zinc-400 mt-0.5",
+								children: "Allows real-time Core Web Vitals (LCP, CLS, INP) & Lighthouse audits with a generous free limit of 25,000 requests/day."
+							})] })]
+						}), /* @__PURE__ */ jsxs("a", {
+							href: "https://console.cloud.google.com/apis/library/pagespeedonline.googleapis.com",
+							target: "_blank",
+							rel: "noreferrer",
+							className: "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-800 text-xs font-semibold text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-700 transition cursor-pointer self-start sm:self-auto no-underline",
+							children: [/* @__PURE__ */ jsx("span", { children: "Get Free API Key" }), /* @__PURE__ */ jsx(ExternalLink, { className: "w-3.5 h-3.5 text-blue-500" })]
+						})]
+					}), /* @__PURE__ */ jsxs("form", {
+						onSubmit: handleSavePageSpeedKey,
+						className: "space-y-3",
+						children: [/* @__PURE__ */ jsxs("div", { children: [
+							/* @__PURE__ */ jsx("label", {
+								className: "block text-xs font-bold uppercase text-slate-600 dark:text-zinc-400 mb-1.5",
+								children: "PageSpeed API Key:"
 							}),
 							/* @__PURE__ */ jsxs("div", {
-								className: "pt-4 flex flex-wrap items-center justify-between gap-3",
-								children: [/* @__PURE__ */ jsxs("button", {
-									type: "submit",
-									disabled: savingSettings,
-									className: "group relative flex justify-center items-center gap-2 py-3 px-6 rounded-xl text-xs font-extrabold text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/30 disabled:opacity-70 disabled:cursor-not-allowed transition-all active:scale-[0.98] shadow-md shadow-blue-500/20 cursor-pointer",
-									children: [/* @__PURE__ */ jsx("span", { children: savingSettings ? "Saving..." : "Save Settings" }), /* @__PURE__ */ jsx(ArrowRight, { className: "w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" })]
-								}), /* @__PURE__ */ jsxs("a", {
-									href: "/admin/gsc/auth",
-									className: "group relative flex justify-center items-center gap-2 py-3 px-6 rounded-xl text-xs font-extrabold text-white bg-emerald-600 hover:bg-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/30 shadow-md shadow-emerald-500/20 transition-all active:scale-[0.98] cursor-pointer no-underline",
-									children: [/* @__PURE__ */ jsx(ShieldCheck, { className: "w-4 h-4" }), /* @__PURE__ */ jsx("span", { children: "Authorize Google Account" })]
+								className: "relative group",
+								children: [/* @__PURE__ */ jsx("div", {
+									className: "absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none",
+									children: /* @__PURE__ */ jsx(Key, { className: "h-5 w-5 text-slate-400 group-focus-within:text-amber-500 transition-colors" })
+								}), /* @__PURE__ */ jsx("input", {
+									type: "text",
+									placeholder: "AIzaSyB...",
+									value: pageSpeedApiKey,
+									onChange: (e) => setPageSpeedApiKey(e.target.value),
+									className: "block w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-xl text-xs font-mono font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
 								})]
-							})
-						]
-					})
-				]
-			}), /* @__PURE__ */ jsxs("div", {
-				className: "bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm space-y-4",
-				children: [
-					/* @__PURE__ */ jsx("h4", {
-						className: "font-extrabold text-slate-900 dark:text-white text-sm",
-						children: "Alternative: Connect via Authorization Code"
-					}),
-					/* @__PURE__ */ jsxs("p", {
-						className: "text-xs text-slate-500",
-						children: [
-							"If your redirect URI points to another domain or localhost, copy the ",
-							/* @__PURE__ */ jsx("code", {
-								className: "bg-slate-100 dark:bg-zinc-800 px-1 py-0.5 rounded text-blue-600 font-mono",
-								children: "code=4/..."
 							}),
-							" parameter from the Google redirect URL and paste it here directly:"
-						]
-					}),
-					/* @__PURE__ */ jsxs("form", {
-						onSubmit: handleConnectWithCode,
-						className: "flex flex-col sm:flex-row gap-3",
-						children: [/* @__PURE__ */ jsxs("div", {
-							className: "relative flex-1 group",
-							children: [/* @__PURE__ */ jsx("div", {
-								className: "absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none",
-								children: /* @__PURE__ */ jsx(Terminal, { className: "h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" })
-							}), /* @__PURE__ */ jsx("input", {
-								type: "text",
-								placeholder: "4/0ASVkm...",
-								value: manualCode,
-								onChange: (e) => setManualCode(e.target.value),
-								className: "block w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-xl text-xs font-mono font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-blue-500"
+							/* @__PURE__ */ jsx("span", {
+								className: "text-[11px] text-slate-500 mt-1.5 block",
+								children: "Enter your Google Cloud PageSpeed API Key. Key will be saved securely to your environment."
+							})
+						] }), /* @__PURE__ */ jsxs("div", {
+							className: "flex items-center justify-between gap-3 pt-2",
+							children: [/* @__PURE__ */ jsxs("button", {
+								type: "submit",
+								disabled: savingPageSpeedKey || !pageSpeedApiKey.trim(),
+								className: "group relative flex justify-center items-center gap-2 py-2.5 px-5 rounded-xl text-xs font-extrabold text-white bg-amber-600 hover:bg-amber-500 focus:outline-none focus:ring-4 focus:ring-amber-500/30 disabled:opacity-70 disabled:cursor-not-allowed transition-all active:scale-[0.98] shadow-md shadow-amber-500/20 cursor-pointer",
+								children: [/* @__PURE__ */ jsx(Key, { className: "w-3.5 h-3.5" }), /* @__PURE__ */ jsx("span", { children: savingPageSpeedKey ? "Saving..." : "Save PageSpeed Key" })]
+							}), pageSpeedKeyMsg && /* @__PURE__ */ jsx("p", {
+								className: `text-xs font-bold ${pageSpeedKeyMsg.type === "success" ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`,
+								children: pageSpeedKeyMsg.text
 							})]
-						}), /* @__PURE__ */ jsxs("button", {
-							type: "submit",
-							disabled: savingSettings || !manualCode,
-							className: "group relative flex justify-center items-center gap-2 py-3 px-6 rounded-xl text-xs font-extrabold text-white bg-slate-900 hover:bg-black focus:outline-none focus:ring-4 focus:ring-slate-500/30 disabled:opacity-70 disabled:cursor-not-allowed transition-all active:scale-[0.98] shadow-md cursor-pointer shrink-0",
-							children: [/* @__PURE__ */ jsx("span", { children: "Exchange Code & Connect" }), /* @__PURE__ */ jsx(ArrowRight, { className: "w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" })]
 						})]
-					})
-				]
-			})]
+					})]
+				})
+			]
 		})
 	] });
 }

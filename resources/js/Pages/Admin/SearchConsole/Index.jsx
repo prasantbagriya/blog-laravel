@@ -67,6 +67,40 @@ export default function SearchConsoleIndex({
   const [settingsSuccess, setSettingsSuccess] = useState(null);
   const [settingsError, setSettingsError] = useState(null);
 
+  // PageSpeed API Key State
+  const [pageSpeedApiKey, setPageSpeedApiKey] = useState(pageSpeedData.apiKey || '');
+  const [savingPageSpeedKey, setSavingPageSpeedKey] = useState(false);
+  const [pageSpeedKeyMsg, setPageSpeedKeyMsg] = useState(null);
+
+  const handleSavePageSpeedKey = async (e) => {
+    e?.preventDefault();
+    if (!pageSpeedApiKey.trim()) return;
+    setSavingPageSpeedKey(true);
+    setPageSpeedKeyMsg(null);
+    try {
+      const res = await fetch('/api/admin/pagespeed/api-key', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...csrfHeaders(),
+        },
+        body: JSON.stringify({ api_key: pageSpeedApiKey.trim() }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPageSpeedKeyMsg({ type: 'success', text: data.message || 'PageSpeed API Key saved successfully!' });
+        pageSpeedData.hasApiKey = true;
+        pageSpeedData.apiKey = pageSpeedApiKey.trim();
+      } else {
+        setPageSpeedKeyMsg({ type: 'error', text: data.error || 'Failed to save PageSpeed API key.' });
+      }
+    } catch (err) {
+      setPageSpeedKeyMsg({ type: 'error', text: err.message || 'Network error saving API key.' });
+    } finally {
+      setSavingPageSpeedKey(false);
+    }
+  };
+
   // Auto-Index Toggles
   const [autoIndexPosts, setAutoIndexPosts] = useState(settings.auto_index_posts ?? true);
   const [autoIndexBusinesses, setAutoIndexBusinesses] = useState(settings.auto_index_businesses ?? true);
@@ -1832,6 +1866,86 @@ export default function SearchConsoleIndex({
                 <span>Exchange Code & Connect</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </button>
+            </form>
+          </div>
+
+          {/* Google PageSpeed Insights API Key Card */}
+          <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-zinc-800">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
+                  <Gauge className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">
+                      Google PageSpeed Insights API Key
+                    </h3>
+                    {pageSpeedData.hasApiKey ? (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800">
+                        Configured
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400 border border-amber-300 dark:border-amber-800">
+                        Not Configured
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
+                    Allows real-time Core Web Vitals (LCP, CLS, INP) & Lighthouse audits with a generous free limit of 25,000 requests/day.
+                  </p>
+                </div>
+              </div>
+
+              <a
+                href="https://console.cloud.google.com/apis/library/pagespeedonline.googleapis.com"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-800 text-xs font-semibold text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-700 transition cursor-pointer self-start sm:self-auto no-underline"
+              >
+                <span>Get Free API Key</span>
+                <ExternalLink className="w-3.5 h-3.5 text-blue-500" />
+              </a>
+            </div>
+
+            <form onSubmit={handleSavePageSpeedKey} className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold uppercase text-slate-600 dark:text-zinc-400 mb-1.5">
+                  PageSpeed API Key:
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Key className="h-5 w-5 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="AIzaSyB..."
+                    value={pageSpeedApiKey}
+                    onChange={(e) => setPageSpeedApiKey(e.target.value)}
+                    className="block w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-xl text-xs font-mono font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all hover:bg-slate-200 dark:hover:bg-zinc-800 hover:border-amber-500"
+                  />
+                </div>
+                <span className="text-[11px] text-slate-500 mt-1.5 block">
+                  Enter your Google Cloud PageSpeed API Key. Key will be saved securely to your environment.
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between gap-3 pt-2">
+                <button
+                  type="submit"
+                  disabled={savingPageSpeedKey || !pageSpeedApiKey.trim()}
+                  className="group relative flex justify-center items-center gap-2 py-2.5 px-5 rounded-xl text-xs font-extrabold text-white bg-amber-600 hover:bg-amber-500 focus:outline-none focus:ring-4 focus:ring-amber-500/30 disabled:opacity-70 disabled:cursor-not-allowed transition-all active:scale-[0.98] shadow-md shadow-amber-500/20 cursor-pointer"
+                >
+                  <Key className="w-3.5 h-3.5" />
+                  <span>{savingPageSpeedKey ? 'Saving...' : 'Save PageSpeed Key'}</span>
+                </button>
+
+                {pageSpeedKeyMsg && (
+                  <p className={`text-xs font-bold ${pageSpeedKeyMsg.type === 'success' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                    {pageSpeedKeyMsg.text}
+                  </p>
+                )}
+              </div>
             </form>
           </div>
         </div>

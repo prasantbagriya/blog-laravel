@@ -13,7 +13,7 @@ async function resolvePageComponent(path, pages) {
 }
 //#endregion
 //#region resources/js/ssr.jsx
-var appName = "Laravel";
+var appName = "coachingsinsikar";
 createServer((page) => createInertiaApp({
 	page,
 	render: ReactDOMServer.renderToString,
@@ -40,11 +40,11 @@ createServer((page) => createInertiaApp({
 		"./Pages/Admin/Newsletters/Index.jsx": () => import("./assets/Index-B-EuLxZi.js"),
 		"./Pages/Admin/Pages/Index.jsx": () => import("./assets/Index-C9H7pcTD.js"),
 		"./Pages/Admin/Pinterest/Index.jsx": () => import("./assets/Index-DJhM4UYq.js"),
-		"./Pages/Admin/PostForm.tsx": () => import("./assets/PostForm-DmI9G_Jh.js"),
-		"./Pages/Admin/Posts/Edit.jsx": () => import("./assets/Edit-D7TRNn6d.js"),
-		"./Pages/Admin/Posts/New.jsx": () => import("./assets/New-CS-AP_ey.js"),
-		"./Pages/Admin/SearchConsole/Index.jsx": () => import("./assets/Index-CpoIHvdn.js"),
-		"./Pages/Admin/SearchConsole/PageSpeedTab.jsx": () => import("./assets/PageSpeedTab-Dg-LRdER.js"),
+		"./Pages/Admin/PostForm.tsx": () => import("./assets/PostForm-CzJInsZ7.js"),
+		"./Pages/Admin/Posts/Edit.jsx": () => import("./assets/Edit-BsFuESOa.js"),
+		"./Pages/Admin/Posts/New.jsx": () => import("./assets/New-zWBinNxa.js"),
+		"./Pages/Admin/SearchConsole/Index.jsx": () => import("./assets/Index--JK-gfsn.js"),
+		"./Pages/Admin/SearchConsole/PageSpeedTab.jsx": () => import("./assets/PageSpeedTab-BRyjs2Fo.js"),
 		"./Pages/Admin/SeoAudit/Index.jsx": () => import("./assets/Index-CQ3mOInS.js"),
 		"./Pages/Admin/Settings/Navigation.jsx": () => import("./assets/Navigation-DTR_ESYl.js"),
 		"./Pages/Admin/Settings/Slider.jsx": () => import("./assets/Slider-DirVzKEb.js"),

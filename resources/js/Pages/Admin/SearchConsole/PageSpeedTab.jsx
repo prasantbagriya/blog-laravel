@@ -48,12 +48,6 @@ export default function PageSpeedTab({
     }
   }, [targetUrl]);
   
-  // API Key management
-  const [apiKeyInput, setApiKeyInput] = useState(pageSpeedData.apiKey || '');
-  const [showKeyForm, setShowKeyForm] = useState(!pageSpeedData.hasApiKey);
-  const [savingKey, setSavingKey] = useState(false);
-  const [keyMessage, setKeyMessage] = useState(null);
-
   // Filters & Accordions
   const [expandedOpportunity, setExpandedOpportunity] = useState(null);
   const [filterCategory, setFilterCategory] = useState('all');
@@ -93,37 +87,6 @@ export default function PageSpeedTab({
       setError(err.message || 'Network error executing PageSpeed audit.');
     } finally {
       setAuditing(false);
-    }
-  };
-
-  const handleSaveApiKey = async (e) => {
-    e.preventDefault();
-    if (!apiKeyInput.trim()) return;
-
-    setSavingKey(true);
-    setKeyMessage(null);
-
-    try {
-      const res = await fetch('/api/admin/pagespeed/api-key', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-        },
-        body: JSON.stringify({ api_key: apiKeyInput }),
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        setKeyMessage({ type: 'success', text: data.message });
-        setShowKeyForm(false);
-      } else {
-        setKeyMessage({ type: 'error', text: data.error || 'Failed to save API key.' });
-      }
-    } catch (err) {
-      setKeyMessage({ type: 'error', text: err.message });
-    } finally {
-      setSavingKey(false);
     }
   };
 
@@ -175,65 +138,7 @@ export default function PageSpeedTab({
               </div>
             </div>
           </div>
-
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              type="button"
-              onClick={() => setShowKeyForm(!showKeyForm)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-800 text-xs font-semibold text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-700 transition cursor-pointer"
-            >
-              <Key className="w-3.5 h-3.5 text-amber-500" />
-              <span>{pageSpeedData.hasApiKey ? 'API Key Configured' : 'Configure Free API Key'}</span>
-            </button>
-          </div>
         </div>
-
-        {/* API Key Dropdown Form */}
-        {showKeyForm && (
-          <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 space-y-3">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-              <div className="text-xs text-amber-900 dark:text-amber-200 space-y-1">
-                <p className="font-bold">Google Cloud PageSpeed Insights API Key (25,000 Free Requests/Day)</p>
-                <p className="text-amber-700 dark:text-amber-300">
-                  Google PageSpeed Insights API is 100% free. Bina API key ke Google shared quota lagata hai jisse 429 Rate Limit aa sakti hai. Apne Google Cloud project se API key create karke niche save karein.
-                </p>
-              </div>
-            </div>
-
-            <form onSubmit={handleSaveApiKey} className="flex flex-col sm:flex-row gap-2 pt-1">
-              <input
-                type="text"
-                placeholder="AIzaSyB..."
-                value={apiKeyInput}
-                onChange={(e) => setApiKeyInput(e.target.value)}
-                className="flex-1 px-3 py-2 text-xs font-mono rounded-lg border border-amber-300 dark:border-amber-700 bg-white dark:bg-zinc-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-500"
-              />
-              <button
-                type="submit"
-                disabled={savingKey || !apiKeyInput.trim()}
-                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg transition disabled:opacity-50 cursor-pointer"
-              >
-                {savingKey ? 'Saving...' : 'Save API Key'}
-              </button>
-              <a
-                href="https://console.cloud.google.com/apis/library/pagespeedonline.googleapis.com"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 px-3 py-2 text-xs text-amber-800 dark:text-amber-300 hover:underline font-semibold"
-              >
-                <span>Get Free Key</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
-            </form>
-
-            {keyMessage && (
-              <p className={`text-xs font-bold ${keyMessage.type === 'success' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                {keyMessage.text}
-              </p>
-            )}
-          </div>
-        )}
 
         {/* Hero Search Bar Matching URL Inspector Form */}
         <form onSubmit={(e) => { e.preventDefault(); handleRunAudit(); }} className="flex flex-col sm:flex-row gap-3">
