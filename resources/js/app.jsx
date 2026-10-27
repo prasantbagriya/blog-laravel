@@ -36,6 +36,7 @@ createInertiaApp({
                 './Pages/Admin/Pinterest/Index.jsx',
                 './Pages/Admin/Instagram/Index.jsx',
                 './Pages/Admin/LinkedIn/Index.jsx',
+                './Pages/Admin/Inquiries/Index.jsx',
             ]),
         ),
     setup({ el, App, props }) {

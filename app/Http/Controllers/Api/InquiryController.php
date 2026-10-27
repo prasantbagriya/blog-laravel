@@ -59,43 +59,60 @@ class InquiryController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = InstituteInquiry::with(['business:id,name,phone,slug,logo'])->latest();
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('institute_inquiries')) {
+                return response()->json([
+                    'success'   => true,
+                    'inquiries' => ['data' => []],
+                    'stats'     => ['total' => 0, 'new' => 0, 'contacted' => 0, 'admitted' => 0, 'closed' => 0],
+                ]);
+            }
 
-        if ($request->filled('search')) {
-            $search = trim($request->input('search'));
-            $query->where(function ($q) use ($search) {
-                $q->where('student_name', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%")
-                  ->orWhere('course', 'like', "%{$search}%")
-                  ->orWhere('business_name', 'like', "%{$search}%")
-                  ->orWhere('message', 'like', "%{$search}%");
-            });
+            $query = InstituteInquiry::with(['business:id,name,phone,slug,logo'])->latest();
+
+            if ($request->filled('search')) {
+                $search = trim($request->input('search'));
+                $query->where(function ($q) use ($search) {
+                    $q->where('student_name', 'like', "%{$search}%")
+                      ->orWhere('phone', 'like', "%{$search}%")
+                      ->orWhere('course', 'like', "%{$search}%")
+                      ->orWhere('business_name', 'like', "%{$search}%")
+                      ->orWhere('message', 'like', "%{$search}%");
+                });
+            }
+
+            if ($request->filled('status') && $request->input('status') !== 'all') {
+                $query->where('status', $request->input('status'));
+            }
+
+            if ($request->filled('business_id')) {
+                $query->where('business_id', $request->input('business_id'));
+            }
+
+            $inquiries = $query->paginate($request->input('per_page', 50));
+
+            // Aggregate statistics
+            $stats = [
+                'total'     => InstituteInquiry::count(),
+                'new'       => InstituteInquiry::where('status', 'new')->count(),
+                'contacted' => InstituteInquiry::where('status', 'contacted')->count(),
+                'admitted'  => InstituteInquiry::where('status', 'admitted')->count(),
+                'closed'    => InstituteInquiry::where('status', 'closed')->count(),
+            ];
+
+            return response()->json([
+                'success'   => true,
+                'inquiries' => $inquiries,
+                'stats'     => $stats,
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Inquiries index error: ' . $e->getMessage());
+            return response()->json([
+                'success'   => true,
+                'inquiries' => ['data' => []],
+                'stats'     => ['total' => 0, 'new' => 0, 'contacted' => 0, 'admitted' => 0, 'closed' => 0],
+            ]);
         }
-
-        if ($request->filled('status') && $request->input('status') !== 'all') {
-            $query->where('status', $request->input('status'));
-        }
-
-        if ($request->filled('business_id')) {
-            $query->where('business_id', $request->input('business_id'));
-        }
-
-        $inquiries = $query->paginate($request->input('per_page', 50));
-
-        // Aggregate statistics
-        $stats = [
-            'total'     => InstituteInquiry::count(),
-            'new'       => InstituteInquiry::where('status', 'new')->count(),
-            'contacted' => InstituteInquiry::where('status', 'contacted')->count(),
-            'admitted'  => InstituteInquiry::where('status', 'admitted')->count(),
-            'closed'    => InstituteInquiry::where('status', 'closed')->count(),
-        ];
-
-        return response()->json([
-            'success'   => true,
-            'inquiries' => $inquiries,
-            'stats'     => $stats,
-        ]);
     }
 
     /**

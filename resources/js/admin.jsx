@@ -21,6 +21,7 @@ createInertiaApp({
                 './Pages/Admin/CommunityPosts/Index.jsx',
                 './Pages/Admin/ContactMessages/Index.jsx',
                 './Pages/Admin/Facebook/Index.jsx',
+                './Pages/Admin/Inquiries/Index.jsx',
                 './Pages/Admin/Instagram/Index.jsx',
                 './Pages/Admin/LinkedIn/Index.jsx',
                 './Pages/Admin/Media/Index.jsx',

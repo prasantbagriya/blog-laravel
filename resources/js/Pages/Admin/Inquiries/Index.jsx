@@ -21,7 +21,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 
-const AdminLayout = React.lazy(() => import('../../../Layouts/AdminLayout'));
+import AdminLayout from '../../../Layouts/AdminLayout';
 
 export default function InquiriesPage() {
   const [inquiries, setInquiries] = useState([]);
@@ -31,6 +31,8 @@ export default function InquiriesPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [updatingId, setUpdatingId] = useState(null);
 
+  const basePath = typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '';
+
   const fetchInquiries = async () => {
     setLoading(true);
     try {
@@ -38,7 +40,7 @@ export default function InquiriesPage() {
       if (searchQuery) params.append('search', searchQuery);
       if (statusFilter !== 'all') params.append('status', statusFilter);
 
-      const res = await axios.get(`/api/admin/inquiries?${params.toString()}`);
+      const res = await axios.get(`${basePath}/api/admin/inquiries?${params.toString()}`);
       if (res.data?.success) {
         setInquiries(res.data.inquiries?.data || []);
         if (res.data.stats) setStats(res.data.stats);
@@ -62,10 +64,10 @@ export default function InquiriesPage() {
   const handleStatusChange = async (id, newStatus) => {
     setUpdatingId(id);
     try {
-      await axios.patch(`/api/admin/inquiries/${id}/status`, { status: newStatus });
+      await axios.patch(`${basePath}/api/admin/inquiries/${id}/status`, { status: newStatus });
       setInquiries(prev => prev.map(item => item.id === id ? { ...item, status: newStatus } : item));
       // Refresh stats
-      const statsRes = await axios.get('/api/admin/inquiries?per_page=1');
+      const statsRes = await axios.get(`${basePath}/api/admin/inquiries?per_page=1`);
       if (statsRes.data?.stats) setStats(statsRes.data.stats);
     } catch (err) {
       alert('Error updating inquiry status');
@@ -77,7 +79,7 @@ export default function InquiriesPage() {
   const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to permanently delete this inquiry?')) return;
     try {
-      await axios.delete(`/api/admin/inquiries/${id}`);
+      await axios.delete(`${basePath}/api/admin/inquiries/${id}`);
       setInquiries(prev => prev.filter(item => item.id !== id));
       setStats(prev => ({ ...prev, total: Math.max(0, prev.total - 1) }));
     } catch (err) {
@@ -339,8 +341,4 @@ export default function InquiriesPage() {
   );
 }
 
-InquiriesPage.layout = page => (
-  <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading Inquiries...</div>}>
-    <AdminLayout>{page}</AdminLayout>
-  </Suspense>
-);
+InquiriesPage.layout = page => <AdminLayout>{page}</AdminLayout>;
