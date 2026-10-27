@@ -21,15 +21,15 @@ class BlogController extends Controller
             // Table doesn't exist yet, fallback
         }
 
-        $query = Post::where('published', true)->whereNull('community_id')->orderBy('date', 'desc');
+        $query = Post::where('published', true)->whereNull('community_id')->orderByRaw('COALESCE(date, created_at) desc');
 
         if ($isNews) {
             $query->where('url_format', 'like', 'news/%');
         } elseif ($slug === 'blog') {
             $query->where(function ($q) {
-                $q->where('url_format', 'like', 'blog/%')
-                  ->orWhereNull('url_format')
-                  ->orWhere('url_format', '');
+                $q->whereNull('url_format')
+                  ->orWhere('url_format', '')
+                  ->orWhere('url_format', 'not like', 'news/%');
             });
         } elseif ($dbPage && $dbPage->type === 'feed') {
             $query->where('url_format', 'like', $slug . '/%');

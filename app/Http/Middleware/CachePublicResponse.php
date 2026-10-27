@@ -10,6 +10,20 @@ use Symfony\Component\HttpFoundation\Response;
 class CachePublicResponse
 {
     /**
+     * Increment cache version to instantly invalidate all cached public pages.
+     */
+    public static function purge(): void
+    {
+        try {
+            Cache::increment('public_page_cache_version');
+        } catch (\Throwable $e) {
+            try {
+                Cache::forever('public_page_cache_version', time());
+            } catch (\Throwable $e2) {}
+        }
+    }
+
+    /**
      * Handle an incoming request.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
@@ -23,7 +37,12 @@ class CachePublicResponse
 
         // Differentiate between full HTML page load and Inertia XHR requests
         $isInertia = $request->header('X-Inertia') ? '1' : '0';
-        $key = 'public_page_cache_v2_' . md5($request->fullUrl() . '_' . $isInertia);
+        $version = 1;
+        try {
+            $version = (int) Cache::get('public_page_cache_version', 1);
+        } catch (\Throwable $e) {}
+
+        $key = 'public_page_cache_v' . $version . '_' . md5($request->fullUrl() . '_' . $isInertia);
 
         try {
             if (Cache::has($key)) {

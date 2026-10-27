@@ -377,6 +377,9 @@ $dbUpgradeRunner = function () {
             }
         } catch (\Throwable $ignore) {}
 
+        \App\Http\Middleware\CachePublicResponse::purge();
+        \Illuminate\Support\Facades\Cache::flush();
+        \Illuminate\Support\Facades\Artisan::call('cache:clear');
         \Illuminate\Support\Facades\Artisan::call('optimize:clear');
         $clearOutput = \Illuminate\Support\Facades\Artisan::output();
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Head, useForm, Link } from '@inertiajs/react';
+import { Head, useForm, Link, router } from '@inertiajs/react';
 import {
     User as UserIcon, Save, LogOut, CheckCircle, MapPin,
     Building, ShieldCheck, Home, Users, Menu, X, ChevronRight,
@@ -19,6 +19,20 @@ export default function Dashboard({ auth, userBusinesses = [], userCommunities =
     const submit = (e) => {
         e.preventDefault();
         patch(route('profile.update'));
+    };
+
+    const handleLogout = (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+        setSidebarOpen(false);
+        try {
+            router.post(route('logout'), {}, {
+                onFinish: () => {
+                    window.location.href = '/';
+                }
+            });
+        } catch (err) {
+            window.location.href = '/logout';
+        }
     };
 
     const businessUrl = (business) =>
@@ -99,12 +113,13 @@ export default function Dashboard({ auth, userBusinesses = [], userCommunities =
                         </div>
 
                         <div className="p-4 border-t border-slate-200 dark:border-zinc-800">
-                            <Link
-                                href={route('logout')} method="post" as="button"
-                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 border border-rose-100 dark:border-rose-500/20 transition-all"
+                            <button
+                                type="button"
+                                onClick={handleLogout}
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 border border-rose-100 dark:border-rose-500/20 transition-all cursor-pointer"
                             >
                                 <LogOut size={17} /> Sign Out
-                            </Link>
+                            </button>
                         </div>
                     </aside>
                 </div>
@@ -149,12 +164,13 @@ export default function Dashboard({ auth, userBusinesses = [], userCommunities =
                     </div>
 
                     <div className="p-4 border-t border-slate-200 dark:border-zinc-800">
-                        <Link
-                            href={route('logout')} method="post" as="button"
-                            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-rose-100 dark:border-rose-500/20 transition-all active:scale-[0.98]"
+                        <button
+                            type="button"
+                            onClick={handleLogout}
+                            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-rose-100 dark:border-rose-500/20 transition-all active:scale-[0.98] cursor-pointer"
                         >
                             <LogOut size={18} /> Sign Out
-                        </Link>
+                        </button>
                     </div>
                 </aside>
 
@@ -416,14 +432,13 @@ export default function Dashboard({ auth, userBusinesses = [], userCommunities =
                                             <p className="text-xs text-slate-500 dark:text-zinc-400">You will be logged out of your account.</p>
                                         </div>
                                     </div>
-                                    <Link
-                                        href={route('logout')}
-                                        method="post"
-                                        as="button"
-                                        className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-full text-sm font-extrabold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-rose-200 dark:border-rose-500/30 transition-all active:scale-[0.98]"
+                                    <button
+                                        type="button"
+                                        onClick={handleLogout}
+                                        className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-full text-sm font-extrabold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-rose-200 dark:border-rose-500/30 transition-all active:scale-[0.98] cursor-pointer"
                                     >
                                         <LogOut size={16} /> Sign Out of Account
-                                    </Link>
+                                    </button>
                                 </div>
                             </div>
                         </section>

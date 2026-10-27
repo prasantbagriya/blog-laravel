@@ -65,9 +65,12 @@ class Post extends Model
     protected static function booted()
     {
         static::saved(function ($post) {
+            \App\Http\Middleware\CachePublicResponse::purge();
             $newUrl = url($post->url_path);
             \Illuminate\Support\Facades\Cache::forget('public_page_cache_v2_' . md5($newUrl . '_0'));
             \Illuminate\Support\Facades\Cache::forget('public_page_cache_v2_' . md5($newUrl . '_1'));
+            \Illuminate\Support\Facades\Cache::forget('public_page_cache_v2_' . md5(url('/blog') . '_0'));
+            \Illuminate\Support\Facades\Cache::forget('public_page_cache_v2_' . md5(url('/blog') . '_1'));
             \Illuminate\Support\Facades\Cache::forget('blog_all_posts');
             \Illuminate\Support\Facades\Cache::forget('homepage_data_v6');
             \Illuminate\Support\Facades\Cache::forget('recent_posts_sidebar_v2');
@@ -89,9 +92,12 @@ class Post extends Model
         });
 
         static::deleted(function ($post) {
+            \App\Http\Middleware\CachePublicResponse::purge();
             $url = url($post->url_path);
             \Illuminate\Support\Facades\Cache::forget('public_page_cache_v2_' . md5($url . '_0'));
             \Illuminate\Support\Facades\Cache::forget('public_page_cache_v2_' . md5($url . '_1'));
+            \Illuminate\Support\Facades\Cache::forget('public_page_cache_v2_' . md5(url('/blog') . '_0'));
+            \Illuminate\Support\Facades\Cache::forget('public_page_cache_v2_' . md5(url('/blog') . '_1'));
             \Illuminate\Support\Facades\Cache::forget('blog_all_posts');
             \Illuminate\Support\Facades\Cache::forget('homepage_data_v6');
             \Illuminate\Support\Facades\Cache::forget('recent_posts_sidebar_v2');

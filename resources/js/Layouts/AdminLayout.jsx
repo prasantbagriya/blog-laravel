@@ -1,4 +1,4 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, usePage, router } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 
 export default function AdminLayout({ children }) {
@@ -6,6 +6,19 @@ export default function AdminLayout({ children }) {
   const [isMobile, setIsMobile] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const handleLogout = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    try {
+      router.post(route('logout'), {}, {
+        onFinish: () => {
+          window.location.href = '/';
+        }
+      });
+    } catch (err) {
+      window.location.href = '/logout';
+    }
+  };
 
   // ✅ Handle responsive window sizing
   useEffect(() => {
@@ -209,10 +222,9 @@ export default function AdminLayout({ children }) {
 
         {/* Sign Out Button */}
         <div style={{ padding: isCollapsed && !isMobile ? '12px 8px' : '12px 16px', borderTop: '1px solid #f1f5f9' }}>
-          <Link
-            href={route('logout')}
-            method="post"
-            as="button"
+          <button
+            type="button"
+            onClick={handleLogout}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -235,7 +247,7 @@ export default function AdminLayout({ children }) {
           >
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, opacity: 0.85 }}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
             {!(isCollapsed && !isMobile) && <span style={{ whiteSpace: 'nowrap' }}>Sign Out</span>}
-          </Link>
+          </button>
         </div>
 
         <div style={{ padding: isCollapsed && !isMobile ? '24px 0' : '24px', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: isCollapsed && !isMobile ? 'center' : 'flex-start', gap: '12px' }}>
