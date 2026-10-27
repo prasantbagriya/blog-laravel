@@ -2,14 +2,19 @@ import AdminLayout from "./AdminLayout-CeDz327F.js";
 import { Head, router } from "@inertiajs/react";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import { useRef, useState } from "react";
-import { FileCheck, FolderPlus, PenSquare, Pin, Settings } from "lucide-react";
+import { CheckCircle2, FileCheck, FolderPlus, PenSquare, Pin, RefreshCw, Settings } from "lucide-react";
 //#region resources/js/Pages/Admin/Pinterest/Index.jsx
-function PinterestHubPage({ needsMigration = false, isConfigured, clientId, hasClientSecret, redirectUri, account, boards = [], defaultBoard, pendingApprovals = [], recentShares = [], recentPins = [], authUrl, errorMessage = null }) {
+function PinterestHubPage({ needsMigration = false, isConfigured, hasConfiguredToken = false, configuredTokenPreview = null, clientId, hasClientSecret, redirectUri, account, boards = [], defaultBoard, pendingApprovals = [], recentShares = [], recentPins = [], authUrl, errorMessage = null }) {
 	const [activeTab, setActiveTab] = useState("approvals");
 	const [approvingId, setApprovingId] = useState(null);
 	const [editTitles, setEditTitles] = useState({});
 	const [editDescriptions, setEditDescriptions] = useState({});
 	const [selectedBoards, setSelectedBoards] = useState({});
+	const [isSyncingConfigured, setIsSyncingConfigured] = useState(false);
+	const handleSyncConfiguredToken = () => {
+		setIsSyncingConfigured(true);
+		router.post("/admin/pinterest/sync-configured", {}, { onFinish: () => setIsSyncingConfigured(false) });
+	};
 	const [customBoardId, setCustomBoardId] = useState(defaultBoard?.id || boards[0]?.id || "");
 	const [customTitle, setCustomTitle] = useState("");
 	const [customDescription, setCustomDescription] = useState("");
@@ -321,23 +326,53 @@ function PinterestHubPage({ needsMigration = false, isConfigured, clientId, hasC
 							cursor: "pointer"
 						},
 						children: "Disconnect"
-					})] }) : authUrl ? /* @__PURE__ */ jsx("a", {
-						href: authUrl,
+					})] }) : /* @__PURE__ */ jsxs("div", {
 						style: {
-							background: "#fff",
-							color: "#e60023",
-							padding: "11px 22px",
-							borderRadius: "10px",
-							fontWeight: 800,
-							fontSize: "14px",
-							textDecoration: "none",
 							display: "flex",
+							gap: "10px",
 							alignItems: "center",
-							gap: "8px",
-							boxShadow: "0 4px 14px rgba(0,0,0,0.2)"
+							flexWrap: "wrap"
 						},
-						children: "Connect with Pinterest"
-					}) : null
+						children: [authUrl && /* @__PURE__ */ jsx("a", {
+							href: authUrl,
+							style: {
+								background: "#fff",
+								color: "#e60023",
+								padding: "11px 22px",
+								borderRadius: "10px",
+								fontWeight: 800,
+								fontSize: "14px",
+								textDecoration: "none",
+								display: "flex",
+								alignItems: "center",
+								gap: "8px",
+								boxShadow: "0 4px 14px rgba(0,0,0,0.2)"
+							},
+							children: "Connect with Pinterest"
+						}), hasConfiguredToken && /* @__PURE__ */ jsxs("button", {
+							type: "button",
+							onClick: handleSyncConfiguredToken,
+							disabled: isSyncingConfigured,
+							style: {
+								background: "rgba(255, 255, 255, 0.2)",
+								color: "#fff",
+								border: "1px solid rgba(255, 255, 255, 0.4)",
+								padding: "11px 20px",
+								borderRadius: "10px",
+								fontWeight: 700,
+								fontSize: "13px",
+								cursor: "pointer",
+								display: "flex",
+								alignItems: "center",
+								gap: "8px"
+							},
+							children: [/* @__PURE__ */ jsx(RefreshCw, { style: {
+								width: "16px",
+								height: "16px",
+								animation: isSyncingConfigured ? "spin 1s linear infinite" : "none"
+							} }), /* @__PURE__ */ jsx("span", { children: isSyncingConfigured ? "Connecting..." : "Sync Configured Token" })]
+						})]
+					})
 				})]
 			}),
 			/* @__PURE__ */ jsx("div", {
@@ -1333,6 +1368,69 @@ function PinterestHubPage({ needsMigration = false, isConfigured, clientId, hasC
 								color: "#64748b"
 							},
 							children: "If you generated a Pinterest User Token from developers.pinterest.com, paste it here to authenticate immediately."
+						}),
+						hasConfiguredToken && /* @__PURE__ */ jsxs("div", {
+							style: {
+								background: "#ecfdf5",
+								border: "1px solid #a7f3d0",
+								padding: "12px 16px",
+								borderRadius: "10px",
+								marginBottom: "16px",
+								display: "flex",
+								alignItems: "center",
+								justifyContent: "space-between",
+								gap: "12px",
+								flexWrap: "wrap"
+							},
+							children: [/* @__PURE__ */ jsxs("div", {
+								style: {
+									display: "flex",
+									alignItems: "center",
+									gap: "8px"
+								},
+								children: [/* @__PURE__ */ jsx(CheckCircle2, { style: {
+									width: "18px",
+									height: "18px",
+									color: "#059669",
+									flexShrink: 0
+								} }), /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("div", {
+									style: {
+										fontSize: "13px",
+										fontWeight: 700,
+										color: "#065f46"
+									},
+									children: "Configured Token Found in Environment"
+								}), /* @__PURE__ */ jsx("div", {
+									style: {
+										fontSize: "12px",
+										color: "#047857",
+										fontFamily: "monospace"
+									},
+									children: configuredTokenPreview
+								})] })]
+							}), /* @__PURE__ */ jsxs("button", {
+								type: "button",
+								onClick: handleSyncConfiguredToken,
+								disabled: isSyncingConfigured,
+								style: {
+									background: "#059669",
+									color: "#fff",
+									border: "none",
+									padding: "8px 16px",
+									borderRadius: "8px",
+									fontSize: "12px",
+									fontWeight: 700,
+									cursor: "pointer",
+									display: "flex",
+									alignItems: "center",
+									gap: "6px"
+								},
+								children: [/* @__PURE__ */ jsx(RefreshCw, { style: {
+									width: "14px",
+									height: "14px",
+									animation: isSyncingConfigured ? "spin 1s linear infinite" : "none"
+								} }), /* @__PURE__ */ jsx("span", { children: isSyncingConfigured ? "Syncing..." : "Sync Configured Token Now" })]
+							})]
 						}),
 						/* @__PURE__ */ jsxs("form", {
 							onSubmit: handleManualTokenSubmit,

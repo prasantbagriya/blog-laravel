@@ -62,6 +62,21 @@ class AdminPinterestController extends Controller
             if (Schema::hasTable('pinterest_accounts') && Schema::hasTable('pinterest_boards')) {
                 try {
                     $account = PinterestAccount::with('boards')->where('is_active', true)->latest()->first();
+
+                    // If not in DB, but configured in .env / services.php, auto-sync immediately
+                    if (!$account && !app()->environment('testing')) {
+                        $configuredToken = config('services.pinterest.access_token') ?: env('PINTEREST_ACCESS_TOKEN');
+                        if (!empty($configuredToken)) {
+                            try {
+                                $account = $this->authService->syncUserFromToken($configuredToken);
+                                $this->pinterestService->syncBoards($account);
+                                $account->load('boards');
+                            } catch (\Throwable $tokenErr) {
+                                Log::warning('Pinterest auto-sync from configured token failed: ' . $tokenErr->getMessage());
+                            }
+                        }
+                    }
+
                     $boards = $account ? $account->boards : collect();
                     $defaultBoard = $boards->firstWhere('is_default', true) ?: $boards->first();
                 } catch (\Throwable $e) {
@@ -139,9 +154,13 @@ class AdminPinterestController extends Controller
                 }
             }
 
+            $configuredToken = config('services.pinterest.access_token') ?: env('PINTEREST_ACCESS_TOKEN');
+
             return Inertia::render('Admin/Pinterest/Index', [
                 'needsMigration' => $needsMigration,
                 'isConfigured' => $this->authService->isConfigured(),
+                'hasConfiguredToken' => !empty($configuredToken),
+                'configuredTokenPreview' => !empty($configuredToken) ? substr($configuredToken, 0, 10) . '...' . substr($configuredToken, -6) : null,
                 'clientId' => config('services.pinterest.client_id'),
                 'hasClientSecret' => !empty(config('services.pinterest.client_secret')),
                 'redirectUri' => config('services.pinterest.redirect_uri', url('/auth/pinterest/callback')),
@@ -198,6 +217,25 @@ class AdminPinterestController extends Controller
                 'authUrl' => null,
                 'errorMessage' => 'Error initializing Pinterest Hub: ' . $e->getMessage(),
             ]);
+        }
+    }
+
+    /**
+     * Connect or re-sync using configured PINTEREST_ACCESS_TOKEN from .env / services.php
+     */
+    public function syncConfiguredToken(Request $request)
+    {
+        $token = config('services.pinterest.access_token') ?: env('PINTEREST_ACCESS_TOKEN');
+        if (empty($token)) {
+            return redirect()->back()->with('error', 'No PINTEREST_ACCESS_TOKEN found in .env or configuration.');
+        }
+
+        try {
+            $account = $this->authService->syncUserFromToken($token);
+            $this->pinterestService->syncBoards($account);
+            return redirect()->back()->with('success', "Connected to Pinterest as @{$account->username} & boards synced!");
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', 'Failed to connect using configured token: ' . $e->getMessage());
         }
     }
 

@@ -6,6 +6,8 @@ import { Pin, Send, RefreshCw, FileCheck, PenSquare, FolderPlus, Settings, Alert
 export default function PinterestHubPage({
   needsMigration = false,
   isConfigured,
+  hasConfiguredToken = false,
+  configuredTokenPreview = null,
   clientId,
   hasClientSecret,
   redirectUri,
@@ -23,6 +25,14 @@ export default function PinterestHubPage({
   const [editTitles, setEditTitles] = useState({});
   const [editDescriptions, setEditDescriptions] = useState({});
   const [selectedBoards, setSelectedBoards] = useState({});
+  const [isSyncingConfigured, setIsSyncingConfigured] = useState(false);
+
+  const handleSyncConfiguredToken = () => {
+    setIsSyncingConfigured(true);
+    router.post('/admin/pinterest/sync-configured', {}, {
+      onFinish: () => setIsSyncingConfigured(false),
+    });
+  };
 
   // Custom Pin state
   const [customBoardId, setCustomBoardId] = useState(defaultBoard?.id || (boards[0]?.id || ''));
@@ -364,26 +374,53 @@ export default function PinterestHubPage({
                   Disconnect
                 </button>
               </>
-            ) : authUrl ? (
-              <a
-                href={authUrl}
-                style={{
-                  background: '#fff',
-                  color: '#e60023',
-                  padding: '11px 22px',
-                  borderRadius: '10px',
-                  fontWeight: 800,
-                  fontSize: '14px',
-                  textDecoration: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
-                }}
-              >
-                Connect with Pinterest
-              </a>
-            ) : null}
+            ) : (
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                {authUrl && (
+                  <a
+                    href={authUrl}
+                    style={{
+                      background: '#fff',
+                      color: '#e60023',
+                      padding: '11px 22px',
+                      borderRadius: '10px',
+                      fontWeight: 800,
+                      fontSize: '14px',
+                      textDecoration: 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
+                    }}
+                  >
+                    Connect with Pinterest
+                  </a>
+                )}
+                {hasConfiguredToken && (
+                  <button
+                    type="button"
+                    onClick={handleSyncConfiguredToken}
+                    disabled={isSyncingConfigured}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.2)',
+                      color: '#fff',
+                      border: '1px solid rgba(255, 255, 255, 0.4)',
+                      padding: '11px 20px',
+                      borderRadius: '10px',
+                      fontWeight: 700,
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                  >
+                    <RefreshCw style={{ width: '16px', height: '16px', animation: isSyncingConfigured ? 'spin 1s linear infinite' : 'none' }} />
+                    <span>{isSyncingConfigured ? 'Connecting...' : 'Sync Configured Token'}</span>
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -956,6 +993,39 @@ export default function PinterestHubPage({
               <p style={{ margin: '0 0 20px 0', fontSize: '13px', color: '#64748b' }}>
                 If you generated a Pinterest User Token from developers.pinterest.com, paste it here to authenticate immediately.
               </p>
+
+              {hasConfiguredToken && (
+                <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '12px 16px', borderRadius: '10px', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <CheckCircle2 style={{ width: '18px', height: '18px', color: '#059669', flexShrink: 0 }} />
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: 700, color: '#065f46' }}>Configured Token Found in Environment</div>
+                      <div style={{ fontSize: '12px', color: '#047857', fontFamily: 'monospace' }}>{configuredTokenPreview}</div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleSyncConfiguredToken}
+                    disabled={isSyncingConfigured}
+                    style={{
+                      background: '#059669',
+                      color: '#fff',
+                      border: 'none',
+                      padding: '8px 16px',
+                      borderRadius: '8px',
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                    }}
+                  >
+                    <RefreshCw style={{ width: '14px', height: '14px', animation: isSyncingConfigured ? 'spin 1s linear infinite' : 'none' }} />
+                    <span>{isSyncingConfigured ? 'Syncing...' : 'Sync Configured Token Now'}</span>
+                  </button>
+                </div>
+              )}
 
               <form onSubmit={handleManualTokenSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 <div>

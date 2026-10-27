@@ -59,6 +59,20 @@ class PinterestAccount extends Model
 
     public static function active(): ?self
     {
-        return self::with('boards')->where('is_active', true)->latest()->first();
+        $account = self::with('boards')->where('is_active', true)->latest()->first();
+        if (!$account && !app()->environment('testing')) {
+            $configuredToken = config('services.pinterest.access_token') ?: env('PINTEREST_ACCESS_TOKEN');
+            if (!empty($configuredToken)) {
+                try {
+                    $authService = app(\App\Services\Pinterest\PinterestAuthService::class);
+                    $account = $authService->syncUserFromToken($configuredToken);
+                    app(\App\Services\Pinterest\PinterestService::class)->syncBoards($account);
+                    $account->load('boards');
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Auto-sync PinterestAccount::active failed: ' . $e->getMessage());
+                }
+            }
+        }
+        return $account;
     }
 }

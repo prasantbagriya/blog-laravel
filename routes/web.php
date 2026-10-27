@@ -243,6 +243,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // Pinterest Management & Board Manager
     Route::get('/admin/pinterest', [\App\Http\Controllers\Admin\AdminPinterestController::class, 'index'])->name('admin.pinterest.index');
+    Route::post('/admin/pinterest/sync-configured', [\App\Http\Controllers\Admin\AdminPinterestController::class, 'syncConfiguredToken'])->name('admin.pinterest.sync_configured');
     Route::post('/admin/pinterest/credentials', [\App\Http\Controllers\Admin\AdminPinterestController::class, 'saveApiCredentials'])->name('admin.pinterest.credentials');
     Route::post('/admin/pinterest/sync-boards', [\App\Http\Controllers\Admin\AdminPinterestController::class, 'syncBoards'])->name('admin.pinterest.sync_boards');
     Route::post('/admin/pinterest/default-board/{boardId}', [\App\Http\Controllers\Admin\AdminPinterestController::class, 'setDefaultBoard'])->name('admin.pinterest.default_board');
