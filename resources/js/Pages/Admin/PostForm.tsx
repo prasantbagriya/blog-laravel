@@ -921,6 +921,12 @@ export default function PostForm({ post }: PostFormProps) {
    const [pinDescription, setPinDescription] = useState('');
    const [pinBoardName, setPinBoardName] = useState('');
    const [pinBoardId, setPinBoardId] = useState('');
+   const [pinBoards, setPinBoards] = useState<Array<{ id: number; board_id: string; name: string; is_default: boolean }>>([]);
+   const [pinTargetLink, setPinTargetLink] = useState('');
+   const [pinAltText, setPinAltText] = useState('');
+   const [pinCustomImage, setPinCustomImage] = useState('');
+   const [isUploadingPinImage, setIsUploadingPinImage] = useState(false);
+   const pinFileInputRef = useRef<HTMLInputElement>(null);
    const [isGeneratingPinDraft, setIsGeneratingPinDraft] = useState(false);
    const [isPublishingPin, setIsPublishingPin] = useState(false);
    const [pinPublishedUrl, setPinPublishedUrl] = useState<string | null>(null);
@@ -929,24 +935,73 @@ export default function PostForm({ post }: PostFormProps) {
       setIsGeneratingPinDraft(true);
       try {
          const targetId = post?.id || slug || 'draft';
-         const res = await fetch(`/api/admin/pinterest/draft/${targetId}`);
+         const queryParams = new URLSearchParams({
+            title: title || '',
+            slug: slug || '',
+            category: category || '',
+            excerpt: excerpt || metaDescription || '',
+            content: editor ? editor.getText().slice(0, 500) : '',
+            coverImage: coverImage || '',
+         });
+         const res = await fetch(`/api/admin/pinterest/draft/${targetId}?${queryParams.toString()}`);
          const data = await res.json();
          if (data.success && data.draft) {
             setPinTitle(data.draft.title || '');
             setPinDescription(data.draft.description || '');
-            if (data.board) {
+            if (data.draft.target_link && !pinTargetLink) {
+               setPinTargetLink(data.draft.target_link);
+            }
+            if (data.draft.alt_text && !pinAltText) {
+               setPinAltText(data.draft.alt_text);
+            }
+            if (data.boards && Array.isArray(data.boards)) {
+               setPinBoards(data.boards);
+            }
+            if (data.board && !pinBoardId) {
                setPinBoardName(data.board.name);
-               setPinBoardId(data.board.id);
+               setPinBoardId(String(data.board.id));
             }
          } else {
             setPinTitle((title || 'Best Coaching & Education Updates in Sikar').slice(0, 100));
             setPinDescription(`Discover the latest updates, top coaching institutes, fee structures, and admissions guides in Sikar. Read full review: ${getPostFullUrl()}\n\n#Sikar #Education #JEE #NEET`);
+            if (data.boards && Array.isArray(data.boards)) {
+               setPinBoards(data.boards);
+            }
          }
       } catch (e) {
          setPinTitle((title || 'Best Coaching & Education Updates in Sikar').slice(0, 100));
          setPinDescription(`Discover the latest updates, top coaching institutes, fee structures, and admissions guides in Sikar. Read full review: ${getPostFullUrl()}\n\n#Sikar #Education #JEE #NEET`);
       } finally {
          setIsGeneratingPinDraft(false);
+      }
+   };
+
+   const handlePinImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      setIsUploadingPinImage(true);
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+         const res = await fetch('/api/admin/social/upload-image', {
+            method: 'POST',
+            headers: {
+               'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            },
+            body: formData
+         });
+         const data = await res.json();
+         if (data.url) {
+            setPinCustomImage(data.url);
+         } else {
+            alert(data.message || 'Image upload failed.');
+         }
+      } catch (err: any) {
+         alert('Upload failed: ' + err.message);
+      } finally {
+         setIsUploadingPinImage(false);
       }
    };
 
@@ -959,7 +1014,8 @@ export default function PostForm({ post }: PostFormProps) {
          alert('Pin description is required and must be max 500 characters.');
          return;
       }
-      const finalImage = coverImage ? (coverImage.startsWith('http') ? coverImage : window.location.origin + coverImage) : null;
+      const rawImage = pinCustomImage || coverImage;
+      const finalImage = rawImage ? (rawImage.startsWith('http') ? rawImage : window.location.origin + rawImage) : null;
       if (!finalImage) {
          alert('An image or cover photo is required to publish a Pin to Pinterest.');
          return;
@@ -984,7 +1040,8 @@ export default function PostForm({ post }: PostFormProps) {
                title: pinTitle,
                description: pinDescription,
                image_url: finalImage,
-               target_link: getPostFullUrl()
+               target_link: pinTargetLink || getPostFullUrl(),
+               alt_text: pinAltText || pinTitle,
             })
          });
          const data = await res.json();
@@ -2900,7 +2957,7 @@ export default function PostForm({ post }: PostFormProps) {
                      <TabBtn active={activeTab === 'meta'} onClick={() => setActiveTab('meta')} icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '14px', height: '14px' }}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>} label="Meta" status={seoTitle ? 'success' : 'warning'} />
                      <TabBtn active={activeTab === 'facebook'} onClick={() => { setActiveTab('facebook'); if (!fbCaption) generateFbDraft(); }} icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>} label="Facebook" status={fbPublishedPermalink ? 'success' : 'neutral'} />
                      <TabBtn active={activeTab === 'x'} onClick={() => { setActiveTab('x'); if (!xTweetText) generateXDraft(); }} icon={<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>} label="Twitter/X" status={xPublishedPermalink ? 'success' : 'neutral'} />
-                     <TabBtn active={activeTab === 'pinterest'} onClick={() => { setActiveTab('pinterest'); if (!pinTitle) generatePinDraft(); }} icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg>} label="Pinterest" status={pinPublishedUrl ? 'success' : 'neutral'} />
+                      <TabBtn active={activeTab === 'pinterest'} onClick={() => { setActiveTab('pinterest'); if (!pinTitle) generatePinDraft(); }} icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="#e60023"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.627-5.373-12-12-12z"/></svg>} label="Pinterest" status={pinPublishedUrl ? 'success' : 'neutral'} />
                       <TabBtn active={activeTab === 'instagram'} onClick={() => { setActiveTab('instagram'); if (!igCaption) generateIgDraft(); }} icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>} label="Instagram" status={igPublishedPermalink ? 'success' : 'neutral'} />
                       <TabBtn active={activeTab === 'linkedin'} onClick={() => { setActiveTab('linkedin'); if (!liCommentary) generateLiDraft(); }} icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>} label="LinkedIn" status={liPublishedPermalink ? 'success' : 'neutral'} />
 
@@ -3726,11 +3783,14 @@ export default function PostForm({ post }: PostFormProps) {
                         </div>
                      )}
 
-                                           {activeTab === 'pinterest' && (
+                      {activeTab === 'pinterest' && (
                          <div key="pinterest" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                <h3 style={{ ...sidebarHeadingStyle, margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg> Pinterest Pin Approval
+                                  <svg width="15" height="15" viewBox="0 0 24 24" fill="#e60023">
+                                     <path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.627-5.373-12-12-12z"/>
+                                  </svg>
+                                  <span>Pinterest Pin Studio</span>
                                </h3>
                                <button
                                   type="button"
@@ -3747,19 +3807,50 @@ export default function PostForm({ post }: PostFormProps) {
                                      cursor: 'pointer',
                                   }}
                                >
-                                  {isGeneratingPinDraft ? 'Drafting...' : '↻ Regenerate'}
+                                  {isGeneratingPinDraft ? 'Drafting with AI...' : '✨ Auto-Draft Pin'}
                                </button>
                             </div>
 
-                            {pinBoardName && (
-                               <div style={{ fontSize: '11px', color: '#64748b', background: '#f8fafc', padding: '6px 10px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
-                                  Board: <strong style={{ color: '#0f172a' }}>{pinBoardName}</strong>
-                               </div>
-                            )}
-
+                            {/* Target Pinterest Board */}
                             <div>
-                               <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', marginBottom: '8px', letterSpacing: '0.5px' }}>
-                                  PINTEREST PIN PREVIEW
+                               <label style={metaLabelStyle}>
+                                  TARGET PINTEREST BOARD <span style={{ color: '#ef4444' }}>*</span>
+                               </label>
+                               {pinBoards.length > 0 ? (
+                                  <select
+                                     value={pinBoardId}
+                                     onChange={(e) => {
+                                        setPinBoardId(e.target.value);
+                                        const b = pinBoards.find(x => String(x.id) === e.target.value);
+                                        if (b) setPinBoardName(b.name);
+                                     }}
+                                     style={{
+                                        ...metaInputStyle,
+                                        cursor: 'pointer',
+                                        background: '#fff',
+                                     }}
+                                  >
+                                     <option value="">Select a Pinterest Board...</option>
+                                     {pinBoards.map((b) => (
+                                        <option key={b.id} value={b.id}>
+                                           {b.name} {b.is_default ? '⭐ (Default)' : ''}
+                                        </option>
+                                     ))}
+                                  </select>
+                               ) : (
+                                  <div style={{ fontSize: '11.5px', color: '#64748b', background: '#f8fafc', padding: '8px 12px', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                     <span>{pinBoardName ? `Board: ${pinBoardName}` : 'Auto-selects your default board'}</span>
+                                     <a href="/admin/pinterest" target="_blank" rel="noopener noreferrer" style={{ color: '#e60023', fontWeight: 700, textDecoration: 'none', fontSize: '11px' }}>
+                                        Manage Boards ↗
+                                     </a>
+                                  </div>
+                               )}
+                            </div>
+
+                            {/* Live Pinterest Mockup */}
+                            <div>
+                               <div style={{ fontSize: '10px', fontWeight: 900, color: '#94a3b8', letterSpacing: '1px', marginBottom: '8px', textTransform: 'uppercase' }}>
+                                  LIVE PINTEREST PIN PREVIEW
                                </div>
                                <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}>
                                   <div style={{ padding: '10px 12px', display: 'flex', gap: '8px', alignItems: 'center', background: '#fef2f2', borderBottom: '1px solid #fee2e2' }}>
@@ -3768,25 +3859,25 @@ export default function PostForm({ post }: PostFormProps) {
                                      </div>
                                      <div style={{ flex: 1, minWidth: 0 }}>
                                         <div style={{ fontWeight: 700, fontSize: '12px', color: '#991b1b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                           Pinterest Pin Mockup
+                                           {pinBoardName || 'Pinterest Pin'}
                                         </div>
                                      </div>
                                   </div>
 
-                                  {coverImage ? (
-                                     <div style={{ background: '#f1f5f9', position: 'relative', overflow: 'hidden', maxHeight: '240px' }}>
+                                  {(pinCustomImage || coverImage) ? (
+                                     <div style={{ background: '#f1f5f9', position: 'relative', overflow: 'hidden', maxHeight: '260px' }}>
                                         <img
-                                           src={coverImage}
-                                           alt="Pin preview"
-                                           style={{ width: '100%', maxHeight: '240px', objectFit: 'cover', display: 'block' }}
+                                           src={pinCustomImage || coverImage}
+                                           alt={pinAltText || 'Pin preview'}
+                                           style={{ width: '100%', maxHeight: '260px', objectFit: 'cover', display: 'block' }}
                                         />
-                                        <div style={{ position: 'absolute', top: '10px', right: '10px', background: '#e60023', color: '#fff', padding: '6px 14px', borderRadius: '20px', fontWeight: 800, fontSize: '11px' }}>
+                                        <div style={{ position: 'absolute', top: '10px', right: '10px', background: '#e60023', color: '#fff', padding: '6px 14px', borderRadius: '20px', fontWeight: 800, fontSize: '11px', boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }}>
                                            Save
                                         </div>
                                      </div>
                                   ) : (
                                      <div style={{ padding: '24px', textAlign: 'center', background: '#f8fafc', borderBottom: '1px dashed #cbd5e1', color: '#94a3b8', fontSize: '12px' }}>
-                                        ⚠️ Set a Cover Image for this post to preview vertical Pin
+                                        ⚠️ Upload a custom Pin graphic or set a post Cover Image to preview vertical Pin
                                      </div>
                                   )}
 
@@ -3798,16 +3889,76 @@ export default function PostForm({ post }: PostFormProps) {
                                         {pinDescription || 'SEO-optimized Pin description with keywords and hashtags...'}
                                      </div>
                                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#f1f5f9', padding: '4px 10px', borderRadius: '12px', fontSize: '11px', color: '#475569', fontWeight: 600 }}>
-                                        🔗 coachingsinsikar.com
+                                        🔗 {pinTargetLink ? pinTargetLink.replace(/^https?:\/\//, '') : 'coachingsinsikar.com'}
                                      </div>
                                   </div>
                                </div>
                             </div>
 
+                            {/* Pin Graphic Upload */}
+                            <div>
+                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                                  <label style={metaLabelStyle}>
+                                     PIN GRAPHIC (2:3 VERTICAL RECOMMENDED)
+                                  </label>
+                                  {pinCustomImage && (
+                                     <button
+                                        type="button"
+                                        onClick={() => setPinCustomImage('')}
+                                        style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '11px', fontWeight: 700, cursor: 'pointer', padding: 0 }}
+                                     >
+                                        Reset to Cover Image
+                                     </button>
+                                  )}
+                               </div>
+                               <input
+                                  ref={pinFileInputRef}
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={handlePinImageUpload}
+                                  style={{ display: 'none' }}
+                               />
+                               <button
+                                  type="button"
+                                  onClick={() => pinFileInputRef.current?.click()}
+                                  disabled={isUploadingPinImage}
+                                  style={{
+                                     width: '100%',
+                                     padding: '9px 12px',
+                                     borderRadius: '8px',
+                                     border: '1px dashed #cbd5e1',
+                                     background: '#f8fafc',
+                                     color: '#334155',
+                                     fontSize: '12px',
+                                     fontWeight: 700,
+                                     cursor: isUploadingPinImage ? 'wait' : 'pointer',
+                                     display: 'flex',
+                                     alignItems: 'center',
+                                     justifyContent: 'center',
+                                     gap: '8px',
+                                  }}
+                               >
+                                  <span>📷</span>
+                                  <span>{isUploadingPinImage ? 'Uploading & Optimizing Graphic...' : (pinCustomImage ? 'Change Custom Pin Graphic' : 'Upload Dedicated 2:3 Vertical Pin Graphic')}</span>
+                               </button>
+                            </div>
+
+                            {/* Pin Title */}
                             <div>
                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                                  <label style={metaLabelStyle}>PIN TITLE (MAX 100 CHARS)</label>
-                                  <span style={{ fontSize: '11px', fontWeight: 800, color: pinTitle.length > 100 ? '#ef4444' : '#64748b' }}>
+                                  <label style={metaLabelStyle}>
+                                     PIN TITLE <span style={{ color: '#ef4444' }}>*</span>
+                                  </label>
+                                  <span
+                                     style={{
+                                        fontSize: '11px',
+                                        fontWeight: 800,
+                                        padding: '2px 8px',
+                                        borderRadius: '6px',
+                                        background: pinTitle.length > 100 ? '#fee2e2' : (pinTitle.length > 90 ? '#fef3c7' : '#f1f5f9'),
+                                        color: pinTitle.length > 100 ? '#dc2626' : (pinTitle.length > 90 ? '#d97706' : '#64748b'),
+                                     }}
+                                  >
                                      {pinTitle.length} / 100
                                   </span>
                                </div>
@@ -3820,14 +3971,26 @@ export default function PostForm({ post }: PostFormProps) {
                                      ...metaInputStyle,
                                      border: pinTitle.length > 100 ? '2px solid #ef4444' : undefined,
                                   }}
-                                  placeholder="Eye-catching Pin title..."
+                                  placeholder="SEO-rich Pin title (under 100 characters)..."
                                />
                             </div>
 
+                            {/* Pin Description */}
                             <div>
                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                                  <label style={metaLabelStyle}>PIN DESCRIPTION (MAX 500 CHARS)</label>
-                                  <span style={{ fontSize: '11px', fontWeight: 800, color: pinDescription.length > 500 ? '#ef4444' : '#64748b' }}>
+                                  <label style={metaLabelStyle}>
+                                     PIN DESCRIPTION (MAX 500 CHARS) <span style={{ color: '#ef4444' }}>*</span>
+                                  </label>
+                                  <span
+                                     style={{
+                                        fontSize: '11px',
+                                        fontWeight: 800,
+                                        padding: '2px 8px',
+                                        borderRadius: '6px',
+                                        background: pinDescription.length > 500 ? '#fee2e2' : (pinDescription.length > 480 ? '#fef3c7' : '#f1f5f9'),
+                                        color: pinDescription.length > 500 ? '#dc2626' : (pinDescription.length > 480 ? '#d97706' : '#64748b'),
+                                     }}
+                                  >
                                      {pinDescription.length} / 500
                                   </span>
                                </div>
@@ -3840,7 +4003,36 @@ export default function PostForm({ post }: PostFormProps) {
                                      height: '110px',
                                      border: pinDescription.length > 500 ? '2px solid #ef4444' : undefined,
                                   }}
-                                  placeholder="Keyword-rich Pin description with hashtags..."
+                                  placeholder="Helpful summary answering search intent, bullet points, CTA, and search hashtags..."
+                               />
+                            </div>
+
+                            {/* Destination Link */}
+                            <div>
+                               <label style={metaLabelStyle}>
+                                  DESTINATION LINK (URL)
+                               </label>
+                               <input
+                                  type="url"
+                                  value={pinTargetLink}
+                                  onChange={(e) => setPinTargetLink(e.target.value)}
+                                  style={metaInputStyle}
+                                  placeholder={getPostFullUrl()}
+                               />
+                            </div>
+
+                            {/* Image Alt Text */}
+                            <div>
+                               <label style={metaLabelStyle}>
+                                  IMAGE ALT TEXT (ACCESSIBILITY & SEARCH)
+                               </label>
+                               <input
+                                  type="text"
+                                  value={pinAltText}
+                                  onChange={(e) => setPinAltText(e.target.value)}
+                                  maxLength={300}
+                                  style={metaInputStyle}
+                                  placeholder="Describe what is seen in the graphic for visual search..."
                                />
                             </div>
 
@@ -3856,21 +4048,21 @@ export default function PostForm({ post }: PostFormProps) {
                             <button
                                type="button"
                                onClick={(e) => { e.preventDefault(); publishToPinterest(); }}
-                               disabled={isPublishingPin || !pinTitle.trim() || !coverImage}
+                               disabled={isPublishingPin || !pinTitle.trim() || (!coverImage && !pinCustomImage)}
                                style={{
-                                  background: (!coverImage || !pinTitle.trim()) ? '#94a3b8' : '#e60023',
+                                  background: (!coverImage && !pinCustomImage) || !pinTitle.trim() ? '#94a3b8' : '#e60023',
                                   color: '#fff',
                                   border: 'none',
                                   padding: '12px',
                                   borderRadius: '10px',
                                   fontWeight: 800,
                                   fontSize: '13px',
-                                  cursor: (!coverImage || !pinTitle.trim()) ? 'not-allowed' : 'pointer',
+                                  cursor: (!coverImage && !pinCustomImage) || !pinTitle.trim() ? 'not-allowed' : 'pointer',
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
                                   gap: '8px',
-                                  boxShadow: (!coverImage || !pinTitle.trim()) ? 'none' : '0 4px 12px rgba(230, 0, 35, 0.3)',
+                                  boxShadow: (!coverImage && !pinCustomImage) || !pinTitle.trim() ? 'none' : '0 4px 12px rgba(230, 0, 35, 0.3)',
                                   opacity: isPublishingPin ? 0.7 : 1,
                                }}
                             >

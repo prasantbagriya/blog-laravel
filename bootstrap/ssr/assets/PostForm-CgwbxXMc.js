@@ -1320,6 +1320,12 @@ function PostForm({ post }) {
 	const [pinDescription, setPinDescription] = useState("");
 	const [pinBoardName, setPinBoardName] = useState("");
 	const [pinBoardId, setPinBoardId] = useState("");
+	const [pinBoards, setPinBoards] = useState([]);
+	const [pinTargetLink, setPinTargetLink] = useState("");
+	const [pinAltText, setPinAltText] = useState("");
+	const [pinCustomImage, setPinCustomImage] = useState("");
+	const [isUploadingPinImage, setIsUploadingPinImage] = useState(false);
+	const pinFileInputRef = useRef(null);
 	const [isGeneratingPinDraft, setIsGeneratingPinDraft] = useState(false);
 	const [isPublishingPin, setIsPublishingPin] = useState(false);
 	const [pinPublishedUrl, setPinPublishedUrl] = useState(null);
@@ -1327,23 +1333,55 @@ function PostForm({ post }) {
 		setIsGeneratingPinDraft(true);
 		try {
 			const targetId = post?.id || slug || "draft";
-			const data = await (await fetch(`/api/admin/pinterest/draft/${targetId}`)).json();
+			const queryParams = new URLSearchParams({
+				title: title || "",
+				slug: slug || "",
+				category: category || "",
+				excerpt: excerpt || metaDescription || "",
+				content: editor ? editor.getText().slice(0, 500) : "",
+				coverImage: coverImage || ""
+			});
+			const data = await (await fetch(`/api/admin/pinterest/draft/${targetId}?${queryParams.toString()}`)).json();
 			if (data.success && data.draft) {
 				setPinTitle(data.draft.title || "");
 				setPinDescription(data.draft.description || "");
-				if (data.board) {
+				if (data.draft.target_link && !pinTargetLink) setPinTargetLink(data.draft.target_link);
+				if (data.draft.alt_text && !pinAltText) setPinAltText(data.draft.alt_text);
+				if (data.boards && Array.isArray(data.boards)) setPinBoards(data.boards);
+				if (data.board && !pinBoardId) {
 					setPinBoardName(data.board.name);
-					setPinBoardId(data.board.id);
+					setPinBoardId(String(data.board.id));
 				}
 			} else {
 				setPinTitle((title || "Best Coaching & Education Updates in Sikar").slice(0, 100));
 				setPinDescription(`Discover the latest updates, top coaching institutes, fee structures, and admissions guides in Sikar. Read full review: ${getPostFullUrl()}\n\n#Sikar #Education #JEE #NEET`);
+				if (data.boards && Array.isArray(data.boards)) setPinBoards(data.boards);
 			}
 		} catch (e) {
 			setPinTitle((title || "Best Coaching & Education Updates in Sikar").slice(0, 100));
 			setPinDescription(`Discover the latest updates, top coaching institutes, fee structures, and admissions guides in Sikar. Read full review: ${getPostFullUrl()}\n\n#Sikar #Education #JEE #NEET`);
 		} finally {
 			setIsGeneratingPinDraft(false);
+		}
+	};
+	const handlePinImageUpload = async (e) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+		setIsUploadingPinImage(true);
+		const formData = new FormData();
+		formData.append("image", file);
+		try {
+			const data = await (await fetch("/api/admin/social/upload-image", {
+				method: "POST",
+				headers: { "X-CSRF-TOKEN": document.querySelector("meta[name=\"csrf-token\"]")?.getAttribute("content") || "" },
+				body: formData
+			})).json();
+			if (data.url) setPinCustomImage(data.url);
+			else alert(data.message || "Image upload failed.");
+		} catch (err) {
+			alert("Upload failed: " + err.message);
+		} finally {
+			setIsUploadingPinImage(false);
 		}
 	};
 	const publishToPinterest = async () => {
@@ -1355,7 +1393,8 @@ function PostForm({ post }) {
 			alert("Pin description is required and must be max 500 characters.");
 			return;
 		}
-		const finalImage = coverImage ? coverImage.startsWith("http") ? coverImage : window.location.origin + coverImage : null;
+		const rawImage = pinCustomImage || coverImage;
+		const finalImage = rawImage ? rawImage.startsWith("http") ? rawImage : window.location.origin + rawImage : null;
 		if (!finalImage) {
 			alert("An image or cover photo is required to publish a Pin to Pinterest.");
 			return;
@@ -1378,7 +1417,8 @@ function PostForm({ post }) {
 					title: pinTitle,
 					description: pinDescription,
 					image_url: finalImage,
-					target_link: getPostFullUrl()
+					target_link: pinTargetLink || getPostFullUrl(),
+					alt_text: pinAltText || pinTitle
 				})
 			})).json();
 			if (data.success) {
@@ -5774,21 +5814,12 @@ function PostForm({ post }) {
 											setActiveTab("pinterest");
 											if (!pinTitle) generatePinDraft();
 										},
-										icon: /* @__PURE__ */ jsxs("svg", {
+										icon: /* @__PURE__ */ jsx("svg", {
 											width: "14",
 											height: "14",
 											viewBox: "0 0 24 24",
-											fill: "none",
-											stroke: "currentColor",
-											strokeWidth: 2,
-											strokeLinecap: "round",
-											strokeLinejoin: "round",
-											children: [/* @__PURE__ */ jsx("line", {
-												x1: "12",
-												y1: "17",
-												x2: "12",
-												y2: "22"
-											}), /* @__PURE__ */ jsx("path", { d: "M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z" })]
+											fill: "#e60023",
+											children: /* @__PURE__ */ jsx("path", { d: "M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.627-5.373-12-12-12z" })
 										}),
 										label: "Pinterest",
 										status: pinPublishedUrl ? "success" : "neutral"
@@ -8721,22 +8752,13 @@ function PostForm({ post }) {
 													alignItems: "center",
 													gap: "6px"
 												},
-												children: [/* @__PURE__ */ jsxs("svg", {
-													width: "14",
-													height: "14",
+												children: [/* @__PURE__ */ jsx("svg", {
+													width: "15",
+													height: "15",
 													viewBox: "0 0 24 24",
-													fill: "none",
-													stroke: "currentColor",
-													strokeWidth: 2,
-													strokeLinecap: "round",
-													strokeLinejoin: "round",
-													children: [/* @__PURE__ */ jsx("line", {
-														x1: "12",
-														y1: "17",
-														x2: "12",
-														y2: "22"
-													}), /* @__PURE__ */ jsx("path", { d: "M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z" })]
-												}), " Pinterest Pin Approval"]
+													fill: "#e60023",
+													children: /* @__PURE__ */ jsx("path", { d: "M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.627-5.373-12-12-12z" })
+												}), /* @__PURE__ */ jsx("span", { children: "Pinterest Pin Studio" })]
 											}), /* @__PURE__ */ jsx("button", {
 												type: "button",
 												onClick: (e) => {
@@ -8754,32 +8776,73 @@ function PostForm({ post }) {
 													fontWeight: 700,
 													cursor: "pointer"
 												},
-												children: isGeneratingPinDraft ? "Drafting..." : "↻ Regenerate"
+												children: isGeneratingPinDraft ? "Drafting with AI..." : "✨ Auto-Draft Pin"
 											})]
 										}),
-										pinBoardName && /* @__PURE__ */ jsxs("div", {
+										/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsxs("label", {
+											style: metaLabelStyle,
+											children: ["TARGET PINTEREST BOARD ", /* @__PURE__ */ jsx("span", {
+												style: { color: "#ef4444" },
+												children: "*"
+											})]
+										}), pinBoards.length > 0 ? /* @__PURE__ */ jsxs("select", {
+											value: pinBoardId,
+											onChange: (e) => {
+												setPinBoardId(e.target.value);
+												const b = pinBoards.find((x) => String(x.id) === e.target.value);
+												if (b) setPinBoardName(b.name);
+											},
 											style: {
-												fontSize: "11px",
+												...metaInputStyle,
+												cursor: "pointer",
+												background: "#fff"
+											},
+											children: [/* @__PURE__ */ jsx("option", {
+												value: "",
+												children: "Select a Pinterest Board..."
+											}), pinBoards.map((b) => /* @__PURE__ */ jsxs("option", {
+												value: b.id,
+												children: [
+													b.name,
+													" ",
+													b.is_default ? "⭐ (Default)" : ""
+												]
+											}, b.id))]
+										}) : /* @__PURE__ */ jsxs("div", {
+											style: {
+												fontSize: "11.5px",
 												color: "#64748b",
 												background: "#f8fafc",
-												padding: "6px 10px",
-												borderRadius: "6px",
-												border: "1px solid #e2e8f0"
+												padding: "8px 12px",
+												borderRadius: "8px",
+												border: "1px solid #e2e8f0",
+												display: "flex",
+												justifyContent: "space-between",
+												alignItems: "center"
 											},
-											children: ["Board: ", /* @__PURE__ */ jsx("strong", {
-												style: { color: "#0f172a" },
-												children: pinBoardName
+											children: [/* @__PURE__ */ jsx("span", { children: pinBoardName ? `Board: ${pinBoardName}` : "Auto-selects your default board" }), /* @__PURE__ */ jsx("a", {
+												href: "/admin/pinterest",
+												target: "_blank",
+												rel: "noopener noreferrer",
+												style: {
+													color: "#e60023",
+													fontWeight: 700,
+													textDecoration: "none",
+													fontSize: "11px"
+												},
+												children: "Manage Boards ↗"
 											})]
-										}),
+										})] }),
 										/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("div", {
 											style: {
-												fontSize: "11px",
-												fontWeight: 800,
-												color: "#64748b",
+												fontSize: "10px",
+												fontWeight: 900,
+												color: "#94a3b8",
+												letterSpacing: "1px",
 												marginBottom: "8px",
-												letterSpacing: "0.5px"
+												textTransform: "uppercase"
 											},
-											children: "PINTEREST PIN PREVIEW"
+											children: "LIVE PINTEREST PIN PREVIEW"
 										}), /* @__PURE__ */ jsxs("div", {
 											style: {
 												background: "#fff",
@@ -8826,23 +8889,23 @@ function PostForm({ post }) {
 																textOverflow: "ellipsis",
 																whiteSpace: "nowrap"
 															},
-															children: "Pinterest Pin Mockup"
+															children: pinBoardName || "Pinterest Pin"
 														})
 													})]
 												}),
-												coverImage ? /* @__PURE__ */ jsxs("div", {
+												pinCustomImage || coverImage ? /* @__PURE__ */ jsxs("div", {
 													style: {
 														background: "#f1f5f9",
 														position: "relative",
 														overflow: "hidden",
-														maxHeight: "240px"
+														maxHeight: "260px"
 													},
 													children: [/* @__PURE__ */ jsx("img", {
-														src: coverImage,
-														alt: "Pin preview",
+														src: pinCustomImage || coverImage,
+														alt: pinAltText || "Pin preview",
 														style: {
 															width: "100%",
-															maxHeight: "240px",
+															maxHeight: "260px",
 															objectFit: "cover",
 															display: "block"
 														}
@@ -8856,7 +8919,8 @@ function PostForm({ post }) {
 															padding: "6px 14px",
 															borderRadius: "20px",
 															fontWeight: 800,
-															fontSize: "11px"
+															fontSize: "11px",
+															boxShadow: "0 2px 6px rgba(0,0,0,0.2)"
 														},
 														children: "Save"
 													})]
@@ -8869,7 +8933,7 @@ function PostForm({ post }) {
 														color: "#94a3b8",
 														fontSize: "12px"
 													},
-													children: "⚠️ Set a Cover Image for this post to preview vertical Pin"
+													children: "⚠️ Upload a custom Pin graphic or set a post Cover Image to preview vertical Pin"
 												}),
 												/* @__PURE__ */ jsxs("div", {
 													style: { padding: "12px 14px" },
@@ -8896,7 +8960,7 @@ function PostForm({ post }) {
 															},
 															children: pinDescription || "SEO-optimized Pin description with keywords and hashtags..."
 														}),
-														/* @__PURE__ */ jsx("div", {
+														/* @__PURE__ */ jsxs("div", {
 															style: {
 																display: "inline-flex",
 																alignItems: "center",
@@ -8908,12 +8972,67 @@ function PostForm({ post }) {
 																color: "#475569",
 																fontWeight: 600
 															},
-															children: "🔗 coachingsinsikar.com"
+															children: ["🔗 ", pinTargetLink ? pinTargetLink.replace(/^https?:\/\//, "") : "coachingsinsikar.com"]
 														})
 													]
 												})
 											]
 										})] }),
+										/* @__PURE__ */ jsxs("div", { children: [
+											/* @__PURE__ */ jsxs("div", {
+												style: {
+													display: "flex",
+													justifyContent: "space-between",
+													alignItems: "center",
+													marginBottom: "6px"
+												},
+												children: [/* @__PURE__ */ jsx("label", {
+													style: metaLabelStyle,
+													children: "PIN GRAPHIC (2:3 VERTICAL RECOMMENDED)"
+												}), pinCustomImage && /* @__PURE__ */ jsx("button", {
+													type: "button",
+													onClick: () => setPinCustomImage(""),
+													style: {
+														background: "none",
+														border: "none",
+														color: "#ef4444",
+														fontSize: "11px",
+														fontWeight: 700,
+														cursor: "pointer",
+														padding: 0
+													},
+													children: "Reset to Cover Image"
+												})]
+											}),
+											/* @__PURE__ */ jsx("input", {
+												ref: pinFileInputRef,
+												type: "file",
+												accept: "image/*",
+												onChange: handlePinImageUpload,
+												style: { display: "none" }
+											}),
+											/* @__PURE__ */ jsxs("button", {
+												type: "button",
+												onClick: () => pinFileInputRef.current?.click(),
+												disabled: isUploadingPinImage,
+												style: {
+													width: "100%",
+													padding: "9px 12px",
+													borderRadius: "8px",
+													border: "1px dashed #cbd5e1",
+													background: "#f8fafc",
+													color: "#334155",
+													fontSize: "12px",
+													fontWeight: 700,
+													cursor: isUploadingPinImage ? "wait" : "pointer",
+													display: "flex",
+													alignItems: "center",
+													justifyContent: "center",
+													gap: "8px"
+												},
+												children: [/* @__PURE__ */ jsx("span", { children: "📷" }), /* @__PURE__ */ jsx("span", { children: isUploadingPinImage ? "Uploading & Optimizing Graphic..." : pinCustomImage ? "Change Custom Pin Graphic" : "Upload Dedicated 2:3 Vertical Pin Graphic" })]
+											})
+										] }),
 										/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsxs("div", {
 											style: {
 												display: "flex",
@@ -8921,14 +9040,20 @@ function PostForm({ post }) {
 												alignItems: "center",
 												marginBottom: "4px"
 											},
-											children: [/* @__PURE__ */ jsx("label", {
+											children: [/* @__PURE__ */ jsxs("label", {
 												style: metaLabelStyle,
-												children: "PIN TITLE (MAX 100 CHARS)"
+												children: ["PIN TITLE ", /* @__PURE__ */ jsx("span", {
+													style: { color: "#ef4444" },
+													children: "*"
+												})]
 											}), /* @__PURE__ */ jsxs("span", {
 												style: {
 													fontSize: "11px",
 													fontWeight: 800,
-													color: pinTitle.length > 100 ? "#ef4444" : "#64748b"
+													padding: "2px 8px",
+													borderRadius: "6px",
+													background: pinTitle.length > 100 ? "#fee2e2" : pinTitle.length > 90 ? "#fef3c7" : "#f1f5f9",
+													color: pinTitle.length > 100 ? "#dc2626" : pinTitle.length > 90 ? "#d97706" : "#64748b"
 												},
 												children: [pinTitle.length, " / 100"]
 											})]
@@ -8941,7 +9066,7 @@ function PostForm({ post }) {
 												...metaInputStyle,
 												border: pinTitle.length > 100 ? "2px solid #ef4444" : void 0
 											},
-											placeholder: "Eye-catching Pin title..."
+											placeholder: "SEO-rich Pin title (under 100 characters)..."
 										})] }),
 										/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsxs("div", {
 											style: {
@@ -8950,14 +9075,20 @@ function PostForm({ post }) {
 												alignItems: "center",
 												marginBottom: "4px"
 											},
-											children: [/* @__PURE__ */ jsx("label", {
+											children: [/* @__PURE__ */ jsxs("label", {
 												style: metaLabelStyle,
-												children: "PIN DESCRIPTION (MAX 500 CHARS)"
+												children: ["PIN DESCRIPTION (MAX 500 CHARS) ", /* @__PURE__ */ jsx("span", {
+													style: { color: "#ef4444" },
+													children: "*"
+												})]
 											}), /* @__PURE__ */ jsxs("span", {
 												style: {
 													fontSize: "11px",
 													fontWeight: 800,
-													color: pinDescription.length > 500 ? "#ef4444" : "#64748b"
+													padding: "2px 8px",
+													borderRadius: "6px",
+													background: pinDescription.length > 500 ? "#fee2e2" : pinDescription.length > 480 ? "#fef3c7" : "#f1f5f9",
+													color: pinDescription.length > 500 ? "#dc2626" : pinDescription.length > 480 ? "#d97706" : "#64748b"
 												},
 												children: [pinDescription.length, " / 500"]
 											})]
@@ -8970,7 +9101,28 @@ function PostForm({ post }) {
 												height: "110px",
 												border: pinDescription.length > 500 ? "2px solid #ef4444" : void 0
 											},
-											placeholder: "Keyword-rich Pin description with hashtags..."
+											placeholder: "Helpful summary answering search intent, bullet points, CTA, and search hashtags..."
+										})] }),
+										/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("label", {
+											style: metaLabelStyle,
+											children: "DESTINATION LINK (URL)"
+										}), /* @__PURE__ */ jsx("input", {
+											type: "url",
+											value: pinTargetLink,
+											onChange: (e) => setPinTargetLink(e.target.value),
+											style: metaInputStyle,
+											placeholder: getPostFullUrl()
+										})] }),
+										/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("label", {
+											style: metaLabelStyle,
+											children: "IMAGE ALT TEXT (ACCESSIBILITY & SEARCH)"
+										}), /* @__PURE__ */ jsx("input", {
+											type: "text",
+											value: pinAltText,
+											onChange: (e) => setPinAltText(e.target.value),
+											maxLength: 300,
+											style: metaInputStyle,
+											placeholder: "Describe what is seen in the graphic for visual search..."
 										})] }),
 										pinPublishedUrl && /* @__PURE__ */ jsxs("div", {
 											style: {
@@ -9001,21 +9153,21 @@ function PostForm({ post }) {
 												e.preventDefault();
 												publishToPinterest();
 											},
-											disabled: isPublishingPin || !pinTitle.trim() || !coverImage,
+											disabled: isPublishingPin || !pinTitle.trim() || !coverImage && !pinCustomImage,
 											style: {
-												background: !coverImage || !pinTitle.trim() ? "#94a3b8" : "#e60023",
+												background: !coverImage && !pinCustomImage || !pinTitle.trim() ? "#94a3b8" : "#e60023",
 												color: "#fff",
 												border: "none",
 												padding: "12px",
 												borderRadius: "10px",
 												fontWeight: 800,
 												fontSize: "13px",
-												cursor: !coverImage || !pinTitle.trim() ? "not-allowed" : "pointer",
+												cursor: !coverImage && !pinCustomImage || !pinTitle.trim() ? "not-allowed" : "pointer",
 												display: "flex",
 												alignItems: "center",
 												justifyContent: "center",
 												gap: "8px",
-												boxShadow: !coverImage || !pinTitle.trim() ? "none" : "0 4px 12px rgba(230, 0, 35, 0.3)",
+												boxShadow: !coverImage && !pinCustomImage || !pinTitle.trim() ? "none" : "0 4px 12px rgba(230, 0, 35, 0.3)",
 												opacity: isPublishingPin ? .7 : 1
 											},
 											children: isPublishingPin ? "Publishing Pin to Pinterest..." : "Approve & Publish Pin"

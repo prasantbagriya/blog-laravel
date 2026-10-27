@@ -577,7 +577,7 @@
     ]
   },
   "resources/js/Pages/Admin/PostForm.tsx": {
-    "file": "assets/PostForm-BvBVfEnW.js",
+    "file": "assets/PostForm-BjgB1ecM.js",
     "name": "PostForm",
     "src": "resources/js/Pages/Admin/PostForm.tsx",
     "isDynamicEntry": true,
@@ -592,7 +592,7 @@
     ]
   },
   "resources/js/Pages/Admin/Posts/Edit.jsx": {
-    "file": "assets/Edit-D5rakw-d.js",
+    "file": "assets/Edit-3u-QrLEj.js",
     "name": "Edit",
     "src": "resources/js/Pages/Admin/Posts/Edit.jsx",
     "isDynamicEntry": true,
@@ -608,7 +608,7 @@
     ]
   },
   "resources/js/Pages/Admin/Posts/New.jsx": {
-    "file": "assets/New-DE46t3zi.js",
+    "file": "assets/New-BgGoI4B_.js",
     "name": "New",
     "src": "resources/js/Pages/Admin/Posts/New.jsx",
     "isDynamicEntry": true,
@@ -1372,7 +1372,7 @@
     ]
   },
   "resources/js/admin.jsx": {
-    "file": "assets/admin-Dc1UsJCy.js",
+    "file": "assets/admin-BmBypyPv.js",
     "name": "admin",
     "src": "resources/js/admin.jsx",
     "isEntry": true,

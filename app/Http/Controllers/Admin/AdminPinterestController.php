@@ -483,33 +483,49 @@ class AdminPinterestController extends Controller
         $post = Post::find($postId) ?: Post::where('slug', $postId)->first();
 
         $account = PinterestAccount::active();
+        $boards = $account ? $account->boards()->select('id', 'board_id', 'name', 'is_default')->get() : [];
         $defaultBoard = $account?->defaultBoard() ?: $account?->boards()->first();
+
+        if (!$post && ($request->filled('title') || $request->filled('excerpt') || $request->filled('content'))) {
+            $post = new Post([
+                'title' => $request->input('title', 'Top Updates in Sikar'),
+                'slug' => $request->input('slug') ?: \Illuminate\Support\Str::slug($request->input('title', 'top-updates-in-sikar')),
+                'category' => $request->input('category', 'Education'),
+                'excerpt' => $request->input('excerpt', ''),
+                'content' => $request->input('content', ''),
+                'coverImage' => $request->input('coverImage'),
+            ]);
+        }
 
         if ($post) {
             $draft = $this->captionService->generateForPost($post);
 
-            $share = PinterestPinShare::where('post_id', $post->id)
-                ->where('status', 'pending_approval')
-                ->first();
+            $share = null;
+            if ($post->exists) {
+                $share = PinterestPinShare::where('post_id', $post->id)
+                    ->where('status', 'pending_approval')
+                    ->first();
 
-            if (!$share) {
-                $share = PinterestPinShare::create([
-                    'post_id' => $post->id,
-                    'pinterest_account_id' => $account?->id,
-                    'pinterest_board_id' => $defaultBoard?->id,
-                    'title' => $draft['title'],
-                    'description' => $draft['description'],
-                    'image_url' => $draft['image_url'] ?: '',
-                    'target_link' => $draft['target_link'],
-                    'status' => 'pending_approval',
-                ]);
+                if (!$share) {
+                    $share = PinterestPinShare::create([
+                        'post_id' => $post->id,
+                        'pinterest_account_id' => $account?->id,
+                        'pinterest_board_id' => $defaultBoard?->id,
+                        'title' => $draft['title'],
+                        'description' => $draft['description'],
+                        'image_url' => $draft['image_url'] ?: '',
+                        'target_link' => $draft['target_link'],
+                        'status' => 'pending_approval',
+                    ]);
+                }
             }
 
             return response()->json([
                 'success' => true,
-                'share_id' => $share->id,
+                'share_id' => $share?->id,
                 'draft' => $draft,
                 'share' => $share,
+                'boards' => $boards,
                 'board' => $defaultBoard ? [
                     'id' => $defaultBoard->id,
                     'board_id' => $defaultBoard->board_id,
@@ -526,7 +542,9 @@ class AdminPinterestController extends Controller
                 'description' => 'Explore the best institutions and latest educational news in Sikar.',
                 'image_url' => null,
                 'target_link' => url('/'),
+                'alt_text' => 'Educational guide in Sikar',
             ],
+            'boards' => $boards,
             'board' => $defaultBoard ? [
                 'id' => $defaultBoard->id,
                 'board_id' => $defaultBoard->board_id,
