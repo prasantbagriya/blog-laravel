@@ -43,7 +43,7 @@ class PinterestCaptionGeneratorService
                     'description' => $pinDesc,
                     'image_url' => $post->coverImage ? (str_starts_with($post->coverImage, 'http') ? $post->coverImage : url($post->coverImage)) : null,
                     'target_link' => $fullUrl,
-                    'alt_text' => $aiDraft['alt_text'] ?? "Guide to {$pinTitle} on CoachingsInSikar",
+                    'alt_text' => !empty($post->coverImageAlt) ? $post->coverImageAlt : ($aiDraft['alt_text'] ?? "Guide to {$pinTitle} on CoachingsInSikar"),
                     'hashtags' => $hashtags,
                     'is_ai_generated' => true,
                 ];
@@ -88,7 +88,7 @@ class PinterestCaptionGeneratorService
             'description' => $description,
             'image_url' => $post->coverImage ? (str_starts_with($post->coverImage, 'http') ? $post->coverImage : url($post->coverImage)) : null,
             'target_link' => $fullUrl,
-            'alt_text' => "Guide to {$title} on CoachingsInSikar",
+            'alt_text' => !empty($post->coverImageAlt) ? $post->coverImageAlt : "Guide to {$title} on CoachingsInSikar",
             'hashtags' => $hashtags,
         ];
     }

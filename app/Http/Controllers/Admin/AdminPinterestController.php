@@ -111,6 +111,7 @@ class AdminPinterestController extends Controller
                             'description' => $share->description ?: ($share->post?->metaDescription ?: $share->post?->excerpt ?: ''),
                             'image_url' => $share->image_url ?: ($share->post?->coverImage ?: '/uploads/aboutus.webp'),
                             'target_link' => $share->target_link ?: ($share->post ? url($share->post->url_path) : url('/')),
+                            'alt_text' => $share->alt_text ?: ($share->post?->coverImageAlt ?: "Guide to {$share->title} on CoachingsInSikar"),
                             'pinterest_board_id' => $share->pinterest_board_id,
                             'board_name' => $share->board?->name ?: 'Default Board',
                             'status' => $share->status,
@@ -486,7 +487,7 @@ class AdminPinterestController extends Controller
         $boards = $account ? $account->boards()->select('id', 'board_id', 'name', 'is_default')->get() : [];
         $defaultBoard = $account?->defaultBoard() ?: $account?->boards()->first();
 
-        if (!$post && ($request->filled('title') || $request->filled('excerpt') || $request->filled('content'))) {
+        if (!$post && ($request->filled('title') || $request->filled('excerpt') || $request->filled('content') || $request->filled('slug'))) {
             $post = new Post([
                 'title' => $request->input('title', 'Top Updates in Sikar'),
                 'slug' => $request->input('slug') ?: \Illuminate\Support\Str::slug($request->input('title', 'top-updates-in-sikar')),
@@ -494,11 +495,19 @@ class AdminPinterestController extends Controller
                 'excerpt' => $request->input('excerpt', ''),
                 'content' => $request->input('content', ''),
                 'coverImage' => $request->input('coverImage'),
+                'coverImageAlt' => $request->input('coverImageAlt'),
+                'url_format' => $request->input('url_format', 'blog/{slug}'),
             ]);
         }
 
         if ($post) {
             $draft = $this->captionService->generateForPost($post);
+            if ($request->filled('post_url')) {
+                $draft['target_link'] = $request->input('post_url');
+            }
+            if ($request->filled('coverImageAlt')) {
+                $draft['alt_text'] = $request->input('coverImageAlt');
+            }
 
             $share = null;
             if ($post->exists) {
@@ -534,15 +543,18 @@ class AdminPinterestController extends Controller
             ]);
         }
 
+        $fullUrl = $request->input('post_url') ?: url('/');
+        $alt = $request->input('coverImageAlt') ?: ($request->input('title') ? "Guide to {$request->input('title')} on CoachingsInSikar" : 'Educational guide in Sikar');
+
         return response()->json([
             'success' => true,
             'share_id' => null,
             'draft' => [
-                'title' => 'Top Updates in Sikar',
-                'description' => 'Explore the best institutions and latest educational news in Sikar.',
-                'image_url' => null,
-                'target_link' => url('/'),
-                'alt_text' => 'Educational guide in Sikar',
+                'title' => $request->input('title') ? \Illuminate\Support\Str::limit($request->input('title'), 95, '') : 'Top Updates in Sikar',
+                'description' => 'Explore the best institutions and latest educational news in Sikar. Read full guide: ' . $fullUrl,
+                'image_url' => $request->input('coverImage') ?: null,
+                'target_link' => $fullUrl,
+                'alt_text' => $alt,
             ],
             'boards' => $boards,
             'board' => $defaultBoard ? [

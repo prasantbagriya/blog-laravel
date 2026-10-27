@@ -801,6 +801,8 @@ export default function PostForm({ post }: PostFormProps) {
       // Also auto-populate Pinterest Pin
       setPinTitle(aiTitle.slice(0, 100));
       setPinDescription(`Discover the latest updates on ${aiTitle}. Read full guide & rankings: ${targetUrl}\n\n#Sikar #Education #JEE #NEET`);
+      setPinTargetLink(targetUrl);
+      setPinAltText(aiGeneratedPost.coverImageAlt || `Guide to ${aiTitle} on CoachingsInSikar`);
 
       // Also auto-populate Instagram Caption
       setIgCaption(`📢 ${aiTitle}\n\n${aiGeneratedPost.excerpt || aiGeneratedPost.metaDescription || ''}\n\n📍 Sikar, Rajasthan\n👉 Tap link in bio for full review!\n\n#CoachingsInSikar #SikarEducation #JEE #NEET`);
@@ -917,13 +919,13 @@ export default function PostForm({ post }: PostFormProps) {
    const [isPublishingX, setIsPublishingX] = useState(false);
    const [xPublishedPermalink, setXPublishedPermalink] = useState<string | null>(null);
 
-   const [pinTitle, setPinTitle] = useState('');
+   const [pinTitle, setPinTitle] = useState(post?.title ? post.title.slice(0, 100) : '');
    const [pinDescription, setPinDescription] = useState('');
    const [pinBoardName, setPinBoardName] = useState('');
    const [pinBoardId, setPinBoardId] = useState('');
    const [pinBoards, setPinBoards] = useState<Array<{ id: number; board_id: string; name: string; is_default: boolean }>>([]);
    const [pinTargetLink, setPinTargetLink] = useState('');
-   const [pinAltText, setPinAltText] = useState('');
+   const [pinAltText, setPinAltText] = useState(post?.coverImageAlt || '');
    const [pinCustomImage, setPinCustomImage] = useState('');
    const [isUploadingPinImage, setIsUploadingPinImage] = useState(false);
    const pinFileInputRef = useRef<HTMLInputElement>(null);
@@ -931,8 +933,25 @@ export default function PostForm({ post }: PostFormProps) {
    const [isPublishingPin, setIsPublishingPin] = useState(false);
    const [pinPublishedUrl, setPinPublishedUrl] = useState<string | null>(null);
 
+   // Auto-sync Destination Link & Alt Text
+   useEffect(() => {
+      const fullUrl = getPostFullUrl();
+      if (fullUrl && fullUrl !== '/' && (!pinTargetLink || pinTargetLink.endsWith('/update'))) {
+         setPinTargetLink(fullUrl);
+      }
+   }, [slug, urlFormat, category]);
+
+   useEffect(() => {
+      const defaultAlt = coverImageAlt || (title ? `${title} - Visual Guide & Overview` : '');
+      if (defaultAlt && (!pinAltText || pinAltText === 'Pin Graphic')) {
+         setPinAltText(defaultAlt);
+      }
+   }, [coverImageAlt, title]);
+
    const generatePinDraft = async () => {
       setIsGeneratingPinDraft(true);
+      const postUrl = getPostFullUrl();
+      const defaultAlt = coverImageAlt || (title ? `${title} - Visual Guide & Overview` : 'Coaching in Sikar Guide');
       try {
          const targetId = post?.id || slug || 'draft';
          const queryParams = new URLSearchParams({
@@ -942,18 +961,17 @@ export default function PostForm({ post }: PostFormProps) {
             excerpt: excerpt || metaDescription || '',
             content: editor ? editor.getText().slice(0, 500) : '',
             coverImage: coverImage || '',
+            coverImageAlt: coverImageAlt || defaultAlt,
+            url_format: urlFormat || 'blog/{slug}',
+            post_url: postUrl,
          });
          const res = await fetch(`/api/admin/pinterest/draft/${targetId}?${queryParams.toString()}`);
          const data = await res.json();
          if (data.success && data.draft) {
-            setPinTitle(data.draft.title || '');
-            setPinDescription(data.draft.description || '');
-            if (data.draft.target_link && !pinTargetLink) {
-               setPinTargetLink(data.draft.target_link);
-            }
-            if (data.draft.alt_text && !pinAltText) {
-               setPinAltText(data.draft.alt_text);
-            }
+            setPinTitle(data.draft.title || (title || 'Best Coaching & Education Updates in Sikar').slice(0, 100));
+            setPinDescription(data.draft.description || `Discover the latest updates, top coaching institutes, fee structures, and admissions guides in Sikar. Read full review: ${postUrl}\n\n#Sikar #Education #JEE #NEET`);
+            setPinTargetLink(data.draft.target_link || postUrl);
+            setPinAltText(data.draft.alt_text || defaultAlt);
             if (data.boards && Array.isArray(data.boards)) {
                setPinBoards(data.boards);
             }
@@ -963,14 +981,18 @@ export default function PostForm({ post }: PostFormProps) {
             }
          } else {
             setPinTitle((title || 'Best Coaching & Education Updates in Sikar').slice(0, 100));
-            setPinDescription(`Discover the latest updates, top coaching institutes, fee structures, and admissions guides in Sikar. Read full review: ${getPostFullUrl()}\n\n#Sikar #Education #JEE #NEET`);
+            setPinDescription(`Discover the latest updates, top coaching institutes, fee structures, and admissions guides in Sikar. Read full review: ${postUrl}\n\n#Sikar #Education #JEE #NEET`);
+            setPinTargetLink(postUrl);
+            setPinAltText(defaultAlt);
             if (data.boards && Array.isArray(data.boards)) {
                setPinBoards(data.boards);
             }
          }
       } catch (e) {
          setPinTitle((title || 'Best Coaching & Education Updates in Sikar').slice(0, 100));
-         setPinDescription(`Discover the latest updates, top coaching institutes, fee structures, and admissions guides in Sikar. Read full review: ${getPostFullUrl()}\n\n#Sikar #Education #JEE #NEET`);
+         setPinDescription(`Discover the latest updates, top coaching institutes, fee structures, and admissions guides in Sikar. Read full review: ${postUrl}\n\n#Sikar #Education #JEE #NEET`);
+         setPinTargetLink(postUrl);
+         setPinAltText(defaultAlt);
       } finally {
          setIsGeneratingPinDraft(false);
       }
@@ -2957,7 +2979,7 @@ export default function PostForm({ post }: PostFormProps) {
                      <TabBtn active={activeTab === 'meta'} onClick={() => setActiveTab('meta')} icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '14px', height: '14px' }}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>} label="Meta" status={seoTitle ? 'success' : 'warning'} />
                      <TabBtn active={activeTab === 'facebook'} onClick={() => { setActiveTab('facebook'); if (!fbCaption) generateFbDraft(); }} icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>} label="Facebook" status={fbPublishedPermalink ? 'success' : 'neutral'} />
                      <TabBtn active={activeTab === 'x'} onClick={() => { setActiveTab('x'); if (!xTweetText) generateXDraft(); }} icon={<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>} label="Twitter/X" status={xPublishedPermalink ? 'success' : 'neutral'} />
-                      <TabBtn active={activeTab === 'pinterest'} onClick={() => { setActiveTab('pinterest'); if (!pinTitle) generatePinDraft(); }} icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="#e60023"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.627-5.373-12-12-12z"/></svg>} label="Pinterest" status={pinPublishedUrl ? 'success' : 'neutral'} />
+                      <TabBtn active={activeTab === 'pinterest'} onClick={() => { setActiveTab('pinterest'); if (!pinTitle || !pinDescription || !pinTargetLink) generatePinDraft(); }} icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="#e60023"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.627-5.373-12-12-12z"/></svg>} label="Pinterest" status={pinPublishedUrl ? 'success' : 'neutral'} />
                       <TabBtn active={activeTab === 'instagram'} onClick={() => { setActiveTab('instagram'); if (!igCaption) generateIgDraft(); }} icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>} label="Instagram" status={igPublishedPermalink ? 'success' : 'neutral'} />
                       <TabBtn active={activeTab === 'linkedin'} onClick={() => { setActiveTab('linkedin'); if (!liCommentary) generateLiDraft(); }} icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>} label="LinkedIn" status={liPublishedPermalink ? 'success' : 'neutral'} />
 
@@ -4017,7 +4039,7 @@ export default function PostForm({ post }: PostFormProps) {
                                </label>
                                <input
                                   type="url"
-                                  value={pinTargetLink}
+                                  value={pinTargetLink || getPostFullUrl()}
                                   onChange={(e) => setPinTargetLink(e.target.value)}
                                   style={metaInputStyle}
                                   placeholder={getPostFullUrl()}
@@ -4031,7 +4053,7 @@ export default function PostForm({ post }: PostFormProps) {
                                </label>
                                <input
                                   type="text"
-                                  value={pinAltText}
+                                  value={pinAltText || coverImageAlt || (title ? `${title} - Visual Guide & Overview` : '')}
                                   onChange={(e) => setPinAltText(e.target.value)}
                                   maxLength={300}
                                   style={metaInputStyle}

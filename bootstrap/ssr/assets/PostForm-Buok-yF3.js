@@ -1233,6 +1233,8 @@ function PostForm({ post }) {
 		setFbCaption(`📢 ${aiTitle}\n\n${aiGeneratedPost.excerpt || aiGeneratedPost.metaDescription || ""}\n\n👉 Read complete article here: ${targetUrl}\n\n#CoachingsInSikar #Sikar #Education`);
 		setPinTitle(aiTitle.slice(0, 100));
 		setPinDescription(`Discover the latest updates on ${aiTitle}. Read full guide & rankings: ${targetUrl}\n\n#Sikar #Education #JEE #NEET`);
+		setPinTargetLink(targetUrl);
+		setPinAltText(aiGeneratedPost.coverImageAlt || `Guide to ${aiTitle} on CoachingsInSikar`);
 		setIgCaption(`📢 ${aiTitle}\n\n${aiGeneratedPost.excerpt || aiGeneratedPost.metaDescription || ""}\n\n📍 Sikar, Rajasthan\n👉 Tap link in bio for full review!\n\n#CoachingsInSikar #SikarEducation #JEE #NEET`);
 		setLiCommentary(`🎓 ${aiTitle}\n\nKey Insights:\n• ${aiGeneratedPost.keyTakeaways?.[0] || "In-depth factual comparison"}\n• ${aiGeneratedPost.keyTakeaways?.[1] || "Verified fee structure & faculty insights"}\n\n👉 Read complete review: ${targetUrl}\n\n#Education #CareerGuidance #SikarEducationHub`);
 		setIsAiAssisted(true);
@@ -1323,21 +1325,35 @@ function PostForm({ post }) {
 	const [isGeneratingXDraft, setIsGeneratingXDraft] = useState(false);
 	const [isPublishingX, setIsPublishingX] = useState(false);
 	const [xPublishedPermalink, setXPublishedPermalink] = useState(null);
-	const [pinTitle, setPinTitle] = useState("");
+	const [pinTitle, setPinTitle] = useState(post?.title ? post.title.slice(0, 100) : "");
 	const [pinDescription, setPinDescription] = useState("");
 	const [pinBoardName, setPinBoardName] = useState("");
 	const [pinBoardId, setPinBoardId] = useState("");
 	const [pinBoards, setPinBoards] = useState([]);
 	const [pinTargetLink, setPinTargetLink] = useState("");
-	const [pinAltText, setPinAltText] = useState("");
+	const [pinAltText, setPinAltText] = useState(post?.coverImageAlt || "");
 	const [pinCustomImage, setPinCustomImage] = useState("");
 	const [isUploadingPinImage, setIsUploadingPinImage] = useState(false);
 	const pinFileInputRef = useRef(null);
 	const [isGeneratingPinDraft, setIsGeneratingPinDraft] = useState(false);
 	const [isPublishingPin, setIsPublishingPin] = useState(false);
 	const [pinPublishedUrl, setPinPublishedUrl] = useState(null);
+	useEffect(() => {
+		const fullUrl = getPostFullUrl();
+		if (fullUrl && fullUrl !== "/" && (!pinTargetLink || pinTargetLink.endsWith("/update"))) setPinTargetLink(fullUrl);
+	}, [
+		slug,
+		urlFormat,
+		category
+	]);
+	useEffect(() => {
+		const defaultAlt = coverImageAlt || (title ? `${title} - Visual Guide & Overview` : "");
+		if (defaultAlt && (!pinAltText || pinAltText === "Pin Graphic")) setPinAltText(defaultAlt);
+	}, [coverImageAlt, title]);
 	const generatePinDraft = async () => {
 		setIsGeneratingPinDraft(true);
+		const postUrl = getPostFullUrl();
+		const defaultAlt = coverImageAlt || (title ? `${title} - Visual Guide & Overview` : "Coaching in Sikar Guide");
 		try {
 			const targetId = post?.id || slug || "draft";
 			const queryParams = new URLSearchParams({
@@ -1346,14 +1362,17 @@ function PostForm({ post }) {
 				category: category || "",
 				excerpt: excerpt || metaDescription || "",
 				content: editor ? editor.getText().slice(0, 500) : "",
-				coverImage: coverImage || ""
+				coverImage: coverImage || "",
+				coverImageAlt: coverImageAlt || defaultAlt,
+				url_format: urlFormat || "blog/{slug}",
+				post_url: postUrl
 			});
 			const data = await (await fetch(`/api/admin/pinterest/draft/${targetId}?${queryParams.toString()}`)).json();
 			if (data.success && data.draft) {
-				setPinTitle(data.draft.title || "");
-				setPinDescription(data.draft.description || "");
-				if (data.draft.target_link && !pinTargetLink) setPinTargetLink(data.draft.target_link);
-				if (data.draft.alt_text && !pinAltText) setPinAltText(data.draft.alt_text);
+				setPinTitle(data.draft.title || (title || "Best Coaching & Education Updates in Sikar").slice(0, 100));
+				setPinDescription(data.draft.description || `Discover the latest updates, top coaching institutes, fee structures, and admissions guides in Sikar. Read full review: ${postUrl}\n\n#Sikar #Education #JEE #NEET`);
+				setPinTargetLink(data.draft.target_link || postUrl);
+				setPinAltText(data.draft.alt_text || defaultAlt);
 				if (data.boards && Array.isArray(data.boards)) setPinBoards(data.boards);
 				if (data.board && !pinBoardId) {
 					setPinBoardName(data.board.name);
@@ -1361,12 +1380,16 @@ function PostForm({ post }) {
 				}
 			} else {
 				setPinTitle((title || "Best Coaching & Education Updates in Sikar").slice(0, 100));
-				setPinDescription(`Discover the latest updates, top coaching institutes, fee structures, and admissions guides in Sikar. Read full review: ${getPostFullUrl()}\n\n#Sikar #Education #JEE #NEET`);
+				setPinDescription(`Discover the latest updates, top coaching institutes, fee structures, and admissions guides in Sikar. Read full review: ${postUrl}\n\n#Sikar #Education #JEE #NEET`);
+				setPinTargetLink(postUrl);
+				setPinAltText(defaultAlt);
 				if (data.boards && Array.isArray(data.boards)) setPinBoards(data.boards);
 			}
 		} catch (e) {
 			setPinTitle((title || "Best Coaching & Education Updates in Sikar").slice(0, 100));
-			setPinDescription(`Discover the latest updates, top coaching institutes, fee structures, and admissions guides in Sikar. Read full review: ${getPostFullUrl()}\n\n#Sikar #Education #JEE #NEET`);
+			setPinDescription(`Discover the latest updates, top coaching institutes, fee structures, and admissions guides in Sikar. Read full review: ${postUrl}\n\n#Sikar #Education #JEE #NEET`);
+			setPinTargetLink(postUrl);
+			setPinAltText(defaultAlt);
 		} finally {
 			setIsGeneratingPinDraft(false);
 		}
@@ -5819,7 +5842,7 @@ function PostForm({ post }) {
 										active: activeTab === "pinterest",
 										onClick: () => {
 											setActiveTab("pinterest");
-											if (!pinTitle) generatePinDraft();
+											if (!pinTitle || !pinDescription || !pinTargetLink) generatePinDraft();
 										},
 										icon: /* @__PURE__ */ jsx("svg", {
 											width: "14",
@@ -9126,7 +9149,7 @@ function PostForm({ post }) {
 											children: "DESTINATION LINK (URL)"
 										}), /* @__PURE__ */ jsx("input", {
 											type: "url",
-											value: pinTargetLink,
+											value: pinTargetLink || getPostFullUrl(),
 											onChange: (e) => setPinTargetLink(e.target.value),
 											style: metaInputStyle,
 											placeholder: getPostFullUrl()
@@ -9136,7 +9159,7 @@ function PostForm({ post }) {
 											children: "IMAGE ALT TEXT (ACCESSIBILITY & SEARCH)"
 										}), /* @__PURE__ */ jsx("input", {
 											type: "text",
-											value: pinAltText,
+											value: pinAltText || coverImageAlt || (title ? `${title} - Visual Guide & Overview` : ""),
 											onChange: (e) => setPinAltText(e.target.value),
 											maxLength: 300,
 											style: metaInputStyle,
