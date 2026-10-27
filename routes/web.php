@@ -339,6 +339,107 @@ $dbUpgradeRunner = function () {
     }
 
     try {
+        $envFile = base_path('.env');
+        $switchSuccessMsg = '';
+        $switchErrorMsg = '';
+        $copySuccessMsg = '';
+
+        // Action: Switch to MySQL
+        if (request()->input('action') === 'switch_mysql') {
+            $mHost = trim(request()->input('db_host', '127.0.0.1'));
+            $mPort = trim(request()->input('db_port', '3306'));
+            $mDb   = trim(request()->input('db_database', 'coachtim_lara172'));
+            $mUser = trim(request()->input('db_username', 'coachtim_lara172'));
+            $mPass = request()->input('db_password', '2vY1Sp)a!4');
+
+            try {
+                $testPdo = new \PDO("mysql:host={$mHost};port={$mPort};dbname={$mDb};charset=utf8mb4", $mUser, $mPass, [
+                    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                    \PDO::ATTR_TIMEOUT => 5
+                ]);
+
+                // Connection succeeded! Update .env
+                if (file_exists($envFile) && is_writable($envFile)) {
+                    $envContent = file_get_contents($envFile);
+
+                    $envUpdates = [
+                        'DB_CONNECTION' => 'mysql',
+                        'DB_HOST'       => $mHost,
+                        'DB_PORT'       => $mPort,
+                        'DB_DATABASE'   => $mDb,
+                        'DB_USERNAME'   => $mUser,
+                        'DB_PASSWORD'   => '"' . addcslashes($mPass, '"') . '"',
+                    ];
+
+                    foreach ($envUpdates as $k => $v) {
+                        $pattern = "/^#?\s*{$k}=.*/m";
+                        if (preg_match($pattern, $envContent)) {
+                            $envContent = preg_replace($pattern, "{$k}={$v}", $envContent);
+                        } else {
+                            $envContent .= "\n{$k}={$v}";
+                        }
+                    }
+
+                    file_put_contents($envFile, $envContent);
+                }
+
+                \Illuminate\Support\Facades\Artisan::call('config:clear');
+                \Illuminate\Support\Facades\Artisan::call('cache:clear');
+                \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+
+                config([
+                    'database.default' => 'mysql',
+                    'database.connections.mysql.host' => $mHost,
+                    'database.connections.mysql.port' => $mPort,
+                    'database.connections.mysql.database' => $mDb,
+                    'database.connections.mysql.username' => $mUser,
+                    'database.connections.mysql.password' => $mPass,
+                ]);
+
+                \Illuminate\Support\Facades\DB::purge();
+                \Illuminate\Support\Facades\DB::reconnect('mysql');
+                \Illuminate\Support\Facades\DB::setDefaultConnection('mysql');
+
+                $switchSuccessMsg = "✅ Successfully connected and switched to MySQL database '{$mDb}' on {$mHost}!";
+            } catch (\Throwable $ex) {
+                $switchErrorMsg = "❌ MySQL Connection Failed: " . $ex->getMessage();
+            }
+        }
+
+        // Action: Copy SQLite Data to MySQL
+        if (request()->input('action') === 'copy_sqlite_to_mysql') {
+            $sqlitePath = database_path('database.sqlite');
+            if (file_exists($sqlitePath)) {
+                try {
+                    $sqPdo = new \PDO("sqlite:" . $sqlitePath);
+                    $tables = ['users', 'categories', 'posts', 'businesses', 'pages', 'sliders', 'navigations', 'gsc_settings', 'bing_webmaster_settings'];
+                    $stats = [];
+                    foreach ($tables as $tbl) {
+                        try {
+                            if (\Illuminate\Support\Facades\Schema::hasTable($tbl)) {
+                                $stmt = $sqPdo->query("SELECT * FROM {$tbl}");
+                                $rows = $stmt ? $stmt->fetchAll(\PDO::FETCH_ASSOC) : [];
+                                if (!empty($rows)) {
+                                    $count = 0;
+                                    foreach ($rows as $r) {
+                                        $primaryKey = isset($r['id']) ? ['id' => $r['id']] : (isset($r['slug']) ? ['slug' => $r['slug']] : reset($r));
+                                        \Illuminate\Support\Facades\DB::table($tbl)->updateOrInsert(is_array($primaryKey) ? $primaryKey : ['id' => $primaryKey], $r);
+                                        $count++;
+                                    }
+                                    $stats[] = "{$tbl}: {$count}";
+                                }
+                            }
+                        } catch (\Throwable $eTbl) {}
+                    }
+                    $copySuccessMsg = "✅ SQLite data successfully synchronized to MySQL: " . implode(', ', $stats);
+                } catch (\Throwable $sqEx) {
+                    $switchErrorMsg = "Failed copying SQLite data: " . $sqEx->getMessage();
+                }
+            } else {
+                $switchErrorMsg = "No SQLite database file found at {$sqlitePath}";
+            }
+        }
+
         $migrationRecorded = false;
         try {
             $migrationRecorded = \Illuminate\Support\Facades\DB::table('migrations')
@@ -383,8 +484,110 @@ $dbUpgradeRunner = function () {
         \Illuminate\Support\Facades\Artisan::call('optimize:clear');
         $clearOutput = \Illuminate\Support\Facades\Artisan::output();
 
+        // Database Diagnostics
+        $activeDriver = \Illuminate\Support\Facades\DB::connection()->getDriverName();
+        $activeDbName = \Illuminate\Support\Facades\DB::connection()->getDatabaseName();
+        $activeHost   = config("database.connections.{$activeDriver}.host", 'N/A');
+        $activeUser   = config("database.connections.{$activeDriver}.username", 'N/A');
+        $postCount    = 0;
+        $userCount    = 0;
+        try {
+            $postCount = \Illuminate\Support\Facades\DB::table('posts')->count();
+            $userCount = \Illuminate\Support\Facades\DB::table('users')->count();
+        } catch (\Throwable $eCnt) {}
+
+        $sqliteHasData = false;
+        $sqlitePostCount = 0;
+        if (file_exists(database_path('database.sqlite'))) {
+            try {
+                $sqPdo = new \PDO("sqlite:" . database_path('database.sqlite'));
+                $sqlitePostCount = (int) $sqPdo->query("SELECT COUNT(*) FROM posts")->fetchColumn();
+                $sqliteHasData = $sqlitePostCount > 0;
+            } catch (\Throwable $sqIgnore) {}
+        }
+
+        $dbCardHtml = "
+        <div style='background:#1e293b;padding:20px;border-radius:12px;border-left:4px solid ".($activeDriver === 'mysql' ? '#22c55e' : '#f59e0b').";margin-bottom:20px;'>
+            <div style='display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;'>
+                <h4 style='margin:0;color:".($activeDriver === 'mysql' ? '#4ade80' : '#fbbf24').";font-size:16px;'>
+                    🗄️ Active Database: <span style='text-transform:uppercase;font-weight:bold;'>{$activeDriver}</span>
+                </h4>
+                <span style='background:".($activeDriver === 'mysql' ? '#22c55e25' : '#f59e0b25').";color:".($activeDriver === 'mysql' ? '#4ade80' : '#fbbf24').";border:1px solid ".($activeDriver === 'mysql' ? '#22c55e50' : '#f59e0b50').";padding:3px 10px;border-radius:999px;font-size:12px;font-weight:bold;'>
+                    ".($activeDriver === 'mysql' ? '● Connected to MySQL' : '⚠️ Connected to SQLite')."
+                </span>
+            </div>
+            <div style='display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;font-size:13px;color:#cbd5e1;background:#0f172a80;padding:12px;border-radius:8px;'>
+                <div><strong>Database Name:</strong> <code style='color:#38bdf8;'>{$activeDbName}</code></div>
+                <div><strong>Host / Socket:</strong> <code style='color:#38bdf8;'>{$activeHost}</code></div>
+                <div><strong>DB User:</strong> <code style='color:#38bdf8;'>{$activeUser}</code></div>
+                <div><strong>Total Posts in DB:</strong> <code style='color:#4ade80;'>{$postCount}</code></div>
+                <div><strong>Total Users in DB:</strong> <code style='color:#4ade80;'>{$userCount}</code></div>
+            </div>
+            ".($switchSuccessMsg ? "<div style='margin-top:12px;padding:10px 14px;background:#22c55e20;border:1px solid #22c55e;color:#4ade80;border-radius:8px;font-weight:bold;font-size:13px;'>{$switchSuccessMsg}</div>" : "")."
+            ".($switchErrorMsg ? "<div style='margin-top:12px;padding:10px 14px;background:#ef444420;border:1px solid #ef4444;color:#fca5a5;border-radius:8px;font-weight:bold;font-size:13px;'>{$switchErrorMsg}</div>" : "")."
+            ".($copySuccessMsg ? "<div style='margin-top:12px;padding:10px 14px;background:#38bdf820;border:1px solid #38bdf8;color:#7dd3fc;border-radius:8px;font-weight:bold;font-size:13px;'>{$copySuccessMsg}</div>" : "")."
+        </div>";
+
+        $mysqlSwitcherHtml = "";
+        if ($activeDriver !== 'mysql') {
+            $defaultDbHost = env('DB_HOST') && env('DB_HOST') !== '127.0.0.1' ? env('DB_HOST') : 'localhost';
+            $defaultDbName = config('database.connections.mysql.database', 'coachtim_lara172');
+            $defaultDbUser = config('database.connections.mysql.username', 'coachtim_lara172');
+            $defaultDbPass = config('database.connections.mysql.password', '2vY1Sp)a!4');
+
+            $mysqlSwitcherHtml = "
+            <div style='background:#1e293b;padding:24px;border-radius:12px;border:1px solid #3b82f6;margin-bottom:20px;'>
+                <h3 style='margin:0 0 8px 0;color:#60a5fa;'>🔄 Switch Server Database to MySQL</h3>
+                <p style='color:#94a3b8;font-size:13px;margin:0 0 16px 0;'>Apne server ko SQLite se MySQL par switch karne ke liye credentials verify karke 'Switch to MySQL' par click karein:</p>
+                <form method='POST' action='/run-migrate'>
+                    <input type='hidden' name='pin' value='sikar2026'>
+                    <input type='hidden' name='action' value='switch_mysql'>
+                    <div style='display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px;'>
+                        <div>
+                            <label style='display:block;color:#94a3b8;font-size:12px;font-weight:bold;margin-bottom:4px;'>MySQL Host</label>
+                            <input type='text' name='db_host' value='".htmlspecialchars($defaultDbHost)."' required style='width:100%;padding:10px 12px;background:#0f172a;border:1px solid #475569;border-radius:8px;color:#fff;box-sizing:border-box;'>
+                        </div>
+                        <div>
+                            <label style='display:block;color:#94a3b8;font-size:12px;font-weight:bold;margin-bottom:4px;'>MySQL Port</label>
+                            <input type='text' name='db_port' value='3306' required style='width:100%;padding:10px 12px;background:#0f172a;border:1px solid #475569;border-radius:8px;color:#fff;box-sizing:border-box;'>
+                        </div>
+                        <div>
+                            <label style='display:block;color:#94a3b8;font-size:12px;font-weight:bold;margin-bottom:4px;'>Database Name</label>
+                            <input type='text' name='db_database' value='".htmlspecialchars($defaultDbName)."' required style='width:100%;padding:10px 12px;background:#0f172a;border:1px solid #475569;border-radius:8px;color:#fff;box-sizing:border-box;'>
+                        </div>
+                        <div>
+                            <label style='display:block;color:#94a3b8;font-size:12px;font-weight:bold;margin-bottom:4px;'>Database User</label>
+                            <input type='text' name='db_username' value='".htmlspecialchars($defaultDbUser)."' required style='width:100%;padding:10px 12px;background:#0f172a;border:1px solid #475569;border-radius:8px;color:#fff;box-sizing:border-box;'>
+                        </div>
+                        <div style='grid-column:1/-1;'>
+                            <label style='display:block;color:#94a3b8;font-size:12px;font-weight:bold;margin-bottom:4px;'>Database Password</label>
+                            <input type='text' name='db_password' value='".htmlspecialchars($defaultDbPass)."' style='width:100%;padding:10px 12px;background:#0f172a;border:1px solid #475569;border-radius:8px;color:#fff;box-sizing:border-box;'>
+                        </div>
+                    </div>
+                    <button type='submit' style='background:#2563eb;color:#fff;border:none;padding:12px 24px;border-radius:8px;font-weight:bold;font-size:14px;cursor:pointer;width:100%;'>
+                        🚀 Verify Connection & Switch Server to MySQL
+                    </button>
+                </form>
+            </div>";
+        } elseif ($activeDriver === 'mysql' && $sqliteHasData) {
+            $mysqlSwitcherHtml = "
+            <div style='background:#1e293b;padding:20px;border-radius:12px;border:1px solid #22c55e;margin-bottom:20px;'>
+                <h4 style='margin:0 0 8px 0;color:#4ade80;'>📦 SQLite Data Detected ({$sqlitePostCount} posts in SQLite file)</h4>
+                <p style='color:#94a3b8;font-size:13px;margin:0 0 14px 0;'>Aapka active database MySQL hai. Agar SQLite file se posts aur data MySQL me copy/sync karna chahein toh niche diye button par click karein:</p>
+                <form method='POST' action='/run-migrate'>
+                    <input type='hidden' name='pin' value='sikar2026'>
+                    <input type='hidden' name='action' value='copy_sqlite_to_mysql'>
+                    <button type='submit' style='background:#059669;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:bold;font-size:13px;cursor:pointer;'>
+                        📥 Copy All SQLite Posts & Data to MySQL
+                    </button>
+                </form>
+            </div>";
+        }
+
         return response("<!DOCTYPE html><html><head><title>Upgrade Complete</title><meta name='viewport' content='width=device-width, initial-scale=1.0'></head><body style='margin:0;background:#090d16;color:#f8fafc;padding:32px;font-family:ui-monospace,Menlo,monospace;box-sizing:border-box;'>".
             "<h2 style='color:#38bdf8;margin-top:0;'>🚀 Database & System Upgrade Successful</h2>".
+            $dbCardHtml.
+            $mysqlSwitcherHtml.
             "<div style='background:#1e293b;padding:20px;border-radius:10px;border-left:4px solid #22c55e;margin-bottom:20px;'>".
             "<h4 style='margin:0 0 10px 0;color:#4ade80;'>✅ Database Migration Results:</h4>".
             "<pre style='margin:0;color:#cbd5e1;white-space:pre-wrap;font-family:inherit;'>".htmlspecialchars(trim($migrateOutput) ?: 'Nothing to migrate. All database tables are already up to date.')."</pre>".
