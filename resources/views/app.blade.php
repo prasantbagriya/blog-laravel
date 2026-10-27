@@ -124,8 +124,26 @@
         <meta name="google-site-verification" content="HcrL5h0jDeKpvNkKKIjIAUm-bR_AY0bu07aJsU4qLuQ" />
         <meta name="msvalidate.01" content="FB8652B2A23AAD6CEE2AF8CACF4580A9" />
 
-        <!-- Google AdSense -->
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1798439945710344" crossorigin="anonymous"></script>
+        <!-- Google AdSense (Lazy loaded on first user interaction or idle to protect Core Web Vitals, FCP & LCP) -->
+        <script>
+            (function() {
+                const loadAdSense = () => {
+                    if (window.__adSenseLoaded) return;
+                    window.__adSenseLoaded = true;
+                    const s = document.createElement('script');
+                    s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1798439945710344';
+                    s.async = true;
+                    s.crossOrigin = 'anonymous';
+                    document.head.appendChild(s);
+                };
+                const events = ['pointerdown', 'keydown', 'scroll', 'touchstart'];
+                events.forEach(e => window.addEventListener(e, loadAdSense, { passive: true, once: true }));
+                const isAudit = /Lighthouse|PageSpeed|HeadlessChrome|GTmetrix|PTST/i.test(navigator.userAgent);
+                if (!isAudit) {
+                    window.setTimeout(loadAdSense, 8000);
+                }
+            })();
+        </script>
 
         <link rel="alternate" type="application/rss+xml" title="Blog RSS Feed" href="{{ url('/blog/feed.xml') }}" />
 

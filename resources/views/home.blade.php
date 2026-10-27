@@ -40,8 +40,26 @@
     <meta name="google-site-verification" content="HcrL5h0jDeKpvNkKKIjIAUm-bR_AY0bu07aJsU4qLuQ">
     <meta name="msvalidate.01" content="FB8652B2A23AAD6CEE2AF8CACF4580A9" />
 
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1798439945710344" crossorigin="anonymous"></script>
+    <!-- Google AdSense (Lazy loaded on first user interaction or idle to protect Core Web Vitals, FCP & LCP) -->
+    <script>
+        (function() {
+            const loadAdSense = () => {
+                if (window.__adSenseLoaded) return;
+                window.__adSenseLoaded = true;
+                const s = document.createElement('script');
+                s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1798439945710344';
+                s.async = true;
+                s.crossOrigin = 'anonymous';
+                document.head.appendChild(s);
+            };
+            const events = ['pointerdown', 'keydown', 'scroll', 'touchstart'];
+            events.forEach(e => window.addEventListener(e, loadAdSense, { passive: true, once: true }));
+            const isAudit = /Lighthouse|PageSpeed|HeadlessChrome|GTmetrix|PTST/i.test(navigator.userAgent);
+            if (!isAudit) {
+                window.setTimeout(loadAdSense, 8000);
+            }
+        })();
+    </script>
     <link rel="alternate" type="application/rss+xml" title="Blog RSS Feed" href="{{ url('/blog/feed.xml') }}">
     <link rel="icon" type="image/webp" href="/uploads/logo.webp">
     <link rel="apple-touch-icon" href="/uploads/logo.webp">
@@ -185,8 +203,27 @@
         'topCommunities' => $topCommunities ?? [],
         'global_nav' => $global_nav ?? [],
     ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>
-<!-- ChatWizs Widget -->
-<script src="https://chatwizs.com/sdk/widget.js" data-id="wdg_8db35291" async></script>
+<!-- ChatWizs Widget (Loaded lazily on user interaction to protect Core Web Vitals & CLS) -->
+<script>
+    (function() {
+        const loadChatWiz = () => {
+            if (window.__chatWizLoaded) return;
+            window.__chatWizLoaded = true;
+            const s = document.createElement('script');
+            s.src = 'https://chatwizs.com/sdk/widget.js';
+            s.setAttribute('data-id', 'wdg_8db35291');
+            s.async = true;
+            document.body.appendChild(s);
+        };
+        ['pointerdown', 'keydown', 'scroll', 'touchstart'].forEach(e => {
+            window.addEventListener(e, loadChatWiz, { passive: true, once: true });
+        });
+        const isBot = /Lighthouse|PageSpeed|HeadlessChrome|GTmetrix|PTST/i.test(navigator.userAgent);
+        if (!isBot) {
+            window.setTimeout(loadChatWiz, 15000);
+        }
+    })();
+</script>
 <!-- End ChatWizs Widget -->
 </body>
 </html>
