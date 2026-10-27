@@ -800,23 +800,20 @@ export default function PinterestHubPage({
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                           {/* Board Selector */}
                           <div>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
-                              <Layers size={14} color="#e60023" />
-                              <span>Target Pinterest Board</span>
-                              <span style={{ color: '#ef4444' }}>*</span>
+                            <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '6px' }}>
+                              TARGET PINTEREST BOARD <span style={{ color: '#ef4444' }}>*</span>
                             </label>
                             <select
                               value={currentBoardId || ''}
                               onChange={(e) => setSelectedBoards({ ...selectedBoards, [share.id]: e.target.value })}
                               style={{
                                 width: '100%',
-                                padding: '10px 14px',
-                                borderRadius: '10px',
+                                padding: '9px 12px',
+                                borderRadius: '8px',
                                 border: '1px solid #cbd5e1',
                                 fontSize: '13px',
-                                background: '#f8fafc',
-                                fontWeight: 600,
-                                color: '#1e293b',
+                                background: '#fff',
+                                color: '#0f172a',
                                 outline: 'none',
                               }}
                             >
@@ -832,16 +829,17 @@ export default function PinterestHubPage({
                           {/* Pin Title */}
                           <div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: '#334155' }}>
-                                <Type size={14} color="#e60023" />
-                                <span>Pin Title</span>
-                                <span style={{ color: '#ef4444' }}>*</span>
+                              <label style={{ fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                                PIN TITLE <span style={{ color: '#ef4444' }}>*</span>
                               </label>
                               <span
                                 style={{
                                   fontSize: '11px',
-                                  fontWeight: 700,
-                                  color: currentTitle.length > 95 ? (currentTitle.length > 100 ? '#ef4444' : '#f59e0b') : '#059669',
+                                  fontWeight: 800,
+                                  padding: '2px 8px',
+                                  borderRadius: '6px',
+                                  background: currentTitle.length > 100 ? '#fee2e2' : (currentTitle.length > 90 ? '#fef3c7' : '#f1f5f9'),
+                                  color: currentTitle.length > 100 ? '#dc2626' : (currentTitle.length > 90 ? '#d97706' : '#64748b'),
                                 }}
                               >
                                 {currentTitle.length} / 100
@@ -852,17 +850,17 @@ export default function PinterestHubPage({
                               maxLength={100}
                               value={currentTitle}
                               onChange={(e) => setEditTitles({ ...editTitles, [share.id]: e.target.value })}
-                              placeholder="SEO-rich, clickable title under 100 characters..."
+                              placeholder="SEO-rich Pin title (under 100 characters)..."
                               style={{
                                 width: '100%',
-                                padding: '10px 14px',
-                                borderRadius: '10px',
+                                padding: '9px 12px',
+                                borderRadius: '8px',
                                 border: '1px solid #cbd5e1',
                                 fontSize: '13px',
+                                background: '#fff',
+                                color: '#0f172a',
                                 boxSizing: 'border-box',
                                 outline: 'none',
-                                fontWeight: 600,
-                                color: '#0f172a',
                               }}
                             />
                           </div>
@@ -870,37 +868,40 @@ export default function PinterestHubPage({
                           {/* Pin Description & Hashtags */}
                           <div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: '#334155' }}>
-                                <AlignLeft size={14} color="#e60023" />
-                                <span>SEO Pin Description & Search Hashtags</span>
-                                <span style={{ color: '#ef4444' }}>*</span>
+                              <label style={{ fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                                PIN DESCRIPTION (MAX 500 CHARS) <span style={{ color: '#ef4444' }}>*</span>
                               </label>
                               <span
                                 style={{
                                   fontSize: '11px',
-                                  fontWeight: 700,
-                                  color: currentDescription.length > 480 ? (currentDescription.length > 500 ? '#ef4444' : '#f59e0b') : '#059669',
+                                  fontWeight: 800,
+                                  padding: '2px 8px',
+                                  borderRadius: '6px',
+                                  background: currentDescription.length > 500 ? '#fee2e2' : (currentDescription.length > 480 ? '#fef3c7' : '#f1f5f9'),
+                                  color: currentDescription.length > 500 ? '#dc2626' : (currentDescription.length > 480 ? '#d97706' : '#64748b'),
                                 }}
                               >
                                 {currentDescription.length} / 500
                               </span>
                             </div>
                             <textarea
-                              rows={4}
+                              rows={6}
                               maxLength={500}
                               value={currentDescription}
                               onChange={(e) => setEditDescriptions({ ...editDescriptions, [share.id]: e.target.value })}
                               placeholder="Helpful summary answering search intent, bullet points, CTA, and search hashtags..."
                               style={{
                                 width: '100%',
-                                padding: '12px 14px',
-                                borderRadius: '10px',
+                                padding: '10px 12px',
+                                borderRadius: '8px',
                                 border: '1px solid #cbd5e1',
                                 fontSize: '13px',
-                                lineHeight: 1.6,
+                                lineHeight: 1.5,
+                                background: '#fff',
+                                color: '#0f172a',
                                 boxSizing: 'border-box',
                                 outline: 'none',
-                                color: '#1e293b',
+                                resize: 'vertical',
                               }}
                             />
                             <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
@@ -910,9 +911,8 @@ export default function PinterestHubPage({
 
                           {/* Destination Link */}
                           <div>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
-                              <ExternalLink size={14} color="#e60023" />
-                              <span>Destination Website URL (Where clicks lead)</span>
+                            <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '6px' }}>
+                              DESTINATION LINK (URL)
                             </label>
                             <input
                               type="url"
@@ -921,23 +921,22 @@ export default function PinterestHubPage({
                               placeholder="https://coachingsinsikar.com/blog/..."
                               style={{
                                 width: '100%',
-                                padding: '10px 14px',
-                                borderRadius: '10px',
+                                padding: '9px 12px',
+                                borderRadius: '8px',
                                 border: '1px solid #cbd5e1',
-                                fontSize: '12px',
-                                fontFamily: 'monospace',
+                                fontSize: '13px',
+                                background: '#fff',
+                                color: '#0f172a',
                                 boxSizing: 'border-box',
                                 outline: 'none',
-                                color: '#0f172a',
                               }}
                             />
                           </div>
 
                           {/* Image Alt Text */}
                           <div>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
-                              <Eye size={14} color="#e60023" />
-                              <span>Image Alt Text (Visual search & accessibility)</span>
+                            <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '6px' }}>
+                              IMAGE ALT TEXT (ACCESSIBILITY & SEARCH)
                             </label>
                             <input
                               type="text"
@@ -947,13 +946,14 @@ export default function PinterestHubPage({
                               placeholder="Describe what is seen in the graphic for Pinterest search and screen readers..."
                               style={{
                                 width: '100%',
-                                padding: '9px 14px',
-                                borderRadius: '10px',
+                                padding: '9px 12px',
+                                borderRadius: '8px',
                                 border: '1px solid #cbd5e1',
-                                fontSize: '12px',
+                                fontSize: '13px',
+                                background: '#fff',
+                                color: '#0f172a',
                                 boxSizing: 'border-box',
                                 outline: 'none',
-                                color: '#334155',
                               }}
                             />
                           </div>
@@ -961,16 +961,15 @@ export default function PinterestHubPage({
 
                         {/* RIGHT COLUMN: Pin Graphic & Upload */}
                         <div>
-                          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
-                            <ImageIcon size={14} color="#e60023" />
-                            <span>Pin Graphic</span>
+                          <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '6px' }}>
+                            PIN GRAPHIC PREVIEW
                           </label>
 
                           <div
                             style={{
                               background: '#f8fafc',
                               border: '1px solid #e2e8f0',
-                              borderRadius: '12px',
+                              borderRadius: '8px',
                               padding: '8px',
                               display: 'flex',
                               flexDirection: 'column',
@@ -1339,7 +1338,7 @@ export default function PinterestHubPage({
 
         {/* TAB 2: DIRECT PIN COMPOSER */}
         {activeTab === 'compose' && (
-          <div style={{ background: '#fff', padding: '32px', borderRadius: '18px', border: '1px solid #e2e8f0', maxWidth: '760px', boxShadow: '0 3px 12px rgba(0,0,0,0.03)' }}>
+          <div style={{ background: '#fff', padding: '32px', borderRadius: '16px', border: '1px solid #e2e8f0', maxWidth: '760px', boxShadow: '0 3px 12px rgba(0,0,0,0.03)' }}>
             <h2 style={{ fontSize: '19px', fontWeight: 900, color: '#0f172a', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <PenSquare size={18} color="#e60023" /> Direct Pin Composer
             </h2>
@@ -1350,16 +1349,14 @@ export default function PinterestHubPage({
             <form onSubmit={handleCustomPinSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
               {/* Target Board */}
               <div>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
-                  <Layers size={14} color="#e60023" />
-                  <span>Target Pinterest Board</span>
-                  <span style={{ color: '#ef4444' }}>*</span>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '6px' }}>
+                  TARGET PINTEREST BOARD <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <select
                   required
                   value={customBoardId}
                   onChange={(e) => setCustomBoardId(e.target.value)}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#fff', fontWeight: 600, outline: 'none' }}
+                  style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#fff', color: '#0f172a', outline: 'none' }}
                 >
                   <option value="">Select Board...</option>
                   {boards.map((b) => (
@@ -1373,12 +1370,19 @@ export default function PinterestHubPage({
               {/* Pin Title */}
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 700, color: '#334155' }}>
-                    <Type size={14} color="#e60023" />
-                    <span>Pin Title</span>
-                    <span style={{ color: '#ef4444' }}>*</span>
+                  <label style={{ fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                    PIN TITLE <span style={{ color: '#ef4444' }}>*</span>
                   </label>
-                  <span style={{ fontSize: '12px', fontWeight: 700, color: customTitle.length > 95 ? '#ef4444' : '#64748b' }}>
+                  <span
+                    style={{
+                      fontSize: '11px',
+                      fontWeight: 800,
+                      padding: '2px 8px',
+                      borderRadius: '6px',
+                      background: customTitle.length > 100 ? '#fee2e2' : (customTitle.length > 90 ? '#fef3c7' : '#f1f5f9'),
+                      color: customTitle.length > 100 ? '#dc2626' : (customTitle.length > 90 ? '#d97706' : '#64748b'),
+                    }}
+                  >
                     {customTitle.length} / 100
                   </span>
                 </div>
@@ -1389,17 +1393,15 @@ export default function PinterestHubPage({
                   placeholder="e.g. Best NEET Coaching in Sikar [2026 Rankings & Fees]"
                   value={customTitle}
                   onChange={(e) => setCustomTitle(e.target.value)}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box', outline: 'none', fontWeight: 600 }}
+                  style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#fff', color: '#0f172a', boxSizing: 'border-box', outline: 'none' }}
                 />
               </div>
 
               {/* Photo Uploader */}
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 700, color: '#334155' }}>
-                    <ImageIcon size={14} color="#e60023" />
-                    <span>Pin Photo (2:3 Vertical Recommended)</span>
-                    <span style={{ color: '#ef4444' }}>*</span>
+                  <label style={{ fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                    PIN PHOTO (2:3 VERTICAL RECOMMENDED) <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <button
                     type="button"
@@ -1429,7 +1431,7 @@ export default function PinterestHubPage({
                           padding: '12px 14px',
                           background: '#f8fafc',
                           border: '1px solid #cbd5e1',
-                          borderRadius: '10px',
+                          borderRadius: '8px',
                         }}
                       >
                         <img
@@ -1486,7 +1488,7 @@ export default function PinterestHubPage({
                         onClick={() => fileInputRef.current?.click()}
                         style={{
                           border: '2px dashed #cbd5e1',
-                          borderRadius: '12px',
+                          borderRadius: '8px',
                           padding: '28px 16px',
                           textAlign: 'center',
                           background: '#f8fafc',
@@ -1520,7 +1522,7 @@ export default function PinterestHubPage({
                     value={customImage}
                     onChange={(e) => setCustomImage(e.target.value)}
                     placeholder="https://coachingsinsikar.com/uploads/... or https://..."
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#fff', color: '#0f172a', boxSizing: 'border-box' }}
                   />
                 )}
               </div>
@@ -1528,44 +1530,50 @@ export default function PinterestHubPage({
               {/* Pin Description */}
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 700, color: '#334155' }}>
-                    <AlignLeft size={14} color="#e60023" />
-                    <span>Pin Description & Search Keywords</span>
+                  <label style={{ fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                    PIN DESCRIPTION (MAX 500 CHARS)
                   </label>
-                  <span style={{ fontSize: '12px', fontWeight: 700, color: customDescription.length > 480 ? '#ef4444' : '#64748b' }}>
+                  <span
+                    style={{
+                      fontSize: '11px',
+                      fontWeight: 800,
+                      padding: '2px 8px',
+                      borderRadius: '6px',
+                      background: customDescription.length > 500 ? '#fee2e2' : (customDescription.length > 480 ? '#fef3c7' : '#f1f5f9'),
+                      color: customDescription.length > 500 ? '#dc2626' : (customDescription.length > 480 ? '#d97706' : '#64748b'),
+                    }}
+                  >
                     {customDescription.length} / 500
                   </span>
                 </div>
                 <textarea
-                  rows={4}
+                  rows={5}
                   maxLength={500}
                   placeholder="Explain what this pin is about, add helpful tips and high-traffic hashtags like #Sikar #NEETCoaching..."
                   value={customDescription}
                   onChange={(e) => setCustomDescription(e.target.value)}
-                  style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '13px', lineHeight: 1.6, outline: 'none', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', lineHeight: 1.5, background: '#fff', color: '#0f172a', outline: 'none', boxSizing: 'border-box', resize: 'vertical' }}
                 />
               </div>
 
               {/* Destination Link */}
               <div>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
-                  <ExternalLink size={14} color="#e60023" />
-                  <span>Destination Website Link (Clickable Pin Link)</span>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '6px' }}>
+                  DESTINATION LINK (URL)
                 </label>
                 <input
                   type="url"
                   placeholder="https://coachingsinsikar.com/blog/jee-mains-guide"
                   value={customLink}
                   onChange={(e) => setCustomLink(e.target.value)}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#fff', color: '#0f172a', boxSizing: 'border-box' }}
                 />
               </div>
 
               {/* Alt Text */}
               <div>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
-                  <Eye size={14} color="#e60023" />
-                  <span>Image Alt Text (Accessibility & Search)</span>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '6px' }}>
+                  IMAGE ALT TEXT (ACCESSIBILITY & SEARCH)
                 </label>
                 <input
                   type="text"
@@ -1573,7 +1581,7 @@ export default function PinterestHubPage({
                   placeholder="Visual description for screen readers and Pinterest visual AI..."
                   value={customAltText}
                   onChange={(e) => setCustomAltText(e.target.value)}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#fff', color: '#0f172a', boxSizing: 'border-box' }}
                 />
               </div>
 
@@ -1584,10 +1592,10 @@ export default function PinterestHubPage({
                   background: '#e60023',
                   color: '#fff',
                   border: 'none',
-                  padding: '12px 26px',
-                  borderRadius: '10px',
+                  padding: '11px 24px',
+                  borderRadius: '8px',
                   fontWeight: 800,
-                  fontSize: '14px',
+                  fontSize: '13px',
                   cursor: 'pointer',
                   alignSelf: 'flex-start',
                   boxShadow: '0 4px 12px rgba(230,0,35,0.25)',
@@ -1609,8 +1617,8 @@ export default function PinterestHubPage({
               </h3>
               <form onSubmit={handleCreateBoardSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
-                    Board Name <span style={{ color: '#ef4444' }}>*</span>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '6px' }}>
+                    BOARD NAME <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <input
                     type="text"
@@ -1618,19 +1626,19 @@ export default function PinterestHubPage({
                     placeholder="e.g. Sikar Coaching Institutes"
                     value={newBoardName}
                     onChange={(e) => setNewBoardName(e.target.value)}
-                    style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#fff', color: '#0f172a', boxSizing: 'border-box' }}
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
-                    Description
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '6px' }}>
+                    DESCRIPTION
                   </label>
                   <textarea
                     rows={2}
                     placeholder="Brief summary of pins in this board..."
                     value={newBoardDescription}
                     onChange={(e) => setNewBoardDescription(e.target.value)}
-                    style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#fff', color: '#0f172a', boxSizing: 'border-box' }}
                   />
                 </div>
                 <button
@@ -1902,8 +1910,8 @@ export default function PinterestHubPage({
 
               <form onSubmit={handleManualTokenSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>
-                    New Pinterest Access Token <span style={{ color: '#ef4444' }}>*</span>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '6px' }}>
+                    NEW PINTEREST ACCESS TOKEN <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <input
                     type="password"
@@ -1911,7 +1919,7 @@ export default function PinterestHubPage({
                     placeholder="pina_AMAQH..."
                     value={manualToken}
                     onChange={(e) => setManualToken(e.target.value)}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box', outline: 'none' }}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#fff', color: '#0f172a', boxSizing: 'border-box', outline: 'none' }}
                   />
                   <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
                     💡 Tip: To link a second account, paste its token here. Both accounts will be saved and you can switch between them at any time.
@@ -1926,7 +1934,7 @@ export default function PinterestHubPage({
                     color: '#fff',
                     border: 'none',
                     padding: '11px 22px',
-                    borderRadius: '10px',
+                    borderRadius: '8px',
                     fontWeight: 800,
                     fontSize: '13px',
                     cursor: 'pointer',
@@ -1947,39 +1955,39 @@ export default function PinterestHubPage({
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
-                    Pinterest App ID (PINTEREST_APP_ID)
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '6px' }}>
+                    PINTEREST APP ID (PINTEREST_APP_ID)
                   </label>
                   <input
                     type="text"
                     readOnly
                     value={clientId || '(Not set in .env)'}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#f8fafc', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#f8fafc', color: '#475569', boxSizing: 'border-box' }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
-                    Pinterest Client Secret (PINTEREST_APP_SECRET)
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '6px' }}>
+                    PINTEREST CLIENT SECRET (PINTEREST_APP_SECRET)
                   </label>
                   <input
                     type="text"
                     readOnly
                     value={hasClientSecret ? '••••••••••••••••••••••••••••••••' : '(Not configured)'}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#f8fafc', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#f8fafc', color: '#475569', boxSizing: 'border-box' }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
-                    OAuth 2.0 Redirect URI
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '6px' }}>
+                    OAUTH 2.0 REDIRECT URI
                   </label>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <input
                       type="text"
                       readOnly
                       value={redirectUri}
-                      style={{ flex: 1, padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#f8fafc' }}
+                      style={{ flex: 1, padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#f8fafc', color: '#475569' }}
                     />
                     <button
                       type="button"
