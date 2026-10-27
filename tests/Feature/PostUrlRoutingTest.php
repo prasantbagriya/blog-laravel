@@ -24,6 +24,10 @@ class PostUrlRoutingTest extends TestCase
         $responseBlog = $this->get('/blog/sample-blog-article');
         $responseBlog->assertStatus(200);
 
+        // Opening /news/sample-blog-article must 301 redirect to canonical /blog/sample-blog-article
+        $responseNews = $this->get('/news/sample-blog-article');
+        $responseNews->assertRedirect('/blog/sample-blog-article');
+
         // Opening non-existent post must return 404
         $responseNonExistent = $this->get('/blog/non-existent-slug-123');
         $responseNonExistent->assertStatus(404);
@@ -41,6 +45,10 @@ class PostUrlRoutingTest extends TestCase
         // Opening /news/breaking-news-article must succeed (200)
         $responseNews = $this->get('/news/breaking-news-article');
         $responseNews->assertStatus(200);
+
+        // Opening /blog/breaking-news-article must 301 redirect to canonical /news/breaking-news-article
+        $responseBlog = $this->get('/blog/breaking-news-article');
+        $responseBlog->assertRedirect('/news/breaking-news-article');
     }
 
     public function test_direct_slug_and_blog_slug_can_coexist_independently(): void
@@ -98,6 +106,10 @@ class PostUrlRoutingTest extends TestCase
 
         // Direct URL /direct-article must succeed (200)
         $this->get('/direct-article')->assertStatus(200);
+
+        // Accessing prefixed URLs must 301 redirect to canonical direct URL /direct-article
+        $this->get('/blog/direct-article')->assertRedirect('/direct-article');
+        $this->get('/news/direct-article')->assertRedirect('/direct-article');
 
         // Non-existent direct URL must 404
         $this->get('/non-existent-direct-slug-456')->assertStatus(404);

@@ -131,9 +131,15 @@ class BlogController extends Controller
             abort(404);
         }
 
-        // Serve post directly across active formats (/blog/{slug}, /news/{slug}, or direct /{slug})
+        // Canonical URL enforcement:
+        // A post must only be public on its configured format (e.g. /blog/{slug}, /news/{slug}, or direct /{slug}).
+        // If accessed at a non-canonical format, permanently redirect (301) to its canonical path to prevent duplicate URLs.
         $currentPath = '/' . trim(strtolower($request->path()), '/');
         $canonicalPath = '/' . trim(strtolower($post->url_path), '/');
+
+        if ($currentPath !== $canonicalPath) {
+            return redirect($canonicalPath, 301);
+        }
 
         // Dynamically serve optimized .webp images instead of .png/.jpg from uploads across all fields
         $postArray = $post->toArray();
