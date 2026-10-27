@@ -137,7 +137,7 @@ class PinterestAuthService
         $username = (string) ($user['username'] ?? 'pinterest_user');
         $name = (string) ($user['business_name'] ?? ($user['name'] ?? $username));
 
-        return PinterestAccount::updateOrCreate(
+        $account = PinterestAccount::updateOrCreate(
             ['pinterest_user_id' => $userId],
             [
                 'user_id' => auth()->id(),
@@ -154,5 +154,11 @@ class PinterestAuthService
                 'is_active' => true,
             ]
         );
+
+        // Deactivate all other accounts so only the newly connected account is active
+        PinterestAccount::where('id', '!=', $account->id)->update(['is_active' => false]);
+        Session::forget('pinterest_explicitly_disconnected');
+
+        return $account;
     }
 }

@@ -120,7 +120,8 @@ class PinterestService
         string $title,
         string $description,
         string $imageUrl,
-        ?string $targetLink = null
+        ?string $targetLink = null,
+        ?string $altText = null
     ): array {
         $token = $this->getValidToken($account);
 
@@ -145,6 +146,10 @@ class PinterestService
 
         if (!empty($targetLink)) {
             $payload['link'] = $targetLink;
+        }
+
+        if (!empty($altText)) {
+            $payload['alt_text'] = Str::limit(trim($altText), 500, '');
         }
 
         $response = Http::withToken($token)

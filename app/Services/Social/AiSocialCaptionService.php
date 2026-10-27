@@ -42,8 +42,7 @@ class AiSocialCaptionService
         $candidateModels = array_unique(array_filter([
             config('services.gemini.model', env('GEMINI_MODEL', 'gemini-3.5-flash-lite')),
             'gemini-3.5-flash-lite',
-            'gemini-3.8-flash',
-            'gemini-flash-latest',
+            'gemini-3.5-flash',
         ]));
 
         $payload = [
@@ -156,13 +155,18 @@ class AiSocialCaptionService
 
             case 'pinterest':
                 return $systemIdentity .
-                    "Pinterest is a visual search engine where people look for guides, solutions, and admission info.\n" .
-                    "Create a high-ranking Pinterest Pin:\n" .
-                    "1. Title: Keyword-rich, highly clickable Pin title (STRICTLY under 95 characters).\n" .
-                    "2. Description: Helpful, solution-oriented summary explaining what readers will learn/find in this guide, with a clear CTA to click through to the site (STRICTLY under 450 characters).\n" .
-                    "3. Hashtags: 4-6 search intent tags.\n" .
+                    "Pinterest is a visual discovery and search engine. Users look for authoritative guides, comparative reviews, rankings, and actionable admission tips.\n" .
+                    "Create an optimized Pinterest Pin strictly formatted for Pinterest SEO:\n" .
+                    "1. Title: Keyword-rich, clickable, clear title in Title Case (STRICTLY under 95 characters, e.g. 'Top 5 NEET Coachings in Sikar [2026 Rankings & Fees]').\n" .
+                    "2. Description: High-conversion, structured summary formatted as follows:\n" .
+                    "   - Line 1: Compelling hook stating the key benefit/finding from the article.\n" .
+                    "   - Line 2: 2 punchy bullet points (using •) highlighting specific institute names, key rankings, or facts from the text.\n" .
+                    "   - Line 3: Pinterest CTA (e.g. '📌 Save this pin & tap the link to view complete fees, faculty comparison, and student reviews!').\n" .
+                    "   (STRICTLY keep description text under 350 characters so it fits with hashtags).\n" .
+                    "3. Hashtags: 4-6 high-traffic Pinterest search intent tags (e.g. #SikarCoaching, #NEETPreparation, #CoachingsInSikar).\n" .
+                    "4. Alt Text: Descriptive accessibility text explaining the visual graphic (max 150 characters).\n" .
                     "Return ONLY valid JSON with this exact structure:\n" .
-                    "{\n  \"title\": \"Engaging Pin Title\",\n  \"description\": \"Helpful Pin Description under 450 characters\",\n  \"hashtags\": [\"#SikarCoaching\", \"#NEETPreparation\"]\n}";
+                    "{\n  \"title\": \"Pin Title Under 95 Chars\",\n  \"description\": \"Structured hook + bullet points + save CTA under 350 chars\",\n  \"hashtags\": [\"#SikarCoaching\", \"#NEETPreparation\"],\n  \"alt_text\": \"Visual description for screen readers and search\"\n}";
 
             case 'x':
                 return $systemIdentity .

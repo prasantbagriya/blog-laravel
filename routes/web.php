@@ -244,6 +244,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // Pinterest Management & Board Manager
     Route::get('/admin/pinterest', [\App\Http\Controllers\Admin\AdminPinterestController::class, 'index'])->name('admin.pinterest.index');
     Route::post('/admin/pinterest/sync-configured', [\App\Http\Controllers\Admin\AdminPinterestController::class, 'syncConfiguredToken'])->name('admin.pinterest.sync_configured');
+    Route::post('/admin/pinterest/switch-account/{accountId}', [\App\Http\Controllers\Admin\AdminPinterestController::class, 'switchAccount'])->name('admin.pinterest.switch_account');
+    Route::post('/admin/pinterest/draft-post/{postId}', [\App\Http\Controllers\Admin\AdminPinterestController::class, 'draftPost'])->name('admin.pinterest.draft_post');
     Route::post('/admin/pinterest/credentials', [\App\Http\Controllers\Admin\AdminPinterestController::class, 'saveApiCredentials'])->name('admin.pinterest.credentials');
     Route::post('/admin/pinterest/sync-boards', [\App\Http\Controllers\Admin\AdminPinterestController::class, 'syncBoards'])->name('admin.pinterest.sync_boards');
     Route::post('/admin/pinterest/default-board/{boardId}', [\App\Http\Controllers\Admin\AdminPinterestController::class, 'setDefaultBoard'])->name('admin.pinterest.default_board');
@@ -251,6 +253,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/admin/pinterest/disconnect', [\App\Http\Controllers\Admin\AdminPinterestController::class, 'disconnect'])->name('admin.pinterest.disconnect');
     Route::post('/admin/pinterest/custom-pin', [\App\Http\Controllers\Admin\AdminPinterestController::class, 'publishCustomPin'])->name('admin.pinterest.custom_pin');
     Route::get('/api/admin/pinterest/draft/{postId}', [\App\Http\Controllers\Admin\AdminPinterestController::class, 'generateDraft']);
+    Route::post('/api/admin/pinterest/regenerate-draft/{shareId}', [\App\Http\Controllers\Admin\AdminPinterestController::class, 'regenerateDraft']);
     Route::post('/api/admin/pinterest/approve-publish', [\App\Http\Controllers\Admin\AdminPinterestController::class, 'approveAndPublish']);
 
     // Instagram Management & Direct Composer

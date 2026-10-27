@@ -63,8 +63,8 @@ class AdminPinterestController extends Controller
                 try {
                     $account = PinterestAccount::with('boards')->where('is_active', true)->latest()->first();
 
-                    // If not in DB, but configured in .env / services.php, auto-sync immediately
-                    if (!$account && !app()->environment('testing')) {
+                    // If not in DB, but configured in .env / services.php, auto-sync immediately (unless user explicitly disconnected)
+                    if (!$account && !app()->environment('testing') && !session('pinterest_explicitly_disconnected')) {
                         $configuredToken = config('services.pinterest.access_token') ?: env('PINTEREST_ACCESS_TOKEN');
                         if (!empty($configuredToken)) {
                             try {
@@ -119,6 +119,7 @@ class AdminPinterestController extends Controller
                                 'id' => $share->post->id,
                                 'title' => $share->post->title,
                                 'slug' => $share->post->slug,
+                                'category' => $share->post->category ?: 'General',
                                 'coverImage' => $share->post->coverImage,
                             ] : null,
                         ]);
@@ -156,6 +157,41 @@ class AdminPinterestController extends Controller
 
             $configuredToken = config('services.pinterest.access_token') ?: env('PINTEREST_ACCESS_TOKEN');
 
+            $allAccounts = [];
+            if (Schema::hasTable('pinterest_accounts')) {
+                try {
+                    $allAccounts = PinterestAccount::all()->map(fn($acc) => [
+                        'id' => $acc->id,
+                        'username' => $acc->username,
+                        'name' => $acc->name,
+                        'avatar' => $acc->profile_image,
+                        'pin_count' => (int) $acc->pin_count,
+                        'board_count' => (int) $acc->board_count,
+                        'is_active' => (bool) $acc->is_active,
+                    ]);
+                } catch (\Throwable $e) {}
+            }
+
+            $availablePosts = [];
+            if (Schema::hasTable('posts')) {
+                try {
+                    $availablePosts = Post::select(['id', 'title', 'slug', 'category', 'coverImage', 'created_at'])
+                        ->where('published', true)
+                        ->latest()
+                        ->take(60)
+                        ->get()
+                        ->map(fn($p) => [
+                            'id' => $p->id,
+                            'title' => $p->title,
+                            'slug' => $p->slug,
+                            'category' => $p->category ?: 'General',
+                            'cover_image' => $p->coverImage ? (str_starts_with($p->coverImage, 'http') ? $p->coverImage : url($p->coverImage)) : null,
+                            'date' => $p->created_at?->format('M d, Y'),
+                            'url' => url($p->url_path),
+                        ]);
+                } catch (\Throwable $e) {}
+            }
+
             return Inertia::render('Admin/Pinterest/Index', [
                 'needsMigration' => $needsMigration,
                 'isConfigured' => $this->authService->isConfigured(),
@@ -164,6 +200,8 @@ class AdminPinterestController extends Controller
                 'clientId' => config('services.pinterest.client_id'),
                 'hasClientSecret' => !empty(config('services.pinterest.client_secret')),
                 'redirectUri' => config('services.pinterest.redirect_uri', url('/auth/pinterest/callback')),
+                'allAccounts' => $allAccounts,
+                'availablePosts' => $availablePosts,
                 'account' => $account ? [
                     'id' => $account->id,
                     'username' => $account->username,
@@ -225,6 +263,7 @@ class AdminPinterestController extends Controller
      */
     public function syncConfiguredToken(Request $request)
     {
+        session()->forget('pinterest_explicitly_disconnected');
         $token = config('services.pinterest.access_token') ?: env('PINTEREST_ACCESS_TOKEN');
         if (empty($token)) {
             return redirect()->back()->with('error', 'No PINTEREST_ACCESS_TOKEN found in .env or configuration.');
@@ -240,6 +279,25 @@ class AdminPinterestController extends Controller
     }
 
     /**
+     * Switch active Pinterest account.
+     */
+    public function switchAccount(Request $request, $accountId)
+    {
+        $target = PinterestAccount::findOrFail($accountId);
+        PinterestAccount::query()->update(['is_active' => false]);
+        $target->update(['is_active' => true]);
+        session()->forget('pinterest_explicitly_disconnected');
+
+        try {
+            $this->pinterestService->syncBoards($target);
+        } catch (\Throwable $e) {
+            Log::warning("Pinterest syncBoards on switch failed: " . $e->getMessage());
+        }
+
+        return redirect()->back()->with('success', "Switched active Pinterest account to @{$target->username}!");
+    }
+
+    /**
      * Save direct Access Token from Pinterest Developers.
      */
     public function saveApiCredentials(Request $request)
@@ -249,6 +307,7 @@ class AdminPinterestController extends Controller
         ]);
 
         try {
+            session()->forget('pinterest_explicitly_disconnected');
             $accessToken = trim($request->input('access_token'));
             $account = $this->authService->syncUserFromToken($accessToken);
 
@@ -329,8 +388,91 @@ class AdminPinterestController extends Controller
         if ($account) {
             $account->update(['is_active' => false]);
         }
+        session(['pinterest_explicitly_disconnected' => true]);
 
         return redirect()->back()->with('success', 'Pinterest account disconnected.');
+    }
+
+    /**
+     * Add a published blog post to the Pinterest Pin Approvals Queue.
+     */
+    public function draftPost(Request $request, $postId)
+    {
+        $post = Post::find($postId) ?: Post::where('slug', $postId)->first();
+        if (!$post) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Blog post not found.'], 404);
+            }
+            return redirect()->back()->with('error', 'Blog post not found.');
+        }
+
+        $account = PinterestAccount::active();
+        $defaultBoard = $account?->defaultBoard() ?: $account?->boards()->first();
+
+        try {
+            $draft = $this->captionService->generateForPost($post);
+
+            $imageUrl = $draft['image_url'] ?: ($post->coverImage ? (str_starts_with($post->coverImage, 'http') ? $post->coverImage : url($post->coverImage)) : '/uploads/aboutus.webp');
+
+            $share = PinterestPinShare::create([
+                'post_id' => $post->id,
+                'pinterest_account_id' => $account?->id,
+                'pinterest_board_id' => $defaultBoard?->id,
+                'title' => $draft['title'],
+                'description' => $draft['description'],
+                'image_url' => $imageUrl,
+                'target_link' => $draft['target_link'],
+                'status' => 'pending_approval',
+            ]);
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => "Pin draft for '{$post->title}' added to Approvals Queue!",
+                    'share' => $share,
+                    'draft' => $draft,
+                ]);
+            }
+
+            return redirect()->back()->with('success', "Pin draft for '{$post->title}' added to Approvals Queue!");
+        } catch (\Throwable $e) {
+            Log::error('Pinterest draftPost error: ' . $e->getMessage());
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Failed to draft Pin: ' . $e->getMessage()], 500);
+            }
+            return redirect()->back()->with('error', 'Failed to draft Pin: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Regenerate Pin title and description using AI.
+     */
+    public function regenerateDraft(Request $request, $shareId)
+    {
+        $share = PinterestPinShare::with('post')->find($shareId);
+        if (!$share || !$share->post) {
+            return response()->json(['success' => false, 'message' => 'Pending Pin share or associated post not found.'], 404);
+        }
+
+        try {
+            $draft = $this->captionService->generateForPost($share->post);
+
+            $share->update([
+                'title' => $draft['title'],
+                'description' => $draft['description'],
+                'image_url' => $draft['image_url'] ?: $share->image_url,
+                'target_link' => $draft['target_link'] ?: $share->target_link,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pin content regenerated with native Pinterest formatting using Gemini AI!',
+                'draft' => $draft,
+                'share' => $share->fresh(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'message' => 'AI Regeneration failed: ' . $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -436,6 +578,7 @@ class AdminPinterestController extends Controller
         $description = $request->input('description');
         $imageUrl = $request->input('image_url') ?: ($share?->image_url);
         $targetLink = $request->input('target_link') ?: ($share?->target_link);
+        $altText = $request->input('alt_text') ?: ($share?->title);
 
         if (empty($imageUrl)) {
             return response()->json([
@@ -464,7 +607,8 @@ class AdminPinterestController extends Controller
                 $title,
                 $description,
                 $imageUrl,
-                $targetLink
+                $targetLink,
+                $altText
             );
 
             $share->update([
@@ -472,6 +616,7 @@ class AdminPinterestController extends Controller
                 'title' => $title,
                 'description' => $description,
                 'image_url' => $imageUrl,
+                'target_link' => $targetLink,
                 'pinterest_board_id' => $board->id,
                 'pin_id' => $result['pin_id'],
                 'pin_url' => $result['pin_url'],

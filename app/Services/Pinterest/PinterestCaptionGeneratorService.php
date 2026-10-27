@@ -21,19 +21,30 @@ class PinterestCaptionGeneratorService
             $aiService = app(\App\Services\Social\AiSocialCaptionService::class);
             $aiDraft = $aiService->generateForPlatform($post, 'pinterest');
             if (!empty($aiDraft) && !empty($aiDraft['title']) && !empty($aiDraft['description'])) {
-                $pinTitle = Str::limit(trim($aiDraft['title']), 95, '...');
-                $pinDesc = trim($aiDraft['description']);
-                if (!str_contains($pinDesc, $fullUrl)) {
-                    $pinDesc .= "\n\nRead more on CoachingsInSikar: {$fullUrl}";
+                $pinTitle = Str::limit(trim($aiDraft['title']), 95, '');
+                $baseDesc = trim($aiDraft['description']);
+                $hashtags = !empty($aiDraft['hashtags']) && is_array($aiDraft['hashtags'])
+                    ? $aiDraft['hashtags']
+                    : $this->generateHashtags($post);
+
+                // Build clean Pinterest-native description with hashtags and tracking link attached
+                $hashtagString = implode(' ', $hashtags);
+                $pinDesc = $baseDesc;
+                if (!empty($hashtagString) && !str_contains($pinDesc, '#')) {
+                    $pinDesc .= "\n\n" . $hashtagString;
                 }
-                $pinDesc = Str::limit($pinDesc, 490, '...');
+                if (!str_contains($pinDesc, 'utm_source=pinterest')) {
+                    $pinDesc .= "\n\n🔗 " . $fullUrl;
+                }
+                $pinDesc = Str::limit($pinDesc, 495, '');
 
                 return [
                     'title' => $pinTitle,
                     'description' => $pinDesc,
                     'image_url' => $post->coverImage ? (str_starts_with($post->coverImage, 'http') ? $post->coverImage : url($post->coverImage)) : null,
                     'target_link' => $fullUrl,
-                    'hashtags' => $aiDraft['hashtags'] ?? $this->generateHashtags($post),
+                    'alt_text' => $aiDraft['alt_text'] ?? "Guide to {$pinTitle} on CoachingsInSikar",
+                    'hashtags' => $hashtags,
                     'is_ai_generated' => true,
                 ];
             }
@@ -41,44 +52,43 @@ class PinterestCaptionGeneratorService
             \Illuminate\Support\Facades\Log::warning("AI Pinterest caption fallback: " . $e->getMessage());
         }
 
-        // 2. Clean Pin Title (Template Fallback, Max 100 chars)
-        $title = Str::limit($rawTitle, 95, '...');
+        // 2. Clean Pin Title (Template Fallback, Max 95 chars)
+        $title = Str::limit($rawTitle, 95, '');
 
-        // 2. Extract clean summary from post content or excerpt
+        // 3. Extract clean summary from post content or excerpt
         $summary = '';
         if (!empty($post->excerpt)) {
             $summary = trim(strip_tags($post->excerpt));
         } elseif (!empty($post->content)) {
             $clean = preg_replace('/\s+/', ' ', strip_tags($post->content));
-            $summary = Str::limit($clean, 260, '...');
+            $summary = Str::limit($clean, 200, '...');
         }
 
-        // 3. Generate high-intent search hashtags
+        // 4. Generate high-intent search hashtags
         $hashtags = $this->generateHashtags($post);
         $hashtagString = implode(' ', $hashtags);
 
-        // 4. Assemble Description (Max 500 chars)
+        // 5. Assemble Description with Pinterest CTA, link and hashtags
         $descriptionParts = [];
         if (!empty($summary)) {
             $descriptionParts[] = $summary;
         } else {
             $descriptionParts[] = "Check complete details, eligibility, reviews, and admission updates for {$rawTitle}.";
         }
-
-        $descriptionParts[] = "Read more on CoachingsInSikar: {$fullUrl}";
-
+        $descriptionParts[] = "📌 Save this Pin & tap the link to read the full guide on CoachingsInSikar: {$fullUrl}";
         if (!empty($hashtagString)) {
             $descriptionParts[] = $hashtagString;
         }
 
         $description = implode("\n\n", $descriptionParts);
-        $description = Str::limit($description, 490, '...');
+        $description = Str::limit($description, 495, '');
 
         return [
             'title' => $title,
             'description' => $description,
             'image_url' => $post->coverImage ? (str_starts_with($post->coverImage, 'http') ? $post->coverImage : url($post->coverImage)) : null,
             'target_link' => $fullUrl,
+            'alt_text' => "Guide to {$title} on CoachingsInSikar",
             'hashtags' => $hashtags,
         ];
     }

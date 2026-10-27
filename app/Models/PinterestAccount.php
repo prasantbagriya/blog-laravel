@@ -60,7 +60,7 @@ class PinterestAccount extends Model
     public static function active(): ?self
     {
         $account = self::with('boards')->where('is_active', true)->latest()->first();
-        if (!$account && !app()->environment('testing')) {
+        if (!$account && !app()->environment('testing') && !session('pinterest_explicitly_disconnected')) {
             $configuredToken = config('services.pinterest.access_token') ?: env('PINTEREST_ACCESS_TOKEN');
             if (!empty($configuredToken)) {
                 try {

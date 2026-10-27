@@ -1,7 +1,33 @@
 import React, { useState, useRef } from 'react';
 import { Head, router } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
-import { Pin, Send, RefreshCw, FileCheck, PenSquare, FolderPlus, Settings, AlertTriangle, UploadCloud, Link, Key, Lock, CheckCircle2 } from 'lucide-react';
+import {
+  Pin,
+  Send,
+  RefreshCw,
+  FileCheck,
+  PenSquare,
+  FolderPlus,
+  Settings,
+  AlertTriangle,
+  UploadCloud,
+  Link,
+  Key,
+  Lock,
+  CheckCircle2,
+  Plus,
+  Sparkles,
+  Layers,
+  Type,
+  AlignLeft,
+  ExternalLink,
+  Eye,
+  Users,
+  Search,
+  X,
+  Image as ImageIcon,
+  Check,
+} from 'lucide-react';
 
 export default function PinterestHubPage({
   needsMigration = false,
@@ -12,6 +38,8 @@ export default function PinterestHubPage({
   hasClientSecret,
   redirectUri,
   account,
+  allAccounts = [],
+  availablePosts = [],
   boards = [],
   defaultBoard,
   pendingApprovals = [],
@@ -24,8 +52,21 @@ export default function PinterestHubPage({
   const [approvingId, setApprovingId] = useState(null);
   const [editTitles, setEditTitles] = useState({});
   const [editDescriptions, setEditDescriptions] = useState({});
+  const [editTargetLinks, setEditTargetLinks] = useState({});
+  const [editAltTexts, setEditAltTexts] = useState({});
+  const [editImages, setEditImages] = useState({});
   const [selectedBoards, setSelectedBoards] = useState({});
   const [isSyncingConfigured, setIsSyncingConfigured] = useState(false);
+  const [isRegeneratingId, setIsRegeneratingId] = useState(null);
+
+  // Add Post to Approvals Modal State
+  const [isAddPostModalOpen, setIsAddPostModalOpen] = useState(false);
+  const [postSearchQuery, setPostSearchQuery] = useState('');
+  const [isDraftingPostId, setIsDraftingPostId] = useState(null);
+
+  // Per-card image upload reference
+  const cardFileInputRefs = useRef({});
+  const [uploadingShareId, setUploadingShareId] = useState(null);
 
   const handleSyncConfiguredToken = () => {
     setIsSyncingConfigured(true);
@@ -34,16 +75,67 @@ export default function PinterestHubPage({
     });
   };
 
-  // Custom Pin state
+  const handleSwitchAccount = (accountId) => {
+    if (!accountId) return;
+    router.post(`/admin/pinterest/switch-account/${accountId}`);
+  };
+
+  // Add post to approvals
+  const handleAddPostToApprovals = (postId) => {
+    setIsDraftingPostId(postId);
+    router.post(`/admin/pinterest/draft-post/${postId}`, {}, {
+      onSuccess: () => {
+        setIsAddPostModalOpen(false);
+      },
+      onFinish: () => {
+        setIsDraftingPostId(null);
+      },
+    });
+  };
+
+  // Regenerate draft with AI
+  const handleRegenerateDraft = async (shareId) => {
+    setIsRegeneratingId(shareId);
+    try {
+      const response = await fetch(`/api/admin/pinterest/regenerate-draft/${shareId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+        },
+      });
+
+      const data = await response.json();
+      if (data.success && data.draft) {
+        setEditTitles((prev) => ({ ...prev, [shareId]: data.draft.title }));
+        setEditDescriptions((prev) => ({ ...prev, [shareId]: data.draft.description }));
+        if (data.draft.target_link) {
+          setEditTargetLinks((prev) => ({ ...prev, [shareId]: data.draft.target_link }));
+        }
+        if (data.draft.alt_text) {
+          setEditAltTexts((prev) => ({ ...prev, [shareId]: data.draft.alt_text }));
+        }
+      } else {
+        alert(data.message || 'AI regeneration failed.');
+      }
+    } catch (e) {
+      alert('Error during AI regeneration: ' + e.message);
+    } finally {
+      setIsRegeneratingId(null);
+    }
+  };
+
+  // Custom Pin state (Direct Composer)
   const [customBoardId, setCustomBoardId] = useState(defaultBoard?.id || (boards[0]?.id || ''));
   const [customTitle, setCustomTitle] = useState('');
   const [customDescription, setCustomDescription] = useState('');
   const [customImage, setCustomImage] = useState('');
   const [customLink, setCustomLink] = useState('');
+  const [customAltText, setCustomAltText] = useState('');
   const [isPublishingCustom, setIsPublishingCustom] = useState(false);
   const [publishFeedback, setPublishFeedback] = useState({});
 
-  // Direct file upload state
+  // Direct file upload state for Composer
   const fileInputRef = useRef(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [showManualUrl, setShowManualUrl] = useState(false);
@@ -96,10 +188,46 @@ export default function PinterestHubPage({
     }
   };
 
+  const handleCardImageUpload = async (shareId, e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingShareId(shareId);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/api/admin/social/upload-image', {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+        },
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (data.success && data.url) {
+        setEditImages((prev) => ({ ...prev, [shareId]: data.url }));
+      } else {
+        alert(data.message || 'Image upload failed');
+      }
+    } catch (err) {
+      alert('Upload error: ' + err.message);
+    } finally {
+      setUploadingShareId(null);
+      if (cardFileInputRefs.current[shareId]) {
+        cardFileInputRefs.current[shareId].value = '';
+      }
+    }
+  };
+
   const handleApprove = async (share) => {
     setApprovingId(share.id);
     const finalTitle = editTitles[share.id] !== undefined ? editTitles[share.id] : share.title;
-    const finalDescription = editDescriptions[share.id] !== undefined ? editDescriptions[share.id] : share.description;
+    const finalDescription = editDescriptions[share.id] !== undefined ? editDescriptions[share.id] : (share.description || '');
+    const finalTargetLink = editTargetLinks[share.id] !== undefined ? editTargetLinks[share.id] : (share.target_link || '');
+    const finalAltText = editAltTexts[share.id] !== undefined ? editAltTexts[share.id] : (share.alt_text || finalTitle);
+    const finalImage = editImages[share.id] || share.image_url;
     const targetBoardId = selectedBoards[share.id] || share.pinterest_board_id || defaultBoard?.id;
 
     if (!targetBoardId) {
@@ -120,8 +248,9 @@ export default function PinterestHubPage({
           pinterest_board_id: targetBoardId,
           title: finalTitle,
           description: finalDescription,
-          image_url: share.image_url,
-          target_link: share.target_link,
+          target_link: finalTargetLink,
+          alt_text: finalAltText,
+          image_url: finalImage,
         }),
       });
 
@@ -155,6 +284,7 @@ export default function PinterestHubPage({
         description: customDescription,
         image_url: customImage,
         target_link: customLink,
+        alt_text: customAltText,
       },
       {
         onFinish: () => {
@@ -163,6 +293,7 @@ export default function PinterestHubPage({
           setCustomDescription('');
           setCustomImage('');
           setCustomLink('');
+          setCustomAltText('');
         },
       }
     );
@@ -209,141 +340,171 @@ export default function PinterestHubPage({
     );
   };
 
+  // Filter available posts for modal
+  const filteredAvailablePosts = availablePosts.filter((p) => {
+    if (!postSearchQuery.trim()) return true;
+    const q = postSearchQuery.toLowerCase();
+    return (p.title && p.title.toLowerCase().includes(q)) || (p.category && p.category.toLowerCase().includes(q));
+  });
+
   return (
     <AdminLayout>
       <div style={{ animation: 'fadeIn 0.3s ease-out', paddingBottom: '40px' }}>
         <Head title="Pinterest Hub & Board Manager | Admin" />
 
-        {/* Needs Migration Alert */}
+        {/* Database Migration Alert */}
         {needsMigration && (
           <div
             style={{
-              background: '#fef3c7',
-              border: '1px solid #fde68a',
-              color: '#92400e',
-              padding: '16px 20px',
+              background: '#fef2f2',
+              border: '1px solid #fee2e2',
               borderRadius: '12px',
+              padding: '16px 20px',
               marginBottom: '20px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              flexWrap: 'wrap',
-              gap: '12px',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+              color: '#991b1b',
             }}
           >
-            <div>
-              <strong style={{ fontSize: '14px', display: 'block', marginBottom: '2px' }}>
-                Pinterest Database Tables Setup Required
-              </strong>
-              <span style={{ fontSize: '13px' }}>
-                Pinterest integration tables are not created yet in the database. Run the system upgrade to activate all features.
-              </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <AlertTriangle size={20} color="#dc2626" />
+              <div>
+                <strong style={{ display: 'block', fontSize: '14px' }}>
+                  Pinterest Database Tables Setup Required
+                </strong>
+                <span style={{ fontSize: '13px' }}>
+                  Pinterest integration tables are not created yet in the database. Run the system upgrade to activate all features.
+                </span>
+              </div>
             </div>
-            <a
-              href="/app-upgrade"
+            <button
+              onClick={() => router.post('/admin/system-upgrade')}
               style={{
-                background: '#e60023',
+                background: '#dc2626',
                 color: '#fff',
+                border: 'none',
                 padding: '9px 18px',
                 borderRadius: '8px',
                 fontWeight: 700,
-                textDecoration: 'none',
                 fontSize: '13px',
-                whiteSpace: 'nowrap',
+                cursor: 'pointer',
               }}
             >
-              Run Database Upgrade 
-            </a>
+              Run Database Migration
+            </button>
           </div>
         )}
 
-        {/* Critical Error Alert */}
+        {/* Error message */}
         {errorMessage && (
           <div
             style={{
-              background: '#fee2e2',
-              border: '1px solid #fca5a5',
-              color: '#991b1b',
-              padding: '14px 20px',
+              background: '#fff1f2',
+              border: '1px solid #ffe4e6',
               borderRadius: '12px',
+              padding: '14px 20px',
               marginBottom: '20px',
-              fontSize: '13px',
-              fontWeight: 600,
+              color: '#be123c',
+              fontSize: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
             }}
           >
-            {errorMessage}
+            <AlertTriangle size={18} />
+            <span>{errorMessage}</span>
           </div>
         )}
 
-        {/* Header Banner */}
+        {/* TOP HERO BANNER */}
         <div
           style={{
-            background: 'linear-gradient(135deg, #e60023, #ad081b)',
-            borderRadius: '16px',
+            background: 'linear-gradient(135deg, #bd081c 0%, #e60023 50%, #ad081b 100%)',
+            borderRadius: '18px',
             padding: '28px 32px',
             color: '#fff',
-            marginBottom: '24px',
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '20px',
-            boxShadow: '0 10px 25px -5px rgba(230, 0, 35, 0.35)',
+            marginBottom: '28px',
+            boxShadow: '0 10px 25px -5px rgba(230, 0, 35, 0.3)',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div
-              style={{
-                background: '#fff',
-                color: '#e60023',
-                width: '54px',
-                height: '54px',
-                borderRadius: '14px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-                flexShrink: 0,
-              }}
-            >
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345-.09.375-.291 1.199-.332 1.357-.053.211-.174.256-.402.151-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z" />
-              </svg>
-            </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <h1 style={{ fontSize: '24px', fontWeight: 900, margin: 0, letterSpacing: '-0.5px' }}>
-                  Pinterest Hub & Board Manager
-                </h1>
-                {account ? (
-                  <span style={{ background: '#10b981', color: '#fff', fontSize: '11px', fontWeight: 800, padding: '3px 8px', borderRadius: '12px' }}>
-                    CONNECTED
-                  </span>
-                ) : (
-                  <span style={{ background: 'rgba(255,255,255,0.25)', color: '#fff', fontSize: '11px', fontWeight: 800, padding: '3px 8px', borderRadius: '12px' }}>
-                    NOT CONNECTED
-                  </span>
-                )}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '18px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
+              <div
+                style={{
+                  width: '56px',
+                  height: '56px',
+                  borderRadius: '14px',
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backdropFilter: 'blur(8px)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                }}
+              >
+                <Pin size={30} color="#fff" />
               </div>
-              <p style={{ margin: '4px 0 0 0', opacity: 0.9, fontSize: '14px' }}>
-                Manage Pinterest boards, auto-draft SEO pin titles & descriptions, and publish visual pins via API v5.
-              </p>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                  <h1 style={{ fontSize: '24px', fontWeight: 900, margin: 0, letterSpacing: '-0.5px' }}>
+                    Pinterest Hub & Board Manager
+                  </h1>
+                  {account ? (
+                    <span style={{ background: '#10b981', color: '#fff', fontSize: '11px', fontWeight: 800, padding: '3px 10px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Check size={12} /> CONNECTED (@{account.username})
+                    </span>
+                  ) : (
+                    <span style={{ background: 'rgba(255,255,255,0.25)', color: '#fff', fontSize: '11px', fontWeight: 800, padding: '3px 10px', borderRadius: '12px' }}>
+                      NOT CONNECTED
+                    </span>
+                  )}
+                </div>
+                <p style={{ margin: '4px 0 0 0', opacity: 0.9, fontSize: '13px' }}>
+                  Manage Pinterest boards, auto-draft SEO pin titles & descriptions, and publish visual pins via API v5.
+                </p>
+              </div>
             </div>
-          </div>
 
-          {/* Action Controls */}
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+            {/* Quick Actions in Banner */}
             {account ? (
-              <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                {/* Account Switcher if multiple accounts exist */}
+                {allAccounts.length > 1 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '12px', fontWeight: 700, color: '#fecaca' }}>Account:</span>
+                    <select
+                      value={account.id}
+                      onChange={(e) => handleSwitchAccount(e.target.value)}
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.2)',
+                        color: '#fff',
+                        border: '1px solid rgba(255, 255, 255, 0.4)',
+                        padding: '8px 12px',
+                        borderRadius: '8px',
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        outline: 'none',
+                      }}
+                    >
+                      {allAccounts.map((acc) => (
+                        <option key={acc.id} value={acc.id} style={{ color: '#0f172a' }}>
+                          @{acc.username} {acc.is_active ? '✓ (Active)' : ''}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
                 <button
                   onClick={() => router.post('/admin/pinterest/sync-boards')}
                   style={{
-                    background: 'rgba(255,255,255,0.2)',
-                    border: '1px solid rgba(255,255,255,0.4)',
+                    background: 'rgba(255, 255, 255, 0.2)',
                     color: '#fff',
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
                     padding: '9px 16px',
-                    borderRadius: '10px',
+                    borderRadius: '8px',
                     fontWeight: 700,
                     fontSize: '13px',
                     cursor: 'pointer',
@@ -352,20 +513,40 @@ export default function PinterestHubPage({
                     gap: '6px',
                   }}
                 >
-                  Re-Sync Boards
+                  <RefreshCw size={14} />
+                  <span>Sync Boards</span>
                 </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('settings')}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.2)',
+                    color: '#fff',
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    padding: '9px 14px',
+                    borderRadius: '8px',
+                    fontWeight: 700,
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                  }}
+                  title="Link another Pinterest account"
+                >
+                  + Link Another Account
+                </button>
+
                 <button
                   onClick={() => {
-                    if (confirm('Are you sure you want to disconnect Pinterest?')) {
+                    if (confirm(`Are you sure you want to disconnect @${account.username}?`)) {
                       router.post('/admin/pinterest/disconnect');
                     }
                   }}
                   style={{
-                    background: 'rgba(0, 0, 0, 0.3)',
-                    border: '1px solid rgba(255, 255, 255, 0.3)',
-                    color: '#fff',
-                    padding: '9px 16px',
-                    borderRadius: '10px',
+                    background: 'rgba(0, 0, 0, 0.25)',
+                    color: '#ffcdd2',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    padding: '9px 14px',
+                    borderRadius: '8px',
                     fontWeight: 700,
                     fontSize: '13px',
                     cursor: 'pointer',
@@ -373,15 +554,16 @@ export default function PinterestHubPage({
                 >
                   Disconnect
                 </button>
-              </>
+              </div>
             ) : (
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                 {authUrl && (
                   <a
                     href={authUrl}
                     style={{
                       background: '#fff',
                       color: '#e60023',
+                      border: 'none',
                       padding: '11px 22px',
                       borderRadius: '10px',
                       fontWeight: 800,
@@ -424,39 +606,50 @@ export default function PinterestHubPage({
           </div>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex gap-2 border-b-2 border-slate-200 mb-6 overflow-x-auto no-scrollbar flex-nowrap" style={{ WebkitOverflowScrolling: 'touch' }}>
+        {/* NAVIGATION TABS */}
+        <div
+          style={{
+            display: 'flex',
+            gap: '8px',
+            borderBottom: '1px solid #e2e8f0',
+            marginBottom: '24px',
+            overflowX: 'auto',
+          }}
+        >
           {[
             { id: 'approvals', label: 'Approvals Queue', icon: <FileCheck size={16} />, badge: pendingApprovals.length },
             { id: 'compose', label: 'Direct Pin Composer', icon: <PenSquare size={16} /> },
-            { id: 'boards', label: 'Boards Manager', icon: <FolderPlus size={16} />, badge: boards.length },
-            { id: 'settings', label: 'App & API Settings', icon: <Settings size={16} /> },
+            { id: 'boards', label: `Boards (${boards.length})`, icon: <Layers size={16} /> },
+            { id: 'settings', label: 'Settings & Accounts', icon: <Settings size={16} /> },
           ].map((tab) => {
             const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
+                type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className="whitespace-nowrap shrink-0 flex items-center gap-2 transition cursor-pointer"
                 style={{
-                  padding: '12px 18px',
-                  fontWeight: isActive ? 700 : 600,
-                  fontSize: '14px',
-                  border: 'none',
                   background: 'none',
-                  color: isActive ? '#e60023' : '#64748b',
+                  border: 'none',
                   borderBottom: isActive ? '3px solid #e60023' : '3px solid transparent',
-                  marginBottom: '-2px',
+                  padding: '12px 18px',
+                  fontWeight: isActive ? 800 : 600,
+                  fontSize: '14px',
+                  color: isActive ? '#e60023' : '#64748b',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.15s ease',
                 }}
               >
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                  {tab.icon}
-                  <span>{tab.label}</span>
-                </span>
-                {tab.badge > 0 && (
+                {tab.icon}
+                <span>{tab.label}</span>
+                {tab.badge !== undefined && tab.badge > 0 && (
                   <span
                     style={{
-                      background: '#e60023',
+                      background: isActive ? '#e60023' : '#cbd5e1',
                       color: '#fff',
                       fontSize: '11px',
                       fontWeight: 800,
@@ -475,15 +668,39 @@ export default function PinterestHubPage({
         {/* TAB 1: APPROVALS QUEUE */}
         {activeTab === 'approvals' && (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
               <div>
                 <h2 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
-                  Pending Approval Pins
+                  Pinterest Pin Approvals Queue
                 </h2>
-                <p style={{ margin: '2px 0 0 0', fontSize: '13px', color: '#64748b' }}>
-                  Auto-drafted from published blog posts. Review title, SEO description, choose board, and approve.
+                <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: '#64748b' }}>
+                  Review AI-crafted Pinterest SEO titles, descriptions, target landing URLs, and graphics before publishing.
                 </p>
               </div>
+
+              {/* Action Button: Add Blog Post to Pin Approvals */}
+              <button
+                type="button"
+                onClick={() => setIsAddPostModalOpen(true)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  background: '#e60023',
+                  color: '#fff',
+                  border: 'none',
+                  padding: '10px 18px',
+                  borderRadius: '10px',
+                  fontWeight: 700,
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(230, 0, 35, 0.25)',
+                  transition: 'background 0.2s ease',
+                }}
+              >
+                <Plus size={16} />
+                <span>+ Add Blog Post to Pin Approvals</span>
+              </button>
             </div>
 
             {pendingApprovals.length === 0 ? (
@@ -491,68 +708,115 @@ export default function PinterestHubPage({
                 style={{
                   background: '#fff',
                   border: '1px dashed #cbd5e1',
-                  borderRadius: '14px',
-                  padding: '48px 24px',
+                  borderRadius: '16px',
+                  padding: '56px 24px',
                   textAlign: 'center',
                   color: '#64748b',
                 }}
               >
-                <div style={{ fontSize: '36px', marginBottom: '12px' }}></div>
-                <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#1e293b', margin: '0 0 6px 0' }}>
-                  No Pending Pins Waiting
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
+                  <Pin size={36} color="#cbd5e1" />
+                </div>
+                <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#1e293b', margin: '0 0 6px 0' }}>
+                  No Pending Pins in Approvals Queue
                 </h3>
-                <p style={{ fontSize: '13px', margin: 0, maxWidth: '440px', marginInline: 'auto' }}>
-                  When you publish a new blog post, a visual Pin draft will appear here for one-click approval.
+                <p style={{ fontSize: '13px', margin: '0 0 16px 0', maxWidth: '460px', marginInline: 'auto' }}>
+                  New published blog posts automatically appear here. You can also pick any existing blog post to generate a visual Pinterest Pin draft.
                 </p>
+                <button
+                  type="button"
+                  onClick={() => setIsAddPostModalOpen(true)}
+                  style={{
+                    background: '#e60023',
+                    color: '#fff',
+                    border: 'none',
+                    padding: '9px 18px',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <Plus size={15} />
+                  <span>Choose a Blog Post to Draft Pin</span>
+                </button>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 {pendingApprovals.map((share) => {
                   const currentTitle = editTitles[share.id] !== undefined ? editTitles[share.id] : share.title;
                   const currentDescription = editDescriptions[share.id] !== undefined ? editDescriptions[share.id] : (share.description || '');
+                  const currentTargetLink = editTargetLinks[share.id] !== undefined ? editTargetLinks[share.id] : (share.target_link || '');
+                  const currentAltText = editAltTexts[share.id] !== undefined ? editAltTexts[share.id] : (share.alt_text || currentTitle);
+                  const currentImage = editImages[share.id] || share.image_url;
                   const currentBoardId = selectedBoards[share.id] || share.pinterest_board_id || defaultBoard?.id;
+                  const isRegenerating = isRegeneratingId === share.id;
 
                   return (
                     <div
                       key={share.id}
                       style={{
                         background: '#fff',
-                        borderRadius: '16px',
+                        borderRadius: '18px',
                         border: '1px solid #e2e8f0',
-                        boxShadow: '0 2px 6px rgba(0,0,0,0.03)',
+                        boxShadow: '0 3px 12px rgba(0,0,0,0.04)',
                         padding: '24px',
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: '16px',
+                        gap: '20px',
+                        position: 'relative',
                       }}
                     >
+                      {/* Card Header */}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
                         <div>
-                          <div style={{ fontSize: '12px', fontWeight: 700, color: '#e60023', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
-                            Blog Post #{share.post_id}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                            <span style={{ background: '#fef2f2', color: '#e60023', border: '1px solid #fecaca', fontSize: '11px', fontWeight: 800, padding: '3px 9px', borderRadius: '8px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                              {share.post?.category || 'Blog Post'} #{share.post_id || share.id}
+                            </span>
+                            {share.created_at && (
+                              <span style={{ fontSize: '12px', color: '#94a3b8' }}>• {share.created_at}</span>
+                            )}
                           </div>
-                          <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                          <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: 0, lineHeight: 1.4 }}>
                             {share.post?.title || share.title}
                           </h3>
                         </div>
-                        <span style={{ background: '#fef3c7', color: '#92400e', fontSize: '12px', fontWeight: 700, padding: '4px 10px', borderRadius: '12px', whiteSpace: 'nowrap' }}>
-                          Pending Approval
+                        <span style={{ background: '#fef3c7', color: '#92400e', fontSize: '11px', fontWeight: 800, padding: '4px 10px', borderRadius: '12px', whiteSpace: 'nowrap' }}>
+                          Awaiting Approval
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-[1fr_220px] gap-5">
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      {/* 2-Column Responsive Layout for Form and Preview */}
+                      <div className="grid grid-cols-1 lg:grid-cols-[1fr_260px] gap-6">
+                        {/* LEFT COLUMN: All Inputs */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                           {/* Board Selector */}
                           <div>
-                            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-                              Target Pinterest Board:
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                              <Layers size={14} color="#e60023" />
+                              <span>Target Pinterest Board</span>
+                              <span style={{ color: '#ef4444' }}>*</span>
                             </label>
                             <select
                               value={currentBoardId || ''}
                               onChange={(e) => setSelectedBoards({ ...selectedBoards, [share.id]: e.target.value })}
-                              style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#fff' }}
+                              style={{
+                                width: '100%',
+                                padding: '10px 14px',
+                                borderRadius: '10px',
+                                border: '1px solid #cbd5e1',
+                                fontSize: '13px',
+                                background: '#f8fafc',
+                                fontWeight: 600,
+                                color: '#1e293b',
+                                outline: 'none',
+                              }}
                             >
-                              <option value="">Select a Board...</option>
+                              <option value="">Select a Pinterest Board...</option>
                               {boards.map((b) => (
                                 <option key={b.id} value={b.id}>
                                   {b.name} {b.is_default ? '⭐ (Default)' : ''}
@@ -563,68 +827,246 @@ export default function PinterestHubPage({
 
                           {/* Pin Title */}
                           <div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                              <label style={{ fontSize: '12px', fontWeight: 700, color: '#334155' }}>
-                                Pin Title:
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: '#334155' }}>
+                                <Type size={14} color="#e60023" />
+                                <span>Pin Title</span>
+                                <span style={{ color: '#ef4444' }}>*</span>
                               </label>
-                              <span style={{ fontSize: '11px', color: currentTitle.length > 100 ? '#ef4444' : '#64748b' }}>
+                              <span
+                                style={{
+                                  fontSize: '11px',
+                                  fontWeight: 700,
+                                  color: currentTitle.length > 95 ? (currentTitle.length > 100 ? '#ef4444' : '#f59e0b') : '#059669',
+                                }}
+                              >
                                 {currentTitle.length} / 100
                               </span>
                             </div>
                             <input
                               type="text"
-                              value={currentTitle}
                               maxLength={100}
+                              value={currentTitle}
                               onChange={(e) => setEditTitles({ ...editTitles, [share.id]: e.target.value })}
-                              style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box' }}
+                              placeholder="SEO-rich, clickable title under 100 characters..."
+                              style={{
+                                width: '100%',
+                                padding: '10px 14px',
+                                borderRadius: '10px',
+                                border: '1px solid #cbd5e1',
+                                fontSize: '13px',
+                                boxSizing: 'border-box',
+                                outline: 'none',
+                                fontWeight: 600,
+                                color: '#0f172a',
+                              }}
                             />
                           </div>
 
-                          {/* Pin Description */}
+                          {/* Pin Description & Hashtags */}
                           <div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                              <label style={{ fontSize: '12px', fontWeight: 700, color: '#334155' }}>
-                                Pin Description & Keywords:
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: '#334155' }}>
+                                <AlignLeft size={14} color="#e60023" />
+                                <span>SEO Pin Description & Search Hashtags</span>
+                                <span style={{ color: '#ef4444' }}>*</span>
                               </label>
-                              <span style={{ fontSize: '11px', color: currentDescription.length > 500 ? '#ef4444' : '#64748b' }}>
+                              <span
+                                style={{
+                                  fontSize: '11px',
+                                  fontWeight: 700,
+                                  color: currentDescription.length > 480 ? (currentDescription.length > 500 ? '#ef4444' : '#f59e0b') : '#059669',
+                                }}
+                              >
                                 {currentDescription.length} / 500
                               </span>
                             </div>
                             <textarea
                               rows={4}
-                              value={currentDescription}
                               maxLength={500}
+                              value={currentDescription}
                               onChange={(e) => setEditDescriptions({ ...editDescriptions, [share.id]: e.target.value })}
-                              style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', lineHeight: 1.5, boxSizing: 'border-box' }}
+                              placeholder="Helpful summary answering search intent, bullet points, CTA, and search hashtags..."
+                              style={{
+                                width: '100%',
+                                padding: '12px 14px',
+                                borderRadius: '10px',
+                                border: '1px solid #cbd5e1',
+                                fontSize: '13px',
+                                lineHeight: 1.6,
+                                boxSizing: 'border-box',
+                                outline: 'none',
+                                color: '#1e293b',
+                              }}
+                            />
+                            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+                              💡 Structured format: Hook + 2 bullet points + Save CTA + 4-6 search hashtags.
+                            </div>
+                          </div>
+
+                          {/* Destination Link */}
+                          <div>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                              <ExternalLink size={14} color="#e60023" />
+                              <span>Destination Website URL (Where clicks lead)</span>
+                            </label>
+                            <input
+                              type="url"
+                              value={currentTargetLink}
+                              onChange={(e) => setEditTargetLinks({ ...editTargetLinks, [share.id]: e.target.value })}
+                              placeholder="https://coachingsinsikar.com/blog/..."
+                              style={{
+                                width: '100%',
+                                padding: '10px 14px',
+                                borderRadius: '10px',
+                                border: '1px solid #cbd5e1',
+                                fontSize: '12px',
+                                fontFamily: 'monospace',
+                                boxSizing: 'border-box',
+                                outline: 'none',
+                                color: '#0f172a',
+                              }}
+                            />
+                          </div>
+
+                          {/* Image Alt Text */}
+                          <div>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                              <Eye size={14} color="#e60023" />
+                              <span>Image Alt Text (Visual search & accessibility)</span>
+                            </label>
+                            <input
+                              type="text"
+                              maxLength={300}
+                              value={currentAltText}
+                              onChange={(e) => setEditAltTexts({ ...editAltTexts, [share.id]: e.target.value })}
+                              placeholder="Describe what is seen in the graphic for Pinterest search and screen readers..."
+                              style={{
+                                width: '100%',
+                                padding: '9px 14px',
+                                borderRadius: '10px',
+                                border: '1px solid #cbd5e1',
+                                fontSize: '12px',
+                                boxSizing: 'border-box',
+                                outline: 'none',
+                                color: '#334155',
+                              }}
                             />
                           </div>
                         </div>
 
-                        {/* Image Preview */}
+                        {/* RIGHT COLUMN: Pin Graphic & Upload */}
                         <div>
-                          <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-                            Pin Graphic Preview:
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                            <ImageIcon size={14} color="#e60023" />
+                            <span>Pin Graphic</span>
                           </label>
-                          <img
-                            src={share.image_url}
-                            alt="Pin Preview"
+
+                          <div
                             style={{
-                              width: '100%',
-                              height: '240px',
-                              objectFit: 'cover',
-                              borderRadius: '12px',
+                              background: '#f8fafc',
                               border: '1px solid #e2e8f0',
-                              boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                              borderRadius: '12px',
+                              padding: '8px',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '8px',
                             }}
-                          />
+                          >
+                            <img
+                              src={currentImage}
+                              alt={currentAltText || 'Pin Graphic'}
+                              style={{
+                                width: '100%',
+                                height: '260px',
+                                objectFit: 'cover',
+                                borderRadius: '8px',
+                                border: '1px solid #e2e8f0',
+                              }}
+                              onError={(e) => {
+                                e.target.src = '/uploads/aboutus.webp';
+                              }}
+                            />
+
+                            <div style={{ fontSize: '11px', color: '#64748b', textAlign: 'center' }}>
+                              📌 Pinterest 2:3 vertical recommended
+                            </div>
+
+                            {/* Hidden file input */}
+                            <input
+                              ref={(el) => (cardFileInputRefs.current[share.id] = el)}
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleCardImageUpload(share.id, e)}
+                              style={{ display: 'none' }}
+                            />
+
+                            <button
+                              type="button"
+                              onClick={() => cardFileInputRefs.current[share.id]?.click()}
+                              disabled={uploadingShareId === share.id}
+                              style={{
+                                width: '100%',
+                                background: '#fff',
+                                color: '#1e293b',
+                                border: '1px solid #cbd5e1',
+                                padding: '8px 12px',
+                                borderRadius: '8px',
+                                fontSize: '12px',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '6px',
+                              }}
+                            >
+                              <UploadCloud size={14} color="#e60023" />
+                              <span>{uploadingShareId === share.id ? 'Uploading...' : 'Change Pin Graphic'}</span>
+                            </button>
+                          </div>
                         </div>
                       </div>
 
-                      {/* Action Bar */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '12px', borderTop: '1px solid #f1f5f9' }}>
-                        <div style={{ fontSize: '12px', color: '#64748b' }}>
-                          Target Link: <strong>{share.target_link}</strong>
+                      {/* CARD FOOTER / ACTION BAR */}
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          paddingTop: '16px',
+                          borderTop: '1px solid #f1f5f9',
+                          flexWrap: 'wrap',
+                          gap: '12px',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          {/* AI Regenerate Button */}
+                          <button
+                            type="button"
+                            onClick={() => handleRegenerateDraft(share.id)}
+                            disabled={isRegenerating}
+                            style={{
+                              background: '#f8fafc',
+                              color: '#0f172a',
+                              border: '1px solid #cbd5e1',
+                              padding: '9px 16px',
+                              borderRadius: '10px',
+                              fontSize: '13px',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                            }}
+                            title="Regenerate Pinterest Title, Description & Hashtags using Gemini AI"
+                          >
+                            <Sparkles size={14} color="#e60023" />
+                            <span>{isRegenerating ? 'Crafting with AI...' : 'Regenerate with AI'}</span>
+                          </button>
                         </div>
+
+                        {/* Approve Button */}
                         <button
                           type="button"
                           disabled={approvingId === share.id}
@@ -633,22 +1075,48 @@ export default function PinterestHubPage({
                             background: '#e60023',
                             color: '#fff',
                             border: 'none',
-                            padding: '10px 22px',
-                            borderRadius: '8px',
-                            fontWeight: 700,
+                            padding: '11px 24px',
+                            borderRadius: '10px',
+                            fontWeight: 800,
                             fontSize: '13px',
                             cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            boxShadow: '0 4px 12px rgba(230,0,35,0.25)',
                           }}
                         >
-                          {approvingId === share.id ? 'Pinning to Board...' : 'Approve & Pin to Pinterest'}
+                          <Pin size={15} />
+                          <span>{approvingId === share.id ? 'Pinning to Pinterest...' : 'Approve & Pin to Pinterest'}</span>
                         </button>
                       </div>
 
+                      {/* Feedback banner */}
                       {publishFeedback[share.id]?.pin_url && (
-                        <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', color: '#065f46', padding: '10px 14px', borderRadius: '8px', fontSize: '13px' }}>
-                           Pin created!{' '}
-                          <a href={publishFeedback[share.id].pin_url} target="_blank" rel="noreferrer" style={{ fontWeight: 700, color: '#047857' }}>
-                            View on Pinterest →
+                        <div
+                          style={{
+                            background: '#ecfdf5',
+                            border: '1px solid #a7f3d0',
+                            color: '#065f46',
+                            padding: '12px 16px',
+                            borderRadius: '10px',
+                            fontSize: '13px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <CheckCircle2 size={16} color="#059669" />
+                            <span>Pin published successfully to Pinterest!</span>
+                          </div>
+                          <a
+                            href={publishFeedback[share.id].pin_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{ fontWeight: 800, color: '#047857', textDecoration: 'none' }}
+                          >
+                            View Live on Pinterest →
                           </a>
                         </div>
                       )}
@@ -660,26 +1128,234 @@ export default function PinterestHubPage({
           </div>
         )}
 
+        {/* MODAL: ADD BLOG POST TO APPROVALS */}
+        {isAddPostModalOpen && (
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(15, 23, 42, 0.65)',
+              backdropFilter: 'blur(4px)',
+              zIndex: 9999,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px',
+            }}
+          >
+            <div
+              style={{
+                background: '#fff',
+                borderRadius: '20px',
+                width: '100%',
+                maxWidth: '680px',
+                maxHeight: '85vh',
+                display: 'flex',
+                flexDirection: 'column',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                overflow: 'hidden',
+              }}
+            >
+              {/* Modal Header */}
+              <div
+                style={{
+                  padding: '20px 24px',
+                  borderBottom: '1px solid #e2e8f0',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  background: '#f8fafc',
+                }}
+              >
+                <div>
+                  <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                    Select Blog Post to Draft Pinterest Pin
+                  </h3>
+                  <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#64748b' }}>
+                    Gemini AI will automatically generate an SEO-optimized Pin title, description, and hashtags from the content.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsAddPostModalOpen(false)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: '6px',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    color: '#64748b',
+                  }}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Search input */}
+              <div style={{ padding: '16px 24px', borderBottom: '1px solid #f1f5f9' }}>
+                <div style={{ position: 'relative' }}>
+                  <Search size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '12px' }} />
+                  <input
+                    type="text"
+                    value={postSearchQuery}
+                    onChange={(e) => setPostSearchQuery(e.target.value)}
+                    placeholder="Search published blog posts by title or category..."
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px 10px 38px',
+                      borderRadius: '10px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '13px',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Posts List */}
+              <div style={{ flex: 1, overflowY: 'auto', padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {filteredAvailablePosts.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '40px 20px', color: '#94a3b8' }}>
+                    No published blog posts found matching your search.
+                  </div>
+                ) : (
+                  filteredAvailablePosts.map((post) => (
+                    <div
+                      key={post.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '14px',
+                        padding: '12px 14px',
+                        borderRadius: '12px',
+                        border: '1px solid #e2e8f0',
+                        background: '#fff',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
+                        <img
+                          src={post.cover_image || '/uploads/aboutus.webp'}
+                          alt={post.title}
+                          style={{
+                            width: '56px',
+                            height: '56px',
+                            objectFit: 'cover',
+                            borderRadius: '8px',
+                            border: '1px solid #e2e8f0',
+                            flexShrink: 0,
+                          }}
+                        />
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                            <span style={{ fontSize: '11px', fontWeight: 700, color: '#e60023' }}>
+                              {post.category}
+                            </span>
+                            {post.date && (
+                              <span style={{ fontSize: '11px', color: '#94a3b8' }}>• {post.date}</span>
+                            )}
+                          </div>
+                          <div
+                            style={{
+                              fontSize: '13px',
+                              fontWeight: 700,
+                              color: '#0f172a',
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                            }}
+                          >
+                            {post.title}
+                          </div>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleAddPostToApprovals(post.id)}
+                        disabled={isDraftingPostId === post.id}
+                        style={{
+                          background: isDraftingPostId === post.id ? '#cbd5e1' : '#e60023',
+                          color: '#fff',
+                          border: 'none',
+                          padding: '9px 16px',
+                          borderRadius: '8px',
+                          fontSize: '12px',
+                          fontWeight: 700,
+                          cursor: isDraftingPostId === post.id ? 'wait' : 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          flexShrink: 0,
+                        }}
+                      >
+                        <Sparkles size={14} />
+                        <span>{isDraftingPostId === post.id ? 'Drafting Pin...' : 'Draft Pin with AI'}</span>
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div
+                style={{
+                  padding: '14px 24px',
+                  borderTop: '1px solid #e2e8f0',
+                  background: '#f8fafc',
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setIsAddPostModalOpen(false)}
+                  style={{
+                    background: '#fff',
+                    border: '1px solid #cbd5e1',
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    color: '#475569',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* TAB 2: DIRECT PIN COMPOSER */}
         {activeTab === 'compose' && (
-          <div style={{ background: '#fff', padding: '28px', borderRadius: '16px', border: '1px solid #e2e8f0', maxWidth: '720px' }}>
-            <h2 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0' }}>
-              <PenSquare size={16} style={{ marginRight: "6px" }} /> Direct Pin Composer
+          <div style={{ background: '#fff', padding: '32px', borderRadius: '18px', border: '1px solid #e2e8f0', maxWidth: '760px', boxShadow: '0 3px 12px rgba(0,0,0,0.03)' }}>
+            <h2 style={{ fontSize: '19px', fontWeight: 900, color: '#0f172a', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <PenSquare size={18} color="#e60023" /> Direct Pin Composer
             </h2>
-            <p style={{ margin: '0 0 20px 0', fontSize: '13px', color: '#64748b' }}>
-              Create and publish a visual Pin directly from your device to any Pinterest board.
+            <p style={{ margin: '0 0 24px 0', fontSize: '13px', color: '#64748b' }}>
+              Create and publish a visual Pin directly from your device to any connected Pinterest board via API v5.
             </p>
 
-            <form onSubmit={handleCustomPinSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <form onSubmit={handleCustomPinSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+              {/* Target Board */}
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
-                  Target Board <span style={{ color: '#ef4444' }}>*</span>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                  <Layers size={14} color="#e60023" />
+                  <span>Target Pinterest Board</span>
+                  <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <select
                   required
                   value={customBoardId}
                   onChange={(e) => setCustomBoardId(e.target.value)}
-                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px', background: '#fff' }}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#fff', fontWeight: 600, outline: 'none' }}
                 >
                   <option value="">Select Board...</option>
                   {boards.map((b) => (
@@ -690,29 +1366,36 @@ export default function PinterestHubPage({
                 </select>
               </div>
 
+              {/* Pin Title */}
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155' }}>
-                    Pin Title <span style={{ color: '#ef4444' }}>*</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 700, color: '#334155' }}>
+                    <Type size={14} color="#e60023" />
+                    <span>Pin Title</span>
+                    <span style={{ color: '#ef4444' }}>*</span>
                   </label>
-                  <span style={{ fontSize: '12px', color: '#64748b' }}>{customTitle.length} / 100</span>
+                  <span style={{ fontSize: '12px', fontWeight: 700, color: customTitle.length > 95 ? '#ef4444' : '#64748b' }}>
+                    {customTitle.length} / 100
+                  </span>
                 </div>
                 <input
                   type="text"
                   required
                   maxLength={100}
-                  placeholder="e.g. Best IIT JEE Coaching in Sikar 2027"
+                  placeholder="e.g. Best NEET Coaching in Sikar [2026 Rankings & Fees]"
                   value={customTitle}
                   onChange={(e) => setCustomTitle(e.target.value)}
-                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box', outline: 'none', fontWeight: 600 }}
                 />
               </div>
 
               {/* Photo Uploader */}
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155' }}>
-                    Pin Photo <span style={{ color: '#ef4444' }}>*</span>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 700, color: '#334155' }}>
+                    <ImageIcon size={14} color="#e60023" />
+                    <span>Pin Photo (2:3 Vertical Recommended)</span>
+                    <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <button
                     type="button"
@@ -748,11 +1431,11 @@ export default function PinterestHubPage({
                         <img
                           src={customImage}
                           alt="Uploaded preview"
-                          style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                          style={{ width: '60px', height: '90px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #e2e8f0' }}
                         />
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                             Pin image uploaded to /uploads/social/
+                          <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
+                            ✓ Pin image uploaded
                           </div>
                           <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', wordBreak: 'break-all' }}>
                             {customImage}
@@ -800,7 +1483,7 @@ export default function PinterestHubPage({
                         style={{
                           border: '2px dashed #cbd5e1',
                           borderRadius: '12px',
-                          padding: '24px 16px',
+                          padding: '28px 16px',
                           textAlign: 'center',
                           background: '#f8fafc',
                           cursor: isUploadingImage ? 'wait' : 'pointer',
@@ -808,11 +1491,13 @@ export default function PinterestHubPage({
                       >
                         {isUploadingImage ? (
                           <div style={{ fontSize: '13px', fontWeight: 700, color: '#e60023' }}>
-                            ⏳ Uploading and optimizing photo to /uploads/social/...
+                            ⏳ Uploading and optimizing photo...
                           </div>
                         ) : (
                           <div>
-                            <div style={{ display: "flex", justifyContent: "center", marginBottom: "6px" }}><Pin size={28} color="#e60023" /></div>
+                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px' }}>
+                              <Pin size={30} color="#e60023" />
+                            </div>
                             <div style={{ fontSize: '13px', fontWeight: 700, color: '#1e293b' }}>
                               Click to upload Pin photo from your device
                             </div>
@@ -831,38 +1516,60 @@ export default function PinterestHubPage({
                     value={customImage}
                     onChange={(e) => setCustomImage(e.target.value)}
                     placeholder="https://coachingsinsikar.com/uploads/... or https://..."
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box' }}
                   />
                 )}
               </div>
 
+              {/* Pin Description */}
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155' }}>
-                    Pin Description & Search Keywords
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 700, color: '#334155' }}>
+                    <AlignLeft size={14} color="#e60023" />
+                    <span>Pin Description & Search Keywords</span>
                   </label>
-                  <span style={{ fontSize: '12px', color: '#64748b' }}>{customDescription.length} / 500</span>
+                  <span style={{ fontSize: '12px', fontWeight: 700, color: customDescription.length > 480 ? '#ef4444' : '#64748b' }}>
+                    {customDescription.length} / 500
+                  </span>
                 </div>
                 <textarea
                   rows={4}
                   maxLength={500}
-                  placeholder="Explain what this pin is about, add helpful tips and high-traffic hashtags like #Sikar #JEECoaching..."
+                  placeholder="Explain what this pin is about, add helpful tips and high-traffic hashtags like #Sikar #NEETCoaching..."
                   value={customDescription}
                   onChange={(e) => setCustomDescription(e.target.value)}
-                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '13px', lineHeight: 1.6, outline: 'none', boxSizing: 'border-box' }}
                 />
               </div>
 
+              {/* Destination Link */}
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
-                  Destination Website Link (Where users land when clicking the pin)
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                  <ExternalLink size={14} color="#e60023" />
+                  <span>Destination Website Link (Clickable Pin Link)</span>
                 </label>
                 <input
                   type="url"
                   placeholder="https://coachingsinsikar.com/blog/jee-mains-guide"
                   value={customLink}
                   onChange={(e) => setCustomLink(e.target.value)}
-                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box' }}
+                />
+              </div>
+
+              {/* Alt Text */}
+              <div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                  <Eye size={14} color="#e60023" />
+                  <span>Image Alt Text (Accessibility & Search)</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={300}
+                  placeholder="Visual description for screen readers and Pinterest visual AI..."
+                  value={customAltText}
+                  onChange={(e) => setCustomAltText(e.target.value)}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box' }}
                 />
               </div>
 
@@ -873,12 +1580,13 @@ export default function PinterestHubPage({
                   background: '#e60023',
                   color: '#fff',
                   border: 'none',
-                  padding: '12px 24px',
+                  padding: '12px 26px',
                   borderRadius: '10px',
-                  fontWeight: 700,
+                  fontWeight: 800,
                   fontSize: '14px',
                   cursor: 'pointer',
                   alignSelf: 'flex-start',
+                  boxShadow: '0 4px 12px rgba(230,0,35,0.25)',
                 }}
               >
                 {isPublishingCustom ? 'Creating Pin on Pinterest...' : 'Create Pin'}
@@ -890,62 +1598,93 @@ export default function PinterestHubPage({
         {/* TAB 3: BOARDS MANAGER */}
         {activeTab === 'boards' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {/* Create Board Card */}
-            <div style={{ background: '#fff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0', maxWidth: '700px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: '0 0 12px 0' }}>
+            {/* Create Board Form */}
+            <div style={{ background: '#fff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0', maxWidth: '600px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: '0 0 16px 0' }}>
                 Create New Pinterest Board
               </h3>
-              <form onSubmit={handleCreateBoardSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <input
-                  type="text"
-                  required
-                  placeholder="Board Name (e.g. Sikar Coaching Reviews 2027)"
-                  value={newBoardName}
-                  onChange={(e) => setNewBoardName(e.target.value)}
-                  style={{ padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px' }}
-                />
-                <input
-                  type="text"
-                  placeholder="Board Description (Optional)"
-                  value={newBoardDescription}
-                  onChange={(e) => setNewBoardDescription(e.target.value)}
-                  style={{ padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px' }}
-                />
+              <form onSubmit={handleCreateBoardSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
+                    Board Name <span style={{ color: '#ef4444' }}>*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Sikar Coaching Institutes"
+                    value={newBoardName}
+                    onChange={(e) => setNewBoardName(e.target.value)}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
+                    Description
+                  </label>
+                  <textarea
+                    rows={2}
+                    placeholder="Brief summary of pins in this board..."
+                    value={newBoardDescription}
+                    onChange={(e) => setNewBoardDescription(e.target.value)}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box' }}
+                  />
+                </div>
                 <button
                   type="submit"
                   disabled={isCreatingBoard || !newBoardName.trim()}
-                  style={{ background: '#0f172a', color: '#fff', border: 'none', padding: '10px 18px', borderRadius: '8px', fontWeight: 700, fontSize: '13px', cursor: 'pointer', alignSelf: 'flex-start' }}
+                  style={{
+                    background: '#e60023',
+                    color: '#fff',
+                    border: 'none',
+                    padding: '9px 18px',
+                    borderRadius: '8px',
+                    fontWeight: 700,
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    alignSelf: 'flex-start',
+                  }}
                 >
                   {isCreatingBoard ? 'Creating Board...' : 'Create Board on Pinterest '}
                 </button>
               </form>
             </div>
 
-            {/* Boards Grid */}
+            {/* Existing Boards List */}
             <div>
-              <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', marginBottom: '14px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: '0 0 16px 0' }}>
                 Connected Pinterest Boards ({boards.length})
               </h3>
               {boards.length === 0 ? (
-                <div style={{ background: '#fff', padding: '32px', borderRadius: '12px', textAlign: 'center', color: '#64748b', border: '1px solid #e2e8f0' }}>
-                  No boards found. Click "Re-Sync Boards" or create your first board above.
+                <div style={{ background: '#fff', border: '1px dashed #cbd5e1', borderRadius: '12px', padding: '32px', textAlign: 'center', color: '#64748b' }}>
+                  No boards found. Click "Sync Boards" above or create your first board.
                 </div>
               ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '16px' }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {boards.map((b) => (
-                    <div key={b.id} style={{ background: '#fff', padding: '20px', borderRadius: '14px', border: b.is_default ? '2px solid #e60023' : '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <div
+                      key={b.id}
+                      style={{
+                        background: '#fff',
+                        borderRadius: '12px',
+                        border: b.is_default ? '2px solid #e60023' : '1px solid #e2e8f0',
+                        padding: '16px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                      }}
+                    >
                       <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                          <span style={{ fontSize: '11px', fontWeight: 800, color: b.privacy === 'PUBLIC' ? '#059669' : '#d97706', textTransform: 'uppercase' }}>
-                            {b.privacy} BOARD
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
+                          <span style={{ fontSize: '11px', fontWeight: 800, color: b.privacy === 'PUBLIC' ? '#059669' : '#64748b', textTransform: 'uppercase' }}>
+                            {b.privacy}
                           </span>
                           {b.is_default && (
-                            <span style={{ background: '#fef2f2', color: '#e60023', fontSize: '11px', fontWeight: 800, padding: '2px 8px', borderRadius: '10px' }}>
-                              DEFAULT BOARD
+                            <span style={{ background: '#fef2f2', color: '#e60023', fontSize: '10px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px' }}>
+                              DEFAULT
                             </span>
                           )}
                         </div>
-                        <h4 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
+                        <h4 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>
                           {b.name}
                         </h4>
                         {b.description && (
@@ -982,16 +1721,108 @@ export default function PinterestHubPage({
           </div>
         )}
 
-        {/* TAB 4: APP & API SETTINGS */}
+        {/* TAB 4: APP & API SETTINGS & MULTI-ACCOUNT MANAGER */}
         {activeTab === 'settings' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '800px' }}>
-            {/* Direct Access Token */}
-            <div style={{ background: '#fff', padding: '28px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+            {/* Multi-Account Switcher & Connected Accounts Card */}
+            {allAccounts.length > 0 && (
+              <div style={{ background: '#fff', padding: '28px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 3px 12px rgba(0,0,0,0.03)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+                  <div>
+                    <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Users size={18} color="#e60023" /> Connected Pinterest Accounts ({allAccounts.length})
+                    </h3>
+                    <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: '#64748b' }}>
+                      Switch active account anytime, or connect an additional Pinterest business profile.
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {allAccounts.map((acc) => (
+                    <div
+                      key={acc.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '14px 16px',
+                        borderRadius: '12px',
+                        border: acc.is_active ? '2px solid #e60023' : '1px solid #e2e8f0',
+                        background: acc.is_active ? '#fef2f2' : '#f8fafc',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        {acc.avatar ? (
+                          <img
+                            src={acc.avatar}
+                            alt={acc.username}
+                            style={{ width: '44px', height: '44px', borderRadius: '50%', objectFit: 'cover' }}
+                          />
+                        ) : (
+                          <div
+                            style={{
+                              width: '44px',
+                              height: '44px',
+                              borderRadius: '50%',
+                              background: '#e60023',
+                              color: '#fff',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontWeight: 800,
+                              fontSize: '16px',
+                            }}
+                          >
+                            {acc.username.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <strong style={{ fontSize: '14px', color: '#0f172a' }}>@{acc.username}</strong>
+                            {acc.is_active ? (
+                              <span style={{ background: '#10b981', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '2px 8px', borderRadius: '10px' }}>
+                                ✓ ACTIVE
+                              </span>
+                            ) : null}
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
+                            {acc.name || acc.username} • {acc.board_count || 0} boards • {acc.pin_count || 0} pins
+                          </div>
+                        </div>
+                      </div>
+
+                      {!acc.is_active && (
+                        <button
+                          type="button"
+                          onClick={() => handleSwitchAccount(acc.id)}
+                          style={{
+                            background: '#fff',
+                            color: '#e60023',
+                            border: '1px solid #e60023',
+                            padding: '7px 14px',
+                            borderRadius: '8px',
+                            fontSize: '12px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Switch to this Account
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Direct Access Token Connection Card */}
+            <div style={{ background: '#fff', padding: '28px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 3px 12px rgba(0,0,0,0.03)' }}>
               <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0' }}>
-                Direct Access Token Connection
+                Link Account via Direct Access Token
               </h3>
               <p style={{ margin: '0 0 20px 0', fontSize: '13px', color: '#64748b' }}>
-                If you generated a Pinterest User Token from developers.pinterest.com, paste it here to authenticate immediately.
+                If you generated a Pinterest User Token from developers.pinterest.com for another account (or your primary account), paste it here to authenticate and link immediately.
               </p>
 
               {hasConfiguredToken && (
@@ -999,7 +1830,7 @@ export default function PinterestHubPage({
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <CheckCircle2 style={{ width: '18px', height: '18px', color: '#059669', flexShrink: 0 }} />
                     <div>
-                      <div style={{ fontSize: '13px', fontWeight: 700, color: '#065f46' }}>Configured Token Found in Environment</div>
+                      <div style={{ fontSize: '13px', fontWeight: 700, color: '#065f46' }}>Configured Token Found in Environment (.env)</div>
                       <div style={{ fontSize: '12px', color: '#047857', fontFamily: 'monospace' }}>{configuredTokenPreview}</div>
                     </div>
                   </div>
@@ -1029,17 +1860,20 @@ export default function PinterestHubPage({
 
               <form onSubmit={handleManualTokenSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
-                    Pinterest Access Token <span style={{ color: '#ef4444' }}>*</span>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>
+                    New Pinterest Access Token <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <input
                     type="password"
                     required
-                    placeholder="pina_..."
+                    placeholder="pina_AMAQH..."
                     value={manualToken}
                     onChange={(e) => setManualToken(e.target.value)}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box', outline: 'none' }}
                   />
+                  <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+                    💡 Tip: To link a second account, paste its token here. Both accounts will be saved and you can switch between them at any time.
+                  </div>
                 </div>
 
                 <button
@@ -1050,14 +1884,15 @@ export default function PinterestHubPage({
                     color: '#fff',
                     border: 'none',
                     padding: '11px 22px',
-                    borderRadius: '8px',
-                    fontWeight: 700,
+                    borderRadius: '10px',
+                    fontWeight: 800,
                     fontSize: '13px',
                     cursor: 'pointer',
                     alignSelf: 'flex-start',
+                    boxShadow: '0 4px 12px rgba(230,0,35,0.2)',
                   }}
                 >
-                  {isSavingManual ? 'Verifying...' : 'Save & Connect Access Token '}
+                  {isSavingManual ? 'Verifying Account...' : 'Save & Connect Access Token'}
                 </button>
               </form>
             </div>
@@ -1083,28 +1918,40 @@ export default function PinterestHubPage({
 
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
-                    Pinterest App Secret
+                    Pinterest Client Secret (PINTEREST_APP_SECRET)
                   </label>
-                  <div style={{ padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#f8fafc', color: hasClientSecret ? '#059669' : '#dc2626', fontWeight: 700 }}>
-                    {hasClientSecret ? ' Configured & Encrypted' : 'Missing in .env'}
-                  </div>
+                  <input
+                    type="text"
+                    readOnly
+                    value={hasClientSecret ? '••••••••••••••••••••••••••••••••' : '(Not configured)'}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#f8fafc', boxSizing: 'border-box' }}
+                  />
                 </div>
 
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
-                    OAuth 2.0 Redirect URI (Paste in Pinterest Developer Portal App Settings)
+                    OAuth 2.0 Redirect URI
                   </label>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <input
                       type="text"
                       readOnly
                       value={redirectUri}
-                      style={{ flex: 1, padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#f8fafc', boxSizing: 'border-box' }}
+                      style={{ flex: 1, padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#f8fafc' }}
                     />
                     <button
                       type="button"
                       onClick={handleCopyUri}
-                      style={{ background: '#e60023', color: '#fff', border: 'none', padding: '0 16px', borderRadius: '8px', fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}
+                      style={{
+                        background: copiedUri ? '#10b981' : '#f1f5f9',
+                        color: copiedUri ? '#fff' : '#1e293b',
+                        border: '1px solid #cbd5e1',
+                        padding: '10px 14px',
+                        borderRadius: '8px',
+                        fontWeight: 700,
+                        fontSize: '12px',
+                        cursor: 'pointer',
+                      }}
                     >
                       {copiedUri ? 'Copied!' : 'Copy'}
                     </button>
