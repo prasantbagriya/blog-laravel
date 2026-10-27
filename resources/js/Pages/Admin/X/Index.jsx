@@ -349,7 +349,7 @@ export default function XHubPage({
         </div>
 
         {/* Tab Navigation */}
-        <div style={{ display: 'flex', gap: '8px', borderBottom: '2px solid #e2e8f0', marginBottom: '24px' }}>
+        <div className="flex gap-2 border-b-2 border-slate-200 mb-6 overflow-x-auto no-scrollbar flex-nowrap" style={{ WebkitOverflowScrolling: 'touch' }}>
           {[
             { id: 'approvals', label: '📋 Approvals Queue', badge: pendingApprovals.length },
             { id: 'compose', label: '✍️ Quick Tweet Composer' },
@@ -361,6 +361,7 @@ export default function XHubPage({
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
+                className="whitespace-nowrap shrink-0 flex items-center gap-2 transition cursor-pointer"
                 style={{
                   padding: '12px 18px',
                   fontWeight: isActive ? 700 : 600,
@@ -369,12 +370,7 @@ export default function XHubPage({
                   background: 'none',
                   color: isActive ? '#000' : '#64748b',
                   borderBottom: isActive ? '3px solid #000' : '3px solid transparent',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
                   marginBottom: '-2px',
-                  transition: 'all 0.15s ease',
                 }}
               >
                 <span>{tab.label}</span>

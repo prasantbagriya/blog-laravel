@@ -194,16 +194,38 @@ class BingWebmasterService
     /**
      * Fetch Bing Search Query & Keyword Performance Stats (GetQueryStats & GetRankAndTrafficStats).
      */
-    public function getQueryStats(?string $siteUrl = null): array
+    public function getQueryStats(?string $siteUrl = null, ?string $startDate = null, ?string $endDate = null, ?int $days = null): array
     {
         $targetSite = $siteUrl ?: $this->getRegisteredSiteUrl();
         $candidates = array_unique([$targetSite, rtrim($targetSite, '/'), rtrim($targetSite, '/') . '/']);
+
+        $effectiveStartDate = $startDate;
+        $effectiveEndDate = $endDate;
+        if ($days === 1) {
+            $effectiveStartDate = Carbon::now()->subDay()->format('Y-m-d');
+            $effectiveEndDate = Carbon::now()->format('Y-m-d');
+        } elseif ($days && $days > 1) {
+            $effectiveStartDate = Carbon::now()->subDays($days)->format('Y-m-d');
+            $effectiveEndDate = Carbon::now()->format('Y-m-d');
+        }
 
         $totalClicks = 0;
         $totalImpressions = 0;
         $formattedRows = [];
         $lastError = null;
         $foundData = false;
+
+        $parseItemDate = function ($rawDate) {
+            if (empty($rawDate)) return null;
+            if (preg_match('/\/Date\((\d+)/', $rawDate, $m)) {
+                return date('Y-m-d', (int) ($m[1] / 1000));
+            }
+            try {
+                return Carbon::parse($rawDate)->toDateString();
+            } catch (\Throwable $ignore) {
+                return null;
+            }
+        };
 
         // 1. Fetch site-wide traffic totals from GetRankAndTrafficStats
         foreach ($candidates as $site) {
@@ -216,6 +238,10 @@ class BingWebmasterService
                     $trafficRows = $raw['d'] ?? ($raw['GetRankAndTrafficStatsResult'] ?? $raw);
                     if (is_array($trafficRows)) {
                         foreach ($trafficRows as $item) {
+                            $itemDate = $parseItemDate($item['Date'] ?? null);
+                            if ($effectiveStartDate && $itemDate && $itemDate < $effectiveStartDate) continue;
+                            if ($effectiveEndDate && $itemDate && $itemDate > $effectiveEndDate) continue;
+
                             $totalClicks += (int) ($item['Clicks'] ?? 0);
                             $totalImpressions += (int) ($item['Impressions'] ?? 0);
                         }
@@ -249,23 +275,15 @@ class BingWebmasterService
                             $ctr = $impressions > 0 ? round(($clicks / $impressions) * 100, 2) : 0;
                             $query = $item['Query'] ?? 'Unknown Query';
 
+                            $dateStr = $parseItemDate($item['Date'] ?? null);
+                            if ($effectiveStartDate && $dateStr && $dateStr < $effectiveStartDate) continue;
+                            if ($effectiveEndDate && $dateStr && $dateStr > $effectiveEndDate) continue;
+
                             $queryClicks += $clicks;
                             $queryImpressions += $impressions;
 
                             $rawClickPos = (float) ($item['AvgClickPosition'] ?? 0);
                             $rawImpPos = (float) ($item['AvgImpressionPosition'] ?? 0);
-
-                            // Handle Microsoft WCF date format /Date(1316156400000-0700)/
-                            $dateStr = null;
-                            if (!empty($item['Date'])) {
-                                if (preg_match('/\/Date\((\d+)/', $item['Date'], $m)) {
-                                    $dateStr = date('Y-m-d', (int) ($m[1] / 1000));
-                                } else {
-                                    try {
-                                        $dateStr = Carbon::parse($item['Date'])->toDateString();
-                                    } catch (\Throwable $ignore) {}
-                                }
-                            }
 
                             $formattedRows[] = [
                                 'query' => $query,

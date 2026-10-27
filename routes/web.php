@@ -173,6 +173,12 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::patch('/api/admin/contact-messages/{id}/read', [\App\Http\Controllers\Api\AdminApiController::class, 'readContactMessage']);
     Route::get('/admin/contact-messages', function () { return \Inertia\Inertia::render('Admin/ContactMessages/Index'); })->name('admin.contact-messages');
 
+    // Institute Inquiries & Student Leads
+    Route::get('/admin/inquiries', [\App\Http\Controllers\Api\InquiryController::class, 'renderAdmin'])->name('admin.inquiries');
+    Route::get('/api/admin/inquiries', [\App\Http\Controllers\Api\InquiryController::class, 'index']);
+    Route::patch('/api/admin/inquiries/{id}/status', [\App\Http\Controllers\Api\InquiryController::class, 'updateStatus']);
+    Route::delete('/api/admin/inquiries/{id}', [\App\Http\Controllers\Api\InquiryController::class, 'destroy']);
+
     // Newsletters
     Route::get('/api/admin/newsletters', [\App\Http\Controllers\Api\AdminApiController::class, 'getNewsletters']);
     Route::delete('/api/admin/newsletters/{id}', [\App\Http\Controllers\Api\AdminApiController::class, 'deleteNewsletter']);
@@ -617,6 +623,9 @@ Route::match(['get', 'post'], '/run-migrate', $dbUpgradeRunner)->name('system.ru
 
 
 
+
+// Direct Institute Admission Inquiries (Student Leads)
+Route::post('/api/inquiries', [\App\Http\Controllers\Api\InquiryController::class, 'store'])->middleware('throttle:15,1');
 
 // Collect Inquiries (Newsletters, etc)
 Route::post('/api/inquiries/collect', [\App\Http\Controllers\Api\AdminApiController::class, 'collectInquiry'])->middleware('throttle:5,1');

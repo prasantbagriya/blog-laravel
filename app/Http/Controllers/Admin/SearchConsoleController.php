@@ -494,8 +494,13 @@ class SearchConsoleController extends Controller
     public function getAnalytics(Request $request)
     {
         $days = intval($request->get('days', 28));
-        $startDate = $request->get('start_date', Carbon::now()->subDays(2 + $days)->format('Y-m-d'));
-        $endDate = $request->get('end_date', Carbon::now()->subDays(2)->format('Y-m-d'));
+        if ($days === 1 || $request->get('hours') == 24) {
+            $startDate = $request->get('start_date', Carbon::now()->subDays(2)->format('Y-m-d'));
+            $endDate = $request->get('end_date', Carbon::now()->subDays(2)->format('Y-m-d'));
+        } else {
+            $startDate = $request->get('start_date', Carbon::now()->subDays(2 + $days)->format('Y-m-d'));
+            $endDate = $request->get('end_date', Carbon::now()->subDays(2)->format('Y-m-d'));
+        }
         $searchType = $request->get('type', 'web');
 
         try {

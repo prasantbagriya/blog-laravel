@@ -148,6 +148,30 @@ const InquiryModal = ({
 
   const handleSendWhatsApp = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 1. Asynchronously persist the student lead to database
+    try {
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+      fetch('/api/inquiries', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-TOKEN': csrfToken || '',
+        },
+        body: JSON.stringify({
+          student_name: studentName,
+          phone: phone,
+          business_id: business.id,
+          business_name: business.name,
+          course: course,
+          message: message,
+          source: 'profile_direct',
+        }),
+      }).catch(err => console.warn('Inquiry background save notice:', err));
+    } catch (ignore) {}
+
+    // 2. Open WhatsApp conversation with coaching
     const queryText = `*Admission Inquiry for ${business.name}*\n\n` +
       `👤 *Student Name:* ${studentName || 'Interested Student'}\n` +
       `📞 *Phone:* ${phone || 'Not provided'}\n` +

@@ -309,7 +309,7 @@ export default function LinkedInHubPage({
                     border: '1px solid #cbd5e1',
                   }}
                 >
-                  isOrgMode ? <Building2 size={20} /> : <User size={20} />
+                  {isOrgMode ? <Building2 size={20} /> : <User size={20} />}
                 </div>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -429,6 +429,8 @@ export default function LinkedInHubPage({
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
             }}
           >
             <FileCheck size={16} style={{ marginRight: "6px" }} /> Approvals Queue
@@ -464,6 +466,8 @@ export default function LinkedInHubPage({
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
             }}
           >
             <PenSquare size={16} style={{ marginRight: "6px" }} /> Direct Post Composer
@@ -485,6 +489,8 @@ export default function LinkedInHubPage({
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
             }}
           >
             <Building2 size={16} style={{ marginRight: "6px" }} /> LinkedIn Page & Account
@@ -520,6 +526,8 @@ export default function LinkedInHubPage({
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
             }}
           >
             <Settings size={16} style={{ marginRight: "6px" }} /> App & API Settings
@@ -648,7 +656,7 @@ export default function LinkedInHubPage({
                                 borderRadius: '4px',
                               }}
                             >
-                              isOrgMode ? 'Company Page' : 'Member Profile'
+                              {isOrgMode ? 'Company Page' : 'Member Profile'}
                             </span>
                           </div>
                           <div style={{ fontSize: '11px', color: '#64748b' }}>
@@ -766,8 +774,8 @@ export default function LinkedInHubPage({
             {recentShares.length > 0 && (
               <div style={{ marginTop: '40px' }}>
                 <h3 style={{ fontSize: '16px', fontWeight: 800, margin: '0 0 12px 0' }}>Recent LinkedIn Publishing Audit</h3>
-                <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12.5px' }}>
+                <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', overflowX: 'auto' }}>
+                  <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse', fontSize: '12.5px' }}>
                     <thead>
                       <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', textAlign: 'left', color: '#64748b' }}>
                         <th style={{ padding: '10px 16px', fontWeight: 700 }}>Post Title / Snippet</th>
@@ -1024,7 +1032,7 @@ export default function LinkedInHubPage({
                       fontSize: '14px',
                     }}
                   >
-                    isOrgMode ? <Building2 size={16} /> : 'in'
+                    {isOrgMode ? <Building2 size={16} /> : 'in'}
                   </div>
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>

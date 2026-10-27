@@ -238,15 +238,16 @@ export default function MediaPicker({ onSelect, onClose, open = true }: MediaPic
         ) : (
           <>
             {/* Controls */}
-            <div style={{ padding: '16px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', gap: '1rem', justifyContent: 'space-between' }}>
+            <div className="p-3 sm:p-4 border-b border-slate-200 flex flex-col sm:flex-row gap-2.5 sm:gap-4 justify-between items-stretch sm:items-center">
               <input 
                 type="text" 
                 placeholder="Search images..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none', width: '300px' }}
+                className="w-full sm:w-64"
+                style={{ padding: '8px 14px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none' }}
               />
-              <div style={{ display: 'flex', background: '#f1f5f9', padding: '4px', borderRadius: '8px' }}>
+              <div className="self-end sm:self-auto shrink-0" style={{ display: 'flex', background: '#f1f5f9', padding: '4px', borderRadius: '8px' }}>
                 <button 
                   onClick={() => setViewMode('grid')}
                   style={{ background: viewMode === 'grid' ? '#fff' : 'transparent', color: viewMode === 'grid' ? '#2563eb' : '#64748b', border: 'none', padding: '6px 12px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer', boxShadow: viewMode === 'grid' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}

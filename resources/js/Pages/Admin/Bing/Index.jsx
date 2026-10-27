@@ -23,7 +23,8 @@ import {
   TrendingUp,
   Key,
   XCircle,
-  Info
+  Info,
+  Calendar
 } from 'lucide-react';
 
 export default function BingWebmasterIndex({
@@ -42,6 +43,10 @@ export default function BingWebmasterIndex({
   const [loadingAnalytics, setLoadingAnalytics] = useState(false);
   const [analyticsError, setAnalyticsError] = useState(null);
   const [queryFilter, setQueryFilter] = useState('');
+  const [dateRange, setDateRange] = useState(28);
+  const [customStartDate, setCustomStartDate] = useState('');
+  const [customEndDate, setCustomEndDate] = useState('');
+  const [showCustomPicker, setShowCustomPicker] = useState(false);
 
   // Indexing State
   const [urlInput, setUrlInput] = useState(defaultUrls[0]?.url || 'https://coachingsinsikar.com');
@@ -80,12 +85,18 @@ export default function BingWebmasterIndex({
   const hasAuth = settings.is_connected || settings.has_api_key;
 
   // Fetch Analytics
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = async (days = dateRange, customStart = customStartDate, customEnd = customEndDate) => {
     if (!hasAuth) return;
     setLoadingAnalytics(true);
     setAnalyticsError(null);
     try {
-      const res = await fetch('/api/admin/bing/analytics');
+      let url = '/api/admin/bing/analytics';
+      if (days === 'custom' && customStart && customEnd) {
+        url += `?start_date=${customStart}&end_date=${customEnd}`;
+      } else if (days) {
+        url += `?days=${days}`;
+      }
+      const res = await fetch(url);
       const data = await res.json();
       if (data.success) {
         setAnalytics(data);
@@ -470,6 +481,81 @@ export default function BingWebmasterIndex({
                   Your submitted sitemaps and URLs are active. As soon as visitors search and view your pages on Bing, query rankings and impressions will show here automatically.
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Date Range Controls Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-4 bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-slate-200 dark:border-zinc-800">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-bold uppercase text-slate-500 dark:text-zinc-400">Date Range:</span>
+              {[
+                { label: '24H', days: 1 },
+                { label: '7D', days: 7 },
+                { label: '28D', days: 28 },
+                { label: '3M', days: 90 },
+              ].map(r => (
+                <button
+                  key={r.days}
+                  onClick={() => {
+                    setDateRange(r.days);
+                    setShowCustomPicker(false);
+                    fetchAnalytics(r.days);
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition ${dateRange === r.days ? 'bg-sky-600 text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300'}`}
+                >
+                  {r.label}
+                </button>
+              ))}
+
+              {/* Custom Date Range Toggle */}
+              <button
+                onClick={() => setShowCustomPicker(!showCustomPicker)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition flex items-center gap-1.5 ${dateRange === 'custom' ? 'bg-sky-600 text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300'}`}
+              >
+                <Calendar className="w-3.5 h-3.5" />
+                <span>Custom</span>
+              </button>
+            </div>
+
+            <div className="text-xs text-slate-500 font-medium">
+              {analytics?.queries?.length || 0} Queries Recorded
+            </div>
+          </div>
+
+          {/* Custom Date Picker Tray */}
+          {showCustomPicker && (
+            <div className="flex flex-wrap items-center gap-3 bg-sky-50/70 dark:bg-zinc-800/80 p-3.5 rounded-2xl border border-sky-200 dark:border-zinc-700 animate-in fade-in duration-150">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-zinc-300">
+                <span>Start Date:</span>
+                <input
+                  type="date"
+                  value={customStartDate}
+                  onChange={(e) => setCustomStartDate(e.target.value)}
+                  className="px-2.5 py-1 rounded-lg border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-xs font-medium outline-none"
+                />
+              </div>
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-zinc-300">
+                <span>End Date:</span>
+                <input
+                  type="date"
+                  value={customEndDate}
+                  onChange={(e) => setCustomEndDate(e.target.value)}
+                  className="px-2.5 py-1 rounded-lg border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-xs font-medium outline-none"
+                />
+              </div>
+              <button
+                onClick={() => {
+                  if (!customStartDate || !customEndDate) {
+                    alert('Please select both start and end dates');
+                    return;
+                  }
+                  setDateRange('custom');
+                  fetchAnalytics('custom', customStartDate, customEndDate);
+                }}
+                className="px-4 py-1.5 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-lg transition shadow-sm cursor-pointer"
+              >
+                Apply Custom Range
+              </button>
             </div>
           )}
 

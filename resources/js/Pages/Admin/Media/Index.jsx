@@ -83,15 +83,15 @@ export default function MediaLibraryPage() {
   return (
     <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
       <Head title="Media Library | Admin" />
-      <div style={{ marginBottom: '2rem', display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+      <div className="mb-8 flex flex-col md:flex-row gap-4 justify-between items-start md:items-end">
         <div>
           <h1 style={{ fontSize: '2rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>Media Library</h1>
           <p style={{ color: '#64748b', margin: 0 }}>Manage uploaded images and see where they are used</p>
         </div>
         
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <label style={{ background: '#2563eb', color: '#fff', padding: '8px 16px', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', margin: 0 }}>
+        <div className="w-full md:w-auto flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+          <div className="flex flex-1 sm:flex-initial gap-2 items-center">
+            <label className="inline-flex items-center justify-center shrink-0" style={{ background: '#2563eb', color: '#fff', padding: '8px 16px', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', margin: 0, whiteSpace: 'nowrap' }}>
               Upload Image
               <input 
                 type="file" 
@@ -116,19 +116,20 @@ export default function MediaLibraryPage() {
               placeholder="Search images..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none', width: '250px' }}
+              className="flex-1 sm:w-60"
+              style={{ padding: '8px 14px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none' }}
             />
           </div>
-          <div style={{ display: 'flex', background: '#f1f5f9', padding: '4px', borderRadius: '8px' }}>
+          <div className="self-end sm:self-auto shrink-0" style={{ display: 'flex', background: '#f1f5f9', padding: '4px', borderRadius: '8px' }}>
             <button 
               onClick={() => setViewMode('grid')}
-              style={{ background: viewMode === 'grid' ? '#fff' : 'transparent', color: viewMode === 'grid' ? '#2563eb' : '#64748b', border: 'none', padding: '6px 12px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer', boxShadow: viewMode === 'grid' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}
+              style={{ background: viewMode === 'grid' ? '#fff' : 'transparent', color: viewMode === 'grid' ? '#2563eb' : '#64748b', border: 'none', padding: '6px 14px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer', boxShadow: viewMode === 'grid' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}
             >
               Grid
             </button>
             <button 
               onClick={() => setViewMode('list')}
-              style={{ background: viewMode === 'list' ? '#fff' : 'transparent', color: viewMode === 'list' ? '#2563eb' : '#64748b', border: 'none', padding: '6px 12px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer', boxShadow: viewMode === 'list' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}
+              style={{ background: viewMode === 'list' ? '#fff' : 'transparent', color: viewMode === 'list' ? '#2563eb' : '#64748b', border: 'none', padding: '6px 14px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer', boxShadow: viewMode === 'list' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}
             >
               List
             </button>
@@ -203,35 +204,26 @@ export default function MediaLibraryPage() {
             <div 
               key={item.id || item.name} 
               onClick={() => setSelectedMedia(item)}
+              className="flex items-center gap-3 sm:gap-4 p-3 bg-white rounded-xl border cursor-pointer hover:translate-x-1 transition-transform"
               style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '16px', 
-                background: '#fff', 
                 border: selectedMedia?.id === item.id ? '2px solid #2563eb' : '1px solid #e2e8f0', 
-                borderRadius: '12px', 
-                padding: '12px', 
-                cursor: 'pointer',
-                transition: 'transform 0.1s ease',
               }}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'translateX(4px)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'translateX(0)'}
             >
-              <img loading="lazy" decoding="async" fetchPriority="low" src={item.url} alt={item.name} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', background: '#f1f5f9' }} />
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700, color: '#0f172a' }}>{item.name}</div>
-                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : ''}</div>
+              <img loading="lazy" decoding="async" fetchPriority="low" src={item.url} alt={item.name} className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 object-cover rounded-lg bg-slate-100" />
+              <div className="flex-1 min-w-0">
+                <div className="font-bold text-slate-900 text-xs sm:text-sm truncate">{item.name}</div>
+                <div className="text-[11px] text-slate-500 mt-0.5">{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : ''}</div>
               </div>
-              <div style={{ width: '100px', fontSize: '13px', color: '#475569', fontWeight: 600 }}>
+              <div className="text-xs font-semibold text-slate-600 shrink-0">
                 {formatSize(item.sizeBytes)}
               </div>
-              <div style={{ width: '100px', textAlign: 'right' }}>
+              <div className="shrink-0 text-right">
                 {item.usedIn && item.usedIn.length > 0 ? (
-                  <span style={{ background: '#dbeafe', color: '#1e40af', padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 700 }}>
+                  <span style={{ background: '#dbeafe', color: '#1e40af', padding: '3px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700 }}>
                     {item.usedIn.length} Uses
                   </span>
                 ) : (
-                  <span style={{ color: '#94a3b8', fontSize: '12px' }}>Unused</span>
+                  <span style={{ color: '#94a3b8', fontSize: '11px' }}>Unused</span>
                 )}
               </div>
             </div>
@@ -305,8 +297,8 @@ export default function MediaLibraryPage() {
                   )}
                 </div>
 
-                <div style={{ marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                  <div style={{ position: 'relative' }}>
+                <div className="mt-auto pt-4 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+                  <div className="relative w-full sm:w-auto">
                     <input 
                       type="file" 
                       accept="image/*"
@@ -315,6 +307,7 @@ export default function MediaLibraryPage() {
                       disabled={isReplacing}
                     />
                     <button 
+                      className="w-full sm:w-auto"
                       style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', opacity: isReplacing ? 0.7 : 1, whiteSpace: 'nowrap' }}
                       disabled={isReplacing}
                     >
@@ -324,6 +317,7 @@ export default function MediaLibraryPage() {
 
                   <button 
                     onClick={() => handleDelete(selectedMedia.name)}
+                    className="w-full sm:w-auto"
                     style={{ background: '#fef2f2', color: '#ef4444', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
                     disabled={isReplacing}
                   >

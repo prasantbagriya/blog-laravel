@@ -388,7 +388,7 @@ export default function PinterestHubPage({
         </div>
 
         {/* Tab Navigation */}
-        <div style={{ display: 'flex', gap: '8px', borderBottom: '2px solid #e2e8f0', marginBottom: '24px' }}>
+        <div className="flex gap-2 border-b-2 border-slate-200 mb-6 overflow-x-auto no-scrollbar flex-nowrap" style={{ WebkitOverflowScrolling: 'touch' }}>
           {[
             { id: 'approvals', label: 'Approvals Queue', icon: <FileCheck size={16} />, badge: pendingApprovals.length },
             { id: 'compose', label: 'Direct Pin Composer', icon: <PenSquare size={16} /> },
@@ -400,6 +400,7 @@ export default function PinterestHubPage({
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
+                className="whitespace-nowrap shrink-0 flex items-center gap-2 transition cursor-pointer"
                 style={{
                   padding: '12px 18px',
                   fontWeight: isActive ? 700 : 600,
@@ -408,12 +409,7 @@ export default function PinterestHubPage({
                   background: 'none',
                   color: isActive ? '#e60023' : '#64748b',
                   borderBottom: isActive ? '3px solid #e60023' : '3px solid transparent',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
                   marginBottom: '-2px',
-                  transition: 'all 0.15s ease',
                 }}
               >
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>

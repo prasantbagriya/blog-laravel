@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
-import { Search, Globe, Send, Key, Lock, Link as LinkIcon, Terminal, ArrowRight, ShieldCheck, CheckCircle2, AlertTriangle, RefreshCw, FileText, BarChart3, Zap, Settings, Sparkles, Smartphone, TrendingUp, Database, Target, Trash2, ExternalLink, Check, Clock, Copy, Info, Gauge } from 'lucide-react';
+import { Search, Globe, Send, Key, Lock, Link as LinkIcon, Terminal, ArrowRight, ShieldCheck, CheckCircle2, AlertTriangle, RefreshCw, FileText, BarChart3, Zap, Settings, Sparkles, Smartphone, TrendingUp, Database, Target, Trash2, ExternalLink, Check, Clock, Copy, Info, Gauge, Calendar } from 'lucide-react';
 import PageSpeedTab from './PageSpeedTab';
 
 export default function SearchConsoleIndex({
@@ -21,6 +21,9 @@ export default function SearchConsoleIndex({
   const [analyticsData, setAnalyticsData] = useState(null);
   const [dateRange, setDateRange] = useState(28);
   const [searchType, setSearchType] = useState('web');
+  const [customStartDate, setCustomStartDate] = useState('');
+  const [customEndDate, setCustomEndDate] = useState('');
+  const [showCustomPicker, setShowCustomPicker] = useState(false);
 
   // URL Inspector State
   const [inspectUrlInput, setInspectUrlInput] = useState('');
@@ -78,11 +81,17 @@ export default function SearchConsoleIndex({
   };
 
   // Fetch Live Analytics
-  const fetchAnalytics = async (days = dateRange, type = searchType) => {
+  const fetchAnalytics = async (days = dateRange, type = searchType, customStart = customStartDate, customEnd = customEndDate) => {
     if (!settings.is_connected) return;
     setLoadingAnalytics(true);
     try {
-      const res = await fetch(`/api/admin/gsc/analytics?days=${days}&type=${type}`);
+      let url = `/api/admin/gsc/analytics?type=${type}`;
+      if (days === 'custom' && customStart && customEnd) {
+        url += `&start_date=${customStart}&end_date=${customEnd}`;
+      } else {
+        url += `&days=${days}`;
+      }
+      const res = await fetch(url);
       const data = await res.json();
       if (data.success) {
         setAnalyticsData(data);
@@ -532,9 +541,10 @@ export default function SearchConsoleIndex({
         <div className="space-y-6">
           {/* Controls Bar */}
           <div className="flex flex-wrap items-center justify-between gap-4 bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-slate-200 dark:border-zinc-800">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs font-bold uppercase text-slate-500 dark:text-zinc-400">Date Range:</span>
               {[
+                { label: '24H', days: 1 },
                 { label: '7D', days: 7 },
                 { label: '28D', days: 28 },
                 { label: '3M', days: 90 },
@@ -542,12 +552,25 @@ export default function SearchConsoleIndex({
               ].map(r => (
                 <button
                   key={r.days}
-                  onClick={() => { setDateRange(r.days); fetchAnalytics(r.days, searchType); }}
+                  onClick={() => {
+                    setDateRange(r.days);
+                    setShowCustomPicker(false);
+                    fetchAnalytics(r.days, searchType);
+                  }}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition ${dateRange === r.days ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300'}`}
                 >
                   {r.label}
                 </button>
               ))}
+
+              {/* Custom Date Range Toggle */}
+              <button
+                onClick={() => setShowCustomPicker(!showCustomPicker)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition flex items-center gap-1.5 ${dateRange === 'custom' ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300'}`}
+              >
+                <Calendar className="w-3.5 h-3.5" />
+                <span>Custom</span>
+              </button>
             </div>
 
             <div className="flex items-center gap-2">
@@ -563,6 +586,43 @@ export default function SearchConsoleIndex({
               ))}
             </div>
           </div>
+
+          {/* Custom Date Picker Dropdown/Tray */}
+          {showCustomPicker && (
+            <div className="flex flex-wrap items-center gap-3 bg-blue-50/70 dark:bg-zinc-800/80 p-3.5 rounded-2xl border border-blue-200 dark:border-zinc-700 animate-in fade-in duration-150">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-zinc-300">
+                <span>Start Date:</span>
+                <input
+                  type="date"
+                  value={customStartDate}
+                  onChange={(e) => setCustomStartDate(e.target.value)}
+                  className="px-2.5 py-1 rounded-lg border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-xs font-medium outline-none"
+                />
+              </div>
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-zinc-300">
+                <span>End Date:</span>
+                <input
+                  type="date"
+                  value={customEndDate}
+                  onChange={(e) => setCustomEndDate(e.target.value)}
+                  className="px-2.5 py-1 rounded-lg border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-xs font-medium outline-none"
+                />
+              </div>
+              <button
+                onClick={() => {
+                  if (!customStartDate || !customEndDate) {
+                    alert('Please select both start and end dates');
+                    return;
+                  }
+                  setDateRange('custom');
+                  fetchAnalytics('custom', searchType, customStartDate, customEndDate);
+                }}
+                className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition shadow-sm cursor-pointer"
+              >
+                Apply Custom Range
+              </button>
+            </div>
+          )}
 
           {/* Metric Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

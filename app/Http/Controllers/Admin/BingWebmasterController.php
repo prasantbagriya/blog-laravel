@@ -101,9 +101,12 @@ class BingWebmasterController extends Controller
     /**
      * API: Get Search Analytics.
      */
-    public function getAnalytics()
+    public function getAnalytics(Request $request)
     {
-        $res = $this->bingService->getQueryStats();
+        $days = $request->has('days') ? intval($request->get('days')) : null;
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+        $res = $this->bingService->getQueryStats(null, $startDate, $endDate, $days);
         return response()->json($res);
     }
 
