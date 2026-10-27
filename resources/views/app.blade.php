@@ -168,9 +168,13 @@
         {{-- Public pages only need the public route map. Admin routes stay server-side. --}}
         @routes('public')
         <script>
-            window.BASE_PATH = "{{ url('') }}";
-            // Strip scheme/host if needed, but relative works best for fetch
-            window.BASE_PATH = new URL(window.BASE_PATH).pathname === '/' ? '' : new URL(window.BASE_PATH).pathname;
+            try {
+                var rawBase = "{{ url('') }}";
+                window.BASE_PATH = new URL(rawBase, window.location.origin).pathname;
+                if (window.BASE_PATH === '/') window.BASE_PATH = '';
+            } catch (e) {
+                window.BASE_PATH = '';
+            }
         </script>
         @viteReactRefresh
         @php

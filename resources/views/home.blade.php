@@ -49,8 +49,13 @@
 
 
     <script>
-        window.BASE_PATH = "{{ url('') }}";
-        window.BASE_PATH = new URL(window.BASE_PATH).pathname === '/' ? '' : new URL(window.BASE_PATH).pathname;
+        try {
+            var rawBase = "{{ url('') }}";
+            window.BASE_PATH = new URL(rawBase, window.location.origin).pathname;
+            if (window.BASE_PATH === '/') window.BASE_PATH = '';
+        } catch (e) {
+            window.BASE_PATH = '';
+        }
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
         }

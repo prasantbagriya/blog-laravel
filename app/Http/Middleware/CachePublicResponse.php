@@ -37,9 +37,9 @@ class CachePublicResponse
 
         // Differentiate between full HTML page load and Inertia XHR requests
         $isInertia = $request->header('X-Inertia') ? '1' : '0';
-        $version = 1;
+        $version = 3;
         try {
-            $version = (int) Cache::get('public_page_cache_version', 1);
+            $version = (int) Cache::get('public_page_cache_version', 3);
         } catch (\Throwable $e) {}
 
         $key = 'public_page_cache_v' . $version . '_' . md5($request->fullUrl() . '_' . $isInertia);
