@@ -15,9 +15,38 @@ class LinkedInCaptionGeneratorService
         $title = trim($post->title);
         $fullUrl = url($post->url_path) . '?utm_source=linkedin&utm_medium=social&utm_campaign=feed_post';
 
+        // 1. Try AI-powered content-aware LinkedIn commentary generation
+        try {
+            $aiService = app(\App\Services\Social\AiSocialCaptionService::class);
+            $aiDraft = $aiService->generateForPlatform($post, 'linkedin');
+            if (!empty($aiDraft) && !empty($aiDraft['commentary'])) {
+                $commentary = trim($aiDraft['commentary']);
+                if (!str_contains($commentary, $fullUrl) && !str_contains($commentary, url($post->url_path))) {
+                    $commentary .= "\n\n👉 Access the full guide & comparative review here:\n{$fullUrl}";
+                }
+                $commentary = Str::limit($commentary, 2900, '...');
+
+                $imageUrl = null;
+                if (!empty($post->coverImage)) {
+                    $imageUrl = str_starts_with($post->coverImage, 'http') ? $post->coverImage : url($post->coverImage);
+                }
+
+                return [
+                    'commentary' => $commentary,
+                    'title' => $title,
+                    'image_url' => $imageUrl,
+                    'target_link' => $fullUrl,
+                    'hashtags' => $aiDraft['hashtags'] ?? $this->generateHashtags($post),
+                    'is_ai_generated' => true,
+                ];
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("AI LinkedIn caption fallback: " . $e->getMessage());
+        }
+
         $parts = [];
 
-        // 1. Professional Hook
+        // 2. Professional Hook (Template Fallback)
         $parts[] = "🎓 {$title}";
 
         // 2. Value Proposition / Summary

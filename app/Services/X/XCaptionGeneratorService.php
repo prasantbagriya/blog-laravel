@@ -33,7 +33,41 @@ class XCaptionGeneratorService
             $cleanUrl .= (str_contains($cleanUrl, '?') ? '&' : '?') . 'utm_source=twitter&utm_medium=social&utm_campaign=tweet';
         }
 
-        // 1. Generate targeted hashtags
+        // 1. Try AI-powered content-aware Tweet generation
+        try {
+            $aiService = app(\App\Services\Social\AiSocialCaptionService::class);
+            $aiDraft = $aiService->generateForPlatform($post, 'x');
+            if (!empty($aiDraft) && (!empty($aiDraft['tweet_text']) || !empty($aiDraft['text']))) {
+                $rawAiText = trim($aiDraft['tweet_text'] ?? $aiDraft['text']);
+                if (!str_contains($rawAiText, $cleanUrl)) {
+                    $available = 280 - (mb_strlen($cleanUrl) + 5);
+                    $rawAiText = Str::limit($rawAiText, max(40, $available), '...') . "\n\n🔗 " . $cleanUrl;
+                }
+                $finalTweet = Str::limit($rawAiText, 280, '');
+
+                $imageUrl = null;
+                if (!empty($post->coverImage)) {
+                    $imageUrl = str_starts_with($post->coverImage, 'http') 
+                        ? $post->coverImage 
+                        : $canonicalBase . '/' . ltrim($post->coverImage, '/');
+                }
+
+                return [
+                    'title' => $title,
+                    'text' => $finalTweet,
+                    'tweet_text' => $finalTweet,
+                    'image_url' => $imageUrl,
+                    'target_link' => $cleanUrl,
+                    'hashtags' => $aiDraft['hashtags'] ?? $this->generateHashtags($post),
+                    'char_count' => mb_strlen($finalTweet),
+                    'is_ai_generated' => true,
+                ];
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("AI X caption fallback: " . $e->getMessage());
+        }
+
+        // 2. Generate targeted hashtags (Template Fallback)
         $hashtags = $this->generateHashtags($post);
         $hashtagString = !empty($hashtags) ? implode(' ', array_slice($hashtags, 0, 3)) : '#Sikar #Education';
 

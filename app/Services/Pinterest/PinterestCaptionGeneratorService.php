@@ -16,7 +16,32 @@ class PinterestCaptionGeneratorService
         $postUrl = $post->url_path;
         $fullUrl = url($postUrl) . '?utm_source=pinterest&utm_medium=social&utm_campaign=pin';
 
-        // 1. Clean Pin Title (Max 100 chars)
+        // 1. Try AI-powered content-aware Pinterest Pin generation
+        try {
+            $aiService = app(\App\Services\Social\AiSocialCaptionService::class);
+            $aiDraft = $aiService->generateForPlatform($post, 'pinterest');
+            if (!empty($aiDraft) && !empty($aiDraft['title']) && !empty($aiDraft['description'])) {
+                $pinTitle = Str::limit(trim($aiDraft['title']), 95, '...');
+                $pinDesc = trim($aiDraft['description']);
+                if (!str_contains($pinDesc, $fullUrl)) {
+                    $pinDesc .= "\n\nRead more on CoachingsInSikar: {$fullUrl}";
+                }
+                $pinDesc = Str::limit($pinDesc, 490, '...');
+
+                return [
+                    'title' => $pinTitle,
+                    'description' => $pinDesc,
+                    'image_url' => $post->coverImage ? (str_starts_with($post->coverImage, 'http') ? $post->coverImage : url($post->coverImage)) : null,
+                    'target_link' => $fullUrl,
+                    'hashtags' => $aiDraft['hashtags'] ?? $this->generateHashtags($post),
+                    'is_ai_generated' => true,
+                ];
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("AI Pinterest caption fallback: " . $e->getMessage());
+        }
+
+        // 2. Clean Pin Title (Template Fallback, Max 100 chars)
         $title = Str::limit($rawTitle, 95, '...');
 
         // 2. Extract clean summary from post content or excerpt

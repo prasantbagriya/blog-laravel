@@ -17,7 +17,29 @@ class FacebookCaptionGeneratorService
         $postUrl = $post->url_path;
         $fullUrl = url($postUrl) . '?utm_source=facebook&utm_medium=social&utm_campaign=blog_post';
 
-        // 1. Clean content and extract summary sentences
+        // 1. Try AI-powered content-aware caption generation
+        try {
+            $aiService = app(\App\Services\Social\AiSocialCaptionService::class);
+            $aiDraft = $aiService->generateForPlatform($post, 'facebook');
+            if (!empty($aiDraft) && !empty($aiDraft['caption'])) {
+                $caption = trim($aiDraft['caption']);
+                if (!str_contains($caption, $fullUrl) && !str_contains($caption, url($post->url_path))) {
+                    $caption .= "\n\n👉 Read complete details here: {$fullUrl}";
+                }
+                return [
+                    'title' => $title,
+                    'caption' => $caption,
+                    'image_url' => $post->coverImage ? url($post->coverImage) : null,
+                    'target_link' => $fullUrl,
+                    'hashtags' => $aiDraft['hashtags'] ?? $this->generateHashtags($post),
+                    'is_ai_generated' => true,
+                ];
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("AI Facebook caption fallback: " . $e->getMessage());
+        }
+
+        // 2. Clean content and extract summary sentences (Template Fallback)
         $summary = $this->extractSummary($post);
 
         // 2. Generate relevant hashtags based on category and title

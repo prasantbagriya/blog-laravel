@@ -15,7 +15,32 @@ class InstagramCaptionGeneratorService
         $title = trim($post->title);
         $fullUrl = url($post->url_path) . '?utm_source=instagram&utm_medium=social&utm_campaign=ig_feed';
 
-        // 1. Engaging Opening Hook
+        // 1. Try AI-powered content-aware Instagram caption generation
+        try {
+            $aiService = app(\App\Services\Social\AiSocialCaptionService::class);
+            $aiDraft = $aiService->generateForPlatform($post, 'instagram');
+            if (!empty($aiDraft) && !empty($aiDraft['caption'])) {
+                $caption = trim($aiDraft['caption']);
+                $caption = Str::limit($caption, 2100, '');
+
+                $imageUrl = null;
+                if (!empty($post->coverImage)) {
+                    $imageUrl = str_starts_with($post->coverImage, 'http') ? $post->coverImage : url($post->coverImage);
+                }
+
+                return [
+                    'caption' => $caption,
+                    'image_url' => $imageUrl,
+                    'target_link' => $fullUrl,
+                    'hashtags' => $aiDraft['hashtags'] ?? $this->generateHashtags($post),
+                    'is_ai_generated' => true,
+                ];
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("AI Instagram caption fallback: " . $e->getMessage());
+        }
+
+        // 2. Engaging Opening Hook (Template Fallback)
         $emojis = ['📢', '✨', '🎯', '🚀', '🔥'];
         $hookEmoji = $emojis[array_rand($emojis)];
         $captionParts = [];
