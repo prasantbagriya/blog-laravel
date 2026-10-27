@@ -95,4 +95,64 @@ class BingWebmasterIntegrationTest extends TestCase
         $response = $this->actingAs($admin)->get('/admin/bing');
         $response->assertStatus(200);
     }
+
+    public function test_submit_sitemap_uses_submit_feed_endpoint()
+    {
+        Http::fake([
+            'https://ssl.bing.com/webmaster/api.svc/json/SubmitFeed*' => Http::response(null, 200),
+            'https://ssl.bing.com/webmaster/api.svc/json/GetUserSites*' => Http::response([
+                'd' => [
+                    ['Url' => 'https://coachingsinsikar.com', 'IsVerified' => true]
+                ]
+            ], 200),
+        ]);
+
+        $setting = BingWebmasterSetting::current();
+        $setting->update([
+            'is_connected' => true,
+            'access_token' => 'valid_token',
+        ]);
+
+        $service = app(BingWebmasterService::class);
+        $res = $service->submitSitemap('https://coachingsinsikar.com/sitemap.xml');
+
+        $this->assertTrue($res['success']);
+        $this->assertStringContainsString('submitted to Bing successfully', $res['message']);
+    }
+
+    public function test_get_sitemaps_uses_get_feeds_endpoint()
+    {
+        Http::fake([
+            'https://ssl.bing.com/webmaster/api.svc/json/GetFeeds*' => Http::response([
+                'd' => [
+                    [
+                        'Url' => 'https://coachingsinsikar.com/sitemap.xml',
+                        'Status' => 1,
+                        'SubmittedUrlsCount' => 120,
+                        'LastDownloadDate' => '/Date(1718016840000)/',
+                        'LastSubmissionDate' => '/Date(1717930400000)/',
+                    ]
+                ]
+            ], 200),
+            'https://ssl.bing.com/webmaster/api.svc/json/GetUserSites*' => Http::response([
+                'd' => [
+                    ['Url' => 'https://coachingsinsikar.com', 'IsVerified' => true]
+                ]
+            ], 200),
+        ]);
+
+        $setting = BingWebmasterSetting::current();
+        $setting->update([
+            'is_connected' => true,
+            'access_token' => 'valid_token',
+        ]);
+
+        $service = app(BingWebmasterService::class);
+        $res = $service->getSitemaps();
+
+        $this->assertTrue($res['success']);
+        $this->assertCount(1, $res['sitemaps']);
+        $this->assertEquals('https://coachingsinsikar.com/sitemap.xml', $res['sitemaps'][0]['Url']);
+        $this->assertEquals('Active', $res['sitemaps'][0]['Status']);
+    }
 }

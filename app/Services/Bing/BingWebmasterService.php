@@ -6,6 +6,7 @@ use App\Models\BingWebmasterSetting;
 use App\Models\BingSubmissionLog;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 
 class BingWebmasterService
@@ -420,62 +421,177 @@ class BingWebmasterService
     }
 
     /**
-     * Fetch registered Sitemaps list (GetSitemaps).
+     * Get verified user sites from Bing (GetUserSites).
      */
-    public function getSitemaps(?string $siteUrl = null): array
+    public function getUserSites(): array
     {
-        $targetSite = $siteUrl ?: $this->getSiteUrl();
-
         try {
-            $url = $this->buildApiUrl('GetSitemaps', ['siteUrl' => $targetSite]);
+            $url = $this->buildApiUrl('GetUserSites');
             $response = $this->request()->get($url);
 
             if ($response->successful()) {
                 $raw = $response->json();
-                $list = $raw['d'] ?? ($raw['GetSitemapsResult'] ?? $raw);
-
+                $sites = $raw['d'] ?? ($raw['GetUserSitesResult'] ?? $raw);
                 return [
                     'success' => true,
-                    'sitemaps' => is_array($list) ? $list : [],
+                    'sites' => is_array($sites) ? $sites : [],
                 ];
             }
 
             return [
                 'success' => false,
-                'error' => 'GetSitemaps returned HTTP ' . $response->status(),
+                'error' => 'GetUserSites returned HTTP ' . $response->status(),
             ];
         } catch (\Throwable $e) {
             return [
                 'success' => false,
-                'error' => 'GetSitemaps failed: ' . $e->getMessage(),
+                'error' => 'GetUserSites failed: ' . $e->getMessage(),
             ];
         }
     }
 
     /**
-     * Submit a sitemap URL to Bing (SubmitSitemap).
+     * Get the exact registered site URL from Bing Webmaster Tools.
+     */
+    public function getRegisteredSiteUrl(?string $fallback = null): string
+    {
+        $base = rtrim($fallback ?: $this->getSiteUrl(), '/');
+        $cacheKey = 'bing_registered_site_url_' . md5($base);
+        $cached = Cache::get($cacheKey);
+        if ($cached) {
+            return $cached;
+        }
+
+        try {
+            $userSites = $this->getUserSites();
+            if (!empty($userSites['sites'])) {
+                foreach ($userSites['sites'] as $site) {
+                    $u = $site['Url'] ?? '';
+                    if (rtrim($u, '/') === $base) {
+                        Cache::put($cacheKey, $u, 3600);
+                        return $u;
+                    }
+                }
+                if (count($userSites['sites']) === 1 && !empty($userSites['sites'][0]['Url'])) {
+                    $u = $userSites['sites'][0]['Url'];
+                    Cache::put($cacheKey, $u, 3600);
+                    return $u;
+                }
+            }
+        } catch (\Throwable $ignore) {}
+
+        return $base;
+    }
+
+    /**
+     * Fetch registered Sitemaps list using Bing GetFeeds API.
+     */
+    public function getSitemaps(?string $siteUrl = null): array
+    {
+        $targetSite = $siteUrl ?: $this->getRegisteredSiteUrl();
+        $candidates = array_unique([$targetSite, rtrim($targetSite, '/'), rtrim($targetSite, '/') . '/']);
+
+        foreach ($candidates as $candidate) {
+            try {
+                $url = $this->buildApiUrl('GetFeeds', ['siteUrl' => $candidate]);
+                $response = $this->request()->get($url);
+
+                if ($response->successful()) {
+                    $raw = $response->json();
+                    $list = $raw['d'] ?? ($raw['GetFeedsResult'] ?? $raw);
+                    $formatted = [];
+
+                    if (is_array($list)) {
+                        foreach ($list as $item) {
+                            $subDate = null;
+                            if (!empty($item['LastSubmissionDate'])) {
+                                if (preg_match('/\/Date\((\d+)\)\//', $item['LastSubmissionDate'], $m)) {
+                                    $subDate = date('Y-m-d H:i', (int) ($m[1] / 1000));
+                                } else {
+                                    $subDate = $item['LastSubmissionDate'];
+                                }
+                            }
+
+                            $downDate = null;
+                            if (!empty($item['LastDownloadDate'])) {
+                                if (preg_match('/\/Date\((\d+)\)\//', $item['LastDownloadDate'], $m)) {
+                                    $downDate = date('Y-m-d H:i', (int) ($m[1] / 1000));
+                                } else {
+                                    $downDate = $item['LastDownloadDate'];
+                                }
+                            }
+
+                            $formatted[] = [
+                                'Url' => $item['Url'] ?? ($item['url'] ?? ''),
+                                'LastSubmitted' => $subDate ?: 'Recently',
+                                'LastCrawled' => $downDate ?: 'Pending',
+                                'Status' => ($item['Status'] ?? 1) == 1 ? 'Active' : 'Error',
+                                'SubmittedUrlsCount' => $item['SubmittedUrlsCount'] ?? 0,
+                                'ErrorCount' => $item['ErrorCount'] ?? 0,
+                            ];
+                        }
+                    }
+
+                    return [
+                        'success' => true,
+                        'sitemaps' => $formatted,
+                    ];
+                }
+            } catch (\Throwable $ignore) {}
+        }
+
+        return [
+            'success' => false,
+            'sitemaps' => [],
+            'error' => 'Could not fetch sitemaps from Bing Webmaster API.',
+        ];
+    }
+
+    /**
+     * Submit a sitemap URL to Bing using SubmitFeed API.
      */
     public function submitSitemap(string $sitemapUrl, ?string $siteUrl = null): array
     {
-        $targetSite = $siteUrl ?: $this->getSiteUrl();
-        $apiUrl = $this->buildApiUrl('SubmitSitemap');
+        $token = $this->getValidAccessToken();
+        $setting = $this->getSetting();
 
-        try {
-            $response = $this->request()->post($apiUrl, [
-                'siteUrl' => $targetSite,
-                'sitemapUrl' => $sitemapUrl,
-            ]);
-
-            return [
-                'success' => $response->successful(),
-                'message' => $response->successful() ? 'Sitemap submitted to Bing successfully.' : 'Failed to submit sitemap.',
-            ];
-        } catch (\Throwable $e) {
+        if (empty($token) && empty($setting->api_key)) {
             return [
                 'success' => false,
-                'error' => 'SubmitSitemap error: ' . $e->getMessage(),
+                'error' => 'Bing Webmaster is not connected. Please connect via OAuth or enter your API Key under the Settings tab.',
             ];
         }
+
+        $targetSite = $siteUrl ?: $this->getRegisteredSiteUrl();
+        $apiUrl = $this->buildApiUrl('SubmitFeed');
+        $candidates = array_unique([$targetSite, rtrim($targetSite, '/'), rtrim($targetSite, '/') . '/']);
+        $lastError = 'Failed to submit feed to Bing API.';
+
+        foreach ($candidates as $candidate) {
+            try {
+                $response = $this->request()->post($apiUrl, [
+                    'siteUrl' => $candidate,
+                    'feedUrl' => $sitemapUrl,
+                ]);
+
+                if ($response->successful()) {
+                    return [
+                        'success' => true,
+                        'message' => "Sitemap '{$sitemapUrl}' submitted to Bing successfully.",
+                    ];
+                }
+
+                $raw = $response->json();
+                $lastError = $raw['Message'] ?? ($raw['error']['message'] ?? ($raw['d'] ?? $response->body()));
+            } catch (\Throwable $e) {
+                $lastError = $e->getMessage();
+            }
+        }
+
+        return [
+            'success' => false,
+            'error' => 'Bing API Error: ' . $lastError,
+        ];
     }
 
     /**
