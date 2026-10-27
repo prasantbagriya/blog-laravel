@@ -119,8 +119,13 @@ export default function ContactMessagesPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by name, email, phone, subject, or message content..."
-            className="w-full h-10 pl-10 pr-9 bg-slate-100 dark:bg-zinc-800 border border-slate-200/60 dark:border-zinc-700/60 focus:border-blue-500 focus:bg-white dark:focus:bg-zinc-900 rounded-xl text-xs sm:text-sm font-medium text-slate-900 dark:text-white outline-none transition"
-            style={{ fontFamily: 'var(--font-sans, "Outfit", system-ui, -apple-system, sans-serif)' }}
+            className="w-full h-10 pl-10 pr-9 bg-slate-100 dark:bg-zinc-800 border-0 border-transparent focus:border-transparent focus:ring-0 focus:outline-none rounded-xl text-xs sm:text-sm font-medium text-slate-900 dark:text-white transition"
+            style={{
+              fontFamily: 'var(--font-sans, "Outfit", system-ui, -apple-system, sans-serif)',
+              border: 'none',
+              outline: 'none',
+              boxShadow: 'none'
+            }}
           />
           {searchQuery && (
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
