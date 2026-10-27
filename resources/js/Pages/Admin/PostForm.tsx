@@ -313,7 +313,7 @@ const bubbleMenuStyle: React.CSSProperties = { background: 'rgba(255,255,255,0.9
 const floatingMenuStyle: React.CSSProperties = { background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '4px', display: 'flex', gap: '4px', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)', zIndex: 1000 };
 const fMenuBtn: React.CSSProperties = { padding: '8px 12px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '12.5px', fontWeight: 800, color: '#475569', borderRadius: '8px', transition: 'background 0.2s' };
 const modalBackdropStyle: React.CSSProperties = { position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(8px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center' };
-const modalContentStyle: React.CSSProperties = { background: '#fff', width: '90%', maxWidth: '850px', borderRadius: '32px', overflow: 'hidden', boxShadow: '0 30px 60px -15px rgba(0,0,0,0.3)' };
+const modalContentStyle: React.CSSProperties = { background: '#fff', width: '92%', maxWidth: '850px', maxHeight: '90vh', display: 'flex', flexDirection: 'column', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 30px 60px -15px rgba(0,0,0,0.3)' };
 const modalHeaderStyle: React.CSSProperties = { padding: '24px 40px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fafcff' };
 const closeModalBtn: React.CSSProperties = { border: 'none', background: '#f1f5f9', padding: '10px', borderRadius: '12px', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'background 0.2s', color: '#475569' };
 const faqNodeStyle: React.CSSProperties = { padding: '20px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -4px rgba(0,0,0,0.02)' };
@@ -334,10 +334,31 @@ const MiniScore = ({ label, value, color = '#2563eb' }: any) => (
 );
 
 const TabBtn = ({ label, icon, active, onClick, status = 'neutral' }: any) => (
-   <button onClick={onClick} style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', padding: '12px 0', background: active ? '#ffffff' : 'transparent', border: active ? '1px solid #e2e8f0' : '1px solid transparent', color: active ? '#2563eb' : '#64748b', borderRadius: '14px', cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', boxShadow: active ? '0 8px 16px -8px rgba(37,99,235,0.15)' : 'none' }}>
-      {status !== 'neutral' && <div style={{ position: 'absolute', top: '8px', right: '10px', width: '8px', height: '8px', borderRadius: '50%', background: status === 'success' ? '#10b981' : '#f59e0b', border: '2px solid #fff' }} />}
+   <button 
+      type="button"
+      onClick={onClick} 
+      style={{ 
+         position: 'relative', 
+         display: 'flex', 
+         flexDirection: 'column', 
+         alignItems: 'center', 
+         justifyContent: 'center',
+         gap: '6px', 
+         padding: '10px 10px', 
+         minWidth: '72px',
+         flexShrink: 0,
+         background: active ? '#ffffff' : 'transparent', 
+         border: active ? '1px solid #e2e8f0' : '1px solid transparent', 
+         color: active ? '#2563eb' : '#64748b', 
+         borderRadius: '14px', 
+         cursor: 'pointer', 
+         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', 
+         boxShadow: active ? '0 8px 16px -8px rgba(37,99,235,0.15)' : 'none' 
+      }}
+   >
+      {status !== 'neutral' && <div style={{ position: 'absolute', top: '6px', right: '8px', width: '7px', height: '7px', borderRadius: '50%', background: status === 'success' ? '#10b981' : '#f59e0b', border: '2px solid #fff' }} />}
       <div style={{ color: active ? '#2563eb' : '#94a3b8', transition: 'color 0.2s' }}>{icon}</div>
-      <span style={{ fontSize: '9px', fontWeight: 800, letterSpacing: '0.5px' }}>{label.toUpperCase()}</span>
+      <span style={{ fontSize: '9px', fontWeight: 800, letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>{label.toUpperCase()}</span>
    </button>
 );
 
@@ -385,6 +406,7 @@ interface PostFormProps {
 
 export default function PostForm({ post }: PostFormProps) {
    const [isMobile, setIsMobile] = useState(false);
+   const [mobileTab, setMobileTab] = useState<'editor' | 'features'>('editor');
    const [sidebarWidth, setSidebarWidth] = useState(320);
    const [isResizing, setIsResizing] = useState(false);
 
@@ -421,6 +443,13 @@ export default function PostForm({ post }: PostFormProps) {
    }, [isResizing]);
    const [title, setTitle] = useState(post?.title || '');
    const [slug, setSlug] = useState(post?.slug || '');
+
+   const handleTitleChange = (newTitle: string) => {
+      setTitle(newTitle);
+      if (!post?.id && (!slug || slug === title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-'))) {
+         setSlug(newTitle.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-'));
+      }
+   };
    const [urlFormat, setUrlFormat] = useState(post?.url_format || 'blog/{slug}');
    const [schemaType, setSchemaType] = useState(post?.schema_type || 'Article');
    const [deployModalOpen, setDeployModalOpen] = useState(false);
@@ -2170,8 +2199,105 @@ export default function PostForm({ post }: PostFormProps) {
                   </div>
                </div>
             )}
-         <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', flex: 1, overflow: isMobile ? 'auto' : 'hidden' }}>
-            <main style={{ ...mainCanvasStyle, overflowY: isMobile ? 'visible' : 'auto' }}>
+         {/* Responsive Mobile Top Control Header */}
+         {isMobile && (
+            <header style={{
+               height: '56px',
+               background: 'rgba(255, 255, 255, 0.96)',
+               backdropFilter: 'blur(20px)',
+               borderBottom: '1px solid #e2e8f0',
+               display: 'flex',
+               alignItems: 'center',
+               justifyContent: 'space-between',
+               padding: '0 12px',
+               position: 'sticky',
+               top: 0,
+               zIndex: 1000,
+               flexShrink: 0,
+               gap: '8px'
+            }}>
+               <button 
+                  type="button" 
+                  onClick={() => window.history.back()} 
+                  style={{ ...navIconStyle, padding: '8px', border: 'none', background: 'transparent', flexShrink: 0 }} 
+                  title="Go Back"
+               >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+               </button>
+
+               {/* Segmented Mode Switcher between Content Editor and Features */}
+               <div style={{ display: 'flex', background: '#f1f5f9', padding: '3px', borderRadius: '10px', gap: '2px', border: '1px solid #e2e8f0', flexShrink: 0 }}>
+                  <button
+                     type="button"
+                     onClick={() => setMobileTab('editor')}
+                     style={{
+                        padding: '6px 14px',
+                        borderRadius: '8px',
+                        border: 'none',
+                        background: mobileTab === 'editor' ? '#ffffff' : 'transparent',
+                        color: mobileTab === 'editor' ? '#2563eb' : '#64748b',
+                        fontWeight: 800,
+                        fontSize: '12px',
+                        cursor: 'pointer',
+                        boxShadow: mobileTab === 'editor' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                     }}
+                  >
+                     <span>✍️ Content</span>
+                  </button>
+                  <button
+                     type="button"
+                     onClick={() => setMobileTab('features')}
+                     style={{
+                        padding: '6px 14px',
+                        borderRadius: '8px',
+                        border: 'none',
+                        background: mobileTab === 'features' ? '#ffffff' : 'transparent',
+                        color: mobileTab === 'features' ? '#2563eb' : '#64748b',
+                        fontWeight: 800,
+                        fontSize: '12px',
+                        cursor: 'pointer',
+                        boxShadow: mobileTab === 'features' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '5px'
+                     }}
+                  >
+                     <span>⚡ Features</span>
+                     <span style={{ fontSize: '10px', background: mobileTab === 'features' ? '#dbeafe' : '#e2e8f0', color: mobileTab === 'features' ? '#1d4ed8' : '#475569', padding: '1px 5px', borderRadius: '6px', fontWeight: 800 }}>14</span>
+                  </button>
+               </div>
+
+               <button
+                  type="button"
+                  onClick={() => setDeployModalOpen(true)}
+                  disabled={isPending}
+                  style={{
+                     background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                     color: '#fff',
+                     border: 'none',
+                     padding: '7px 14px',
+                     borderRadius: '9px',
+                     fontWeight: 800,
+                     cursor: 'pointer',
+                     fontSize: '12px',
+                     flexShrink: 0,
+                     boxShadow: '0 2px 8px rgba(37,99,235,0.25)'
+                  }}
+               >
+                  Deploy 🚀
+               </button>
+            </header>
+         )}
+         <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', flex: 1, overflow: isMobile ? 'hidden' : 'hidden' }}>
+            <main style={{
+               ...mainCanvasStyle,
+               display: isMobile ? (mobileTab === 'editor' ? 'flex' : 'none') : 'flex',
+               overflowY: 'auto',
+               width: isMobile ? '100%' : undefined
+            }}>
                 <div style={{ ...floatingToolbarStyle, padding: isMobile ? '8px 12px' : '10px 20px' }}>
                    <div style={{ display: 'flex', alignItems: 'center', width: '100%', maxWidth: '1240px', gap: isMobile ? '6px' : '10px' }}>
                       {/* Enhanced Custom Scrollbar Styles for Toolbar */}
@@ -2197,10 +2323,12 @@ export default function PostForm({ post }: PostFormProps) {
                          }
                       `}</style>
                       
-                      {/* Left: Back Button */}
-                      <button onClick={() => window.history.back()} style={{ ...navIconStyle, border: 'none', background: 'transparent', flexShrink: 0 }} title="Go Back">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '20px', height: '20px' }}><path d="m15 18-6-6 6-6"/></svg>
-                      </button>
+                      {/* Left: Back Button - Desktop only */}
+                      {!isMobile && (
+                         <button onClick={() => window.history.back()} style={{ ...navIconStyle, border: 'none', background: 'transparent', flexShrink: 0 }} title="Go Back">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '20px', height: '20px' }}><path d="m15 18-6-6 6-6"/></svg>
+                         </button>
+                      )}
 
                       {/* Toolbar Scroll Left Arrow Button */}
                       <button 
@@ -2413,7 +2541,7 @@ export default function PostForm({ post }: PostFormProps) {
                          <SovereignToolBtn onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()} title="Clear Formatting">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M21 7L7 21"/><path d="M7 7l14 14"/><path d="M3 11l5 5"/><path d="m13 16 5 5"/><path d="m8 3 5 5"/></svg>
                          </SovereignToolBtn>
-                         <SovereignToolBtn onClick={() => setActiveTab('guardian')} title="AI Shield" color="#8b5cf6">
+                         <SovereignToolBtn onClick={() => { if (isMobile) setMobileTab('features'); setActiveTab('guardian'); }} title="AI Shield" color="#8b5cf6">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
                          </SovereignToolBtn>
                       </div>
@@ -2522,7 +2650,11 @@ export default function PostForm({ post }: PostFormProps) {
                          )}
                          <button
                             type="button"
-                            onClick={() => { setActiveTab('facebook'); if (!fbCaption) generateFbDraft(); }}
+                            onClick={() => {
+                               if (isMobile) setMobileTab('features');
+                               setActiveTab('facebook');
+                               if (!fbCaption) generateFbDraft();
+                            }}
                             style={{
                                padding: '4px 10px',
                                fontSize: '11px',
@@ -2540,6 +2672,29 @@ export default function PostForm({ post }: PostFormProps) {
                          >
                             <span>📘 FB Share</span>
                          </button>
+                         {isMobile && (
+                            <button
+                               type="button"
+                               onClick={() => setMobileTab('features')}
+                               style={{
+                                  padding: '5px 10px',
+                                  fontSize: '11px',
+                                  fontWeight: 800,
+                                  background: '#eff6ff',
+                                  color: '#2563eb',
+                                  border: '1px solid #bfdbfe',
+                                  borderRadius: '8px',
+                                  cursor: 'pointer',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  flexShrink: 0
+                               }}
+                               title="Open Post Features & Settings"
+                            >
+                               <span>⚡ Features</span>
+                            </button>
+                         )}
                          <button onClick={() => setDistractionFree(true)} style={iconBtnStyle} title="Distraction Free Mode">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
                          </button>
@@ -2551,6 +2706,41 @@ export default function PostForm({ post }: PostFormProps) {
                 </div>
 
                <div style={{ ...editorWrapperStyle, padding: isMobile ? '16px' : '40px 24px' }}>
+                  {/* Sovereign Article Headline Input */}
+                  <div style={{ marginBottom: isMobile ? '16px' : '28px', paddingBottom: '16px', borderBottom: '1px solid #f1f5f9' }}>
+                     <input
+                        type="text"
+                        placeholder="Unlock the Sovereign Title..."
+                        value={title}
+                        onChange={(e) => handleTitleChange(e.target.value)}
+                        style={{
+                           width: '100%',
+                           fontSize: isMobile ? '24px' : '36px',
+                           fontWeight: 800,
+                           border: 'none',
+                           outline: 'none',
+                           background: 'transparent',
+                           color: '#0f172a',
+                           padding: '4px 0',
+                           fontFamily: 'inherit',
+                           lineHeight: '1.25',
+                           letterSpacing: '-0.02em'
+                        }}
+                     />
+                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px', fontSize: '11px', color: title.length > 110 ? '#ef4444' : '#94a3b8' }}>
+                        <span>Headline: {title.length}/110 chars {title.length > 110 && '(⚠️ Exceeds 110)'}</span>
+                        <button
+                           type="button"
+                           onClick={() => {
+                              if (isMobile) setMobileTab('features');
+                              setActiveTab('meta');
+                           }}
+                           style={{ background: 'none', border: 'none', color: '#2563eb', fontWeight: 600, cursor: 'pointer', fontSize: '11.5px', display: 'flex', alignItems: 'center', gap: '3px' }}
+                        >
+                           <span>⚙️ Slug, Category & Meta</span>
+                        </button>
+                     </div>
+                  </div>
                    <BubbleMenu editor={editor} shouldShow={({ editor, state }) => {
                       // Check NodeSelection for atom nodes (contenteditable:false)
                       const { selection } = state;
@@ -2605,10 +2795,54 @@ export default function PostForm({ post }: PostFormProps) {
                          </div>
                      </BubbleMenu>
                      <EditorContent editor={editor} className="tiptap-content" />
+
+                     {/* Mobile Helper Card to switch to Features */}
+                     {isMobile && (
+                        <div style={{ marginTop: '36px', marginBottom: '80px', padding: '16px', background: 'linear-gradient(135deg, #f8fafc, #eff6ff)', borderRadius: '16px', border: '1px solid #dbeafe', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ fontSize: '18px' }}>🚀</span>
+                              <div>
+                                 <div style={{ fontSize: '13px', fontWeight: 800, color: '#1e293b' }}>Post Settings & SEO Optimization</div>
+                                 <div style={{ fontSize: '11px', color: '#64748b' }}>Configure Cover Image, Category, AI Studio, Schema, EEAT & Social Shares</div>
+                              </div>
+                           </div>
+                           <button
+                              type="button"
+                              onClick={() => setMobileTab('features')}
+                              style={{
+                                 width: '100%',
+                                 padding: '11px 16px',
+                                 background: '#2563eb',
+                                 color: '#ffffff',
+                                 border: 'none',
+                                 borderRadius: '10px',
+                                 fontWeight: 800,
+                                 fontSize: '13px',
+                                 cursor: 'pointer',
+                                 display: 'flex',
+                                 alignItems: 'center',
+                                 justifyContent: 'center',
+                                 gap: '6px',
+                                 boxShadow: '0 4px 12px rgba(37,99,235,0.25)'
+                              }}
+                           >
+                              <span>Open Features & Intel (14 Modules) →</span>
+                           </button>
+                        </div>
+                     )}
                    </div>
              </main>
 
-            <aside style={{ ...intelSidebarStyle, width: isMobile ? '100%' : `${sidebarWidth}px`, borderLeft: isMobile ? 'none' : '1px solid #e2e8f0', borderTop: isMobile ? '1px solid #e2e8f0' : 'none', overflowY: isMobile ? 'visible' : 'auto', position: 'relative' }}>
+            <aside style={{
+               ...intelSidebarStyle,
+               display: isMobile ? (mobileTab === 'features' ? 'flex' : 'none') : 'flex',
+               width: isMobile ? '100%' : `${sidebarWidth}px`,
+               borderLeft: isMobile ? 'none' : '1px solid #e2e8f0',
+               borderTop: isMobile ? 'none' : 'none',
+               overflowY: 'auto',
+               position: 'relative',
+               height: isMobile ? 'calc(100vh - 56px)' : undefined
+            }}>
                {!isMobile && (
                   <div 
                      onMouseDown={() => setIsResizing(true)}
@@ -2627,9 +2861,50 @@ export default function PostForm({ post }: PostFormProps) {
                      onMouseLeave={(e) => (e.currentTarget.style.background = isResizing ? 'rgba(59, 130, 246, 0.2)' : 'transparent')}
                   />
                )}
-               <div style={{ padding: '24px 24px 0 24px' }}>
+               {/* Mobile Top Header in Features View */}
+               {isMobile && (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: 'linear-gradient(135deg, #eff6ff, #f0fdf4)', borderBottom: '1px solid #e2e8f0', flexShrink: 0 }}>
+                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '16px' }}>⚡</span>
+                        <div>
+                           <div style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a' }}>Intel Modules & Settings</div>
+                           <div style={{ fontSize: '10.5px', color: '#64748b' }}>Swipe horizontal to switch module</div>
+                        </div>
+                     </div>
+                     <button
+                        type="button"
+                        onClick={() => setMobileTab('editor')}
+                        style={{
+                           background: '#2563eb',
+                           color: '#fff',
+                           border: 'none',
+                           padding: '6px 14px',
+                           borderRadius: '8px',
+                           fontSize: '11.5px',
+                           fontWeight: 700,
+                           cursor: 'pointer',
+                           display: 'flex',
+                           alignItems: 'center',
+                           gap: '4px',
+                           boxShadow: '0 2px 6px rgba(37,99,235,0.2)'
+                        }}
+                     >
+                        <span>✍️ Back to Content</span>
+                     </button>
+                  </div>
+               )}
+               <div style={{ padding: isMobile ? '16px 16px 0 16px' : '24px 24px 0 24px', flexShrink: 0 }}>
                   <div style={{ fontSize: '10px', fontWeight: 900, color: '#94a3b8', letterSpacing: '1px', marginBottom: '12px' }}>INTEL MODULES</div>
-                   <div style={{ ...intelTabsStyle, display: isMobile ? 'flex' : 'grid', overflowX: isMobile ? 'auto' : 'visible' }}>
+                   <div style={{
+                      ...intelTabsStyle,
+                      display: isMobile ? 'flex' : 'grid',
+                      overflowX: isMobile ? 'auto' : 'visible',
+                      flexWrap: isMobile ? 'nowrap' : undefined,
+                      gap: '6px',
+                      padding: isMobile ? '6px' : '6px',
+                      WebkitOverflowScrolling: 'touch',
+                      scrollbarWidth: 'none',
+                   }}>
                      <TabBtn active={activeTab === 'ai_research'} onClick={() => setActiveTab('ai_research')} icon={<span style={{ fontSize: '13px' }}>✨</span>} label="AI Studio" status="success" />
                      <TabBtn active={activeTab === 'editor'} onClick={() => setActiveTab('editor')} icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '14px', height: '14px' }}><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>} label="Audit" status={seoScore > 80 ? 'success' : 'warning'} />
                      <TabBtn active={activeTab === 'snippets'} onClick={() => setActiveTab('snippets')} icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '14px', height: '14px' }}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>} label="Snippets" status={snippetScore > 70 ? 'success' : 'neutral'} />
@@ -4127,7 +4402,7 @@ export default function PostForm({ post }: PostFormProps) {
           </div>
 
          {/* Floating Deploy Container at Bottom Right */}
-         <div style={{ position: 'fixed', bottom: isMobile ? '20px' : '40px', right: isMobile ? '20px' : '40px', zIndex: 100000, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+         <div style={{ position: 'fixed', bottom: isMobile ? '20px' : '40px', right: isMobile ? '20px' : '40px', zIndex: 100000, display: isMobile ? 'none' : 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
             {lastSaved && <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, background: 'rgba(255,255,255,0.85)', padding: '6px 12px', borderRadius: '12px', backdropFilter: 'blur(8px)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>Saved: {lastSaved}</span>}
             <button onClick={() => setDeployModalOpen(true)} disabled={isPending} style={publishBtnStyle}>
                Deploy

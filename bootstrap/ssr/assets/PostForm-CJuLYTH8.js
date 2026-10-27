@@ -591,9 +591,12 @@ var modalBackdropStyle = {
 };
 var modalContentStyle = {
 	background: "#fff",
-	width: "90%",
+	width: "92%",
 	maxWidth: "850px",
-	borderRadius: "32px",
+	maxHeight: "90vh",
+	display: "flex",
+	flexDirection: "column",
+	borderRadius: "24px",
 	overflow: "hidden",
 	boxShadow: "0 30px 60px -15px rgba(0,0,0,0.3)"
 };
@@ -713,14 +716,18 @@ var MiniScore = ({ label, value, color = "#2563eb" }) => /* @__PURE__ */ jsxs("d
 	})]
 });
 var TabBtn = ({ label, icon, active, onClick, status = "neutral" }) => /* @__PURE__ */ jsxs("button", {
+	type: "button",
 	onClick,
 	style: {
 		position: "relative",
 		display: "flex",
 		flexDirection: "column",
 		alignItems: "center",
+		justifyContent: "center",
 		gap: "6px",
-		padding: "12px 0",
+		padding: "10px 10px",
+		minWidth: "72px",
+		flexShrink: 0,
 		background: active ? "#ffffff" : "transparent",
 		border: active ? "1px solid #e2e8f0" : "1px solid transparent",
 		color: active ? "#2563eb" : "#64748b",
@@ -732,10 +739,10 @@ var TabBtn = ({ label, icon, active, onClick, status = "neutral" }) => /* @__PUR
 	children: [
 		status !== "neutral" && /* @__PURE__ */ jsx("div", { style: {
 			position: "absolute",
-			top: "8px",
-			right: "10px",
-			width: "8px",
-			height: "8px",
+			top: "6px",
+			right: "8px",
+			width: "7px",
+			height: "7px",
 			borderRadius: "50%",
 			background: status === "success" ? "#10b981" : "#f59e0b",
 			border: "2px solid #fff"
@@ -751,7 +758,8 @@ var TabBtn = ({ label, icon, active, onClick, status = "neutral" }) => /* @__PUR
 			style: {
 				fontSize: "9px",
 				fontWeight: 800,
-				letterSpacing: "0.5px"
+				letterSpacing: "0.5px",
+				whiteSpace: "nowrap"
 			},
 			children: label.toUpperCase()
 		})
@@ -801,6 +809,7 @@ var getCsrfHeaders = () => {
 };
 function PostForm({ post }) {
 	const [isMobile, setIsMobile] = useState(false);
+	const [mobileTab, setMobileTab] = useState("editor");
 	const [sidebarWidth, setSidebarWidth] = useState(320);
 	const [isResizing, setIsResizing] = useState(false);
 	const [postId] = useState(post?.id || crypto.randomUUID());
@@ -828,6 +837,10 @@ function PostForm({ post }) {
 	}, [isResizing]);
 	const [title, setTitle] = useState(post?.title || "");
 	const [slug, setSlug] = useState(post?.slug || "");
+	const handleTitleChange = (newTitle) => {
+		setTitle(newTitle);
+		if (!post?.id && (!slug || slug === title.toLowerCase().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-"))) setSlug(newTitle.toLowerCase().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-"));
+	};
 	const [urlFormat, setUrlFormat] = useState(post?.url_format || "blog/{slug}");
 	const [schemaType, setSchemaType] = useState(post?.schema_type || "Article");
 	const [deployModalOpen, setDeployModalOpen] = useState(false);
@@ -3541,17 +3554,138 @@ function PostForm({ post }) {
 					})
 				})
 			}),
+			isMobile && /* @__PURE__ */ jsxs("header", {
+				style: {
+					height: "56px",
+					background: "rgba(255, 255, 255, 0.96)",
+					backdropFilter: "blur(20px)",
+					borderBottom: "1px solid #e2e8f0",
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "space-between",
+					padding: "0 12px",
+					position: "sticky",
+					top: 0,
+					zIndex: 1e3,
+					flexShrink: 0,
+					gap: "8px"
+				},
+				children: [
+					/* @__PURE__ */ jsx("button", {
+						type: "button",
+						onClick: () => window.history.back(),
+						style: {
+							...navIconStyle,
+							padding: "8px",
+							border: "none",
+							background: "transparent",
+							flexShrink: 0
+						},
+						title: "Go Back",
+						children: /* @__PURE__ */ jsx("svg", {
+							xmlns: "http://www.w3.org/2000/svg",
+							width: "20",
+							height: "20",
+							viewBox: "0 0 24 24",
+							fill: "none",
+							stroke: "currentColor",
+							strokeWidth: 2.5,
+							strokeLinecap: "round",
+							strokeLinejoin: "round",
+							children: /* @__PURE__ */ jsx("path", { d: "m15 18-6-6 6-6" })
+						})
+					}),
+					/* @__PURE__ */ jsxs("div", {
+						style: {
+							display: "flex",
+							background: "#f1f5f9",
+							padding: "3px",
+							borderRadius: "10px",
+							gap: "2px",
+							border: "1px solid #e2e8f0",
+							flexShrink: 0
+						},
+						children: [/* @__PURE__ */ jsx("button", {
+							type: "button",
+							onClick: () => setMobileTab("editor"),
+							style: {
+								padding: "6px 14px",
+								borderRadius: "8px",
+								border: "none",
+								background: mobileTab === "editor" ? "#ffffff" : "transparent",
+								color: mobileTab === "editor" ? "#2563eb" : "#64748b",
+								fontWeight: 800,
+								fontSize: "12px",
+								cursor: "pointer",
+								boxShadow: mobileTab === "editor" ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+								display: "flex",
+								alignItems: "center",
+								gap: "4px"
+							},
+							children: /* @__PURE__ */ jsx("span", { children: "✍️ Content" })
+						}), /* @__PURE__ */ jsxs("button", {
+							type: "button",
+							onClick: () => setMobileTab("features"),
+							style: {
+								padding: "6px 14px",
+								borderRadius: "8px",
+								border: "none",
+								background: mobileTab === "features" ? "#ffffff" : "transparent",
+								color: mobileTab === "features" ? "#2563eb" : "#64748b",
+								fontWeight: 800,
+								fontSize: "12px",
+								cursor: "pointer",
+								boxShadow: mobileTab === "features" ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+								display: "flex",
+								alignItems: "center",
+								gap: "5px"
+							},
+							children: [/* @__PURE__ */ jsx("span", { children: "⚡ Features" }), /* @__PURE__ */ jsx("span", {
+								style: {
+									fontSize: "10px",
+									background: mobileTab === "features" ? "#dbeafe" : "#e2e8f0",
+									color: mobileTab === "features" ? "#1d4ed8" : "#475569",
+									padding: "1px 5px",
+									borderRadius: "6px",
+									fontWeight: 800
+								},
+								children: "14"
+							})]
+						})]
+					}),
+					/* @__PURE__ */ jsx("button", {
+						type: "button",
+						onClick: () => setDeployModalOpen(true),
+						disabled: isPending,
+						style: {
+							background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+							color: "#fff",
+							border: "none",
+							padding: "7px 14px",
+							borderRadius: "9px",
+							fontWeight: 800,
+							cursor: "pointer",
+							fontSize: "12px",
+							flexShrink: 0,
+							boxShadow: "0 2px 8px rgba(37,99,235,0.25)"
+						},
+						children: "Deploy 🚀"
+					})
+				]
+			}),
 			/* @__PURE__ */ jsxs("div", {
 				style: {
 					display: "flex",
 					flexDirection: isMobile ? "column" : "row",
 					flex: 1,
-					overflow: isMobile ? "auto" : "hidden"
+					overflow: isMobile ? "hidden" : "hidden"
 				},
 				children: [/* @__PURE__ */ jsxs("main", {
 					style: {
 						...mainCanvasStyle,
-						overflowY: isMobile ? "visible" : "auto"
+						display: isMobile ? mobileTab === "editor" ? "flex" : "none" : "flex",
+						overflowY: "auto",
+						width: isMobile ? "100%" : void 0
 					},
 					children: [/* @__PURE__ */ jsx("div", {
 						style: {
@@ -3588,7 +3722,7 @@ function PostForm({ post }) {
                             background: #94a3b8;
                          }
                       ` }),
-								/* @__PURE__ */ jsx("button", {
+								!isMobile && /* @__PURE__ */ jsx("button", {
 									onClick: () => window.history.back(),
 									style: {
 										...navIconStyle,
@@ -4705,7 +4839,10 @@ function PostForm({ post }) {
 													]
 												})
 											}), /* @__PURE__ */ jsx(SovereignToolBtn, {
-												onClick: () => setActiveTab("guardian"),
+												onClick: () => {
+													if (isMobile) setMobileTab("features");
+													setActiveTab("guardian");
+												},
 												title: "AI Shield",
 												color: "#8b5cf6",
 												children: /* @__PURE__ */ jsxs("svg", {
@@ -4891,6 +5028,7 @@ function PostForm({ post }) {
 										/* @__PURE__ */ jsx("button", {
 											type: "button",
 											onClick: () => {
+												if (isMobile) setMobileTab("features");
 												setActiveTab("facebook");
 												if (!fbCaption) generateFbDraft();
 											},
@@ -4909,6 +5047,26 @@ function PostForm({ post }) {
 											},
 											title: "Share to Facebook Page",
 											children: /* @__PURE__ */ jsx("span", { children: "📘 FB Share" })
+										}),
+										isMobile && /* @__PURE__ */ jsx("button", {
+											type: "button",
+											onClick: () => setMobileTab("features"),
+											style: {
+												padding: "5px 10px",
+												fontSize: "11px",
+												fontWeight: 800,
+												background: "#eff6ff",
+												color: "#2563eb",
+												border: "1px solid #bfdbfe",
+												borderRadius: "8px",
+												cursor: "pointer",
+												display: "inline-flex",
+												alignItems: "center",
+												gap: "4px",
+												flexShrink: 0
+											},
+											title: "Open Post Features & Settings",
+											children: /* @__PURE__ */ jsx("span", { children: "⚡ Features" })
 										}),
 										/* @__PURE__ */ jsx("button", {
 											onClick: () => setDistractionFree(true),
@@ -4984,79 +5142,84 @@ function PostForm({ post }) {
 							...editorWrapperStyle,
 							padding: isMobile ? "16px" : "40px 24px"
 						},
-						children: [/* @__PURE__ */ jsx(BubbleMenu, {
-							editor,
-							shouldShow: ({ editor, state }) => {
-								const { selection } = state;
-								if (selection && selection.node) {
-									const nodeType = selection.node.type.name;
-									return nodeType === "faqBlock" || nodeType === "imageSlider" || nodeType === "image" || nodeType === "quizBlock" || nodeType === "pollBlock";
-								}
-								return editor.isActive("image") || editor.isActive("imageSlider") || editor.isActive("faqBlock") || editor.isActive("quizBlock") || editor.isActive("pollBlock");
-							},
-							children: /* @__PURE__ */ jsx("div", {
-								style: bubbleMenuStyle,
-								children: (() => {
-									const { selection } = editor.state;
-									const selectedNodeType = selection.node?.type?.name;
-									if (selectedNodeType === "imageSlider" || editor.isActive("imageSlider")) return /* @__PURE__ */ jsxs(SovereignToolBtn, {
-										onClick: handleOpenSliderModal,
-										title: "Slider Settings",
-										children: [/* @__PURE__ */ jsxs("svg", {
-											xmlns: "http://www.w3.org/2000/svg",
-											width: "24",
-											height: "24",
-											viewBox: "0 0 24 24",
-											fill: "none",
-											stroke: "currentColor",
-											strokeWidth: 2,
-											strokeLinecap: "round",
-											strokeLinejoin: "round",
-											className: "lucide",
-											style: {
-												width: "14px",
-												height: "14px"
-											},
-											children: [
-												/* @__PURE__ */ jsx("rect", {
-													width: "18",
-													height: "18",
-													x: "3",
-													y: "3",
-													rx: "2",
-													ry: "2"
-												}),
-												/* @__PURE__ */ jsx("line", {
-													x1: "9",
-													y1: "3",
-													x2: "9",
-													y2: "21"
-												}),
-												/* @__PURE__ */ jsx("line", {
-													x1: "15",
-													y1: "3",
-													x2: "15",
-													y2: "21"
-												})
-											]
-										}), /* @__PURE__ */ jsx("span", {
-											style: {
-												fontSize: "11px",
-												fontWeight: 700,
-												marginLeft: "6px"
-											},
-											children: "EDIT SLIDER"
-										})]
-									});
-									if (selectedNodeType === "faqBlock" || editor.isActive("faqBlock")) return /* @__PURE__ */ jsxs("div", {
-										style: {
-											display: "flex",
-											gap: "4px",
-											alignItems: "center"
+						children: [
+							/* @__PURE__ */ jsxs("div", {
+								style: {
+									marginBottom: isMobile ? "16px" : "28px",
+									paddingBottom: "16px",
+									borderBottom: "1px solid #f1f5f9"
+								},
+								children: [/* @__PURE__ */ jsx("input", {
+									type: "text",
+									placeholder: "Unlock the Sovereign Title...",
+									value: title,
+									onChange: (e) => handleTitleChange(e.target.value),
+									style: {
+										width: "100%",
+										fontSize: isMobile ? "24px" : "36px",
+										fontWeight: 800,
+										border: "none",
+										outline: "none",
+										background: "transparent",
+										color: "#0f172a",
+										padding: "4px 0",
+										fontFamily: "inherit",
+										lineHeight: "1.25",
+										letterSpacing: "-0.02em"
+									}
+								}), /* @__PURE__ */ jsxs("div", {
+									style: {
+										display: "flex",
+										justifyContent: "space-between",
+										alignItems: "center",
+										marginTop: "6px",
+										fontSize: "11px",
+										color: title.length > 110 ? "#ef4444" : "#94a3b8"
+									},
+									children: [/* @__PURE__ */ jsxs("span", { children: [
+										"Headline: ",
+										title.length,
+										"/110 chars ",
+										title.length > 110 && "(⚠️ Exceeds 110)"
+									] }), /* @__PURE__ */ jsx("button", {
+										type: "button",
+										onClick: () => {
+											if (isMobile) setMobileTab("features");
+											setActiveTab("meta");
 										},
-										children: [/* @__PURE__ */ jsxs(SovereignToolBtn, {
-											onClick: handleOpenFaqModal,
-											title: "Edit FAQ Block",
+										style: {
+											background: "none",
+											border: "none",
+											color: "#2563eb",
+											fontWeight: 600,
+											cursor: "pointer",
+											fontSize: "11.5px",
+											display: "flex",
+											alignItems: "center",
+											gap: "3px"
+										},
+										children: /* @__PURE__ */ jsx("span", { children: "⚙️ Slug, Category & Meta" })
+									})]
+								})]
+							}),
+							/* @__PURE__ */ jsx(BubbleMenu, {
+								editor,
+								shouldShow: ({ editor, state }) => {
+									const { selection } = state;
+									if (selection && selection.node) {
+										const nodeType = selection.node.type.name;
+										return nodeType === "faqBlock" || nodeType === "imageSlider" || nodeType === "image" || nodeType === "quizBlock" || nodeType === "pollBlock";
+									}
+									return editor.isActive("image") || editor.isActive("imageSlider") || editor.isActive("faqBlock") || editor.isActive("quizBlock") || editor.isActive("pollBlock");
+								},
+								children: /* @__PURE__ */ jsx("div", {
+									style: bubbleMenuStyle,
+									children: (() => {
+										const { selection } = editor.state;
+										const selectedNodeType = selection.node?.type?.name;
+										if (selectedNodeType === "imageSlider" || editor.isActive("imageSlider")) return /* @__PURE__ */ jsxs(SovereignToolBtn, {
+											onClick: handleOpenSliderModal,
+											title: "Slider Settings",
 											children: [/* @__PURE__ */ jsxs("svg", {
 												xmlns: "http://www.w3.org/2000/svg",
 												width: "24",
@@ -5073,13 +5236,26 @@ function PostForm({ post }) {
 													height: "14px"
 												},
 												children: [
-													/* @__PURE__ */ jsx("circle", {
-														cx: "12",
-														cy: "12",
-														r: "10"
+													/* @__PURE__ */ jsx("rect", {
+														width: "18",
+														height: "18",
+														x: "3",
+														y: "3",
+														rx: "2",
+														ry: "2"
 													}),
-													/* @__PURE__ */ jsx("path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" }),
-													/* @__PURE__ */ jsx("path", { d: "M12 17h.01" })
+													/* @__PURE__ */ jsx("line", {
+														x1: "9",
+														y1: "3",
+														x2: "9",
+														y2: "21"
+													}),
+													/* @__PURE__ */ jsx("line", {
+														x1: "15",
+														y1: "3",
+														x2: "15",
+														y2: "21"
+													})
 												]
 											}), /* @__PURE__ */ jsx("span", {
 												style: {
@@ -5087,12 +5263,124 @@ function PostForm({ post }) {
 													fontWeight: 700,
 													marginLeft: "6px"
 												},
-												children: "EDIT FAQ"
+												children: "EDIT SLIDER"
 											})]
-										}), /* @__PURE__ */ jsxs(SovereignToolBtn, {
-											onClick: () => editor.chain().focus().deleteSelection().run(),
-											title: "Delete FAQ Block",
-											color: "#ef4444",
+										});
+										if (selectedNodeType === "faqBlock" || editor.isActive("faqBlock")) return /* @__PURE__ */ jsxs("div", {
+											style: {
+												display: "flex",
+												gap: "4px",
+												alignItems: "center"
+											},
+											children: [/* @__PURE__ */ jsxs(SovereignToolBtn, {
+												onClick: handleOpenFaqModal,
+												title: "Edit FAQ Block",
+												children: [/* @__PURE__ */ jsxs("svg", {
+													xmlns: "http://www.w3.org/2000/svg",
+													width: "24",
+													height: "24",
+													viewBox: "0 0 24 24",
+													fill: "none",
+													stroke: "currentColor",
+													strokeWidth: 2,
+													strokeLinecap: "round",
+													strokeLinejoin: "round",
+													className: "lucide",
+													style: {
+														width: "14px",
+														height: "14px"
+													},
+													children: [
+														/* @__PURE__ */ jsx("circle", {
+															cx: "12",
+															cy: "12",
+															r: "10"
+														}),
+														/* @__PURE__ */ jsx("path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" }),
+														/* @__PURE__ */ jsx("path", { d: "M12 17h.01" })
+													]
+												}), /* @__PURE__ */ jsx("span", {
+													style: {
+														fontSize: "11px",
+														fontWeight: 700,
+														marginLeft: "6px"
+													},
+													children: "EDIT FAQ"
+												})]
+											}), /* @__PURE__ */ jsxs(SovereignToolBtn, {
+												onClick: () => editor.chain().focus().deleteSelection().run(),
+												title: "Delete FAQ Block",
+												color: "#ef4444",
+												children: [/* @__PURE__ */ jsxs("svg", {
+													xmlns: "http://www.w3.org/2000/svg",
+													width: "24",
+													height: "24",
+													viewBox: "0 0 24 24",
+													fill: "none",
+													stroke: "currentColor",
+													strokeWidth: 2,
+													strokeLinecap: "round",
+													strokeLinejoin: "round",
+													className: "lucide",
+													style: {
+														width: "14px",
+														height: "14px"
+													},
+													children: [
+														/* @__PURE__ */ jsx("path", { d: "M3 6h18" }),
+														/* @__PURE__ */ jsx("path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" }),
+														/* @__PURE__ */ jsx("path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" })
+													]
+												}), /* @__PURE__ */ jsx("span", {
+													style: {
+														fontSize: "11px",
+														fontWeight: 700,
+														marginLeft: "6px",
+														color: "#ef4444"
+													},
+													children: "DELETE"
+												})]
+											})]
+										});
+										if (selectedNodeType === "quizBlock" || editor.isActive("quizBlock")) return /* @__PURE__ */ jsxs(SovereignToolBtn, {
+											onClick: handleOpenQuizModal,
+											title: "Edit Quiz Block",
+											children: [/* @__PURE__ */ jsx("span", {
+												style: {
+													fontSize: "14px",
+													lineHeight: 1
+												},
+												children: "🧩"
+											}), /* @__PURE__ */ jsx("span", {
+												style: {
+													fontSize: "11px",
+													fontWeight: 700,
+													marginLeft: "6px"
+												},
+												children: "EDIT QUIZ"
+											})]
+										});
+										if (selectedNodeType === "pollBlock" || editor.isActive("pollBlock")) return /* @__PURE__ */ jsxs(SovereignToolBtn, {
+											onClick: handleOpenPollModal,
+											title: "Edit Poll Block",
+											children: [/* @__PURE__ */ jsx("span", {
+												style: {
+													fontSize: "14px",
+													lineHeight: 1
+												},
+												children: "📊"
+											}), /* @__PURE__ */ jsx("span", {
+												style: {
+													fontSize: "11px",
+													fontWeight: 700,
+													marginLeft: "6px"
+												},
+												children: "EDIT POLL"
+											})]
+										});
+										return /* @__PURE__ */ jsxs(SovereignToolBtn, {
+											onClick: handleOpenImageModal,
+											title: "Image Settings",
 											children: [/* @__PURE__ */ jsxs("svg", {
 												xmlns: "http://www.w3.org/2000/svg",
 												width: "24",
@@ -5108,105 +5396,96 @@ function PostForm({ post }) {
 													width: "14px",
 													height: "14px"
 												},
-												children: [
-													/* @__PURE__ */ jsx("path", { d: "M3 6h18" }),
-													/* @__PURE__ */ jsx("path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" }),
-													/* @__PURE__ */ jsx("path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" })
-												]
+												children: [/* @__PURE__ */ jsx("path", { d: "M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" }), /* @__PURE__ */ jsx("circle", {
+													cx: "12",
+													cy: "12",
+													r: "3"
+												})]
 											}), /* @__PURE__ */ jsx("span", {
 												style: {
 													fontSize: "11px",
 													fontWeight: 700,
-													marginLeft: "6px",
-													color: "#ef4444"
+													marginLeft: "6px"
 												},
-												children: "DELETE"
+												children: "ALT TEXT"
 											})]
-										})]
-									});
-									if (selectedNodeType === "quizBlock" || editor.isActive("quizBlock")) return /* @__PURE__ */ jsxs(SovereignToolBtn, {
-										onClick: handleOpenQuizModal,
-										title: "Edit Quiz Block",
-										children: [/* @__PURE__ */ jsx("span", {
-											style: {
-												fontSize: "14px",
-												lineHeight: 1
-											},
-											children: "🧩"
-										}), /* @__PURE__ */ jsx("span", {
-											style: {
-												fontSize: "11px",
-												fontWeight: 700,
-												marginLeft: "6px"
-											},
-											children: "EDIT QUIZ"
-										})]
-									});
-									if (selectedNodeType === "pollBlock" || editor.isActive("pollBlock")) return /* @__PURE__ */ jsxs(SovereignToolBtn, {
-										onClick: handleOpenPollModal,
-										title: "Edit Poll Block",
-										children: [/* @__PURE__ */ jsx("span", {
-											style: {
-												fontSize: "14px",
-												lineHeight: 1
-											},
-											children: "📊"
-										}), /* @__PURE__ */ jsx("span", {
-											style: {
-												fontSize: "11px",
-												fontWeight: 700,
-												marginLeft: "6px"
-											},
-											children: "EDIT POLL"
-										})]
-									});
-									return /* @__PURE__ */ jsxs(SovereignToolBtn, {
-										onClick: handleOpenImageModal,
-										title: "Image Settings",
-										children: [/* @__PURE__ */ jsxs("svg", {
-											xmlns: "http://www.w3.org/2000/svg",
-											width: "24",
-											height: "24",
-											viewBox: "0 0 24 24",
-											fill: "none",
-											stroke: "currentColor",
-											strokeWidth: 2,
-											strokeLinecap: "round",
-											strokeLinejoin: "round",
-											className: "lucide",
-											style: {
-												width: "14px",
-												height: "14px"
-											},
-											children: [/* @__PURE__ */ jsx("path", { d: "M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" }), /* @__PURE__ */ jsx("circle", {
-												cx: "12",
-												cy: "12",
-												r: "3"
-											})]
-										}), /* @__PURE__ */ jsx("span", {
-											style: {
-												fontSize: "11px",
-												fontWeight: 700,
-												marginLeft: "6px"
-											},
-											children: "ALT TEXT"
-										})]
-									});
-								})()
+										});
+									})()
+								})
+							}),
+							/* @__PURE__ */ jsx(EditorContent, {
+								editor,
+								className: "tiptap-content"
+							}),
+							isMobile && /* @__PURE__ */ jsxs("div", {
+								style: {
+									marginTop: "36px",
+									marginBottom: "80px",
+									padding: "16px",
+									background: "linear-gradient(135deg, #f8fafc, #eff6ff)",
+									borderRadius: "16px",
+									border: "1px solid #dbeafe",
+									display: "flex",
+									flexDirection: "column",
+									gap: "10px"
+								},
+								children: [/* @__PURE__ */ jsxs("div", {
+									style: {
+										display: "flex",
+										alignItems: "center",
+										gap: "8px"
+									},
+									children: [/* @__PURE__ */ jsx("span", {
+										style: { fontSize: "18px" },
+										children: "🚀"
+									}), /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("div", {
+										style: {
+											fontSize: "13px",
+											fontWeight: 800,
+											color: "#1e293b"
+										},
+										children: "Post Settings & SEO Optimization"
+									}), /* @__PURE__ */ jsx("div", {
+										style: {
+											fontSize: "11px",
+											color: "#64748b"
+										},
+										children: "Configure Cover Image, Category, AI Studio, Schema, EEAT & Social Shares"
+									})] })]
+								}), /* @__PURE__ */ jsx("button", {
+									type: "button",
+									onClick: () => setMobileTab("features"),
+									style: {
+										width: "100%",
+										padding: "11px 16px",
+										background: "#2563eb",
+										color: "#ffffff",
+										border: "none",
+										borderRadius: "10px",
+										fontWeight: 800,
+										fontSize: "13px",
+										cursor: "pointer",
+										display: "flex",
+										alignItems: "center",
+										justifyContent: "center",
+										gap: "6px",
+										boxShadow: "0 4px 12px rgba(37,99,235,0.25)"
+									},
+									children: /* @__PURE__ */ jsx("span", { children: "Open Features & Intel (14 Modules) →" })
+								})]
 							})
-						}), /* @__PURE__ */ jsx(EditorContent, {
-							editor,
-							className: "tiptap-content"
-						})]
+						]
 					})]
 				}), /* @__PURE__ */ jsxs("aside", {
 					style: {
 						...intelSidebarStyle,
+						display: isMobile ? mobileTab === "features" ? "flex" : "none" : "flex",
 						width: isMobile ? "100%" : `${sidebarWidth}px`,
 						borderLeft: isMobile ? "none" : "1px solid #e2e8f0",
-						borderTop: isMobile ? "1px solid #e2e8f0" : "none",
-						overflowY: isMobile ? "visible" : "auto",
-						position: "relative"
+						borderTop: isMobile ? "none" : "none",
+						overflowY: "auto",
+						position: "relative",
+						height: isMobile ? "calc(100vh - 56px)" : void 0
 					},
 					children: [
 						!isMobile && /* @__PURE__ */ jsx("div", {
@@ -5225,8 +5504,64 @@ function PostForm({ post }) {
 							onMouseEnter: (e) => e.currentTarget.style.background = "rgba(59, 130, 246, 0.2)",
 							onMouseLeave: (e) => e.currentTarget.style.background = isResizing ? "rgba(59, 130, 246, 0.2)" : "transparent"
 						}),
+						isMobile && /* @__PURE__ */ jsxs("div", {
+							style: {
+								display: "flex",
+								alignItems: "center",
+								justifyContent: "space-between",
+								padding: "12px 16px",
+								background: "linear-gradient(135deg, #eff6ff, #f0fdf4)",
+								borderBottom: "1px solid #e2e8f0",
+								flexShrink: 0
+							},
+							children: [/* @__PURE__ */ jsxs("div", {
+								style: {
+									display: "flex",
+									alignItems: "center",
+									gap: "8px"
+								},
+								children: [/* @__PURE__ */ jsx("span", {
+									style: { fontSize: "16px" },
+									children: "⚡"
+								}), /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("div", {
+									style: {
+										fontSize: "12px",
+										fontWeight: 800,
+										color: "#0f172a"
+									},
+									children: "Intel Modules & Settings"
+								}), /* @__PURE__ */ jsx("div", {
+									style: {
+										fontSize: "10.5px",
+										color: "#64748b"
+									},
+									children: "Swipe horizontal to switch module"
+								})] })]
+							}), /* @__PURE__ */ jsx("button", {
+								type: "button",
+								onClick: () => setMobileTab("editor"),
+								style: {
+									background: "#2563eb",
+									color: "#fff",
+									border: "none",
+									padding: "6px 14px",
+									borderRadius: "8px",
+									fontSize: "11.5px",
+									fontWeight: 700,
+									cursor: "pointer",
+									display: "flex",
+									alignItems: "center",
+									gap: "4px",
+									boxShadow: "0 2px 6px rgba(37,99,235,0.2)"
+								},
+								children: /* @__PURE__ */ jsx("span", { children: "✍️ Back to Content" })
+							})]
+						}),
 						/* @__PURE__ */ jsxs("div", {
-							style: { padding: "24px 24px 0 24px" },
+							style: {
+								padding: isMobile ? "16px 16px 0 16px" : "24px 24px 0 24px",
+								flexShrink: 0
+							},
 							children: [/* @__PURE__ */ jsx("div", {
 								style: {
 									fontSize: "10px",
@@ -5240,7 +5575,12 @@ function PostForm({ post }) {
 								style: {
 									...intelTabsStyle,
 									display: isMobile ? "flex" : "grid",
-									overflowX: isMobile ? "auto" : "visible"
+									overflowX: isMobile ? "auto" : "visible",
+									flexWrap: isMobile ? "nowrap" : void 0,
+									gap: "6px",
+									padding: isMobile ? "6px" : "6px",
+									WebkitOverflowScrolling: "touch",
+									scrollbarWidth: "none"
 								},
 								children: [
 									/* @__PURE__ */ jsx(TabBtn, {
@@ -9782,7 +10122,7 @@ function PostForm({ post }) {
 					bottom: isMobile ? "20px" : "40px",
 					right: isMobile ? "20px" : "40px",
 					zIndex: 1e5,
-					display: "flex",
+					display: isMobile ? "none" : "flex",
 					flexDirection: "column",
 					alignItems: "flex-end",
 					gap: "8px"
