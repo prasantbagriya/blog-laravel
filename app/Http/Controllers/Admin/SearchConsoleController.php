@@ -119,6 +119,10 @@ class SearchConsoleController extends Controller
             $recentPageSpeedAudits = $this->pageSpeedService->getRecentAudits(10);
         } catch (\Throwable $e) {}
 
+        $siteBase = str_contains(url('/'), 'localhost') || str_contains(url('/'), '127.0.0.1')
+            ? 'https://coachingsinsikar.com'
+            : rtrim(url('/'), '/');
+
         return Inertia::render('Admin/SearchConsole/Index', [
             'settings' => [
                 'property_id' => $settings->property_id,
@@ -145,10 +149,10 @@ class SearchConsoleController extends Controller
                 'apiKey' => $pageSpeedApiKey,
                 'recentAudits' => $recentPageSpeedAudits,
                 'defaultUrls' => [
-                    ['label' => 'Homepage', 'url' => url('/')],
-                    ['label' => 'Blog Feed', 'url' => url('/blog')],
-                    ['label' => 'Top NEET Article', 'url' => url('/blog/5-best-neet-coachings-in-sikar-based-on-google-reviews')],
-                    ['label' => 'Business Directory', 'url' => url('/category/coaching-institutes')],
+                    ['label' => 'Homepage', 'url' => $siteBase . '/'],
+                    ['label' => 'Blog Feed', 'url' => $siteBase . '/blog'],
+                    ['label' => 'Top NEET Article', 'url' => $siteBase . '/blog/5-best-neet-coachings-in-sikar-based-on-google-reviews'],
+                    ['label' => 'Business Directory', 'url' => $siteBase . '/business/coaching-institutes'],
                 ],
             ],
             'initialTab' => $request->is('admin/pagespeed*') ? 'pagespeed' : $request->get('tab', 'performance'),

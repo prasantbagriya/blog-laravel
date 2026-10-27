@@ -64,7 +64,25 @@ class GooglePageSpeedService
         PageSpeedAudit::ensureSchema();
 
         $strategy = in_array(strtolower($strategy), ['desktop', 'mobile'], true) ? strtolower($strategy) : 'mobile';
-        $normalizedUrl = filter_var($url, FILTER_VALIDATE_URL) ? $url : url('/' . ltrim($url, '/'));
+
+        // Robust URL sanitization & normalization
+        $rawUrl = trim($url);
+        $cleanHost = preg_replace('#^https?://#i', '', $rawUrl);
+        $cleanHost = preg_replace('#^(https?:/?/?)+#i', '', $cleanHost);
+        $cleanHost = trim($cleanHost, '/');
+
+        // Check if user is testing a local URL on dev
+        if (str_contains($cleanHost, 'localhost') || str_contains($cleanHost, '127.0.0.1')) {
+            throw new Exception("Google PageSpeed Insights API local URLs ('{$url}') ko test nahi kar sakta kyunki Google ke servers public internet par hain aur wo aapke local computer ko access nahi kar sakte. Kripya live URL enter karein jaise 'https://coachingsinsikar.com'.");
+        }
+
+        if (str_starts_with($rawUrl, '/')) {
+            $normalizedUrl = 'https://coachingsinsikar.com/' . ltrim($rawUrl, '/');
+        } elseif (!empty($cleanHost)) {
+            $normalizedUrl = 'https://' . $cleanHost;
+        } else {
+            $normalizedUrl = 'https://coachingsinsikar.com';
+        }
 
         // Check if an audit was performed recently (within 2 hours) to conserve quota unless forced
         if (!$forceRefresh) {
@@ -112,9 +130,31 @@ class GooglePageSpeedService
 
         $fullApiUrl = "{$this->apiBase}?{$queryString}";
 
-        $response = Http::withoutVerifying()
-            ->timeout(90) // PageSpeed can take 20-40 seconds to emulate browser load
-            ->get($fullApiUrl);
+        // Retry loop: Lighthouse tests can occasionally encounter a transient network timeout on first attempt
+        $maxAttempts = 2;
+        $response = null;
+        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+            $response = Http::withoutVerifying()
+                ->timeout(100) // PageSpeed emulation can take 25-45 seconds
+                ->get($fullApiUrl);
+
+            if ($response->successful()) {
+                break;
+            }
+
+            $body = $response->json();
+            $errMsg = $body['error']['message'] ?? '';
+
+            if ($attempt < $maxAttempts && (
+                str_contains($errMsg, 'FAILED_DOCUMENT_REQUEST') ||
+                str_contains($errMsg, 'ERR_TIMED_OUT') ||
+                str_contains($errMsg, 'ERR_CONNECTION_FAILED') ||
+                $response->serverError()
+            )) {
+                sleep(3);
+                continue;
+            }
+        }
 
         if (!$response->successful()) {
             $status = $response->status();
@@ -126,6 +166,9 @@ class GooglePageSpeedService
             }
             if ($status === 400 && str_contains($errorMessage, 'API key not valid')) {
                 throw new Exception("Invalid Google PageSpeed API Key. Kripya valid Google Cloud API key verify karein.");
+            }
+            if (str_contains($errorMessage, 'FAILED_DOCUMENT_REQUEST') || str_contains($errorMessage, 'ERR_TIMED_OUT')) {
+                throw new Exception("Lighthouse Document Request Timeout (net::ERR_TIMED_OUT): Google ke Lighthouse crawler ne '{$normalizedUrl}' ko load karne ki koshish ki lekin web server ne time par response complete nahi kiya ya connection drop ho gaya. Kripya URL check karein ki wo browser me live khul raha hai ya 1 minute baad dobara 'Run Audit' karein.");
             }
 
             throw new Exception("Google PageSpeed Insights API Error ({$status}): {$errorMessage}");
