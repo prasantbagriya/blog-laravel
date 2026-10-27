@@ -124,6 +124,9 @@
         <meta name="google-site-verification" content="HcrL5h0jDeKpvNkKKIjIAUm-bR_AY0bu07aJsU4qLuQ" />
         <meta name="msvalidate.01" content="FB8652B2A23AAD6CEE2AF8CACF4580A9" />
 
+        <!-- Google AdSense -->
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1798439945710344" crossorigin="anonymous"></script>
+
         <link rel="alternate" type="application/rss+xml" title="Blog RSS Feed" href="{{ url('/blog/feed.xml') }}" />
 
         <!-- Favicons -->

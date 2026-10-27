@@ -17,6 +17,11 @@ Route::get('/sitemap/authors.xml', [\App\Http\Controllers\SitemapController::cla
 Route::get('/sitemap/stories.xml', [\App\Http\Controllers\SitemapController::class, 'stories'])->name('sitemap.stories');
 Route::get('/sitemap/businesses.xml', [\App\Http\Controllers\SitemapController::class, 'businesses'])->name('sitemap.businesses');
 Route::get('/news-sitemap.xml', [\App\Http\Controllers\NewsSitemapController::class, 'index'])->name('sitemap.news');
+Route::get('/ads.txt', function () {
+    return response("google.com, pub-1798439945710344, DIRECT, f08c47fec0942fa0\n", 200, [
+        'Content-Type' => 'text/plain',
+    ]);
+});
 
 Route::get('/blog', [\App\Http\Controllers\BlogController::class, 'index'])->name('blog.index')->middleware('cacheResponse:86400');
 Route::get('/blog/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('blog.show')->middleware('cacheResponse:86400');
