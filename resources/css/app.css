@@ -53,6 +53,16 @@ button {
   font-family: inherit;
 }
 
+input,
+textarea,
+select {
+  border: 1px solid #cbd5e1;
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
 button {
   outline: none !important;
   border: none;

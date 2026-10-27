@@ -470,6 +470,9 @@ var metaInputStyle = {
 	fontWeight: 500,
 	fontFamily: "inherit",
 	boxSizing: "border-box",
+	boxShadow: "none",
+	WebkitAppearance: "none",
+	appearance: "none",
 	transition: "border-color 0.2s, box-shadow 0.2s"
 };
 var tipRowStyle = {
@@ -1330,8 +1333,8 @@ function PostForm({ post }) {
 	const [pinBoardName, setPinBoardName] = useState("");
 	const [pinBoardId, setPinBoardId] = useState("");
 	const [pinBoards, setPinBoards] = useState([]);
-	const [pinTargetLink, setPinTargetLink] = useState("");
-	const [pinAltText, setPinAltText] = useState(post?.coverImageAlt || "");
+	const [pinTargetLink, setPinTargetLink] = useState(() => typeof window !== "undefined" ? getPostFullUrl() : "");
+	const [pinAltText, setPinAltText] = useState(() => post?.coverImageAlt || (post?.title ? `${post.title} - Visual Guide & Overview` : ""));
 	const [pinCustomImage, setPinCustomImage] = useState("");
 	const [isUploadingPinImage, setIsUploadingPinImage] = useState(false);
 	const pinFileInputRef = useRef(null);
@@ -8708,7 +8711,7 @@ function PostForm({ post }) {
 											style: {
 												...metaTextAreaStyle,
 												height: "110px",
-												border: xTweetText.length > 280 ? "2px solid #ef4444" : void 0
+												border: xTweetText.length > 280 ? "2px solid #ef4444" : "1px solid #cbd5e1"
 											},
 											placeholder: "Write or edit tweet (max 280 chars)..."
 										})] }),
@@ -9094,7 +9097,7 @@ function PostForm({ post }) {
 											maxLength: 100,
 											style: {
 												...metaInputStyle,
-												border: pinTitle.length > 100 ? "2px solid #ef4444" : void 0
+												border: pinTitle.length > 100 ? "2px solid #ef4444" : "1px solid #cbd5e1"
 											},
 											placeholder: "SEO-rich Pin title (under 100 characters)..."
 										})] }),
@@ -9131,7 +9134,7 @@ function PostForm({ post }) {
 												style: {
 													...metaTextAreaStyle,
 													height: "110px",
-													border: pinDescription.length > 500 ? "2px solid #ef4444" : void 0
+													border: pinDescription.length > 500 ? "2px solid #ef4444" : "1px solid #cbd5e1"
 												},
 												placeholder: "Helpful summary answering search intent, bullet points, CTA, and search hashtags..."
 											}),
@@ -9149,7 +9152,7 @@ function PostForm({ post }) {
 											children: "DESTINATION LINK (URL)"
 										}), /* @__PURE__ */ jsx("input", {
 											type: "url",
-											value: pinTargetLink || getPostFullUrl(),
+											value: pinTargetLink,
 											onChange: (e) => setPinTargetLink(e.target.value),
 											style: metaInputStyle,
 											placeholder: getPostFullUrl()
@@ -9159,7 +9162,7 @@ function PostForm({ post }) {
 											children: "IMAGE ALT TEXT (ACCESSIBILITY & SEARCH)"
 										}), /* @__PURE__ */ jsx("input", {
 											type: "text",
-											value: pinAltText || coverImageAlt || (title ? `${title} - Visual Guide & Overview` : ""),
+											value: pinAltText,
 											onChange: (e) => setPinAltText(e.target.value),
 											maxLength: 300,
 											style: metaInputStyle,
@@ -9425,7 +9428,7 @@ function PostForm({ post }) {
 											style: {
 												...metaTextAreaStyle,
 												height: "130px",
-												border: igCaption.length > 2200 ? "2px solid #ef4444" : void 0
+												border: igCaption.length > 2200 ? "2px solid #ef4444" : "1px solid #cbd5e1"
 											},
 											placeholder: "Write or edit Instagram caption with emojis and hashtags..."
 										})] }),
@@ -9695,7 +9698,7 @@ function PostForm({ post }) {
 											style: {
 												...metaTextAreaStyle,
 												height: "140px",
-												border: liCommentary.length > 3e3 ? "2px solid #ef4444" : void 0
+												border: liCommentary.length > 3e3 ? "2px solid #ef4444" : "1px solid #cbd5e1"
 											},
 											placeholder: "Write professional commentary with key highlights, links, and hashtags..."
 										})] }),

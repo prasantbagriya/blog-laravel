@@ -298,7 +298,7 @@ const intelTabsStyle: React.CSSProperties = { display: 'grid', gridTemplateColum
 const sidebarHeadingStyle: React.CSSProperties = { fontSize: '11px', fontWeight: 800, color: '#64748b', marginBottom: '16px', marginTop: '30px', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'inherit' };
 const hcuCardStyle: React.CSSProperties = { background: '#ffffff', padding: '24px', borderRadius: '24px', border: '1px solid rgba(226,232,240,0.8)', marginBottom: '24px', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.03)' };
 const metaLabelStyle: React.CSSProperties = { fontSize: '11px', fontWeight: 800, color: '#475569', marginBottom: '6px', display: 'block', letterSpacing: '0.4px', textTransform: 'uppercase', fontFamily: 'inherit' };
-const metaInputStyle: React.CSSProperties = { width: '100%', padding: '9px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '13px', outline: 'none', background: '#fff', color: '#0f172a', fontWeight: 500, fontFamily: 'inherit', boxSizing: 'border-box', transition: 'border-color 0.2s, box-shadow 0.2s' };
+const metaInputStyle: React.CSSProperties = { width: '100%', padding: '9px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '13px', outline: 'none', background: '#fff', color: '#0f172a', fontWeight: 500, fontFamily: 'inherit', boxSizing: 'border-box', boxShadow: 'none', WebkitAppearance: 'none', appearance: 'none', transition: 'border-color 0.2s, box-shadow 0.2s' };
 const tipRowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: '10px', fontSize: '12.5px', color: '#334155', marginBottom: '10px', fontWeight: 600, fontFamily: 'inherit' };
 const eeatCheckStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', fontWeight: 600, color: '#475569', fontFamily: 'inherit' };
 const metaTextAreaStyle: React.CSSProperties = { width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '13px', minHeight: '110px', outline: 'none', background: '#fff', color: '#0f172a', fontWeight: 500, lineHeight: '1.5', fontFamily: 'inherit', boxSizing: 'border-box', resize: 'vertical', transition: 'border-color 0.2s, box-shadow 0.2s' };
@@ -924,8 +924,8 @@ export default function PostForm({ post }: PostFormProps) {
    const [pinBoardName, setPinBoardName] = useState('');
    const [pinBoardId, setPinBoardId] = useState('');
    const [pinBoards, setPinBoards] = useState<Array<{ id: number; board_id: string; name: string; is_default: boolean }>>([]);
-   const [pinTargetLink, setPinTargetLink] = useState('');
-   const [pinAltText, setPinAltText] = useState(post?.coverImageAlt || '');
+   const [pinTargetLink, setPinTargetLink] = useState(() => (typeof window !== 'undefined' ? getPostFullUrl() : ''));
+   const [pinAltText, setPinAltText] = useState(() => post?.coverImageAlt || (post?.title ? `${post.title} - Visual Guide & Overview` : ''));
    const [pinCustomImage, setPinCustomImage] = useState('');
    const [isUploadingPinImage, setIsUploadingPinImage] = useState(false);
    const pinFileInputRef = useRef<HTMLInputElement>(null);
@@ -3765,7 +3765,7 @@ export default function PostForm({ post }: PostFormProps) {
                                  style={{
                                     ...metaTextAreaStyle,
                                     height: '110px',
-                                    border: xTweetText.length > 280 ? '2px solid #ef4444' : undefined,
+                                    border: xTweetText.length > 280 ? '2px solid #ef4444' : '1px solid #cbd5e1',
                                  }}
                                  placeholder="Write or edit tweet (max 280 chars)..."
                               />
@@ -3991,7 +3991,7 @@ export default function PostForm({ post }: PostFormProps) {
                                   maxLength={100}
                                   style={{
                                      ...metaInputStyle,
-                                     border: pinTitle.length > 100 ? '2px solid #ef4444' : undefined,
+                                     border: pinTitle.length > 100 ? '2px solid #ef4444' : '1px solid #cbd5e1',
                                   }}
                                   placeholder="SEO-rich Pin title (under 100 characters)..."
                                />
@@ -4023,7 +4023,7 @@ export default function PostForm({ post }: PostFormProps) {
                                   style={{
                                      ...metaTextAreaStyle,
                                      height: '110px',
-                                     border: pinDescription.length > 500 ? '2px solid #ef4444' : undefined,
+                                     border: pinDescription.length > 500 ? '2px solid #ef4444' : '1px solid #cbd5e1',
                                   }}
                                   placeholder="Helpful summary answering search intent, bullet points, CTA, and search hashtags..."
                                />
@@ -4039,7 +4039,7 @@ export default function PostForm({ post }: PostFormProps) {
                                </label>
                                <input
                                   type="url"
-                                  value={pinTargetLink || getPostFullUrl()}
+                                  value={pinTargetLink}
                                   onChange={(e) => setPinTargetLink(e.target.value)}
                                   style={metaInputStyle}
                                   placeholder={getPostFullUrl()}
@@ -4053,7 +4053,7 @@ export default function PostForm({ post }: PostFormProps) {
                                </label>
                                <input
                                   type="text"
-                                  value={pinAltText || coverImageAlt || (title ? `${title} - Visual Guide & Overview` : '')}
+                                  value={pinAltText}
                                   onChange={(e) => setPinAltText(e.target.value)}
                                   maxLength={300}
                                   style={metaInputStyle}
@@ -4180,7 +4180,7 @@ export default function PostForm({ post }: PostFormProps) {
                                   style={{
                                      ...metaTextAreaStyle,
                                      height: '130px',
-                                     border: igCaption.length > 2200 ? '2px solid #ef4444' : undefined,
+                                     border: igCaption.length > 2200 ? '2px solid #ef4444' : '1px solid #cbd5e1',
                                   }}
                                   placeholder="Write or edit Instagram caption with emojis and hashtags..."
                                />
@@ -4305,7 +4305,7 @@ export default function PostForm({ post }: PostFormProps) {
                                   style={{
                                      ...metaTextAreaStyle,
                                      height: '140px',
-                                     border: liCommentary.length > 3000 ? '2px solid #ef4444' : undefined,
+                                     border: liCommentary.length > 3000 ? '2px solid #ef4444' : '1px solid #cbd5e1',
                                   }}
                                   placeholder="Write professional commentary with key highlights, links, and hashtags..."
                                />
