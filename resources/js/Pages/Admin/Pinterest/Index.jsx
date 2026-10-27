@@ -517,23 +517,27 @@ export default function PinterestHubPage({
                   <span>Sync Boards</span>
                 </button>
 
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('settings')}
+                <a
+                  href="/auth/pinterest"
                   style={{
-                    background: 'rgba(255, 255, 255, 0.2)',
-                    color: '#fff',
-                    border: '1px solid rgba(255, 255, 255, 0.3)',
-                    padding: '9px 14px',
+                    background: '#fff',
+                    color: '#e60023',
+                    border: 'none',
+                    padding: '9px 16px',
                     borderRadius: '8px',
-                    fontWeight: 700,
+                    fontWeight: 800,
                     fontSize: '13px',
-                    cursor: 'pointer',
+                    textDecoration: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                   }}
-                  title="Link another Pinterest account"
+                  title="Login with Pinterest to connect another account"
                 >
-                  + Link Another Account
-                </button>
+                  <Pin size={14} color="#e60023" />
+                  <span>+ Login with Pinterest</span>
+                </a>
 
                 <button
                   onClick={() => {
@@ -1816,10 +1820,48 @@ export default function PinterestHubPage({
               </div>
             )}
 
-            {/* Direct Access Token Connection Card */}
+            {/* Option 1: Login with Pinterest (OAuth 2.0) Card */}
+            <div style={{ background: '#fff', padding: '28px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 3px 12px rgba(0,0,0,0.03)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+                <div style={{ flex: 1, minWidth: '280px' }}>
+                  <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: '0 0 6px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Pin size={18} color="#e60023" /> Option 1: Login with Pinterest (OAuth 2.0)
+                  </h3>
+                  <p style={{ margin: 0, fontSize: '13px', color: '#64748b', lineHeight: 1.5 }}>
+                    Connect via your official Pinterest App credentials (App ID: <code>{clientId || '1629443'}</code>). Click below to authorize directly on Pinterest without copying tokens manually.
+                  </p>
+                </div>
+                <a
+                  href="/auth/pinterest"
+                  style={{
+                    background: '#e60023',
+                    color: '#fff',
+                    border: 'none',
+                    padding: '11px 22px',
+                    borderRadius: '10px',
+                    fontWeight: 800,
+                    fontSize: '13px',
+                    textDecoration: 'none',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    boxShadow: '0 4px 14px rgba(230,0,35,0.25)',
+                  }}
+                >
+                  <Pin size={15} />
+                  <span>Connect with Pinterest</span>
+                </a>
+              </div>
+
+              <div style={{ marginTop: '16px', padding: '12px 14px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '12px', color: '#475569' }}>
+                ⚠️ <strong>Redirect URI Setting:</strong> Ensure <code>{redirectUri}</code> is added under <strong>Redirect URIs</strong> in your app settings on <a href="https://developers.pinterest.com/apps/" target="_blank" rel="noreferrer" style={{ color: '#e60023', fontWeight: 700 }}>developers.pinterest.com</a>.
+              </div>
+            </div>
+
+            {/* Option 2: Direct Access Token Connection Card */}
             <div style={{ background: '#fff', padding: '28px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 3px 12px rgba(0,0,0,0.03)' }}>
               <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0' }}>
-                Link Account via Direct Access Token
+                Option 2: Link Account via Direct Access Token
               </h3>
               <p style={{ margin: '0 0 20px 0', fontSize: '13px', color: '#64748b' }}>
                 If you generated a Pinterest User Token from developers.pinterest.com for another account (or your primary account), paste it here to authenticate and link immediately.

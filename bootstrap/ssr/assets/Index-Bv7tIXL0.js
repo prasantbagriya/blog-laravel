@@ -462,21 +462,27 @@ function PinterestHubPage({ needsMigration = false, isConfigured, hasConfiguredT
 								},
 								children: [/* @__PURE__ */ jsx(RefreshCw, { size: 14 }), /* @__PURE__ */ jsx("span", { children: "Sync Boards" })]
 							}),
-							/* @__PURE__ */ jsx("button", {
-								type: "button",
-								onClick: () => setActiveTab("settings"),
+							/* @__PURE__ */ jsxs("a", {
+								href: "/auth/pinterest",
 								style: {
-									background: "rgba(255, 255, 255, 0.2)",
-									color: "#fff",
-									border: "1px solid rgba(255, 255, 255, 0.3)",
-									padding: "9px 14px",
+									background: "#fff",
+									color: "#e60023",
+									border: "none",
+									padding: "9px 16px",
 									borderRadius: "8px",
-									fontWeight: 700,
+									fontWeight: 800,
 									fontSize: "13px",
-									cursor: "pointer"
+									textDecoration: "none",
+									display: "flex",
+									alignItems: "center",
+									gap: "6px",
+									boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
 								},
-								title: "Link another Pinterest account",
-								children: "+ Link Another Account"
+								title: "Login with Pinterest to connect another account",
+								children: [/* @__PURE__ */ jsx(Pin, {
+									size: 14,
+									color: "#e60023"
+								}), /* @__PURE__ */ jsx("span", { children: "+ Login with Pinterest" })]
 							}),
 							/* @__PURE__ */ jsx("button", {
 								onClick: () => {
@@ -2309,6 +2315,104 @@ function PinterestHubPage({ needsMigration = false, isConfigured, hasConfiguredT
 							border: "1px solid #e2e8f0",
 							boxShadow: "0 3px 12px rgba(0,0,0,0.03)"
 						},
+						children: [/* @__PURE__ */ jsxs("div", {
+							style: {
+								display: "flex",
+								justifyContent: "space-between",
+								alignItems: "flex-start",
+								flexWrap: "wrap",
+								gap: "16px"
+							},
+							children: [/* @__PURE__ */ jsxs("div", {
+								style: {
+									flex: 1,
+									minWidth: "280px"
+								},
+								children: [/* @__PURE__ */ jsxs("h3", {
+									style: {
+										fontSize: "17px",
+										fontWeight: 800,
+										color: "#0f172a",
+										margin: "0 0 6px 0",
+										display: "flex",
+										alignItems: "center",
+										gap: "8px"
+									},
+									children: [/* @__PURE__ */ jsx(Pin, {
+										size: 18,
+										color: "#e60023"
+									}), " Option 1: Login with Pinterest (OAuth 2.0)"]
+								}), /* @__PURE__ */ jsxs("p", {
+									style: {
+										margin: 0,
+										fontSize: "13px",
+										color: "#64748b",
+										lineHeight: 1.5
+									},
+									children: [
+										"Connect via your official Pinterest App credentials (App ID: ",
+										/* @__PURE__ */ jsx("code", { children: clientId || "1629443" }),
+										"). Click below to authorize directly on Pinterest without copying tokens manually."
+									]
+								})]
+							}), /* @__PURE__ */ jsxs("a", {
+								href: "/auth/pinterest",
+								style: {
+									background: "#e60023",
+									color: "#fff",
+									border: "none",
+									padding: "11px 22px",
+									borderRadius: "10px",
+									fontWeight: 800,
+									fontSize: "13px",
+									textDecoration: "none",
+									display: "inline-flex",
+									alignItems: "center",
+									gap: "8px",
+									boxShadow: "0 4px 14px rgba(230,0,35,0.25)"
+								},
+								children: [/* @__PURE__ */ jsx(Pin, { size: 15 }), /* @__PURE__ */ jsx("span", { children: "Connect with Pinterest" })]
+							})]
+						}), /* @__PURE__ */ jsxs("div", {
+							style: {
+								marginTop: "16px",
+								padding: "12px 14px",
+								background: "#f8fafc",
+								border: "1px solid #e2e8f0",
+								borderRadius: "10px",
+								fontSize: "12px",
+								color: "#475569"
+							},
+							children: [
+								"⚠️ ",
+								/* @__PURE__ */ jsx("strong", { children: "Redirect URI Setting:" }),
+								" Ensure ",
+								/* @__PURE__ */ jsx("code", { children: redirectUri }),
+								" is added under ",
+								/* @__PURE__ */ jsx("strong", { children: "Redirect URIs" }),
+								" in your app settings on ",
+								/* @__PURE__ */ jsx("a", {
+									href: "https://developers.pinterest.com/apps/",
+									target: "_blank",
+									rel: "noreferrer",
+									style: {
+										color: "#e60023",
+										fontWeight: 700
+									},
+									children: "developers.pinterest.com"
+								}),
+								"."
+							]
+						})]
+					}),
+					/* @__PURE__ */ jsxs("div", {
+						style: {
+							background: "#fff",
+							padding: "28px",
+							borderRadius: "16px",
+							border: "1px solid #e2e8f0",
+							boxShadow: "0 3px 12px rgba(0,0,0,0.03)"
+						},
 						children: [
 							/* @__PURE__ */ jsx("h3", {
 								style: {
@@ -2317,7 +2421,7 @@ function PinterestHubPage({ needsMigration = false, isConfigured, hasConfiguredT
 									color: "#0f172a",
 									margin: "0 0 4px 0"
 								},
-								children: "Link Account via Direct Access Token"
+								children: "Option 2: Link Account via Direct Access Token"
 							}),
 							/* @__PURE__ */ jsx("p", {
 								style: {
