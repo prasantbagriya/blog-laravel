@@ -22,7 +22,8 @@ import {
   Smartphone,
   TrendingUp,
   Key,
-  XCircle
+  XCircle,
+  Info
 } from 'lucide-react';
 
 export default function BingWebmasterIndex({
@@ -39,6 +40,7 @@ export default function BingWebmasterIndex({
   // Analytics State
   const [analytics, setAnalytics] = useState(null);
   const [loadingAnalytics, setLoadingAnalytics] = useState(false);
+  const [analyticsError, setAnalyticsError] = useState(null);
   const [queryFilter, setQueryFilter] = useState('');
 
   // Indexing State
@@ -64,6 +66,7 @@ export default function BingWebmasterIndex({
   const [clientId, setClientId] = useState(settings.client_id || '');
   const [clientSecret, setClientSecret] = useState('');
   const [siteUrl, setSiteUrl] = useState(settings.site_url || 'https://coachingsinsikar.com/');
+  const [apiKey, setApiKey] = useState(settings.api_key || '');
   const [autoIndex, setAutoIndex] = useState(settings.auto_index_posts ?? true);
   const [savingSettings, setSavingSettings] = useState(false);
   const [settingsMessage, setSettingsMessage] = useState(null);
@@ -74,18 +77,26 @@ export default function BingWebmasterIndex({
     return token ? { 'X-CSRF-TOKEN': token } : {};
   };
 
+  const hasAuth = settings.is_connected || settings.has_api_key;
+
   // Fetch Analytics
   const fetchAnalytics = async () => {
-    if (!settings.is_connected) return;
+    if (!hasAuth) return;
     setLoadingAnalytics(true);
+    setAnalyticsError(null);
     try {
       const res = await fetch('/api/admin/bing/analytics');
       const data = await res.json();
       if (data.success) {
         setAnalytics(data);
+        if (data.error) setAnalyticsError(data.error);
+      } else {
+        setAnalytics(data);
+        setAnalyticsError(data.error || 'Bing Webmaster API returned no data.');
       }
     } catch (err) {
       console.error(err);
+      setAnalyticsError(err.message);
     } finally {
       setLoadingAnalytics(false);
     }
@@ -93,7 +104,7 @@ export default function BingWebmasterIndex({
 
   // Fetch Crawl Stats
   const fetchCrawlStats = async () => {
-    if (!settings.is_connected) return;
+    if (!hasAuth) return;
     setLoadingCrawlStats(true);
     try {
       const res = await fetch('/api/admin/bing/crawl-stats');
@@ -110,7 +121,7 @@ export default function BingWebmasterIndex({
 
   // Fetch Sitemaps
   const fetchSitemaps = async () => {
-    if (!settings.is_connected) return;
+    if (!hasAuth) return;
     setLoadingSitemaps(true);
     try {
       const res = await fetch('/api/admin/bing/sitemaps');
@@ -126,12 +137,12 @@ export default function BingWebmasterIndex({
   };
 
   useEffect(() => {
-    if (settings.is_connected) {
+    if (hasAuth) {
       if (activeTab === 'performance') fetchAnalytics();
       if (activeTab === 'crawl') fetchCrawlStats();
       if (activeTab === 'sitemaps') fetchSitemaps();
     }
-  }, [activeTab, settings.is_connected]);
+  }, [activeTab, settings.is_connected, settings.has_api_key]);
 
   // Handle URL Submission
   const handleSubmitUrl = async (e) => {
@@ -253,6 +264,7 @@ export default function BingWebmasterIndex({
           client_id: clientId,
           client_secret: clientSecret || undefined,
           site_url: siteUrl,
+          api_key: apiKey || undefined,
           auto_index_posts: autoIndex,
         }),
       });
@@ -322,7 +334,7 @@ export default function BingWebmasterIndex({
           </div>
 
           <div className="flex items-center gap-3 flex-wrap">
-            {settings.is_connected ? (
+            {hasAuth ? (
               <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 Connected: {settings.site_url}
@@ -339,9 +351,9 @@ export default function BingWebmasterIndex({
               <span>{settings.daily_quota_remaining?.toLocaleString() || '10,000'} Quota / Day</span>
             </span>
 
-            {settings.is_connected ? (
+            {hasAuth ? (
               <button
-                onClick={fetchAnalytics}
+                onClick={() => { fetchAnalytics(); fetchCrawlStats(); fetchSitemaps(); }}
                 disabled={loadingAnalytics}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs shadow-sm transition-colors cursor-pointer"
               >
@@ -413,12 +425,12 @@ export default function BingWebmasterIndex({
       {/* ========================================================= */}
       {activeTab === 'performance' && (
         <div className="space-y-6">
-          {!settings.is_connected && (
+          {!hasAuth && (
             <div className="p-6 rounded-2xl bg-sky-50 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="space-y-1">
                 <h3 className="font-extrabold text-slate-900 dark:text-white text-base">Connect Bing Webmaster Tools</h3>
                 <p className="text-xs text-slate-600 dark:text-zinc-300">
-                  Authenticate using your Microsoft OAuth credentials to load live Bing clicks, impressions, and query rankings.
+                  Authenticate using your Microsoft OAuth credentials or enter an API key to load live Bing clicks, impressions, and query rankings.
                 </p>
               </div>
               <a
@@ -427,6 +439,37 @@ export default function BingWebmasterIndex({
               >
                 Connect with Bing ➔
               </a>
+            </div>
+          )}
+
+          {/* API Error Notice */}
+          {analyticsError && (
+            <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200 text-xs flex items-start gap-3 shadow-sm">
+              <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <div className="font-bold text-sm">Bing Webmaster API Notice</div>
+                <div>{analyticsError}</div>
+                <div className="text-[11px] text-amber-700 dark:text-amber-300">
+                  Tip: Verify that <strong>{settings.site_url || 'https://coachingsinsikar.com/'}</strong> matches your verified site URL inside Bing Webmaster Tools, or verify your API key / OAuth status.
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Zero Data / Search Indexing Telemetry Notice */}
+          {!analyticsError && hasAuth && analytics && (analytics.total_clicks === 0 && analytics.total_impressions === 0) && (
+            <div className="p-4 rounded-2xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/60 text-sky-900 dark:text-sky-200 text-xs flex items-start gap-3 shadow-sm">
+              <Info className="w-5 h-5 text-sky-600 dark:text-sky-400 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <div className="font-bold text-sm">Bing Search Telemetry In Progress</div>
+                <div>
+                  Bing Webmaster Tools is connected, but Bing has not yet recorded organic search clicks or impressions for this site.
+                  Bing Search Console data typically takes <strong>24 to 48 hours</strong> to accumulate after sitemap submission and site indexing.
+                </div>
+                <div className="text-[11px] text-sky-700 dark:text-sky-300">
+                  Your submitted sitemaps and URLs are active. As soon as visitors search and view your pages on Bing, query rankings and impressions will show here automatically.
+                </div>
+              </div>
             </div>
           )}
 
@@ -909,6 +952,22 @@ export default function BingWebmasterIndex({
 
               <div>
                 <label className="block text-xs font-bold uppercase text-slate-600 dark:text-zinc-400 mb-1.5">
+                  Bing Webmaster API Key (Alternative / Direct Access)
+                </label>
+                <input
+                  type="password"
+                  placeholder={settings.has_api_key ? '••••••••••••••••••••••••' : 'Enter Bing API Key from Webmaster Portal'}
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-transparent font-mono text-xs sm:text-sm text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-sky-500/20 focus:border-sky-500 transition"
+                />
+                <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-1">
+                  Direct API Key alternative to OAuth. Generate it at <a href="https://www.bing.com/webmasters/settings/api" target="_blank" rel="noreferrer" className="text-sky-600 dark:text-sky-400 font-bold underline">Bing Webmaster Portal ➔ Settings ➔ API Access</a>.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-slate-600 dark:text-zinc-400 mb-1.5">
                   Verified Site URL
                 </label>
                 <input
@@ -917,6 +976,9 @@ export default function BingWebmasterIndex({
                   onChange={(e) => setSiteUrl(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-transparent font-mono text-xs sm:text-sm text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-sky-500/20 focus:border-sky-500 transition"
                 />
+                <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-1">
+                  Must match the exact URL prefix registered in Bing Webmaster Tools (e.g. <code>https://coachingsinsikar.com/</code>).
+                </p>
               </div>
 
               <div className="pt-2">

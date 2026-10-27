@@ -136,6 +136,11 @@ class BingWebmasterService
             } catch (\Throwable $e) {
                 Log::warning('Bing token refresh error: ' . $e->getMessage());
             }
+
+            // If token is past its expiry date and refresh failed, return null to allow API key fallback
+            if (!empty($setting->token_expires_at) && Carbon::now()->gte($setting->token_expires_at)) {
+                return null;
+            }
         }
 
         return $setting->access_token;
@@ -147,7 +152,6 @@ class BingWebmasterService
     protected function request()
     {
         $token = $this->getValidAccessToken();
-        $setting = $this->getSetting();
 
         $client = Http::timeout(25)->acceptJson();
 
@@ -159,15 +163,16 @@ class BingWebmasterService
     }
 
     /**
-     * Helper to append API key to URL if token is not present.
+     * Helper to append API key to URL if configured.
      */
     protected function buildApiUrl(string $endpoint, array $params = []): string
     {
         $setting = $this->getSetting();
+        $apiKey = $setting->api_key ?: config('services.bing.api_key');
         $url = "{$this->apiBase}/{$endpoint}";
 
-        if (!empty($setting->api_key)) {
-            $params['apikey'] = $setting->api_key;
+        if (!empty($apiKey)) {
+            $params['apikey'] = $apiKey;
         }
 
         if (!empty($params)) {
@@ -187,69 +192,138 @@ class BingWebmasterService
     }
 
     /**
-     * Fetch Bing Search Query & Keyword Performance Stats (GetQueryStats).
+     * Fetch Bing Search Query & Keyword Performance Stats (GetQueryStats & GetRankAndTrafficStats).
      */
     public function getQueryStats(?string $siteUrl = null): array
     {
-        $targetSite = $siteUrl ?: $this->getSiteUrl();
+        $targetSite = $siteUrl ?: $this->getRegisteredSiteUrl();
+        $candidates = array_unique([$targetSite, rtrim($targetSite, '/'), rtrim($targetSite, '/') . '/']);
 
-        try {
-            $url = $this->buildApiUrl('GetQueryStats', ['siteUrl' => $targetSite]);
-            $response = $this->request()->get($url);
+        $totalClicks = 0;
+        $totalImpressions = 0;
+        $formattedRows = [];
+        $lastError = null;
+        $foundData = false;
 
-            if ($response->successful()) {
-                $raw = $response->json();
-                $rows = $raw['d'] ?? ($raw['GetQueryStatsResult'] ?? $raw);
-                if (!is_array($rows)) {
-                    $rows = [];
+        // 1. Fetch site-wide traffic totals from GetRankAndTrafficStats
+        foreach ($candidates as $site) {
+            try {
+                $url = $this->buildApiUrl('GetRankAndTrafficStats', ['siteUrl' => $site]);
+                $response = $this->request()->get($url);
+
+                if ($response->successful()) {
+                    $raw = $response->json();
+                    $trafficRows = $raw['d'] ?? ($raw['GetRankAndTrafficStatsResult'] ?? $raw);
+                    if (is_array($trafficRows)) {
+                        foreach ($trafficRows as $item) {
+                            $totalClicks += (int) ($item['Clicks'] ?? 0);
+                            $totalImpressions += (int) ($item['Impressions'] ?? 0);
+                        }
+                    }
+                    $foundData = true;
+                    break;
+                } else {
+                    $lastError = 'Bing API returned HTTP ' . $response->status() . ': ' . $response->body();
                 }
-
-                $totalClicks = 0;
-                $totalImpressions = 0;
-                $formattedRows = [];
-
-                foreach ($rows as $item) {
-                    $clicks = (int) ($item['Clicks'] ?? 0);
-                    $impressions = (int) ($item['Impressions'] ?? 0);
-                    $ctr = $impressions > 0 ? round(($clicks / $impressions) * 100, 2) : 0;
-                    $query = $item['Query'] ?? 'Unknown Query';
-
-                    $totalClicks += $clicks;
-                    $totalImpressions += $impressions;
-
-                    $formattedRows[] = [
-                        'query' => $query,
-                        'clicks' => $clicks,
-                        'impressions' => $impressions,
-                        'ctr' => $ctr,
-                        'avg_click_position' => round((float) ($item['AvgClickPosition'] ?? 0), 1),
-                        'avg_impression_position' => round((float) ($item['AvgImpressionPosition'] ?? 0), 1),
-                        'date' => isset($item['Date']) ? Carbon::parse($item['Date'])->toDateString() : null,
-                    ];
-                }
-
-                // Sort by clicks desc
-                usort($formattedRows, fn($a, $b) => $b['clicks'] <=> $a['clicks']);
-
-                return [
-                    'success' => true,
-                    'total_clicks' => $totalClicks,
-                    'total_impressions' => $totalImpressions,
-                    'average_ctr' => $totalImpressions > 0 ? round(($totalClicks / $totalImpressions) * 100, 2) : 0,
-                    'queries' => $formattedRows,
-                ];
+            } catch (\Throwable $e) {
+                $lastError = $e->getMessage();
             }
+        }
+
+        // 2. Fetch specific keyword query statistics from GetQueryStats
+        foreach ($candidates as $site) {
+            try {
+                $url = $this->buildApiUrl('GetQueryStats', ['siteUrl' => $site]);
+                $response = $this->request()->get($url);
+
+                if ($response->successful()) {
+                    $raw = $response->json();
+                    $rows = $raw['d'] ?? ($raw['GetQueryStatsResult'] ?? $raw);
+                    if (is_array($rows)) {
+                        $queryClicks = 0;
+                        $queryImpressions = 0;
+
+                        foreach ($rows as $item) {
+                            $clicks = (int) ($item['Clicks'] ?? 0);
+                            $impressions = (int) ($item['Impressions'] ?? 0);
+                            $ctr = $impressions > 0 ? round(($clicks / $impressions) * 100, 2) : 0;
+                            $query = $item['Query'] ?? 'Unknown Query';
+
+                            $queryClicks += $clicks;
+                            $queryImpressions += $impressions;
+
+                            $rawClickPos = (float) ($item['AvgClickPosition'] ?? 0);
+                            $rawImpPos = (float) ($item['AvgImpressionPosition'] ?? 0);
+
+                            // Handle Microsoft WCF date format /Date(1316156400000-0700)/
+                            $dateStr = null;
+                            if (!empty($item['Date'])) {
+                                if (preg_match('/\/Date\((\d+)/', $item['Date'], $m)) {
+                                    $dateStr = date('Y-m-d', (int) ($m[1] / 1000));
+                                } else {
+                                    try {
+                                        $dateStr = Carbon::parse($item['Date'])->toDateString();
+                                    } catch (\Throwable $ignore) {}
+                                }
+                            }
+
+                            $formattedRows[] = [
+                                'query' => $query,
+                                'clicks' => $clicks,
+                                'impressions' => $impressions,
+                                'ctr' => $ctr,
+                                'avg_click_position' => round($rawClickPos > 100 ? $rawClickPos / 10 : $rawClickPos, 1),
+                                'avg_impression_position' => round($rawImpPos > 100 ? $rawImpPos / 10 : $rawImpPos, 1),
+                                'date' => $dateStr,
+                            ];
+                        }
+
+                        if ($totalClicks === 0 && $queryClicks > 0) {
+                            $totalClicks = $queryClicks;
+                        }
+                        if ($totalImpressions === 0 && $queryImpressions > 0) {
+                            $totalImpressions = $queryImpressions;
+                        }
+                    }
+
+                    $foundData = true;
+                    break;
+                } else {
+                    if (!$lastError) {
+                        $lastError = 'Bing API returned HTTP ' . $response->status() . ': ' . $response->body();
+                    }
+                }
+            } catch (\Throwable $e) {
+                if (!$lastError) {
+                    $lastError = $e->getMessage();
+                }
+            }
+        }
+
+        if ($foundData) {
+            // Sort by clicks desc
+            usort($formattedRows, fn($a, $b) => $b['clicks'] <=> $a['clicks']);
+
+            $avgCtr = $totalImpressions > 0 ? round(($totalClicks / $totalImpressions) * 100, 2) : 0;
 
             return [
-                'success' => false,
-                'error' => 'Bing API returned HTTP ' . $response->status() . ': ' . $response->body(),
-            ];
-        } catch (\Throwable $e) {
-            return [
-                'success' => false,
-                'error' => 'Query stats request failed: ' . $e->getMessage(),
+                'success' => true,
+                'total_clicks' => $totalClicks,
+                'total_impressions' => $totalImpressions,
+                'average_ctr' => $avgCtr,
+                'queries' => $formattedRows,
+                'target_site' => $targetSite,
             ];
         }
+
+        return [
+            'success' => false,
+            'total_clicks' => 0,
+            'total_impressions' => 0,
+            'average_ctr' => 0,
+            'queries' => [],
+            'error' => $lastError ?: 'Could not connect to Bing Webmaster search analytics.',
+        ];
     }
 
     /**
@@ -257,32 +331,36 @@ class BingWebmasterService
      */
     public function getCrawlStats(?string $siteUrl = null): array
     {
-        $targetSite = $siteUrl ?: $this->getSiteUrl();
+        $targetSite = $siteUrl ?: $this->getRegisteredSiteUrl();
+        $candidates = array_unique([$targetSite, rtrim($targetSite, '/'), rtrim($targetSite, '/') . '/']);
+        $lastError = null;
 
-        try {
-            $url = $this->buildApiUrl('GetCrawlStats', ['siteUrl' => $targetSite]);
-            $response = $this->request()->get($url);
+        foreach ($candidates as $site) {
+            try {
+                $url = $this->buildApiUrl('GetCrawlStats', ['siteUrl' => $site]);
+                $response = $this->request()->get($url);
 
-            if ($response->successful()) {
-                $raw = $response->json();
-                $stats = $raw['d'] ?? ($raw['GetCrawlStatsResult'] ?? $raw);
+                if ($response->successful()) {
+                    $raw = $response->json();
+                    $stats = $raw['d'] ?? ($raw['GetCrawlStatsResult'] ?? $raw);
 
-                return [
-                    'success' => true,
-                    'stats' => is_array($stats) ? $stats : [],
-                ];
+                    return [
+                        'success' => true,
+                        'stats' => is_array($stats) ? $stats : [],
+                        'target_site' => $site,
+                    ];
+                }
+                $lastError = 'Crawl stats returned HTTP ' . $response->status() . ': ' . $response->body();
+            } catch (\Throwable $e) {
+                $lastError = $e->getMessage();
             }
-
-            return [
-                'success' => false,
-                'error' => 'Crawl stats returned HTTP ' . $response->status() . ': ' . $response->body(),
-            ];
-        } catch (\Throwable $e) {
-            return [
-                'success' => false,
-                'error' => 'Crawl stats request failed: ' . $e->getMessage(),
-            ];
         }
+
+        return [
+            'success' => false,
+            'stats' => [],
+            'error' => $lastError ?: 'Failed to retrieve Bing crawl stats.',
+        ];
     }
 
     /**
@@ -290,56 +368,52 @@ class BingWebmasterService
      */
     public function submitUrl(string $url, ?string $siteUrl = null, ?int $userId = null): array
     {
-        $targetSite = $siteUrl ?: $this->getSiteUrl();
+        $targetSite = $siteUrl ?: $this->getRegisteredSiteUrl();
+        $candidates = array_unique([$targetSite, rtrim($targetSite, '/'), rtrim($targetSite, '/') . '/']);
         $setting = $this->getSetting();
-
         $apiUrl = $this->buildApiUrl('SubmitUrl');
+        $lastResponse = null;
+        $isSuccess = false;
 
-        try {
-            $response = $this->request()->post($apiUrl, [
-                'siteUrl' => $targetSite,
-                'url' => $url,
-            ]);
+        foreach ($candidates as $site) {
+            try {
+                $response = $this->request()->post($apiUrl, [
+                    'siteUrl' => $site,
+                    'url' => $url,
+                ]);
 
-            $httpCode = $response->status();
-            $body = $response->body();
-            $isSuccess = $response->successful();
-
-            // Record audit log
-            BingSubmissionLog::create([
-                'url' => $url,
-                'method' => 'oauth_api',
-                'status' => $isSuccess ? 'success' : 'failed',
-                'http_code' => $httpCode,
-                'response_message' => $body ?: ($isSuccess ? 'URL accepted by Bingbot.' : 'Submission error'),
-                'submitted_by' => $userId ?: (auth()->check() ? auth()->id() : null),
-            ]);
-
-            if ($isSuccess && $setting->daily_quota_remaining > 0) {
-                $setting->decrement('daily_quota_remaining');
-            }
-
-            return [
-                'success' => $isSuccess,
-                'status_code' => $httpCode,
-                'message' => $isSuccess ? 'URL successfully submitted to Bingbot for indexing.' : 'Bing returned error: ' . $body,
-                'remaining_quota' => $setting->fresh()->daily_quota_remaining,
-            ];
-        } catch (\Throwable $e) {
-            BingSubmissionLog::create([
-                'url' => $url,
-                'method' => 'oauth_api',
-                'status' => 'failed',
-                'http_code' => 500,
-                'response_message' => $e->getMessage(),
-                'submitted_by' => $userId ?: (auth()->check() ? auth()->id() : null),
-            ]);
-
-            return [
-                'success' => false,
-                'error' => 'Submission exception: ' . $e->getMessage(),
-            ];
+                if ($response->successful()) {
+                    $isSuccess = true;
+                    $lastResponse = $response;
+                    break;
+                }
+                $lastResponse = $response;
+            } catch (\Throwable $e) {}
         }
+
+        $httpCode = $lastResponse ? $lastResponse->status() : 500;
+        $body = $lastResponse ? $lastResponse->body() : 'No response';
+
+        // Record audit log
+        BingSubmissionLog::create([
+            'url' => $url,
+            'method' => 'oauth_api',
+            'status' => $isSuccess ? 'success' : 'failed',
+            'http_code' => $httpCode,
+            'response_message' => $body ?: ($isSuccess ? 'URL accepted by Bingbot.' : 'Submission error'),
+            'submitted_by' => $userId ?: (auth()->check() ? auth()->id() : null),
+        ]);
+
+        if ($isSuccess && $setting->daily_quota_remaining > 0) {
+            $setting->decrement('daily_quota_remaining');
+        }
+
+        return [
+            'success' => $isSuccess,
+            'status_code' => $httpCode,
+            'message' => $isSuccess ? 'URL successfully submitted to Bingbot for indexing.' : 'Bing returned error: ' . $body,
+            'remaining_quota' => $setting->fresh()->daily_quota_remaining,
+        ];
     }
 
     /**
@@ -347,47 +421,53 @@ class BingWebmasterService
      */
     public function submitUrlBatch(array $urls, ?string $siteUrl = null, ?int $userId = null): array
     {
-        $targetSite = $siteUrl ?: $this->getSiteUrl();
+        $targetSite = $siteUrl ?: $this->getRegisteredSiteUrl();
+        $candidates = array_unique([$targetSite, rtrim($targetSite, '/'), rtrim($targetSite, '/') . '/']);
         $urls = array_values(array_unique(array_filter($urls)));
 
         if (empty($urls)) {
             return ['success' => false, 'error' => 'No URLs provided for batch submission.'];
         }
 
-        $apiUrl = $this->buildApiUrl('SubmitUrlBatch');
+        $apiUrl = $this->buildApiUrl('SubmitUrlbatch');
+        $lastResponse = null;
+        $isSuccess = false;
 
-        try {
-            $response = $this->request()->post($apiUrl, [
-                'siteUrl' => $targetSite,
-                'urlList' => $urls,
-            ]);
-
-            $isSuccess = $response->successful();
-            $httpCode = $response->status();
-            $body = $response->body();
-
-            foreach ($urls as $u) {
-                BingSubmissionLog::create([
-                    'url' => $u,
-                    'method' => 'oauth_api',
-                    'status' => $isSuccess ? 'success' : 'failed',
-                    'http_code' => $httpCode,
-                    'response_message' => $body ?: ($isSuccess ? 'Batch accepted' : 'Batch failed'),
-                    'submitted_by' => $userId ?: (auth()->check() ? auth()->id() : null),
+        foreach ($candidates as $site) {
+            try {
+                $response = $this->request()->post($apiUrl, [
+                    'siteUrl' => $site,
+                    'urlList' => $urls,
                 ]);
-            }
 
-            return [
-                'success' => $isSuccess,
-                'submitted_count' => count($urls),
-                'message' => $isSuccess ? count($urls) . ' URLs submitted to Bingbot.' : 'Batch submission error: ' . $body,
-            ];
-        } catch (\Throwable $e) {
-            return [
-                'success' => false,
-                'error' => 'Batch submission exception: ' . $e->getMessage(),
-            ];
+                if ($response->successful()) {
+                    $isSuccess = true;
+                    $lastResponse = $response;
+                    break;
+                }
+                $lastResponse = $response;
+            } catch (\Throwable $e) {}
         }
+
+        $httpCode = $lastResponse ? $lastResponse->status() : 500;
+        $body = $lastResponse ? $lastResponse->body() : 'No response';
+
+        foreach ($urls as $u) {
+            BingSubmissionLog::create([
+                'url' => $u,
+                'method' => 'oauth_api',
+                'status' => $isSuccess ? 'success' : 'failed',
+                'http_code' => $httpCode,
+                'response_message' => $body ?: ($isSuccess ? 'Batch accepted' : 'Batch failed'),
+                'submitted_by' => $userId ?: (auth()->check() ? auth()->id() : null),
+            ]);
+        }
+
+        return [
+            'success' => $isSuccess,
+            'submitted_count' => count($urls),
+            'message' => $isSuccess ? count($urls) . ' URLs submitted to Bingbot.' : 'Batch submission error: ' . $body,
+        ];
     }
 
     /**
