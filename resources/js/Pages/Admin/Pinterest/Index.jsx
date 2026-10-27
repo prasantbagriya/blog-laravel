@@ -507,7 +507,7 @@ export default function PinterestHubPage({
                         </span>
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 220px', gap: '20px' }}>
+                      <div className="grid grid-cols-1 md:grid-cols-[1fr_220px] gap-5">
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                           {/* Board Selector */}
                           <div>
@@ -898,7 +898,7 @@ export default function PinterestHubPage({
                   No boards found. Click "Re-Sync Boards" or create your first board above.
                 </div>
               ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '16px' }}>
                   {boards.map((b) => (
                     <div key={b.id} style={{ background: '#fff', padding: '20px', borderRadius: '14px', border: b.is_default ? '2px solid #e60023' : '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                       <div>

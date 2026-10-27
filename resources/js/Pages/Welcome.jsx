@@ -99,7 +99,7 @@ const HomeHero = ({ activeSlides, basePath, categories, featuredBusinesses, fall
                 <div className="grid lg:grid-cols-12 gap-8 lg:gap-10 items-center">
                     <div className="lg:col-span-7 text-white">
                         <p className="text-amber-400 text-xs font-bold tracking-[0.12em] mb-4">Coaching and School Discovery Platform</p>
-                        <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-[4rem] font-extrabold leading-[1.1] mb-6 tracking-tight">
+                        <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-[4rem] font-extrabold leading-[1.1] mb-6 tracking-tight break-words">
                             Find the Best CoachingsinSikar
                         </h1>
                         <p className="text-base md:text-lg text-white/80 max-w-xl mb-8">

@@ -133,14 +133,14 @@ export default function NavigationManager() {
           const identifier = item.id || item.tempId;
           const isNew = !item.id;
           return (
-            <div key={identifier} style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', background: '#fff', padding: '1rem 1.5rem', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+            <div key={identifier} className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm">
               
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <div className="flex sm:flex-col gap-1.5 self-end sm:self-center">
                 <button onClick={() => moveItem(index, -1)} disabled={index === 0} style={{ padding: '4px', cursor: index === 0 ? 'not-allowed' : 'pointer', background: '#f1f5f9', border: 'none', borderRadius: '4px' }}>↑</button>
                 <button onClick={() => moveItem(index, 1)} disabled={index === navItems.length - 1} style={{ padding: '4px', cursor: index === navItems.length - 1 ? 'not-allowed' : 'pointer', background: '#f1f5f9', border: 'none', borderRadius: '4px' }}>↓</button>
               </div>
 
-              <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: '1rem', alignItems: 'center' }}>
+              <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr_auto] gap-3 sm:gap-4 items-center">
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Label Name</label>
                   <input 

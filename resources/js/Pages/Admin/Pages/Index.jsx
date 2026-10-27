@@ -320,7 +320,7 @@ export default function PagesIndex() {
       </div>
 
       <form onSubmit={handleSave}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '20px', alignItems: 'start' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5 items-start">
 
           {/* LEFT COLUMN */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -328,7 +328,7 @@ export default function PagesIndex() {
             {/* Basic Info */}
             <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
               <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a', marginBottom: '16px', marginTop: 0 }}>Page Information</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field label="Page Title *">
                   <input style={inputStyle} type="text" value={title} onChange={e => setTitle(e.target.value)} required placeholder="e.g. News Feed" />
                 </Field>
@@ -337,7 +337,7 @@ export default function PagesIndex() {
                   <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '4px' }}>Public URL: /{slug || 'your-slug'}</div>
                 </Field>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px' }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" style={{ marginTop: '16px' }}>
                 <Field label="Page Type">
                   <select style={inputStyle} value={type} onChange={e => setType(e.target.value)}>
                     <option value="feed">Post Feed (Shows articles)</option>
@@ -369,11 +369,11 @@ export default function PagesIndex() {
             <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
               <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a', marginBottom: '4px', marginTop: 0 }}>SEO & Social Meta</h3>
               <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '20px' }}>Optimise this page for Google and social sharing.</p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" style={{ marginBottom: '16px' }}>
                 <Field label="Meta Title"><input style={inputStyle} type="text" value={seoTitle} onChange={e => setSeoTitle(e.target.value)} placeholder="Title for Google Search" /></Field>
                 <Field label="OG Title (Facebook / X)"><input style={inputStyle} type="text" value={ogTitle} onChange={e => setOgTitle(e.target.value)} placeholder="Title for Social Sharing" /></Field>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" style={{ marginBottom: '16px' }}>
                 <Field label="Meta Description"><textarea style={{ ...inputStyle, resize: 'vertical' }} value={seoDescription} onChange={e => setSeoDescription(e.target.value)} rows={3} placeholder="Description for Google Search" /></Field>
                 <Field label="OG Description"><textarea style={{ ...inputStyle, resize: 'vertical' }} value={ogDescription} onChange={e => setOgDescription(e.target.value)} rows={3} placeholder="Description for Social Sharing" /></Field>
               </div>

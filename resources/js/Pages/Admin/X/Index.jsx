@@ -465,7 +465,7 @@ export default function XHubPage({
                         </span>
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: share.media_url ? '1fr 220px' : '1fr', gap: '20px' }}>
+                      <div className={share.media_url ? 'grid grid-cols-1 md:grid-cols-[1fr_220px] gap-5' : 'grid grid-cols-1 gap-5'}>
                         <div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                             <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155' }}>
@@ -830,7 +830,7 @@ export default function XHubPage({
                       No recent tweets fetched or account timeline is empty.
                     </div>
                   ) : (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '16px' }}>
                       {recentTweets.map((t) => (
                         <div key={t.id} style={{ background: '#fff', padding: '18px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                           <p style={{ margin: '0 0 12px 0', fontSize: '13px', lineHeight: 1.5, color: '#1e293b' }}>{t.text}</p>

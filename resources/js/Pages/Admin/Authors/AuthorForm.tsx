@@ -129,7 +129,7 @@ export default function AuthorForm({ author }: { author?: any }) {
           <input type="number" value={experienceYears} onChange={e => setExperienceYears(parseInt(e.target.value) || 0)} style={{ padding: '10px 14px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px' }} />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <label style={{ fontWeight: 700, fontSize: '14px', color: '#475569' }}>Twitter URL</label>
             <input value={twitter} onChange={e => setTwitter(e.target.value)} style={{ padding: '10px 14px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px' }} />

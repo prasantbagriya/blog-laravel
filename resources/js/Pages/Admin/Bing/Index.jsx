@@ -533,7 +533,7 @@ export default function BingWebmasterIndex({
             </div>
 
             <div className="overflow-x-auto max-h-[460px]">
-              <table className="w-full text-left text-xs border-collapse">
+              <table className="w-full min-w-[550px] text-left text-xs border-collapse">
                 <thead className="sticky top-0 bg-slate-50 dark:bg-zinc-800/80 backdrop-blur-sm text-slate-600 dark:text-zinc-400 uppercase font-bold border-b border-slate-200 dark:border-zinc-700">
                   <tr>
                     <th className="p-3">Query</th>
@@ -699,7 +699,7 @@ export default function BingWebmasterIndex({
           <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm overflow-hidden p-6 space-y-4">
             <h3 className="text-base font-extrabold text-slate-900 dark:text-white">Recent Bingbot Submission Logs</h3>
             <div className="overflow-x-auto max-h-[380px]">
-              <table className="w-full text-left text-xs border-collapse">
+              <table className="w-full min-w-[600px] text-left text-xs border-collapse">
                 <thead className="sticky top-0 bg-slate-50 dark:bg-zinc-800/80 backdrop-blur-sm text-slate-600 dark:text-zinc-400 uppercase font-bold border-b border-slate-200 dark:border-zinc-700">
                   <tr>
                     <th className="p-3">Submitted URL</th>
@@ -772,7 +772,7 @@ export default function BingWebmasterIndex({
               </div>
             ) : crawlStats && crawlStats.length > 0 ? (
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs border-collapse">
+                <table className="w-full min-w-[650px] text-left text-xs border-collapse">
                   <thead className="bg-slate-50 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 uppercase font-bold border-b border-slate-200 dark:border-zinc-700">
                     <tr>
                       <th className="p-3">Date</th>
@@ -857,7 +857,7 @@ export default function BingWebmasterIndex({
           <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm overflow-hidden p-6 space-y-4">
             <h3 className="text-base font-extrabold text-slate-900 dark:text-white">Registered Sitemaps on Bing</h3>
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
+              <table className="w-full min-w-[500px] text-left text-xs border-collapse">
                 <thead className="bg-slate-50 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 uppercase font-bold border-b border-slate-200 dark:border-zinc-700">
                   <tr>
                     <th className="p-3">Sitemap URL</th>

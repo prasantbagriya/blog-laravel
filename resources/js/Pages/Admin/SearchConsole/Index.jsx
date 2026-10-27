@@ -625,7 +625,7 @@ export default function SearchConsoleIndex({
               </div>
 
               <div className="overflow-x-auto max-h-[420px]">
-                <table className="w-full text-left text-xs border-collapse">
+                <table className="w-full min-w-[520px] text-left text-xs border-collapse">
                   <thead className="sticky top-0 bg-slate-50 dark:bg-zinc-800/80 backdrop-blur-sm text-slate-600 dark:text-zinc-400 uppercase font-bold border-b border-slate-200 dark:border-zinc-700">
                     <tr>
                       <th className="p-3">Query</th>
@@ -679,7 +679,7 @@ export default function SearchConsoleIndex({
               </div>
 
               <div className="overflow-x-auto max-h-[420px]">
-                <table className="w-full text-left text-xs border-collapse">
+                <table className="w-full min-w-[520px] text-left text-xs border-collapse">
                   <thead className="sticky top-0 bg-slate-50 dark:bg-zinc-800/80 backdrop-blur-sm text-slate-600 dark:text-zinc-400 uppercase font-bold border-b border-slate-200 dark:border-zinc-700">
                     <tr>
                       <th className="p-3">Page URL</th>
@@ -1100,7 +1100,7 @@ export default function SearchConsoleIndex({
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
+              <table className="w-full min-w-[650px] text-left text-xs border-collapse">
                 <thead className="bg-slate-50 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 uppercase font-bold">
                   <tr>
                     <th className="p-3">Timestamp</th>
@@ -1294,7 +1294,8 @@ export default function SearchConsoleIndex({
                   </p>
                 </div>
               ) : (
-                <table className="w-full text-left text-xs border-collapse">
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[700px] text-left text-xs border-collapse">
                   <thead className="bg-slate-50 dark:bg-zinc-800/80 backdrop-blur-sm text-slate-600 dark:text-zinc-400 uppercase font-bold border-b border-slate-200 dark:border-zinc-700">
                     <tr>
                       <th className="p-3.5">Sitemap URL</th>
@@ -1402,6 +1403,7 @@ export default function SearchConsoleIndex({
                     })}
                   </tbody>
                 </table>
+                </div>
               )}
             </div>
           </div>
@@ -1476,7 +1478,7 @@ export default function SearchConsoleIndex({
               </div>
 
               <div className="overflow-x-auto max-h-[360px]">
-                <table className="w-full text-left text-xs border-collapse">
+                <table className="w-full min-w-[340px] text-left text-xs border-collapse">
                   <thead className="bg-slate-50 dark:bg-zinc-800 text-slate-600 uppercase font-bold sticky top-0">
                     <tr>
                       <th className="p-2.5">Keyword</th>
@@ -1517,7 +1519,7 @@ export default function SearchConsoleIndex({
               </div>
 
               <div className="overflow-x-auto max-h-[360px]">
-                <table className="w-full text-left text-xs border-collapse">
+                <table className="w-full min-w-[340px] text-left text-xs border-collapse">
                   <thead className="bg-slate-50 dark:bg-zinc-800 text-slate-600 uppercase font-bold sticky top-0">
                     <tr>
                       <th className="p-2.5">Keyword</th>

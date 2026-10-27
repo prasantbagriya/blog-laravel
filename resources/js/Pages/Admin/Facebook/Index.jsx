@@ -398,7 +398,7 @@ export default function FacebookHubPage({
               )}
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '20px' }}>
               {pages.map((page) => (
                 <div
                   key={page.id}
@@ -539,7 +539,7 @@ export default function FacebookHubPage({
                       overflow: 'hidden',
                       boxShadow: '0 4px 10px rgba(0,0,0,0.03)',
                       display: 'grid',
-                      gridTemplateColumns: 'minmax(300px, 1fr) minmax(320px, 1.2fr)',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
                       gap: '0',
                     }}
                   >

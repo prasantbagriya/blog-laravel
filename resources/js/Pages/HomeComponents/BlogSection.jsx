@@ -64,6 +64,12 @@ const BlogSection = ({ morePosts, basePath, formatDate }) => {
                         );
                     })}
                 </div>
+
+                <div className="mt-8 text-center md:hidden">
+                    <Link href={`${basePath}/blog`} className="inline-flex items-center justify-center w-full px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition-colors">
+                        View All Blog Articles ➔
+                    </Link>
+                </div>
             </div>
         </section>
     );

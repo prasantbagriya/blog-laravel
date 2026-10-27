@@ -143,7 +143,7 @@ export default function AdminLayout({ children }) {
         <div 
           onClick={() => setIsSidebarOpen(false)}
           style={{
-            position: 'absolute',
+            position: 'fixed',
             inset: 0,
             background: 'rgba(15, 23, 42, 0.4)',
             backdropFilter: 'blur(4px)',

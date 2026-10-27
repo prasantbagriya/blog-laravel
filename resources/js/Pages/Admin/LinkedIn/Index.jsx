@@ -588,7 +588,7 @@ export default function LinkedInHubPage({
                 </button>
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '20px' }}>
                 {pendingApprovals.map((share) => {
                   const currentCommentary = editCommentaries[share.id] !== undefined ? editCommentaries[share.id] : share.commentary;
                   const isApproving = approvingId === share.id;
@@ -826,7 +826,7 @@ export default function LinkedInHubPage({
 
         {/* TAB 2: Direct Post Composer */}
         {activeTab === 'composer' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '28px', alignItems: 'start' }}>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-7 items-start">
             <div style={{ background: '#fff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                 <div>
@@ -1084,7 +1084,7 @@ export default function LinkedInHubPage({
 
         {/* TAB 3: Company Page & Profile Management */}
         {activeTab === 'company_page' && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '24px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '24px' }}>
             {/* Card 1: Company Page Settings */}
             <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e2e8f0', padding: '28px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>

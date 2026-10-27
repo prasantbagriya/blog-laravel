@@ -75,7 +75,7 @@ export default function BlogFooter({ global_nav: passedNav }: { global_nav?: any
               Your ultimate guide to finding the best coaching institutes. Explore, compare, and make the right choice for your future.
             </p>
 
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-2.5 sm:gap-3">
               {[
                 { Icon: Facebook, url: 'https://www.facebook.com/coachingsinsikar' },
                 { Icon: Twitter, url: 'https://x.com/coachingsinsikar' },

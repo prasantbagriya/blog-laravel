@@ -502,7 +502,7 @@ export default function InstagramHubPage({
                 </button>
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '20px' }}>
                 {pendingApprovals.map((share) => {
                   const currentCaption = editCaptions[share.id] !== undefined ? editCaptions[share.id] : share.caption;
                   const isApproving = approvingId === share.id;
@@ -678,7 +678,7 @@ export default function InstagramHubPage({
 
         {/* TAB 2: Direct Post Composer */}
         {activeTab === 'composer' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '28px', alignItems: 'start' }}>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-7 items-start">
             <div style={{ background: '#fff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
               <h2 style={{ fontSize: '18px', fontWeight: 800, margin: '0 0 6px 0' }}>Create Standalone Instagram Post</h2>
               <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 20px 0' }}>
