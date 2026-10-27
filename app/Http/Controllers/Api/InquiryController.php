@@ -20,7 +20,7 @@ class InquiryController extends Controller
         $validated = $request->validate([
             'student_name'  => 'required|string|max:150',
             'phone'         => 'required|string|max:30',
-            'business_id'   => 'nullable|integer',
+            'business_id'   => 'nullable|string|max:64',
             'business_name' => 'nullable|string|max:255',
             'course'        => 'nullable|string|max:200',
             'message'       => 'nullable|string|max:2000',

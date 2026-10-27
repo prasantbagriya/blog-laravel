@@ -11,9 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('institute_inquiries')) {
+            Schema::dropIfExists('institute_inquiries');
+        }
+
         Schema::create('institute_inquiries', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('business_id')->nullable()->index();
+            $table->string('business_id', 64)->nullable()->index();
             $table->string('business_name')->nullable();
             $table->string('student_name');
             $table->string('phone');
@@ -23,8 +27,6 @@ return new class extends Migration
             $table->string('source')->default('profile_direct');
             $table->string('ip_address', 45)->nullable();
             $table->timestamps();
-
-            $table->foreign('business_id')->references('id')->on('businesses')->nullOnDelete();
         });
     }
 
