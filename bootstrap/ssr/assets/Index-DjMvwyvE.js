@@ -555,147 +555,287 @@ function AdminPage() {
 							boxShadow: "0 10px 25px -5px rgba(15, 23, 42, 0.25)",
 							border: "1px solid rgba(255, 255, 255, 0.08)"
 						},
-						children: [/* @__PURE__ */ jsxs("div", {
-							style: {
-								display: "flex",
-								alignItems: "center",
-								gap: "1rem"
-							},
-							children: [/* @__PURE__ */ jsx("div", {
+						children: [
+							/* @__PURE__ */ jsxs("div", {
 								style: {
-									width: "46px",
-									height: "46px",
-									borderRadius: "12px",
-									background: "rgba(37, 99, 235, 0.2)",
-									border: "1px solid rgba(59, 130, 246, 0.3)",
 									display: "flex",
 									alignItems: "center",
-									justifyContent: "center",
-									color: "#60a5fa",
-									flexShrink: 0
+									gap: "1rem"
 								},
-								children: /* @__PURE__ */ jsxs("svg", {
-									width: "24",
-									height: "24",
-									viewBox: "0 0 24 24",
-									fill: "none",
-									stroke: "currentColor",
-									strokeWidth: "2.2",
-									strokeLinecap: "round",
-									strokeLinejoin: "round",
+								children: [/* @__PURE__ */ jsx("div", {
+									style: {
+										width: "46px",
+										height: "46px",
+										borderRadius: "12px",
+										background: "rgba(37, 99, 235, 0.2)",
+										border: "1px solid rgba(59, 130, 246, 0.3)",
+										display: "flex",
+										alignItems: "center",
+										justifyContent: "center",
+										color: "#60a5fa",
+										flexShrink: 0
+									},
+									children: /* @__PURE__ */ jsxs("svg", {
+										width: "24",
+										height: "24",
+										viewBox: "0 0 24 24",
+										fill: "none",
+										stroke: "currentColor",
+										strokeWidth: "2.2",
+										strokeLinecap: "round",
+										strokeLinejoin: "round",
+										children: [
+											/* @__PURE__ */ jsx("circle", {
+												cx: "11",
+												cy: "11",
+												r: "8"
+											}),
+											/* @__PURE__ */ jsx("line", {
+												x1: "21",
+												y1: "21",
+												x2: "16.65",
+												y2: "16.65"
+											}),
+											/* @__PURE__ */ jsx("path", { d: "M11 8v6" }),
+											/* @__PURE__ */ jsx("path", { d: "M8 11h6" })
+										]
+									})
+								}), /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsxs("div", {
+									style: {
+										display: "flex",
+										alignItems: "center",
+										gap: "8px"
+									},
+									children: [/* @__PURE__ */ jsx("h3", {
+										style: {
+											margin: 0,
+											fontSize: "1rem",
+											fontWeight: 800,
+											color: "#f8fafc"
+										},
+										children: "Google Search Console & Instant Indexing"
+									}), /* @__PURE__ */ jsx("span", {
+										style: {
+											fontSize: "10px",
+											fontWeight: 800,
+											padding: "2px 8px",
+											borderRadius: "999px",
+											background: "rgba(34, 197, 94, 0.15)",
+											color: "#4ade80",
+											border: "1px solid rgba(34, 197, 94, 0.3)"
+										},
+										children: "API Suite Active"
+									})]
+								}), /* @__PURE__ */ jsx("p", {
+									style: {
+										margin: "4px 0 0 0",
+										fontSize: "0.8125rem",
+										color: "#94a3b8",
+										lineHeight: 1.4
+									},
+									children: "Real-time Google search traffic (clicks, impressions, position), Instant Indexing API pushes, live URL inspection, and AI keyword gaps."
+								})] })]
+							}),
+							/* @__PURE__ */ jsx("style", { dangerouslySetInnerHTML: { __html: `
+              .search-hubs-button-group {
+                display: flex;
+                gap: 0.75rem;
+                align-items: center;
+                flex-wrap: nowrap;
+              }
+              .search-hub-btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+                padding: 0.625rem 1.125rem;
+                border-radius: 10px;
+                font-size: 0.8125rem;
+                font-weight: 700;
+                text-decoration: none;
+                white-space: nowrap !important;
+                transition: all 0.2s ease;
+              }
+              @media (max-width: 768px) {
+                .search-hubs-button-group {
+                  width: 100% !important;
+                  gap: 0.5rem !important;
+                  overflow-x: auto !important;
+                  -webkit-overflow-scrolling: touch !important;
+                  scrollbar-width: none !important;
+                }
+                .search-hubs-button-group::-webkit-scrollbar {
+                  display: none !important;
+                }
+                .search-hub-btn {
+                  flex: 1 1 0% !important;
+                  padding: 0.55rem 0.5rem !important;
+                  font-size: 0.75rem !important;
+                  min-width: 0 !important;
+                  text-align: center !important;
+                }
+                .search-hub-btn svg {
+                  width: 13px !important;
+                  height: 13px !important;
+                  flex-shrink: 0 !important;
+                }
+              }
+              @media (max-width: 420px) {
+                .search-hub-text-full,
+                .search-hub-text-mid {
+                  display: none !important;
+                }
+                .search-hub-text-short {
+                  display: inline !important;
+                }
+                .search-hub-btn {
+                  font-size: 0.72rem !important;
+                  padding: 0.5rem 0.35rem !important;
+                  gap: 4px !important;
+                }
+              }
+              @media (min-width: 421px) and (max-width: 640px) {
+                .search-hub-text-full,
+                .search-hub-text-short {
+                  display: none !important;
+                }
+                .search-hub-text-mid {
+                  display: inline !important;
+                }
+              }
+              @media (min-width: 641px) {
+                .search-hub-text-mid,
+                .search-hub-text-short {
+                  display: none !important;
+                }
+                .search-hub-text-full {
+                  display: inline !important;
+                }
+              }
+            ` } }),
+							/* @__PURE__ */ jsxs("div", {
+								className: "search-hubs-button-group",
+								children: [/* @__PURE__ */ jsxs(Link, {
+									href: `${BASE}/admin/google-search`,
+									className: "search-hub-btn",
+									style: {
+										background: "#2563eb",
+										color: "#fff",
+										boxShadow: "0 4px 12px rgba(37, 99, 235, 0.4)"
+									},
 									children: [
-										/* @__PURE__ */ jsx("circle", {
-											cx: "11",
-											cy: "11",
-											r: "8"
+										/* @__PURE__ */ jsxs("svg", {
+											width: "14",
+											height: "14",
+											viewBox: "0 0 24 24",
+											fill: "none",
+											stroke: "currentColor",
+											strokeWidth: "2.5",
+											strokeLinecap: "round",
+											strokeLinejoin: "round",
+											style: { flexShrink: 0 },
+											children: [
+												/* @__PURE__ */ jsx("circle", {
+													cx: "11",
+													cy: "11",
+													r: "8"
+												}),
+												/* @__PURE__ */ jsx("line", {
+													x1: "21",
+													y1: "21",
+													x2: "16.65",
+													y2: "16.65"
+												}),
+												/* @__PURE__ */ jsx("path", { d: "M11 8v6" }),
+												/* @__PURE__ */ jsx("path", { d: "M8 11h6" })
+											]
 										}),
-										/* @__PURE__ */ jsx("line", {
-											x1: "21",
-											y1: "21",
-											x2: "16.65",
-											y2: "16.65"
-										}),
-										/* @__PURE__ */ jsx("path", { d: "M11 8v6" }),
-										/* @__PURE__ */ jsx("path", { d: "M8 11h6" })
+										/* @__PURE__ */ jsxs("span", { children: [
+											/* @__PURE__ */ jsx("span", {
+												className: "search-hub-text-full",
+												children: "Launch Search Console Hub"
+											}),
+											/* @__PURE__ */ jsx("span", {
+												className: "search-hub-text-mid",
+												children: "Search Console Hub"
+											}),
+											/* @__PURE__ */ jsx("span", {
+												className: "search-hub-text-short",
+												children: "Search Console"
+											})
+										] }),
+										/* @__PURE__ */ jsx("svg", {
+											width: "14",
+											height: "14",
+											viewBox: "0 0 24 24",
+											fill: "none",
+											stroke: "currentColor",
+											strokeWidth: "2.5",
+											strokeLinecap: "round",
+											strokeLinejoin: "round",
+											style: { flexShrink: 0 },
+											children: /* @__PURE__ */ jsx("polyline", { points: "9 18 15 12 9 6" })
+										})
 									]
-								})
-							}), /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsxs("div", {
-								style: {
-									display: "flex",
-									alignItems: "center",
-									gap: "8px"
-								},
-								children: [/* @__PURE__ */ jsx("h3", {
+								}), /* @__PURE__ */ jsxs(Link, {
+									href: `${BASE}/admin/bing`,
+									className: "search-hub-btn",
 									style: {
-										margin: 0,
-										fontSize: "1rem",
-										fontWeight: 800,
-										color: "#f8fafc"
+										background: "#0284c7",
+										color: "#fff",
+										boxShadow: "0 4px 12px rgba(2, 132, 199, 0.4)"
 									},
-									children: "Google Search Console & Instant Indexing"
-								}), /* @__PURE__ */ jsx("span", {
-									style: {
-										fontSize: "10px",
-										fontWeight: 800,
-										padding: "2px 8px",
-										borderRadius: "999px",
-										background: "rgba(34, 197, 94, 0.15)",
-										color: "#4ade80",
-										border: "1px solid rgba(34, 197, 94, 0.3)"
-									},
-									children: "API Suite Active"
+									children: [
+										/* @__PURE__ */ jsxs("svg", {
+											width: "14",
+											height: "14",
+											viewBox: "0 0 24 24",
+											fill: "none",
+											stroke: "currentColor",
+											strokeWidth: "2.5",
+											strokeLinecap: "round",
+											strokeLinejoin: "round",
+											style: { flexShrink: 0 },
+											children: [
+												/* @__PURE__ */ jsx("circle", {
+													cx: "12",
+													cy: "12",
+													r: "10"
+												}),
+												/* @__PURE__ */ jsx("path", { d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" }),
+												/* @__PURE__ */ jsx("path", { d: "M2 12h20" })
+											]
+										}),
+										/* @__PURE__ */ jsxs("span", { children: [
+											/* @__PURE__ */ jsx("span", {
+												className: "search-hub-text-full",
+												children: "Bing Webmaster Hub"
+											}),
+											/* @__PURE__ */ jsx("span", {
+												className: "search-hub-text-mid",
+												children: "Bing Webmaster Hub"
+											}),
+											/* @__PURE__ */ jsx("span", {
+												className: "search-hub-text-short",
+												children: "Bing Webmaster"
+											})
+										] }),
+										/* @__PURE__ */ jsx("svg", {
+											width: "14",
+											height: "14",
+											viewBox: "0 0 24 24",
+											fill: "none",
+											stroke: "currentColor",
+											strokeWidth: "2.5",
+											strokeLinecap: "round",
+											strokeLinejoin: "round",
+											style: { flexShrink: 0 },
+											children: /* @__PURE__ */ jsx("polyline", { points: "9 18 15 12 9 6" })
+										})
+									]
 								})]
-							}), /* @__PURE__ */ jsx("p", {
-								style: {
-									margin: "4px 0 0 0",
-									fontSize: "0.8125rem",
-									color: "#94a3b8",
-									lineHeight: 1.4
-								},
-								children: "Real-time Google search traffic (clicks, impressions, position), Instant Indexing API pushes, live URL inspection, and AI keyword gaps."
-							})] })]
-						}), /* @__PURE__ */ jsxs("div", {
-							style: {
-								display: "flex",
-								gap: "0.75rem",
-								flexWrap: "wrap"
-							},
-							children: [/* @__PURE__ */ jsxs(Link, {
-								href: `${BASE}/admin/google-search`,
-								style: {
-									display: "inline-flex",
-									alignItems: "center",
-									gap: "6px",
-									padding: "0.625rem 1.125rem",
-									borderRadius: "10px",
-									background: "#2563eb",
-									color: "#fff",
-									fontSize: "0.8125rem",
-									fontWeight: 700,
-									textDecoration: "none",
-									transition: "all 0.2s ease",
-									boxShadow: "0 4px 12px rgba(37, 99, 235, 0.4)"
-								},
-								children: [/* @__PURE__ */ jsx("span", { children: "Launch Search Console Hub" }), /* @__PURE__ */ jsx("svg", {
-									width: "14",
-									height: "14",
-									viewBox: "0 0 24 24",
-									fill: "none",
-									stroke: "currentColor",
-									strokeWidth: "2.5",
-									strokeLinecap: "round",
-									strokeLinejoin: "round",
-									children: /* @__PURE__ */ jsx("polyline", { points: "9 18 15 12 9 6" })
-								})]
-							}), /* @__PURE__ */ jsxs(Link, {
-								href: `${BASE}/admin/bing`,
-								style: {
-									display: "inline-flex",
-									alignItems: "center",
-									gap: "6px",
-									padding: "0.625rem 1.125rem",
-									borderRadius: "10px",
-									background: "#0284c7",
-									color: "#fff",
-									fontSize: "0.8125rem",
-									fontWeight: 700,
-									textDecoration: "none",
-									transition: "all 0.2s ease",
-									boxShadow: "0 4px 12px rgba(2, 132, 199, 0.4)"
-								},
-								children: [/* @__PURE__ */ jsx("span", { children: "Bing Webmaster Hub" }), /* @__PURE__ */ jsx("svg", {
-									width: "14",
-									height: "14",
-									viewBox: "0 0 24 24",
-									fill: "none",
-									stroke: "currentColor",
-									strokeWidth: "2.5",
-									strokeLinecap: "round",
-									strokeLinejoin: "round",
-									children: /* @__PURE__ */ jsx("polyline", { points: "9 18 15 12 9 6" })
-								})]
-							})]
-						})]
+							})
+						]
 					}),
 					/* @__PURE__ */ jsxs("div", {
 						style: {

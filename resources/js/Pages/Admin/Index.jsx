@@ -398,49 +398,129 @@ export default function AdminPage() {
                 </p>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <style dangerouslySetInnerHTML={{ __html: `
+              .search-hubs-button-group {
+                display: flex;
+                gap: 0.75rem;
+                align-items: center;
+                flex-wrap: nowrap;
+              }
+              .search-hub-btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+                padding: 0.625rem 1.125rem;
+                border-radius: 10px;
+                font-size: 0.8125rem;
+                font-weight: 700;
+                text-decoration: none;
+                white-space: nowrap !important;
+                transition: all 0.2s ease;
+              }
+              @media (max-width: 768px) {
+                .search-hubs-button-group {
+                  width: 100% !important;
+                  gap: 0.5rem !important;
+                  overflow-x: auto !important;
+                  -webkit-overflow-scrolling: touch !important;
+                  scrollbar-width: none !important;
+                }
+                .search-hubs-button-group::-webkit-scrollbar {
+                  display: none !important;
+                }
+                .search-hub-btn {
+                  flex: 1 1 0% !important;
+                  padding: 0.55rem 0.5rem !important;
+                  font-size: 0.75rem !important;
+                  min-width: 0 !important;
+                  text-align: center !important;
+                }
+                .search-hub-btn svg {
+                  width: 13px !important;
+                  height: 13px !important;
+                  flex-shrink: 0 !important;
+                }
+              }
+              @media (max-width: 420px) {
+                .search-hub-text-full,
+                .search-hub-text-mid {
+                  display: none !important;
+                }
+                .search-hub-text-short {
+                  display: inline !important;
+                }
+                .search-hub-btn {
+                  font-size: 0.72rem !important;
+                  padding: 0.5rem 0.35rem !important;
+                  gap: 4px !important;
+                }
+              }
+              @media (min-width: 421px) and (max-width: 640px) {
+                .search-hub-text-full,
+                .search-hub-text-short {
+                  display: none !important;
+                }
+                .search-hub-text-mid {
+                  display: inline !important;
+                }
+              }
+              @media (min-width: 641px) {
+                .search-hub-text-mid,
+                .search-hub-text-short {
+                  display: none !important;
+                }
+                .search-hub-text-full {
+                  display: inline !important;
+                }
+              }
+            ` }} />
+            <div className="search-hubs-button-group">
               <Link
                 href={`${BASE}/admin/google-search`}
+                className="search-hub-btn"
                 style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '0.625rem 1.125rem',
-                  borderRadius: '10px',
                   background: '#2563eb',
                   color: '#fff',
-                  fontSize: '0.8125rem',
-                  fontWeight: 700,
-                  textDecoration: 'none',
-                  transition: 'all 0.2s ease',
                   boxShadow: '0 4px 12px rgba(37, 99, 235, 0.4)'
                 }}
               >
-                <span>Launch Search Console Hub</span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                  <circle cx="11" cy="11" r="8"/>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  <path d="M11 8v6"/>
+                  <path d="M8 11h6"/>
+                </svg>
+                <span>
+                  <span className="search-hub-text-full">Launch Search Console Hub</span>
+                  <span className="search-hub-text-mid">Search Console Hub</span>
+                  <span className="search-hub-text-short">Search Console</span>
+                </span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
                   <polyline points="9 18 15 12 9 6"/>
                 </svg>
               </Link>
 
               <Link
                 href={`${BASE}/admin/bing`}
+                className="search-hub-btn"
                 style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '0.625rem 1.125rem',
-                  borderRadius: '10px',
                   background: '#0284c7',
                   color: '#fff',
-                  fontSize: '0.8125rem',
-                  fontWeight: 700,
-                  textDecoration: 'none',
-                  transition: 'all 0.2s ease',
                   boxShadow: '0 4px 12px rgba(2, 132, 199, 0.4)'
                 }}
               >
-                <span>Bing Webmaster Hub</span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+                  <path d="M2 12h20"/>
+                </svg>
+                <span>
+                  <span className="search-hub-text-full">Bing Webmaster Hub</span>
+                  <span className="search-hub-text-mid">Bing Webmaster Hub</span>
+                  <span className="search-hub-text-short">Bing Webmaster</span>
+                </span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
                   <polyline points="9 18 15 12 9 6"/>
                 </svg>
               </Link>
