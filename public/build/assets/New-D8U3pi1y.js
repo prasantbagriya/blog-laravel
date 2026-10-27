@@ -1,1 +1,0 @@
-import"./rolldown-runtime-QTnfLwEv.js";import{vn as e}from"./lucide-icons-BDtWhPZ_.js";import{t}from"./jsx-runtime-CutDQjiP.js";import n from"./AdminLayout-CPl-nsz-.js";import{t as r}from"./AuthorForm-B_-92uWb.js";e();var i=t();function a(){return(0,i.jsx)(r,{})}a.layout=e=>(0,i.jsx)(n,{children:e});export{a as default};

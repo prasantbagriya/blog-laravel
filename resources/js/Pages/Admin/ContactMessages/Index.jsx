@@ -110,22 +110,29 @@ export default function ContactMessagesPage() {
       {/* Filter and Theme-Matching Search Bar */}
       <div className="bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm flex flex-col sm:flex-row gap-3 justify-between items-stretch sm:items-center">
         {/* Search Bar matching theme */}
-        <div className="relative flex-1 max-w-lg">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+        <div className="relative flex items-center flex-1 max-w-lg w-full">
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-zinc-500">
+            <Search className="w-4 h-4" />
+          </div>
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by name, email, phone, subject, or message content..."
-            className="w-full pl-10 pr-9 py-2.5 bg-slate-100 dark:bg-zinc-800 border border-transparent focus:border-blue-500 focus:bg-white dark:focus:bg-zinc-900 rounded-xl text-xs font-medium text-slate-900 dark:text-white outline-none transition"
+            className="w-full h-10 pl-10 pr-9 bg-slate-100 dark:bg-zinc-800 border border-slate-200/60 dark:border-zinc-700/60 focus:border-blue-500 focus:bg-white dark:focus:bg-zinc-900 rounded-xl text-xs sm:text-sm font-medium text-slate-900 dark:text-white outline-none transition"
+            style={{ fontFamily: 'var(--font-sans, "Outfit", system-ui, -apple-system, sans-serif)' }}
           />
           {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 transition cursor-pointer flex items-center justify-center p-1"
+                title="Clear search"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
           )}
         </div>
 

@@ -18,7 +18,8 @@ import {
   Send,
   AlertCircle,
   Check,
-  ChevronDown
+  ChevronDown,
+  X
 } from 'lucide-react';
 
 import AdminLayout from '../../../Layouts/AdminLayout';
@@ -33,11 +34,12 @@ export default function InquiriesPage() {
 
   const basePath = typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '';
 
-  const fetchInquiries = async () => {
+  const fetchInquiries = async (queryOverride = null) => {
     setLoading(true);
     try {
+      const activeSearch = queryOverride !== null ? queryOverride : searchQuery;
       const params = new URLSearchParams();
-      if (searchQuery) params.append('search', searchQuery);
+      if (activeSearch) params.append('search', activeSearch);
       if (statusFilter !== 'all') params.append('status', statusFilter);
 
       const res = await axios.get(`${basePath}/api/admin/inquiries?${params.toString()}`);
@@ -59,6 +61,11 @@ export default function InquiriesPage() {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     fetchInquiries();
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    fetchInquiries('');
   };
 
   const handleStatusChange = async (id, newStatus) => {
@@ -108,7 +115,7 @@ export default function InquiriesPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" style={{ fontFamily: 'var(--font-sans, "Outfit", system-ui, -apple-system, sans-serif)' }}>
       <Head title="Direct Student Inquiries & Leads | Admin" />
 
       {/* Header */}
@@ -124,8 +131,8 @@ export default function InquiriesPage() {
         </div>
 
         <button
-          onClick={fetchInquiries}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition cursor-pointer"
+          onClick={() => fetchInquiries()}
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition cursor-pointer"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
           <span>Refresh Leads</span>
@@ -158,21 +165,44 @@ export default function InquiriesPage() {
       {/* Filter and Search Bar */}
       <div className="bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm flex flex-col sm:flex-row gap-3 justify-between items-stretch sm:items-center">
         {/* Search */}
-        <form onSubmit={handleSearchSubmit} className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by student name, phone, course, or institute..."
-            className="w-full pl-10 pr-24 py-2 bg-slate-100 dark:bg-zinc-800 border border-transparent focus:border-amber-500 rounded-xl text-xs font-medium text-slate-900 dark:text-white outline-none"
-          />
-          <button
-            type="submit"
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold transition"
-          >
-            Search
-          </button>
+        <form onSubmit={handleSearchSubmit} className="relative flex-1 max-w-md w-full">
+          <div className="relative flex items-center w-full">
+            {/* Left Center Search Icon */}
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-zinc-500">
+              <Search className="w-4 h-4" />
+            </div>
+
+            {/* Input with Outfit font & balanced padding */}
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by student name, phone, course, or institute..."
+              className="w-full h-10 pl-10 pr-24 bg-slate-100 dark:bg-zinc-800 border border-slate-200/60 dark:border-zinc-700/60 focus:border-amber-500 focus:bg-white dark:focus:bg-zinc-900 rounded-xl text-xs sm:text-sm font-medium text-slate-900 dark:text-white outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-500"
+              style={{ fontFamily: 'var(--font-sans, "Outfit", system-ui, -apple-system, sans-serif)' }}
+            />
+
+            {/* Right Center Buttons Group */}
+            <div className="absolute inset-y-0 right-0 pr-1.5 flex items-center gap-1">
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="p-1 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 transition cursor-pointer flex items-center justify-center"
+                  title="Clear search"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+              <button
+                type="submit"
+                className="h-7.5 px-3.5 flex items-center justify-center bg-amber-500 hover:bg-amber-600 active:scale-95 text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer whitespace-nowrap"
+                style={{ fontFamily: 'var(--font-sans, "Outfit", system-ui, -apple-system, sans-serif)' }}
+              >
+                Search
+              </button>
+            </div>
+          </div>
         </form>
 
         {/* Status Filter Tabs */}

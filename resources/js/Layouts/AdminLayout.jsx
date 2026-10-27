@@ -78,6 +78,10 @@ export default function AdminLayout({ children }) {
           background-color: #eff6ff;
           transform: translateX(4px);
         }
+        /* Universal Font Standardization for Admin Controls */
+        input, textarea, select, button {
+          font-family: var(--font-sans, "Outfit", system-ui, -apple-system, sans-serif) !important;
+        }
       `}</style>
       <style>{`
         /* Global Mobile Responsiveness for Admin Panel */
