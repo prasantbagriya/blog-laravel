@@ -133,7 +133,7 @@ export default function AdminLayout({ children }) {
         display: 'flex', 
         background: '#f8fafc', 
       color: '#0f172a', 
-      fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      fontFamily: 'var(--font-sans, "Outfit", system-ui, -apple-system, sans-serif)',
       minHeight: '100vh',
       position: 'relative',
       margin: '0 auto',

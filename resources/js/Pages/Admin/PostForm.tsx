@@ -283,47 +283,47 @@ const PollBlock = Node.create({
 import "../../../css/app.css";
 
 // --- Premium UI Upgrade 2026 Styles & Helper Components ---
-const rootContainerStyle: React.CSSProperties = { position: 'fixed', inset: 0, background: '#fcfdfd', display: 'flex', flexDirection: 'column', zIndex: 999999, fontFamily: '"Inter", "Roboto", sans-serif' };
-const headerStyle: React.CSSProperties = { height: '76px', background: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(226, 232, 240, 0.6)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 40px', position: 'sticky', top: 0, zIndex: 1000, boxShadow: '0 4px 24px -12px rgba(0,0,0,0.04)' };
-const navIconStyle: React.CSSProperties = { background: '#f8fafc', border: '1px solid #e2e8f0', padding: '10px', borderRadius: '12px', cursor: 'pointer', transition: 'all 0.2s', color: '#475569', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' };
-const headerTitleStyle: React.CSSProperties = { fontSize: '19px', fontWeight: 800, letterSpacing: '-0.4px', background: 'linear-gradient(135deg, #0f172a, #334155)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' };
+const rootContainerStyle: React.CSSProperties = { position: 'fixed', inset: 0, background: '#fcfdfd', display: 'flex', flexDirection: 'column', zIndex: 999999, fontFamily: 'var(--font-sans, "Outfit", system-ui, -apple-system, sans-serif)' };
+const headerStyle: React.CSSProperties = { height: '76px', background: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(226, 232, 240, 0.6)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 40px', position: 'sticky', top: 0, zIndex: 1000, boxShadow: '0 4px 24px -12px rgba(0,0,0,0.04)', fontFamily: 'inherit' };
+const navIconStyle: React.CSSProperties = { background: '#f8fafc', border: '1px solid #e2e8f0', padding: '10px', borderRadius: '12px', cursor: 'pointer', transition: 'all 0.2s', color: '#475569', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', fontFamily: 'inherit' };
+const headerTitleStyle: React.CSSProperties = { fontSize: '19px', fontWeight: 800, letterSpacing: '-0.4px', background: 'linear-gradient(135deg, #0f172a, #334155)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontFamily: 'inherit' };
 const scoreHubStyle: React.CSSProperties = { display: 'flex', gap: '16px', marginRight: '16px' };
-const iconBtnStyle: React.CSSProperties = { background: '#fff', border: '1px solid #e2e8f0', padding: '10px 16px', borderRadius: '12px', cursor: 'pointer', color: '#475569', whiteSpace: 'nowrap', fontWeight: 600, fontSize: '13px', transition: 'all 0.2s', boxShadow: '0 2px 8px -2px rgba(0,0,0,0.04)' };
-const publishBtnStyle: React.CSSProperties = { background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: '#fff', border: 'none', padding: '12px 24px', borderRadius: '8px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)', whiteSpace: 'nowrap', transition: 'all 0.2s', letterSpacing: '0.5px', fontSize: '14px' };
+const iconBtnStyle: React.CSSProperties = { background: '#fff', border: '1px solid #e2e8f0', padding: '10px 16px', borderRadius: '12px', cursor: 'pointer', color: '#475569', whiteSpace: 'nowrap', fontWeight: 600, fontSize: '13px', transition: 'all 0.2s', boxShadow: '0 2px 8px -2px rgba(0,0,0,0.04)', fontFamily: 'inherit' };
+const publishBtnStyle: React.CSSProperties = { background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: '#fff', border: 'none', padding: '12px 24px', borderRadius: '8px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)', whiteSpace: 'nowrap', transition: 'all 0.2s', letterSpacing: '0.5px', fontSize: '14px', fontFamily: 'inherit' };
 const mainCanvasStyle: React.CSSProperties = { flex: 1, overflowY: 'auto', background: '#ffffff', display: 'flex', flexDirection: 'column', position: 'relative', scrollBehavior: 'smooth' };
 const floatingToolbarStyle: React.CSSProperties = { position: 'sticky', top: '0', zIndex: 100, background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(24px)', padding: '12px 24px', borderBottom: '1px solid rgba(226,232,240,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', userSelect: 'none', boxShadow: '0 4px 12px -8px rgba(0,0,0,0.05)' };
 const toolDivider: React.CSSProperties = { width: '1px', height: '24px', background: '#cbd5e1', margin: '0 6px' };
-const intelSidebarStyle: React.CSSProperties = { width: '340px', background: '#ffffff', borderLeft: '1px solid rgba(226,232,240,0.6)', display: 'flex', flexDirection: 'column', boxShadow: '-8px 0 24px -12px rgba(0,0,0,0.03)' };
+const intelSidebarStyle: React.CSSProperties = { width: '340px', background: '#ffffff', borderLeft: '1px solid rgba(226,232,240,0.6)', display: 'flex', flexDirection: 'column', boxShadow: '-8px 0 24px -12px rgba(0,0,0,0.03)', fontFamily: 'inherit' };
 const intelTabsStyle: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', background: '#f8fafc', padding: '6px', borderRadius: '16px', gap: '4px', border: '1px solid #e2e8f0' };
-const sidebarHeadingStyle: React.CSSProperties = { fontSize: '11px', fontWeight: 800, color: '#64748b', marginBottom: '16px', marginTop: '30px', textTransform: 'uppercase', letterSpacing: '1px' };
+const sidebarHeadingStyle: React.CSSProperties = { fontSize: '11px', fontWeight: 800, color: '#64748b', marginBottom: '16px', marginTop: '30px', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'inherit' };
 const hcuCardStyle: React.CSSProperties = { background: '#ffffff', padding: '24px', borderRadius: '24px', border: '1px solid rgba(226,232,240,0.8)', marginBottom: '24px', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.03)' };
-const metaLabelStyle: React.CSSProperties = { fontSize: '11.5px', fontWeight: 700, color: '#475569', marginBottom: '8px', display: 'block', letterSpacing: '0.5px' };
-const metaInputStyle: React.CSSProperties = { width: '100%', padding: '14px 18px', border: '1px solid #e2e8f0', borderRadius: '14px', fontSize: '14px', outline: 'none', background: '#fcfdfd', color: '#1e293b', fontWeight: 500, transition: 'border-color 0.2s, box-shadow 0.2s' };
-const tipRowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: '10px', fontSize: '12.5px', color: '#334155', marginBottom: '10px', fontWeight: 600 };
-const eeatCheckStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', fontWeight: 600, color: '#475569' };
-const metaTextAreaStyle: React.CSSProperties = { width: '100%', padding: '14px 18px', border: '1px solid #e2e8f0', borderRadius: '14px', fontSize: '14px', minHeight: '110px', outline: 'none', background: '#fcfdfd', color: '#1e293b', fontWeight: 500, lineHeight: '1.6' };
-const addNodeBtn: React.CSSProperties = { width: '100%', padding: '14px', background: '#ffffff', border: '1px dashed #cbd5e1', borderRadius: '14px', fontSize: '12.5px', fontWeight: 800, color: '#3b82f6', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s', textTransform: 'uppercase', letterSpacing: '0.5px' };
-const lsiTagStyle: React.CSSProperties = { background: 'linear-gradient(135deg, #eff6ff, #e0e7ff)', color: '#2563eb', padding: '6px 12px', borderRadius: '10px', fontSize: '11.5px', fontWeight: 700, border: '1px solid #bfdbfe' };
+const metaLabelStyle: React.CSSProperties = { fontSize: '11.5px', fontWeight: 700, color: '#475569', marginBottom: '8px', display: 'block', letterSpacing: '0.5px', fontFamily: 'inherit' };
+const metaInputStyle: React.CSSProperties = { width: '100%', padding: '14px 18px', border: '1px solid #e2e8f0', borderRadius: '14px', fontSize: '14px', outline: 'none', background: '#fcfdfd', color: '#1e293b', fontWeight: 500, fontFamily: 'inherit', transition: 'border-color 0.2s, box-shadow 0.2s' };
+const tipRowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: '10px', fontSize: '12.5px', color: '#334155', marginBottom: '10px', fontWeight: 600, fontFamily: 'inherit' };
+const eeatCheckStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', fontWeight: 600, color: '#475569', fontFamily: 'inherit' };
+const metaTextAreaStyle: React.CSSProperties = { width: '100%', padding: '14px 18px', border: '1px solid #e2e8f0', borderRadius: '14px', fontSize: '14px', minHeight: '110px', outline: 'none', background: '#fcfdfd', color: '#1e293b', fontWeight: 500, lineHeight: '1.6', fontFamily: 'inherit' };
+const addNodeBtn: React.CSSProperties = { width: '100%', padding: '14px', background: '#ffffff', border: '1px dashed #cbd5e1', borderRadius: '14px', fontSize: '12.5px', fontWeight: 800, color: '#3b82f6', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s', textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: 'inherit' };
+const lsiTagStyle: React.CSSProperties = { background: 'linear-gradient(135deg, #eff6ff, #e0e7ff)', color: '#2563eb', padding: '6px 12px', borderRadius: '10px', fontSize: '11.5px', fontWeight: 700, border: '1px solid #bfdbfe', fontFamily: 'inherit' };
 const guardianCard: React.CSSProperties = { display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '30px', background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', borderRadius: '24px', border: '1px solid #bbf7d0', marginBottom: '20px' };
 const headerSelectWrapper: React.CSSProperties = { display: 'flex', alignItems: 'center', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '0 12px', margin: '0 4px', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.01)' };
-const headerSelectStyle: React.CSSProperties = { border: 'none', background: 'transparent', fontSize: '12.5px', fontWeight: 700, color: '#334155', outline: 'none', height: '36px', cursor: 'pointer' };
-const metaSelectStyle: React.CSSProperties = { width: '100%', padding: '14px', border: '1px solid #e2e8f0', borderRadius: '14px', fontSize: '14px', fontWeight: 600, background: '#fff', color: '#1e293b' };
+const headerSelectStyle: React.CSSProperties = { border: 'none', background: 'transparent', fontSize: '12.5px', fontWeight: 700, color: '#334155', outline: 'none', height: '36px', cursor: 'pointer', fontFamily: 'inherit' };
+const metaSelectStyle: React.CSSProperties = { width: '100%', padding: '14px', border: '1px solid #e2e8f0', borderRadius: '14px', fontSize: '14px', fontWeight: 600, background: '#fff', color: '#1e293b', fontFamily: 'inherit' };
 const editorWrapperStyle: React.CSSProperties = { background: '#fff', minHeight: '100vh', position: 'relative', maxWidth: '1200px', margin: '0 auto', width: '100%', borderRadius: '0', border: 'none', boxShadow: 'none' };
 const bubbleMenuStyle: React.CSSProperties = { background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '6px', display: 'flex', gap: '6px', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.1)', zIndex: 1000 };
 const floatingMenuStyle: React.CSSProperties = { background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '4px', display: 'flex', gap: '4px', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)', zIndex: 1000 };
-const fMenuBtn: React.CSSProperties = { padding: '8px 12px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '12.5px', fontWeight: 800, color: '#475569', borderRadius: '8px', transition: 'background 0.2s' };
+const fMenuBtn: React.CSSProperties = { padding: '8px 12px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '12.5px', fontWeight: 800, color: '#475569', borderRadius: '8px', transition: 'background 0.2s', fontFamily: 'inherit' };
 const modalBackdropStyle: React.CSSProperties = { position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(8px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center' };
-const modalContentStyle: React.CSSProperties = { background: '#fff', width: '92%', maxWidth: '850px', maxHeight: '90vh', display: 'flex', flexDirection: 'column', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 30px 60px -15px rgba(0,0,0,0.3)' };
+const modalContentStyle: React.CSSProperties = { background: '#fff', width: '92%', maxWidth: '850px', maxHeight: '90vh', display: 'flex', flexDirection: 'column', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 30px 60px -15px rgba(0,0,0,0.3)', fontFamily: 'inherit' };
 const modalHeaderStyle: React.CSSProperties = { padding: '24px 40px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fafcff' };
-const closeModalBtn: React.CSSProperties = { border: 'none', background: '#f1f5f9', padding: '10px', borderRadius: '12px', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'background 0.2s', color: '#475569' };
+const closeModalBtn: React.CSSProperties = { border: 'none', background: '#f1f5f9', padding: '10px', borderRadius: '12px', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'background 0.2s', color: '#475569', fontFamily: 'inherit' };
 const faqNodeStyle: React.CSSProperties = { padding: '20px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -4px rgba(0,0,0,0.02)' };
-const faqInputSmall: React.CSSProperties = { width: '100%', padding: '12px', border: '1px solid #e2e8f0', borderRadius: '10px', marginBottom: '12px', fontSize: '13px', fontWeight: 600, background: '#fff' };
-const faqTextArea: React.CSSProperties = { width: '100%', padding: '12px', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '13.5px', minHeight: '90px', background: '#fff', lineHeight: '1.5' };
+const faqInputSmall: React.CSSProperties = { width: '100%', padding: '12px', border: '1px solid #e2e8f0', borderRadius: '10px', marginBottom: '12px', fontSize: '13px', fontWeight: 600, background: '#fff', fontFamily: 'inherit' };
+const faqTextArea: React.CSSProperties = { width: '100%', padding: '12px', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '13.5px', minHeight: '90px', background: '#fff', lineHeight: '1.5', fontFamily: 'inherit' };
 
-const deepWorkOverlayStyle: React.CSSProperties = { position: 'fixed', inset: 0, background: '#fafcff', zIndex: 2000000, overflowY: 'auto' };
-const exitDeepWorkStyle: React.CSSProperties = { background: '#f1f5f9', border: '1px solid #e2e8f0', padding: '12px 24px', borderRadius: '14px', fontSize: '14px', fontWeight: 700, color: '#334155', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' };
-const deepWorkTitleStyle: React.CSSProperties = { width: '100%', fontSize: '64px', fontWeight: 900, border: 'none', outline: 'none', background: 'transparent', textAlign: 'center', color: '#0f172a', marginBottom: '60px', letterSpacing: '-0.04em' };
-const tocItemStyle: React.CSSProperties = { fontSize: '12.5px', fontWeight: 600, color: '#64748b', cursor: 'pointer', padding: '6px 0', transition: 'all 0.2s' };
+const deepWorkOverlayStyle: React.CSSProperties = { position: 'fixed', inset: 0, background: '#fafcff', zIndex: 2000000, overflowY: 'auto', fontFamily: 'inherit' };
+const exitDeepWorkStyle: React.CSSProperties = { background: '#f1f5f9', border: '1px solid #e2e8f0', padding: '12px 24px', borderRadius: '14px', fontSize: '14px', fontWeight: 700, color: '#334155', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.02)', fontFamily: 'inherit' };
+const deepWorkTitleStyle: React.CSSProperties = { width: '100%', fontSize: '64px', fontWeight: 900, border: 'none', outline: 'none', background: 'transparent', textAlign: 'center', color: '#0f172a', marginBottom: '60px', letterSpacing: '-0.04em', fontFamily: 'inherit' };
+const tocItemStyle: React.CSSProperties = { fontSize: '12.5px', fontWeight: 600, color: '#64748b', cursor: 'pointer', padding: '6px 0', transition: 'all 0.2s', fontFamily: 'inherit' };
 
 
 const MiniScore = ({ label, value, color = '#2563eb' }: any) => (
@@ -368,19 +368,21 @@ const SovereignToolBtn = ({ children, onClick, active, title, color, style }: an
       onClick={onClick} 
       title={title} 
       style={{ 
-         minWidth: '42px', 
-         height: '42px', 
-         borderRadius: '12px', 
+         minWidth: '38px', 
+         height: '38px', 
+         borderRadius: '10px', 
          border: active ? '2px solid #3b82f6' : '1px solid #e2e8f0', 
          background: active ? '#eff6ff' : '#ffffff', 
          cursor: 'pointer', 
          display: 'flex', 
          alignItems: 'center', 
          justifyContent: 'center', 
-         padding: '0 8px',
+         padding: '0 6px',
+         flexShrink: 0,
+         fontFamily: 'inherit',
          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
          color: active ? '#2563eb' : (color || '#475569'),
-         boxShadow: active ? '0 4px 12px -4px rgba(59, 130, 246, 0.25)' : '0 2px 4px rgba(0,0,0,0.02)',
+         boxShadow: active ? '0 4px 12px -4px rgba(59, 130, 246, 0.25)' : '0 1px 3px rgba(0,0,0,0.02)',
          ...style
       }}
    >
@@ -581,6 +583,7 @@ export default function PostForm({ post }: PostFormProps) {
    const [aiLanguage, setAiLanguage] = useState<'English' | 'Hindi' | 'Hinglish'>('English');
    const [aiGeneratedPost, setAiGeneratedPost] = useState<any>(null);
    const [aiActiveViewTab, setAiActiveViewTab] = useState<'article' | 'takeaways' | 'faqs' | 'sources' | 'metadata'>('article');
+   const [aiStudioMobileTab, setAiStudioMobileTab] = useState<'brief' | 'preview'>('brief');
 
    // Section expander state
    const [expandHeading, setExpandHeading] = useState('');
@@ -698,6 +701,7 @@ export default function PostForm({ post }: PostFormProps) {
 
       setIsAiResearching(true);
       setAiStage('Initiating multi-fact grounding & source parsing...');
+      setAiStudioMobileTab('preview');
 
       const stages = [
          'Extracting ground realities from your provided sources & URLs...',
@@ -744,6 +748,7 @@ export default function PostForm({ post }: PostFormProps) {
          if (json && json.success && json.data) {
             setAiGeneratedPost(json.data);
             setAiActiveViewTab('article');
+            setAiStudioMobileTab('preview');
          } else {
             alert('AI research generation notice: ' + (json?.message || 'Failed to complete research.'));
          }
@@ -2182,10 +2187,10 @@ export default function PostForm({ post }: PostFormProps) {
                             </SovereignToolBtn>
                          </div>
                       </div>
-                     <input placeholder="Unlock the Sovereign Title..." value={title} onChange={(e) => setTitle(e.target.value)} style={{ ...deepWorkTitleStyle, fontSize: '48px', marginBottom: '16px' }} />
+                     <input placeholder="Enter Post Title..." value={title} onChange={(e) => setTitle(e.target.value)} style={{ ...deepWorkTitleStyle, fontSize: '48px', marginBottom: '16px' }} />
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '-8px', marginBottom: '32px', padding: '0 4px', fontSize: '12px', fontWeight: 600 }}>
                          <span style={{ color: title.length > 110 ? '#ef4444' : '#64748b' }}>
-                            Headline length: {title.length} characters (Recommended: ≤110)
+                            Post Title length: {title.length} characters (Recommended: ≤110)
                          </span>
                          {title.length > 110 && (
                             <span style={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -2245,7 +2250,7 @@ export default function PostForm({ post }: PostFormProps) {
                         gap: '4px'
                      }}
                   >
-                     <span>✍️ Content</span>
+                     <span>✍️ Title & Content</span>
                   </button>
                   <button
                      type="button"
@@ -2330,29 +2335,31 @@ export default function PostForm({ post }: PostFormProps) {
                          </button>
                       )}
 
-                      {/* Toolbar Scroll Left Arrow Button */}
-                      <button 
-                         type="button" 
-                         onClick={() => toolbarRef.current?.scrollBy({ left: -240, behavior: 'smooth' })} 
-                         style={{ 
-                            ...navIconStyle, 
-                            padding: '6px 7px', 
-                            borderRadius: '8px', 
-                            border: '1px solid #e2e8f0', 
-                            background: '#ffffff', 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            justifyContent: 'center', 
-                            flexShrink: 0, 
-                            cursor: 'pointer', 
-                            color: '#475569', 
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.04)' 
-                         }}
-                         title="Scroll Toolbar Left"
-                         aria-label="Scroll Toolbar Left"
-                      >
-                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-                      </button>
+                      {/* Toolbar Scroll Left Arrow Button - Desktop only */}
+                      {!isMobile && (
+                         <button 
+                            type="button" 
+                            onClick={() => toolbarRef.current?.scrollBy({ left: -240, behavior: 'smooth' })} 
+                            style={{ 
+                               ...navIconStyle, 
+                               padding: '6px 7px', 
+                               borderRadius: '8px', 
+                               border: '1px solid #e2e8f0', 
+                               background: '#ffffff', 
+                               display: 'flex', 
+                               alignItems: 'center', 
+                               justifyContent: 'center', 
+                               flexShrink: 0, 
+                               cursor: 'pointer', 
+                               color: '#475569', 
+                               boxShadow: '0 1px 3px rgba(0,0,0,0.04)' 
+                            }}
+                            title="Scroll Toolbar Left"
+                            aria-label="Scroll Toolbar Left"
+                         >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                         </button>
+                      )}
 
                       {/* Center: Formatting Toolbar (Scrollable Row with wheel support) */}
                       <div 
@@ -2551,32 +2558,35 @@ export default function PostForm({ post }: PostFormProps) {
                       <input type="file" ref={sliderInputRef} onChange={handleSliderImageUpload} multiple style={{ display: 'none' }} accept="image/*" />
                       </div>
                       
-                      {/* Toolbar Scroll Right Arrow Button */}
-                      <button 
-                         type="button" 
-                         onClick={() => toolbarRef.current?.scrollBy({ left: 240, behavior: 'smooth' })} 
-                         style={{ 
-                            ...navIconStyle, 
-                            padding: '6px 7px', 
-                            borderRadius: '8px', 
-                            border: '1px solid #e2e8f0', 
-                            background: '#ffffff', 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            justifyContent: 'center', 
-                            flexShrink: 0, 
-                            cursor: 'pointer', 
-                            color: '#475569', 
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.04)' 
-                         }}
-                         title="Scroll Toolbar Right"
-                         aria-label="Scroll Toolbar Right"
-                      >
-                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                      </button>
+                      {/* Toolbar Scroll Right Arrow Button - Desktop only */}
+                      {!isMobile && (
+                         <button 
+                            type="button" 
+                            onClick={() => toolbarRef.current?.scrollBy({ left: 240, behavior: 'smooth' })} 
+                            style={{ 
+                               ...navIconStyle, 
+                               padding: '6px 7px', 
+                               borderRadius: '8px', 
+                               border: '1px solid #e2e8f0', 
+                               background: '#ffffff', 
+                               display: 'flex', 
+                               alignItems: 'center', 
+                               justifyContent: 'center', 
+                               flexShrink: 0, 
+                               cursor: 'pointer', 
+                               color: '#475569', 
+                               boxShadow: '0 1px 3px rgba(0,0,0,0.04)' 
+                            }}
+                            title="Scroll Toolbar Right"
+                            aria-label="Scroll Toolbar Right"
+                         >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                         </button>
+                      )}
 
-                      {/* Right: Actions */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                      {/* Right: Actions - Desktop only so mobile gets 100% toolbar width */}
+                      {!isMobile && (
+                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
                          <button 
                             type="button"
                             onClick={() => {
@@ -2672,29 +2682,6 @@ export default function PostForm({ post }: PostFormProps) {
                          >
                             <span>📘 FB Share</span>
                          </button>
-                         {isMobile && (
-                            <button
-                               type="button"
-                               onClick={() => setMobileTab('features')}
-                               style={{
-                                  padding: '5px 10px',
-                                  fontSize: '11px',
-                                  fontWeight: 800,
-                                  background: '#eff6ff',
-                                  color: '#2563eb',
-                                  border: '1px solid #bfdbfe',
-                                  borderRadius: '8px',
-                                  cursor: 'pointer',
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: '4px',
-                                  flexShrink: 0
-                               }}
-                               title="Open Post Features & Settings"
-                            >
-                               <span>⚡ Features</span>
-                            </button>
-                         )}
                          <button onClick={() => setDistractionFree(true)} style={iconBtnStyle} title="Distraction Free Mode">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
                          </button>
@@ -2702,15 +2689,16 @@ export default function PostForm({ post }: PostFormProps) {
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px', flexShrink: 0 }}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                          </button>
                       </div>
+                      )}
                    </div>
                 </div>
 
                <div style={{ ...editorWrapperStyle, padding: isMobile ? '16px' : '40px 24px' }}>
-                  {/* Sovereign Article Headline Input */}
+                  {/* Sovereign Article Post Title Input */}
                   <div style={{ marginBottom: isMobile ? '16px' : '28px', paddingBottom: '16px', borderBottom: '1px solid #f1f5f9' }}>
                      <input
                         type="text"
-                        placeholder="Unlock the Sovereign Title..."
+                        placeholder="Enter Post Title..."
                         value={title}
                         onChange={(e) => handleTitleChange(e.target.value)}
                         style={{
@@ -2728,14 +2716,14 @@ export default function PostForm({ post }: PostFormProps) {
                         }}
                      />
                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px', fontSize: '11px', color: title.length > 110 ? '#ef4444' : '#94a3b8' }}>
-                        <span>Headline: {title.length}/110 chars {title.length > 110 && '(⚠️ Exceeds 110)'}</span>
+                        <span>Post Title: {title.length}/110 chars {title.length > 110 && '(⚠️ Exceeds 110)'}</span>
                         <button
                            type="button"
                            onClick={() => {
                               if (isMobile) setMobileTab('features');
                               setActiveTab('meta');
                            }}
-                           style={{ background: 'none', border: 'none', color: '#2563eb', fontWeight: 600, cursor: 'pointer', fontSize: '11.5px', display: 'flex', alignItems: 'center', gap: '3px' }}
+                           style={{ background: 'none', border: 'none', color: '#2563eb', fontWeight: 600, cursor: 'pointer', fontSize: '11.5px', display: 'flex', alignItems: 'center', gap: '3px', fontFamily: 'inherit' }}
                         >
                            <span>⚙️ Slug, Category & Meta</span>
                         </button>
@@ -3371,7 +3359,7 @@ export default function PostForm({ post }: PostFormProps) {
                         <div key="meta"  >
                            <h3 style={sidebarHeadingStyle}>Search Engine Listing</h3>
                            <div style={hcuCardStyle}>
-                              <InputGroup label="MAIN POST HEADLINE" value={title} onChange={setTitle} placeholder="Title of your post" />
+                              <InputGroup label="POST TITLE" value={title} onChange={setTitle} placeholder="Enter post title..." />
                               <div style={{ height: '15px' }} />
                               <button onClick={() => setPreviewMode('google')} style={{ ...addNodeBtn, background: '#f8fafc', marginBottom: '15px', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '14px', height: '14px' }}><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Launch SERP Simulator
@@ -4941,44 +4929,111 @@ export default function PostForm({ post }: PostFormProps) {
 
             {/* 🧠 AI Deep Research & Human Writer Studio Modal */}
             {aiStudioOpen && (
-               <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(8px)', zIndex: 100000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-                  <div style={{ background: '#ffffff', width: '100%', maxWidth: '1280px', height: '90vh', maxHeight: '920px', borderRadius: '24px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.3)', border: '1px solid #e2e8f0' }}>
+               <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(8px)', zIndex: 100000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: isMobile ? '6px' : '20px', fontFamily: 'inherit' }}>
+                  <div style={{ background: '#ffffff', width: '100%', maxWidth: '1280px', height: isMobile ? '96vh' : '90vh', maxHeight: '920px', borderRadius: isMobile ? '16px' : '24px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.3)', border: '1px solid #e2e8f0', fontFamily: 'inherit' }}>
                      {/* Studio Top Header */}
-                     <div style={{ padding: '18px 28px', borderBottom: '1px solid #e2e8f0', background: 'linear-gradient(135deg, #0f172a, #1e293b)', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                           <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(139, 92, 246, 0.4)' }}>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+                     <div style={{ padding: isMobile ? '12px 14px' : '18px 28px', borderBottom: '1px solid #e2e8f0', background: 'linear-gradient(135deg, #0f172a, #1e293b)', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0, gap: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '10px' : '14px', minWidth: 0, flex: 1 }}>
+                           <div style={{ width: isMobile ? '34px' : '40px', height: isMobile ? '34px' : '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(139, 92, 246, 0.4)', flexShrink: 0 }}>
+                              <svg xmlns="http://www.w3.org/2000/svg" width={isMobile ? "18" : "22"} height={isMobile ? "18" : "22"} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
                            </div>
-                           <div>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                 <h2 style={{ fontSize: '18px', fontWeight: 800, margin: 0, letterSpacing: '-0.3px', color: '#fff' }}>AI Deep Research & Human Blog Writer</h2>
-                                 <span style={{ fontSize: '11px', fontWeight: 800, background: 'rgba(139, 92, 246, 0.25)', color: '#c4b5fd', padding: '3px 10px', borderRadius: '999px', border: '1px solid rgba(139, 92, 246, 0.4)', letterSpacing: '0.5px' }}>ZERO FLUFF • FACT-CHECKED</span>
+                           <div style={{ minWidth: 0 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                 <h2 style={{ fontSize: isMobile ? '15px' : '18px', fontWeight: 800, margin: 0, letterSpacing: '-0.3px', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>AI Deep Research Studio</h2>
+                                 {!isMobile && (
+                                    <span style={{ fontSize: '11px', fontWeight: 800, background: 'rgba(139, 92, 246, 0.25)', color: '#c4b5fd', padding: '3px 10px', borderRadius: '999px', border: '1px solid rgba(139, 92, 246, 0.4)', letterSpacing: '0.5px' }}>ZERO FLUFF • FACT-CHECKED</span>
+                                 )}
                               </div>
-                              <p style={{ margin: '3px 0 0', fontSize: '12px', color: '#94a3b8' }}>
-                                 Multi-source factual grounding, verified metrics, zero robotic clichés, with 1-click publishing.
-                              </p>
+                              {!isMobile && (
+                                 <p style={{ margin: '3px 0 0', fontSize: '12px', color: '#94a3b8' }}>
+                                    Multi-source factual grounding, verified metrics, zero robotic clichés, with 1-click publishing.
+                                 </p>
+                              )}
                            </div>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
                            <button 
                               onClick={() => setAiStudioOpen(false)} 
-                              style={{ border: 'none', background: 'rgba(255, 255, 255, 0.1)', color: '#cbd5e1', padding: '8px 14px', borderRadius: '10px', cursor: 'pointer', fontSize: '12.5px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.2s' }}
+                              style={{ border: 'none', background: 'rgba(255, 255, 255, 0.1)', color: '#cbd5e1', padding: isMobile ? '6px 12px' : '8px 14px', borderRadius: '10px', cursor: 'pointer', fontSize: isMobile ? '11.5px' : '12.5px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.2s', fontFamily: 'inherit' }}
                            >
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                              Close Studio
+                              <span>Close</span>
                            </button>
                         </div>
                      </div>
 
+                     {/* Mobile Segmented Switcher between Brief Inputs and Output Preview */}
+                     {isMobile && (
+                        <div style={{ display: 'flex', background: '#f1f5f9', padding: '4px', borderBottom: '1px solid #e2e8f0', gap: '4px', flexShrink: 0 }}>
+                           <button
+                              type="button"
+                              onClick={() => setAiStudioMobileTab('brief')}
+                              style={{
+                                 flex: 1,
+                                 padding: '8px 12px',
+                                 borderRadius: '8px',
+                                 border: 'none',
+                                 background: aiStudioMobileTab === 'brief' ? '#ffffff' : 'transparent',
+                                 color: aiStudioMobileTab === 'brief' ? '#2563eb' : '#64748b',
+                                 fontWeight: 800,
+                                 fontSize: '12px',
+                                 cursor: 'pointer',
+                                 boxShadow: aiStudioMobileTab === 'brief' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                                 display: 'flex',
+                                 alignItems: 'center',
+                                 justifyContent: 'center',
+                                 gap: '5px',
+                                 fontFamily: 'inherit'
+                              }}
+                           >
+                              <span>⚙️ Research Brief</span>
+                           </button>
+                           <button
+                              type="button"
+                              onClick={() => setAiStudioMobileTab('preview')}
+                              style={{
+                                 flex: 1,
+                                 padding: '8px 12px',
+                                 borderRadius: '8px',
+                                 border: 'none',
+                                 background: aiStudioMobileTab === 'preview' ? '#ffffff' : 'transparent',
+                                 color: aiStudioMobileTab === 'preview' ? '#2563eb' : '#64748b',
+                                 fontWeight: 800,
+                                 fontSize: '12px',
+                                 cursor: 'pointer',
+                                 boxShadow: aiStudioMobileTab === 'preview' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                                 display: 'flex',
+                                 alignItems: 'center',
+                                 justifyContent: 'center',
+                                 gap: '5px',
+                                 fontFamily: 'inherit'
+                              }}
+                           >
+                              <span>📄 Output & Preview</span>
+                              {aiGeneratedPost && <span style={{ fontSize: '9px', background: '#dcfce7', color: '#15803d', padding: '1px 5px', borderRadius: '4px', fontWeight: 800 }}>Ready</span>}
+                           </button>
+                        </div>
+                     )}
+
                      {/* Studio Main Workspace: Split Pane */}
-                     <div style={{ display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+                     <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', flex: 1, minHeight: 0, overflow: 'hidden' }}>
                         {/* LEFT COLUMN: Research Brief Inputs */}
-                        <div style={{ width: '470px', flexShrink: 0, borderRight: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-                           <div style={{ flex: 1, overflowY: 'auto', padding: '22px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                              {/* Topic / Headline */}
+                        <div style={{
+                           width: isMobile ? '100%' : '420px',
+                           maxWidth: isMobile ? '100%' : '38%',
+                           flexShrink: 0,
+                           borderRight: isMobile ? 'none' : '1px solid #e2e8f0',
+                           background: '#f8fafc',
+                           display: isMobile ? (aiStudioMobileTab === 'brief' ? 'flex' : 'none') : 'flex',
+                           flexDirection: 'column',
+                           minHeight: 0,
+                           flex: isMobile ? 1 : undefined
+                        }}>
+                           <div style={{ flex: 1, overflowY: 'auto', padding: isMobile ? '14px' : '22px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                              {/* Topic / Post Title */}
                               <div>
                                  <label style={metaLabelStyle}>
-                                    TARGET TOPIC / HEADLINE <span style={{ color: '#ef4444' }}>*</span>
+                                    TARGET TOPIC / POST TITLE <span style={{ color: '#ef4444' }}>*</span>
                                  </label>
                                  <input 
                                     type="text"
@@ -5268,11 +5323,29 @@ export default function PostForm({ post }: PostFormProps) {
                         </div>
 
                         {/* RIGHT COLUMN: Output Workspace & Preview */}
-                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, background: '#ffffff', overflow: 'hidden' }}>
+                        <div style={{
+                           flex: 1,
+                           minWidth: 0,
+                           display: isMobile ? (aiStudioMobileTab === 'preview' ? 'flex' : 'none') : 'flex',
+                           flexDirection: 'column',
+                           minHeight: 0,
+                           background: '#ffffff',
+                           overflow: 'hidden'
+                        }}>
                            {/* Output View Tabs Header (Visible when results exist) */}
                            {aiGeneratedPost ? (
-                              <div style={{ padding: '14px 24px', borderBottom: '1px solid #e2e8f0', background: '#fafcff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
-                                 <div style={{ display: 'flex', gap: '6px' }}>
+                              <div style={{
+                                 padding: isMobile ? '10px 14px' : '14px 24px',
+                                 borderBottom: '1px solid #e2e8f0',
+                                 background: '#fafcff',
+                                 display: 'flex',
+                                 flexDirection: isMobile ? 'column' : 'row',
+                                 justifyContent: 'space-between',
+                                 alignItems: isMobile ? 'stretch' : 'center',
+                                 gap: '10px',
+                                 flexShrink: 0
+                              }}>
+                                 <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: isMobile ? '4px' : 0 }}>
                                     {[
                                        { key: 'article', label: 'Article Preview', badge: `${aiGeneratedPost.readingTime || '6 min'}` },
                                        { key: 'takeaways', label: 'Key Takeaways', badge: `${aiGeneratedPost.keyTakeaways?.length || 0}` },
@@ -5285,17 +5358,19 @@ export default function PostForm({ post }: PostFormProps) {
                                           type="button"
                                           onClick={() => setAiActiveViewTab(tab.key as any)}
                                           style={{
-                                             padding: '8px 14px',
+                                             padding: isMobile ? '6px 10px' : '8px 14px',
                                              borderRadius: '10px',
                                              border: aiActiveViewTab === tab.key ? '1px solid #6366f1' : '1px solid transparent',
                                              background: aiActiveViewTab === tab.key ? '#eef2ff' : 'transparent',
                                              color: aiActiveViewTab === tab.key ? '#4338ca' : '#64748b',
                                              fontWeight: 800,
-                                             fontSize: '12.5px',
+                                             fontSize: isMobile ? '11px' : '12.5px',
                                              cursor: 'pointer',
                                              display: 'flex',
                                              alignItems: 'center',
-                                             gap: '6px'
+                                             gap: '6px',
+                                             whiteSpace: 'nowrap',
+                                             flexShrink: 0
                                           }}
                                        >
                                           <span>{tab.label}</span>
@@ -5306,21 +5381,23 @@ export default function PostForm({ post }: PostFormProps) {
                                     ))}
                                  </div>
 
-                                 <div style={{ display: 'flex', gap: '8px' }}>
+                                 <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
                                     <button
                                        type="button"
                                        onClick={handleApplyAiPostToEditor}
                                        style={{
+                                          width: isMobile ? '100%' : 'auto',
                                           padding: '8px 16px',
                                           borderRadius: '10px',
                                           border: 'none',
                                           background: 'linear-gradient(135deg, #10b981, #059669)',
                                           color: '#fff',
                                           fontWeight: 800,
-                                          fontSize: '13px',
+                                          fontSize: '12.5px',
                                           cursor: 'pointer',
                                           display: 'flex',
                                           alignItems: 'center',
+                                          justifyContent: 'center',
                                           gap: '6px',
                                           boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)'
                                        }}
@@ -5333,7 +5410,7 @@ export default function PostForm({ post }: PostFormProps) {
                            ) : null}
 
                            {/* Main Output Content Container */}
-                           <div style={{ flex: 1, overflowY: 'auto', padding: '32px' }}>
+                           <div style={{ flex: 1, overflowY: 'auto', padding: isMobile ? '16px' : '32px' }}>
                               {isAiResearching ? (
                                  <div style={{ height: '100%', minHeight: '380px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '40px' }}>
                                     <div style={{ position: 'relative', width: '90px', height: '90px', marginBottom: '24px' }}>
@@ -5367,7 +5444,7 @@ export default function PostForm({ post }: PostFormProps) {
                                        Give your topic and any unformatted raw material (rough notes, fee brochures, review links) on the left panel. The research engine will verify facts, eliminate generic AI filler words, and write a human-grade article.
                                     </p>
 
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', width: '100%', textAlign: 'left' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '14px', width: '100%', textAlign: 'left' }}>
                                        <div style={{ padding: '16px', borderRadius: '16px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
                                           <div style={{ fontSize: '13px', fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}>🛡️ Zero AI Fluff</div>
                                           <div style={{ fontSize: '11.5px', color: '#64748b', lineHeight: '1.4' }}>Bans generic openers like "In today\'s fast-paced world". Directly delivers high-value facts.</div>

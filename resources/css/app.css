@@ -46,6 +46,13 @@
   outline: none !important;
 }
 
+input,
+textarea,
+select,
+button {
+  font-family: inherit;
+}
+
 button {
   outline: none !important;
   border: none;
