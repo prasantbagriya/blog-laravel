@@ -2074,6 +2074,28 @@ export default function PostForm({ post }: PostFormProps) {
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="lucide" style={{ width: '18px', height: '18px' }}><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
                             Exit Deep Work
                          </button>
+                         <button
+                            type="button"
+                            onClick={() => setDeployModalOpen(true)}
+                            disabled={isPending}
+                            style={{
+                               display: 'flex',
+                               alignItems: 'center',
+                               gap: '6px',
+                               padding: '6px 16px',
+                               borderRadius: '8px',
+                               background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                               color: '#fff',
+                               border: 'none',
+                               fontWeight: 800,
+                               fontSize: '12.5px',
+                               cursor: 'pointer',
+                               boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)'
+                            }}
+                         >
+                            <span>Deploy</span>
+                            <span style={{ fontSize: '11px' }}>🚀</span>
+                         </button>
                       </div>
 
                       {/* Full-Feature Sticky Toolbar for Deep Work */}
@@ -2960,8 +2982,64 @@ export default function PostForm({ post }: PostFormProps) {
                      </button>
                   </div>
                )}
-               <div style={{ padding: isMobile ? '16px 16px 0 16px' : '24px 24px 0 24px', flexShrink: 0 }}>
-                  <div style={{ fontSize: '10px', fontWeight: 900, color: '#94a3b8', letterSpacing: '1px', marginBottom: '12px' }}>INTEL MODULES</div>
+               {/* Desktop Top Header matching floating toolbar with Deploy button at Right Top */}
+               {!isMobile && (
+                  <div style={{
+                     height: '56px',
+                     minHeight: '56px',
+                     padding: '0 16px',
+                     borderBottom: '1px solid rgba(226,232,240,0.6)',
+                     background: 'rgba(255, 255, 255, 0.85)',
+                     backdropFilter: 'blur(20px)',
+                     display: 'flex',
+                     alignItems: 'center',
+                     justifyContent: 'space-between',
+                     position: 'sticky',
+                     top: 0,
+                     zIndex: 90,
+                     flexShrink: 0
+                  }}>
+                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, overflow: 'hidden' }}>
+                        <span style={{ fontSize: '14px', flexShrink: 0 }}>⚡</span>
+                        <span style={{ fontSize: '11px', fontWeight: 900, color: '#475569', letterSpacing: '0.8px', textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                           Intel Modules
+                        </span>
+                     </div>
+                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                        {lastSaved && (
+                           <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, background: '#f1f5f9', padding: '4px 8px', borderRadius: '6px', whiteSpace: 'nowrap' }}>
+                              Saved {lastSaved}
+                           </span>
+                        )}
+                        <button
+                           type="button"
+                           onClick={() => setDeployModalOpen(true)}
+                           disabled={isPending}
+                           style={{
+                              background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                              color: '#fff',
+                              border: 'none',
+                              padding: '8px 18px',
+                              borderRadius: '8px',
+                              fontWeight: 800,
+                              cursor: 'pointer',
+                              fontSize: '13px',
+                              boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              transition: 'all 0.15s ease',
+                              whiteSpace: 'nowrap'
+                           }}
+                        >
+                           <span>Deploy</span>
+                           <span style={{ fontSize: '12px' }}>🚀</span>
+                        </button>
+                     </div>
+                  </div>
+               )}
+               <div style={{ padding: isMobile ? '16px 16px 0 16px' : '16px 20px 0 20px', flexShrink: 0 }}>
+                  {isMobile && <div style={{ fontSize: '10px', fontWeight: 900, color: '#94a3b8', letterSpacing: '1px', marginBottom: '12px' }}>INTEL MODULES</div>}
                    <div style={{
                       ...intelTabsStyle,
                       display: isMobile ? 'flex' : 'grid',
@@ -4606,13 +4684,6 @@ export default function PostForm({ post }: PostFormProps) {
              </aside>
           </div>
 
-         {/* Floating Deploy Container at Bottom Right */}
-         <div style={{ position: 'fixed', bottom: isMobile ? '20px' : '40px', right: isMobile ? '20px' : '40px', zIndex: 100000, display: isMobile ? 'none' : 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
-            {lastSaved && <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, background: 'rgba(255,255,255,0.85)', padding: '6px 12px', borderRadius: '12px', backdropFilter: 'blur(8px)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>Saved: {lastSaved}</span>}
-            <button onClick={() => setDeployModalOpen(true)} disabled={isPending} style={publishBtnStyle}>
-               Deploy
-            </button>
-         </div>
 
          {/* Deploy Modal */}
          {deployModalOpen && (

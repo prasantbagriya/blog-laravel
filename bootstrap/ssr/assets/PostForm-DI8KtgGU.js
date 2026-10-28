@@ -2479,78 +2479,104 @@ function PostForm({ post }) {
 									alignItems: "center",
 									marginBottom: "20px"
 								},
-								children: [/* @__PURE__ */ jsxs("button", {
-									type: "button",
-									onClick: () => {
-										if (!aiTopic) setAiTopic(title);
-										if (!aiKeywords) setAiKeywords(focusKeyword);
-										setAiStudioOpen(true);
-									},
-									style: {
-										display: "flex",
-										alignItems: "center",
-										gap: "5px",
-										padding: "4px 10px",
-										borderRadius: "6px",
-										background: "#f8fafc",
-										color: "#475569",
-										border: "1px solid #cbd5e1",
-										fontWeight: 600,
-										fontSize: "11.5px",
-										cursor: "pointer",
-										transition: "all 0.15s ease"
-									},
-									onMouseEnter: (e) => {
-										e.currentTarget.style.background = "#f1f5f9";
-										e.currentTarget.style.borderColor = "#94a3b8";
-										e.currentTarget.style.color = "#0f172a";
-									},
-									onMouseLeave: (e) => {
-										e.currentTarget.style.background = "#f8fafc";
-										e.currentTarget.style.borderColor = "#cbd5e1";
-										e.currentTarget.style.color = "#475569";
-									},
-									title: "AI Deep Multi-Fact Research & Human Writer",
-									children: [/* @__PURE__ */ jsx("span", {
-										style: { fontSize: "12px" },
-										children: "✨"
-									}), /* @__PURE__ */ jsx("span", { children: "AI Research" })]
-								}), /* @__PURE__ */ jsxs("button", {
-									onClick: () => setDistractionFree(false),
-									style: exitDeepWorkStyle,
-									children: [/* @__PURE__ */ jsxs("svg", {
-										xmlns: "http://www.w3.org/2000/svg",
-										width: "24",
-										height: "24",
-										viewBox: "0 0 24 24",
-										fill: "none",
-										stroke: "currentColor",
-										strokeWidth: 2,
-										strokeLinecap: "round",
-										strokeLinejoin: "round",
-										className: "lucide",
-										style: {
-											width: "18px",
-											height: "18px"
+								children: [
+									/* @__PURE__ */ jsxs("button", {
+										type: "button",
+										onClick: () => {
+											if (!aiTopic) setAiTopic(title);
+											if (!aiKeywords) setAiKeywords(focusKeyword);
+											setAiStudioOpen(true);
 										},
-										children: [
-											/* @__PURE__ */ jsx("polyline", { points: "4 14 10 14 10 20" }),
-											/* @__PURE__ */ jsx("polyline", { points: "20 10 14 10 14 4" }),
-											/* @__PURE__ */ jsx("line", {
-												x1: "14",
-												y1: "10",
-												x2: "21",
-												y2: "3"
-											}),
-											/* @__PURE__ */ jsx("line", {
-												x1: "3",
-												y1: "21",
-												x2: "10",
-												y2: "14"
-											})
-										]
-									}), "Exit Deep Work"]
-								})]
+										style: {
+											display: "flex",
+											alignItems: "center",
+											gap: "5px",
+											padding: "4px 10px",
+											borderRadius: "6px",
+											background: "#f8fafc",
+											color: "#475569",
+											border: "1px solid #cbd5e1",
+											fontWeight: 600,
+											fontSize: "11.5px",
+											cursor: "pointer",
+											transition: "all 0.15s ease"
+										},
+										onMouseEnter: (e) => {
+											e.currentTarget.style.background = "#f1f5f9";
+											e.currentTarget.style.borderColor = "#94a3b8";
+											e.currentTarget.style.color = "#0f172a";
+										},
+										onMouseLeave: (e) => {
+											e.currentTarget.style.background = "#f8fafc";
+											e.currentTarget.style.borderColor = "#cbd5e1";
+											e.currentTarget.style.color = "#475569";
+										},
+										title: "AI Deep Multi-Fact Research & Human Writer",
+										children: [/* @__PURE__ */ jsx("span", {
+											style: { fontSize: "12px" },
+											children: "✨"
+										}), /* @__PURE__ */ jsx("span", { children: "AI Research" })]
+									}),
+									/* @__PURE__ */ jsxs("button", {
+										onClick: () => setDistractionFree(false),
+										style: exitDeepWorkStyle,
+										children: [/* @__PURE__ */ jsxs("svg", {
+											xmlns: "http://www.w3.org/2000/svg",
+											width: "24",
+											height: "24",
+											viewBox: "0 0 24 24",
+											fill: "none",
+											stroke: "currentColor",
+											strokeWidth: 2,
+											strokeLinecap: "round",
+											strokeLinejoin: "round",
+											className: "lucide",
+											style: {
+												width: "18px",
+												height: "18px"
+											},
+											children: [
+												/* @__PURE__ */ jsx("polyline", { points: "4 14 10 14 10 20" }),
+												/* @__PURE__ */ jsx("polyline", { points: "20 10 14 10 14 4" }),
+												/* @__PURE__ */ jsx("line", {
+													x1: "14",
+													y1: "10",
+													x2: "21",
+													y2: "3"
+												}),
+												/* @__PURE__ */ jsx("line", {
+													x1: "3",
+													y1: "21",
+													x2: "10",
+													y2: "14"
+												})
+											]
+										}), "Exit Deep Work"]
+									}),
+									/* @__PURE__ */ jsxs("button", {
+										type: "button",
+										onClick: () => setDeployModalOpen(true),
+										disabled: isPending,
+										style: {
+											display: "flex",
+											alignItems: "center",
+											gap: "6px",
+											padding: "6px 16px",
+											borderRadius: "8px",
+											background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+											color: "#fff",
+											border: "none",
+											fontWeight: 800,
+											fontSize: "12.5px",
+											cursor: "pointer",
+											boxShadow: "0 2px 8px rgba(37, 99, 235, 0.25)"
+										},
+										children: [/* @__PURE__ */ jsx("span", { children: "Deploy" }), /* @__PURE__ */ jsx("span", {
+											style: { fontSize: "11px" },
+											children: "🚀"
+										})]
+									})
+								]
 							}),
 							/* @__PURE__ */ jsxs("div", {
 								ref: deepWorkToolbarRef,
@@ -5641,12 +5667,100 @@ function PostForm({ post }) {
 								children: /* @__PURE__ */ jsx("span", { children: "✍️ Back to Content" })
 							})]
 						}),
-						/* @__PURE__ */ jsxs("div", {
+						!isMobile && /* @__PURE__ */ jsxs("div", {
 							style: {
-								padding: isMobile ? "16px 16px 0 16px" : "24px 24px 0 24px",
+								height: "56px",
+								minHeight: "56px",
+								padding: "0 16px",
+								borderBottom: "1px solid rgba(226,232,240,0.6)",
+								background: "rgba(255, 255, 255, 0.85)",
+								backdropFilter: "blur(20px)",
+								display: "flex",
+								alignItems: "center",
+								justifyContent: "space-between",
+								position: "sticky",
+								top: 0,
+								zIndex: 90,
 								flexShrink: 0
 							},
-							children: [/* @__PURE__ */ jsx("div", {
+							children: [/* @__PURE__ */ jsxs("div", {
+								style: {
+									display: "flex",
+									alignItems: "center",
+									gap: "8px",
+									minWidth: 0,
+									overflow: "hidden"
+								},
+								children: [/* @__PURE__ */ jsx("span", {
+									style: {
+										fontSize: "14px",
+										flexShrink: 0
+									},
+									children: "⚡"
+								}), /* @__PURE__ */ jsx("span", {
+									style: {
+										fontSize: "11px",
+										fontWeight: 900,
+										color: "#475569",
+										letterSpacing: "0.8px",
+										textTransform: "uppercase",
+										whiteSpace: "nowrap",
+										overflow: "hidden",
+										textOverflow: "ellipsis"
+									},
+									children: "Intel Modules"
+								})]
+							}), /* @__PURE__ */ jsxs("div", {
+								style: {
+									display: "flex",
+									alignItems: "center",
+									gap: "8px",
+									flexShrink: 0
+								},
+								children: [lastSaved && /* @__PURE__ */ jsxs("span", {
+									style: {
+										fontSize: "11px",
+										color: "#64748b",
+										fontWeight: 600,
+										background: "#f1f5f9",
+										padding: "4px 8px",
+										borderRadius: "6px",
+										whiteSpace: "nowrap"
+									},
+									children: ["Saved ", lastSaved]
+								}), /* @__PURE__ */ jsxs("button", {
+									type: "button",
+									onClick: () => setDeployModalOpen(true),
+									disabled: isPending,
+									style: {
+										background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+										color: "#fff",
+										border: "none",
+										padding: "8px 18px",
+										borderRadius: "8px",
+										fontWeight: 800,
+										cursor: "pointer",
+										fontSize: "13px",
+										boxShadow: "0 2px 8px rgba(37, 99, 235, 0.25)",
+										display: "flex",
+										alignItems: "center",
+										gap: "6px",
+										transition: "all 0.15s ease",
+										whiteSpace: "nowrap"
+									},
+									children: [/* @__PURE__ */ jsx("span", { children: "Deploy" }), /* @__PURE__ */ jsx("span", {
+										style: { fontSize: "12px" },
+										children: "🚀"
+									})]
+								})]
+							})]
+						}),
+						/* @__PURE__ */ jsxs("div", {
+							style: {
+								padding: isMobile ? "16px 16px 0 16px" : "16px 20px 0 20px",
+								flexShrink: 0
+							},
+							children: [isMobile && /* @__PURE__ */ jsx("div", {
 								style: {
 									fontSize: "10px",
 									fontWeight: 900,
@@ -10321,36 +10435,6 @@ function PostForm({ post }) {
 							]
 						})
 					]
-				})]
-			}),
-			/* @__PURE__ */ jsxs("div", {
-				style: {
-					position: "fixed",
-					bottom: isMobile ? "20px" : "40px",
-					right: isMobile ? "20px" : "40px",
-					zIndex: 1e5,
-					display: isMobile ? "none" : "flex",
-					flexDirection: "column",
-					alignItems: "flex-end",
-					gap: "8px"
-				},
-				children: [lastSaved && /* @__PURE__ */ jsxs("span", {
-					style: {
-						fontSize: "12px",
-						color: "#64748b",
-						fontWeight: 600,
-						background: "rgba(255,255,255,0.85)",
-						padding: "6px 12px",
-						borderRadius: "12px",
-						backdropFilter: "blur(8px)",
-						boxShadow: "0 4px 12px rgba(0,0,0,0.05)"
-					},
-					children: ["Saved: ", lastSaved]
-				}), /* @__PURE__ */ jsx("button", {
-					onClick: () => setDeployModalOpen(true),
-					disabled: isPending,
-					style: publishBtnStyle,
-					children: "Deploy"
 				})]
 			}),
 			deployModalOpen && /* @__PURE__ */ jsx("div", {
