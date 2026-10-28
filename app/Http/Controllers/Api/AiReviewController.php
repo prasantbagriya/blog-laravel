@@ -27,10 +27,11 @@ class AiReviewController extends Controller
 
         // Try primary model, with automatic fallback if Google reports model unavailable/busy
         $candidateModels = array_unique([
-            config('services.gemini.model', env('GEMINI_MODEL', 'gemini-3.5-flash')),
-            'gemini-3.5-flash',
-            'gemini-3.8-flash',
-            'gemini-flash-latest'
+            config('services.gemini.model', env('GEMINI_MODEL', 'gemini-2.0-flash')),
+            'gemini-2.0-flash',
+            'gemini-1.5-flash',
+            'gemini-2.0-flash-lite',
+            'gemini-1.5-pro'
         ]);
 
         foreach ($candidateModels as $model) {
@@ -183,7 +184,7 @@ class AiReviewController extends Controller
             return "ID: {$b->id}, Name: {$b->name}, Category: {$b->category_name}, Rating: {$b->rating}, TrustScore: {$b->trust_score}, Tags: {$tags}, Description: {$b->description}";
         })->implode("\n");
 
-        $prompt = "You are the AI Search Assistant for TrustPulse AI.\nUser Query: \"{$query}\"\n\nAvailable Verified Businesses Catalog:\n{$businessCatalogText}\n\nTask:\nSelect the top 1-3 best matching business IDs and explain in 2-3 sentences why they fit the user's need.\n\nOutput JSON:\n{\n  \"matchedIds\": string[],\n  \"aiRecommendation\": string\n}";
+        $prompt = "You are the AI Search Assistant for CoachingsinSikar AI.\nUser Query: \"{$query}\"\n\nAvailable Verified Businesses Catalog:\n{$businessCatalogText}\n\nTask:\nSelect the top 1-3 best matching business IDs and explain in 2-3 sentences why they fit the user's need.\n\nOutput JSON:\n{\n  \"matchedIds\": string[],\n  \"aiRecommendation\": string\n}";
 
         $result = $this->generateContent($prompt, true);
         if ($result && isset($result['matchedIds'])) {
@@ -202,7 +203,7 @@ class AiReviewController extends Controller
         $businessName = $request->input('businessName', 'Business');
         $invoiceText = $request->input('invoiceText', 'Standard Order Receipt');
         
-        $prompt = "You are a forensic document examiner and OCR validator for TrustPulse AI.\nAnalyze this receipt/invoice submission for target business \"{$businessName}\":\nInvoice Text / Metadata: \"{$invoiceText}\"\n\nExtract & verify the authenticity:\nTask: Output JSON:\n{\n  \"orderNumber\": string (e.g. \"INV-893012\"),\n  \"vendorName\": string (detected merchant name),\n  \"date\": string (YYYY-MM-DD or detected date),\n  \"totalAmount\": string (e.g. \"$129.50\"),\n  \"confidenceScore\": number (0-100 authenticity rating),\n  \"detectedItems\": string[] (list of parsed products or services),\n  \"isTampered\": boolean (false if genuine, true if suspect digital edit),\n  \"verifiedStatus\": \"VERIFIED_GENUINE\" | \"FLAGGED_MISMATCH\" | \"MANUAL_REVIEW_NEEDED\",\n  \"ocrRawText\": string (summarized structured raw text)\n}";
+        $prompt = "You are a forensic document examiner and OCR validator for CoachingsinSikar AI.\nAnalyze this receipt/invoice submission for target business \"{$businessName}\":\nInvoice Text / Metadata: \"{$invoiceText}\"\n\nExtract & verify the authenticity:\nTask: Output JSON:\n{\n  \"orderNumber\": string (e.g. \"INV-893012\"),\n  \"vendorName\": string (detected merchant name),\n  \"date\": string (YYYY-MM-DD or detected date),\n  \"totalAmount\": string (e.g. \"$129.50\"),\n  \"confidenceScore\": number (0-100 authenticity rating),\n  \"detectedItems\": string[] (list of parsed products or services),\n  \"isTampered\": boolean (false if genuine, true if suspect digital edit),\n  \"verifiedStatus\": \"VERIFIED_GENUINE\" | \"FLAGGED_MISMATCH\" | \"MANUAL_REVIEW_NEEDED\",\n  \"ocrRawText\": string (summarized structured raw text)\n}";
 
         $result = $this->generateContent($prompt, true);
         if ($result) {
@@ -236,7 +237,7 @@ class AiReviewController extends Controller
             return "[{$r->rating}*] \"{$r->title}\": {$r->description} (Pros: {$pros} | Cons: {$cons})";
         })->implode("\n");
 
-        $prompt = "You are a Chief Reputation Officer and Strategic Business Analyst for TrustPulse AI.\nGenerate an in-depth Executive SWOT Analysis and Strategic Reputation Action Plan for:\nBusiness: \"{$business->name}\" ({$business->category_name})\nRating: {$business->rating}/5.0 | Trust Score: {$business->trust_score}/100 | Total Reviews: {$reviews->count()}\n\nRecent Customer Reviews Corpus:\n" . ($reviewData ?: 'No specific text corpus; evaluate based on domain and metrics.') . "\n\nTask: Output JSON:\n{\n  \"businessName\": \"{$business->name}\",\n  \"executiveSummary\": string (2-3 concise, high-level sentences),\n  \"customerLoyaltyIndex\": number (0-100),\n  \"churnRiskLevel\": \"LOW\" | \"MODERATE\" | \"HIGH\",\n  \"swot\": {\n    \"strengths\": string[] (3 bullet points),\n    \"weaknesses\": string[] (2 bullet points),\n    \"opportunities\": string[] (2 bullet points),\n    \"threats\": string[] (2 bullet points)\n  },\n  \"recommendedActionSteps\": string[] (3 actionable priority tasks for the business owner),\n  \"generatedAt\": \"" . now()->toDateString() . "\"\n}";
+        $prompt = "You are a Chief Reputation Officer and Strategic Business Analyst for CoachingsinSikar AI.\nGenerate an in-depth Executive SWOT Analysis and Strategic Reputation Action Plan for:\nBusiness: \"{$business->name}\" ({$business->category_name})\nRating: {$business->rating}/5.0 | Trust Score: {$business->trust_score}/100 | Total Reviews: {$reviews->count()}\n\nRecent Customer Reviews Corpus:\n" . ($reviewData ?: 'No specific text corpus; evaluate based on domain and metrics.') . "\n\nTask: Output JSON:\n{\n  \"businessName\": \"{$business->name}\",\n  \"executiveSummary\": string (2-3 concise, high-level sentences),\n  \"customerLoyaltyIndex\": number (0-100),\n  \"churnRiskLevel\": \"LOW\" | \"MODERATE\" | \"HIGH\",\n  \"swot\": {\n    \"strengths\": string[] (3 bullet points),\n    \"weaknesses\": string[] (2 bullet points),\n    \"opportunities\": string[] (2 bullet points),\n    \"threats\": string[] (2 bullet points)\n  },\n  \"recommendedActionSteps\": string[] (3 actionable priority tasks for the business owner),\n  \"generatedAt\": \"" . now()->toDateString() . "\"\n}";
 
         $result = $this->generateContent($prompt, true);
         if ($result) {

@@ -36,7 +36,8 @@ class GoogleSearchConsoleService
         array $dimensions = ['query'],
         int $rowLimit = 250,
         int $startRow = 0,
-        string $searchType = 'web'
+        string $searchType = 'web',
+        string $dataState = 'final'
     ): array {
         $token = $this->authService->getAccessToken();
         $siteUrl = urlencode($this->getPropertyId());
@@ -48,6 +49,7 @@ class GoogleSearchConsoleService
             'rowLimit' => min($rowLimit, 5000),
             'startRow' => $startRow,
             'type' => $searchType,
+            'dataState' => $dataState,
         ];
 
         $response = Http::withoutVerifying()->withToken($token)

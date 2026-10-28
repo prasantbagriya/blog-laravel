@@ -4,8 +4,8 @@
   ],
   "node_modules/laravel-vite-plugin/inertia-helpers/index.js": [],
   "resources/css/app.css": [
-    "/build/assets/PostForm-DSXcQ-0i.js",
-    "/build/assets/PostForm-DcLdAOym.css",
+    "/build/assets/PostForm-BVRPNDuc.js",
+    "/build/assets/PostForm-DP_QFrLM.css",
     "/build/assets/outfit-latin-ext-400-normal-5tcqmc2S.woff2",
     "/build/assets/outfit-latin-ext-400-normal-DHm7mdGe.woff",
     "/build/assets/outfit-latin-400-normal-BGsTXAXT.woff2",
@@ -155,8 +155,8 @@
     "/build/assets/Index-BiMrnhB7.js"
   ],
   "resources/js/Pages/Admin/PostForm.tsx": [
-    "/build/assets/PostForm-DSXcQ-0i.js",
-    "/build/assets/PostForm-DcLdAOym.css",
+    "/build/assets/PostForm-BVRPNDuc.js",
+    "/build/assets/PostForm-DP_QFrLM.css",
     "/build/assets/outfit-latin-ext-400-normal-5tcqmc2S.woff2",
     "/build/assets/outfit-latin-ext-400-normal-DHm7mdGe.woff",
     "/build/assets/outfit-latin-400-normal-BGsTXAXT.woff2",
@@ -171,13 +171,13 @@
     "/build/assets/outfit-latin-700-normal-D4itBLBr.woff"
   ],
   "resources/js/Pages/Admin/Posts/Edit.jsx": [
-    "/build/assets/Edit-Ip_NXtXX.js"
+    "/build/assets/Edit-DVTv2ivR.js"
   ],
   "resources/js/Pages/Admin/Posts/New.jsx": [
-    "/build/assets/New-COm_krTB.js"
+    "/build/assets/New-gIyTZFxS.js"
   ],
   "resources/js/Pages/Admin/SearchConsole/Index.jsx": [
-    "/build/assets/Index--JK-gfsn.js"
+    "/build/assets/Index-DQ5YHPGV.js"
   ],
   "resources/js/Pages/Admin/SearchConsole/PageSpeedTab.jsx": [
     "/build/assets/PageSpeedTab-BRyjs2Fo.js"
@@ -249,7 +249,7 @@
     "/build/assets/Edit-BNTydgcp2.js"
   ],
   "resources/js/Pages/Category/Index.jsx": [
-    "/build/assets/Index-CZg0cYfy.js"
+    "/build/assets/Index-CjQpqJqc.js"
   ],
   "resources/js/Pages/Category/Show.jsx": [
     "/build/assets/Show-nwkJwZ0l.js"
@@ -324,7 +324,7 @@
     "/build/assets/UpdateProfileInformationForm-JEJ2UmnY.js"
   ],
   "resources/js/Pages/Reviews/Index.tsx": [
-    "/build/assets/Index-D3hLXJxb.js"
+    "/build/assets/Index-BuhLeYDh.js"
   ],
   "resources/js/Pages/Reviews/components/AiSearchModal.tsx": [
     "/build/assets/AiSearchModal-CIqeFegw.js"
@@ -345,7 +345,7 @@
     "/build/assets/SubmitReviewModal-BbCZmBUU.js"
   ],
   "resources/js/Pages/Reviews/data/mockData.ts": [
-    "/build/assets/mockData-Dd33uxjl.js"
+    "/build/assets/mockData-Bc-mBESl.js"
   ],
   "resources/js/Pages/Search/Index.jsx": [
     "/build/assets/Index-BbPHiHq5.js"

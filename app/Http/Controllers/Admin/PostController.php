@@ -191,8 +191,11 @@ class PostController extends Controller
                 \Illuminate\Support\Facades\Cache::forget('public_page_cache_v2_' . md5(url('/blog') . '_1'));
             } catch (\Throwable $ignore) {}
 
-            // Auto-ping Google Instant Indexing API if post is published
-            if (!empty($safeData['published'])) {
+            // Auto-ping Google Instant Indexing API if post is published (Skip on autosaves or noindex)
+            $isAutoSave = $request->boolean('is_autosave');
+            $isNoIndex = !empty($safeData['isNoIndex']);
+
+            if (!empty($safeData['published']) && !$isAutoSave && !$isNoIndex) {
                 try {
                     $gscSettings = \App\Models\GscSetting::instance();
                     if ($gscSettings->is_connected && $gscSettings->auto_index_posts) {

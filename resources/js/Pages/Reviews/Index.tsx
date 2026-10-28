@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { ChevronDown, MessageSquare, HelpCircle, Grid3X3 } from 'lucide-react';
 import GlobalNavbar from '../../NextComponents/GlobalNavbar';
@@ -142,13 +142,15 @@ export default function App({
   initialCategorySlug = 'all',
   businessData = null,
   initialReviews = [],
-  initialBusinesses = []
+  initialBusinesses = [],
+  initialCategories = []
 }: {
   initialView?: string,
   initialCategorySlug?: string,
   businessData?: Business | null,
   initialReviews?: Review[],
-  initialBusinesses?: Business[]
+  initialBusinesses?: Business[],
+  initialCategories?: Category[]
 }) {
   // Application State
   const [activeView, setActiveView] = useState<'home' | 'directory' | 'profile'>(initialView as any);
@@ -162,7 +164,20 @@ export default function App({
   const [preselectedBusinessId, setPreselectedBusinessId] = useState<string | undefined>(undefined);
 
   // Data State
-  const categories: Category[] = INITIAL_CATEGORIES;
+  const categories: Category[] = useMemo(() => {
+    if (initialCategories && initialCategories.length > 0) {
+      return initialCategories.map((c: any, i: number) => ({
+        id: c.id || `db-cat-${i}`,
+        name: c.name,
+        slug: c.slug,
+        iconName: c.iconName || 'GraduationCap',
+        description: c.description || `Explore verified coaching institutes and schools in ${c.name}.`,
+        businessCount: c.businessCount || 0,
+        subcategories: c.subcategories || []
+      }));
+    }
+    return INITIAL_CATEGORIES;
+  }, [initialCategories]);
   const [businesses, setBusinesses] = useState<Business[]>(initialBusinesses || []);
   const [currentReviews, setCurrentReviews] = useState<Review[]>(initialReviews || []);
 
@@ -373,7 +388,7 @@ export default function App({
 
         return (
           <SeoMeta meta={{
-            title: `${viewedBusiness.name} Reviews & Trust Score | TrustPulse`,
+            title: `${viewedBusiness.name} Reviews & Trust Score | CoachingsinSikar`,
             description: seoDescription,
             og_image: viewedBusiness.logo,
             schemas: [businessSchema]
@@ -389,7 +404,7 @@ export default function App({
         }} />
       )}
       
-      <div className="trustpulse-app min-h-screen flex flex-col font-sans transition-colors bg-white text-zinc-900 dark:bg-zinc-950 dark:text-white">
+      <div className="coachingsinsikar-reviews-app min-h-screen flex flex-col font-sans transition-colors bg-white text-zinc-900 dark:bg-zinc-950 dark:text-white">
         <div className="flex-1">
           {/* Main Header / Navigation */}
           <GlobalNavbar />

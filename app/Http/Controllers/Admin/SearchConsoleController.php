@@ -100,6 +100,8 @@ class SearchConsoleController extends Controller
             }
         } catch (\Throwable $e) {}
 
+        $quotaStats = $this->indexingService->getDailyQuotaStats();
+
         $serviceAccountEmail = null;
         $projectId = null;
         if (!empty($settings->service_account_json)) {
@@ -160,6 +162,7 @@ class SearchConsoleController extends Controller
             'initialSitemaps' => $initialSitemaps,
             'cachedQueries' => $cachedTopQueries,
             'recentLogs' => $indexingLogs,
+            'quotaStats' => $quotaStats,
             'callbackSuccess' => $request->boolean('connected'),
             'callbackError' => $request->get('error'),
         ]);
@@ -498,22 +501,44 @@ class SearchConsoleController extends Controller
     public function getAnalytics(Request $request)
     {
         $days = intval($request->get('days', 28));
+        $dataState = 'final';
+
         if ($days === 1 || $request->get('hours') == 24) {
-            $startDate = $request->get('start_date', Carbon::now()->subDays(2)->format('Y-m-d'));
-            $endDate = $request->get('end_date', Carbon::now()->subDays(2)->format('Y-m-d'));
+            // 24H: Google preliminary/fresh data (within last 24-48 hours)
+            $startDate = $request->get('start_date', Carbon::now()->subDays(1)->format('Y-m-d'));
+            $endDate = $request->get('end_date', Carbon::now()->format('Y-m-d'));
+            $dataState = 'all';
         } else {
             $startDate = $request->get('start_date', Carbon::now()->subDays(2 + $days)->format('Y-m-d'));
             $endDate = $request->get('end_date', Carbon::now()->subDays(2)->format('Y-m-d'));
+            $dataState = ($days <= 3) ? 'all' : 'final';
         }
         $searchType = $request->get('type', 'web');
 
         try {
-            // Live query to GSC API
-            $queries = $this->gscService->querySearchAnalytics($startDate, $endDate, ['query'], 200, 0, $searchType);
-            $pages = $this->gscService->querySearchAnalytics($startDate, $endDate, ['page'], 200, 0, $searchType);
-            $dates = $this->gscService->querySearchAnalytics($startDate, $endDate, ['date'], 100, 0, $searchType);
-            $devices = $this->gscService->querySearchAnalytics($startDate, $endDate, ['device'], 10, 0, $searchType);
-            $countries = $this->gscService->querySearchAnalytics($startDate, $endDate, ['country'], 20, 0, $searchType);
+            // Live query to GSC API with automatic fallback if 24H fresh data is not ready from Google
+            try {
+                $queries = $this->gscService->querySearchAnalytics($startDate, $endDate, ['query'], 200, 0, $searchType, $dataState);
+                $pages = $this->gscService->querySearchAnalytics($startDate, $endDate, ['page'], 200, 0, $searchType, $dataState);
+                $dates = $this->gscService->querySearchAnalytics($startDate, $endDate, ['date'], 100, 0, $searchType, $dataState);
+                $devices = $this->gscService->querySearchAnalytics($startDate, $endDate, ['device'], 10, 0, $searchType, $dataState);
+                $countries = $this->gscService->querySearchAnalytics($startDate, $endDate, ['country'], 20, 0, $searchType, $dataState);
+            } catch (\Throwable $apiEx) {
+                // If 24H query failed because Google hasn't published fresh hourly data yet, fall back to last available final day
+                if ($days === 1 || $dataState === 'all') {
+                    $fallbackStart = Carbon::now()->subDays(3)->format('Y-m-d');
+                    $fallbackEnd = Carbon::now()->subDays(2)->format('Y-m-d');
+                    $queries = $this->gscService->querySearchAnalytics($fallbackStart, $fallbackEnd, ['query'], 200, 0, $searchType, 'final');
+                    $pages = $this->gscService->querySearchAnalytics($fallbackStart, $fallbackEnd, ['page'], 200, 0, $searchType, 'final');
+                    $dates = $this->gscService->querySearchAnalytics($fallbackStart, $fallbackEnd, ['date'], 100, 0, $searchType, 'final');
+                    $devices = $this->gscService->querySearchAnalytics($fallbackStart, $fallbackEnd, ['device'], 10, 0, $searchType, 'final');
+                    $countries = $this->gscService->querySearchAnalytics($fallbackStart, $fallbackEnd, ['country'], 20, 0, $searchType, 'final');
+                    $startDate = $fallbackStart;
+                    $endDate = $fallbackEnd;
+                } else {
+                    throw $apiEx;
+                }
+            }
 
             // Calculate totals
             $totalClicks = array_sum(array_column($dates['rows'] ?? [], 'clicks'));
@@ -537,13 +562,35 @@ class SearchConsoleController extends Controller
                 'country_rows' => $countries['rows'] ?? [],
                 'start_date' => $startDate,
                 'end_date' => $endDate,
+                'data_state' => $dataState,
             ]);
         } catch (\Throwable $e) {
+            $cachedQueries = GscSearchAnalytic::orderBy('clicks', 'desc')->take(50)->get();
             return response()->json([
-                'success' => false,
+                'success' => true,
+                'is_fallback' => true,
+                'warning' => 'Google Search Console 24H data is temporarily processing on Google servers. Showing cached analytics.',
                 'error' => $e->getMessage(),
-                'fallback_queries' => GscSearchAnalytic::orderBy('clicks', 'desc')->take(50)->get(),
-            ], 500);
+                'totals' => [
+                    'clicks' => $cachedQueries->sum('clicks'),
+                    'impressions' => $cachedQueries->sum('impressions'),
+                    'ctr' => $cachedQueries->sum('impressions') > 0 ? round(($cachedQueries->sum('clicks') / $cachedQueries->sum('impressions')) * 100, 2) : 0,
+                    'position' => round($cachedQueries->avg('position') ?: 0, 1),
+                ],
+                'date_rows' => [],
+                'query_rows' => $cachedQueries->map(fn($q) => [
+                    'keys' => [$q->query],
+                    'clicks' => $q->clicks,
+                    'impressions' => $q->impressions,
+                    'ctr' => $q->ctr,
+                    'position' => $q->position,
+                ]),
+                'page_rows' => [],
+                'device_rows' => [],
+                'country_rows' => [],
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+            ]);
         }
     }
 
@@ -630,9 +677,11 @@ class SearchConsoleController extends Controller
             'urls' => 'nullable|array',
             'url' => 'nullable|string',
             'action' => 'nullable|string|in:URL_UPDATED,URL_DELETED',
+            'force' => 'nullable|boolean',
         ]);
 
         $action = $request->input('action', 'URL_UPDATED');
+        $force = $request->boolean('force');
         $urls = $request->input('urls') ?: [$request->input('url')];
         $urls = array_filter(array_map('trim', (array) $urls));
 
@@ -641,8 +690,360 @@ class SearchConsoleController extends Controller
         }
 
         try {
-            $results = $this->indexingService->batchPublish($urls, $action, 'manual_admin');
-            return response()->json(['success' => true, 'results' => $results]);
+            $results = $this->indexingService->batchPublish($urls, $action, 'manual_admin', $force);
+            return response()->json([
+                'success' => true,
+                'results' => $results,
+                'quota' => $this->indexingService->getDailyQuotaStats(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Helper to fetch inventory of all site pages cross-referenced with Google Indexing logs.
+     */
+    public function fetchSitePagesInventory(): array
+    {
+        $siteBase = rtrim(config('services.google.site_url', 'https://coachingsinsikar.com'), '/');
+        if (str_contains(url('/'), 'coachingsinsikar.com')) {
+            $siteBase = rtrim(url('/'), '/');
+        }
+
+        // Retrieve all indexing logs grouped by normalized URL
+        $indexedLogs = collect();
+        if (\Illuminate\Support\Facades\Schema::hasTable('gsc_indexing_logs')) {
+            $indexedLogs = GscIndexingLog::orderBy('id', 'desc')->get()->groupBy('url');
+        }
+
+        $items = [];
+
+        // 1. Published Blog Posts (Order by ID ASC so older / bottom posts are at the start)
+        try {
+            $posts = \App\Models\Post::where('published', true)
+                ->where(function($q) {
+                    $q->where('isNoIndex', false)->orWhereNull('isNoIndex');
+                })
+                ->orderBy('id', 'asc')
+                ->get(['id', 'title', 'slug', 'category', 'url_format', 'updated_at', 'created_at']);
+
+            foreach ($posts as $post) {
+                $url = $this->indexingService->normalizeUrl($siteBase . '/' . ltrim($post->url_path, '/'));
+                $logsForUrl = $indexedLogs->get($url, collect());
+                $latestLog = $logsForUrl->first();
+                $lastSuccessLog = $logsForUrl->firstWhere('status', 'success');
+
+                $isCooldownActive = $lastSuccessLog && $lastSuccessLog->created_at->isAfter(Carbon::now()->subHours(24));
+                $hasEverPushed = !empty($lastSuccessLog);
+
+                $status = 'pending';
+                if ($isCooldownActive) {
+                    $status = 'pushed';
+                } elseif ($hasEverPushed) {
+                    $status = 'eligible';
+                } elseif ($latestLog && $latestLog->status === 'failed') {
+                    $status = 'failed';
+                }
+
+                $cooldownHoursLeft = $isCooldownActive ? max(1, 24 - $lastSuccessLog->created_at->diffInHours(Carbon::now())) : 0;
+
+                $items[] = [
+                    'id' => 'post_' . $post->id,
+                    'raw_id' => $post->id,
+                    'title' => $post->title ?: 'Untitled Post',
+                    'type' => 'post',
+                    'type_label' => 'Blog Post',
+                    'category' => $post->category,
+                    'url' => $url,
+                    'status' => $status,
+                    'is_pushed' => $hasEverPushed,
+                    'cooldown_active' => $isCooldownActive,
+                    'cooldown_remaining_hours' => $cooldownHoursLeft,
+                    'last_pushed_at' => $lastSuccessLog ? $lastSuccessLog->created_at->toIso8601String() : null,
+                    'last_pushed_human' => $lastSuccessLog ? $lastSuccessLog->created_at->diffForHumans() : 'Never pushed',
+                    'http_code' => $latestLog ? $latestLog->http_code : null,
+                    'response_message' => $latestLog ? $latestLog->response_message : null,
+                    'updated_at' => $post->updated_at ? $post->updated_at->toIso8601String() : null,
+                    'created_at' => $post->created_at ? $post->created_at->toIso8601String() : null,
+                ];
+            }
+        } catch (\Throwable $e) {}
+
+        // 2. Verified Businesses
+        try {
+            $businesses = \App\Models\Business::where('is_verified', true)
+                ->orderBy('id', 'asc')
+                ->get(['id', 'name', 'slug', 'category', 'updated_at', 'created_at']);
+
+            foreach ($businesses as $biz) {
+                $cat = $biz->category ?: 'coaching-institutes';
+                $bizUrl = $this->indexingService->normalizeUrl($siteBase . '/business/' . $cat . '/' . ($biz->slug ?: $biz->id));
+                $logsForUrl = $indexedLogs->get($bizUrl, collect());
+                $latestLog = $logsForUrl->first();
+                $lastSuccessLog = $logsForUrl->firstWhere('status', 'success');
+
+                $isCooldownActive = $lastSuccessLog && $lastSuccessLog->created_at->isAfter(Carbon::now()->subHours(24));
+                $hasEverPushed = !empty($lastSuccessLog);
+
+                $status = 'pending';
+                if ($isCooldownActive) {
+                    $status = 'pushed';
+                } elseif ($hasEverPushed) {
+                    $status = 'eligible';
+                } elseif ($latestLog && $latestLog->status === 'failed') {
+                    $status = 'failed';
+                }
+
+                $cooldownHoursLeft = $isCooldownActive ? max(1, 24 - $lastSuccessLog->created_at->diffInHours(Carbon::now())) : 0;
+
+                $items[] = [
+                    'id' => 'biz_' . $biz->id,
+                    'raw_id' => $biz->id,
+                    'title' => $biz->name ?: 'Business Listing',
+                    'type' => 'business',
+                    'type_label' => 'Business Listing',
+                    'category' => $biz->category,
+                    'url' => $bizUrl,
+                    'status' => $status,
+                    'is_pushed' => $hasEverPushed,
+                    'cooldown_active' => $isCooldownActive,
+                    'cooldown_remaining_hours' => $cooldownHoursLeft,
+                    'last_pushed_at' => $lastSuccessLog ? $lastSuccessLog->created_at->toIso8601String() : null,
+                    'last_pushed_human' => $lastSuccessLog ? $lastSuccessLog->created_at->diffForHumans() : 'Never pushed',
+                    'http_code' => $latestLog ? $latestLog->http_code : null,
+                    'response_message' => $latestLog ? $latestLog->response_message : null,
+                    'updated_at' => $biz->updated_at ? $biz->updated_at->toIso8601String() : null,
+                    'created_at' => $biz->created_at ? $biz->created_at->toIso8601String() : null,
+                ];
+            }
+        } catch (\Throwable $e) {}
+
+        // 3. Web Stories
+        try {
+            $stories = \App\Models\Story::where('published', true)
+                ->where(function($q) {
+                    $q->where('isNoIndex', false)->orWhereNull('isNoIndex');
+                })
+                ->orderBy('id', 'asc')
+                ->get(['id', 'title', 'slug', 'updated_at', 'created_at']);
+
+            foreach ($stories as $story) {
+                $storyUrl = $this->indexingService->normalizeUrl($siteBase . '/stories/' . $story->slug);
+                $logsForUrl = $indexedLogs->get($storyUrl, collect());
+                $latestLog = $logsForUrl->first();
+                $lastSuccessLog = $logsForUrl->firstWhere('status', 'success');
+
+                $isCooldownActive = $lastSuccessLog && $lastSuccessLog->created_at->isAfter(Carbon::now()->subHours(24));
+                $hasEverPushed = !empty($lastSuccessLog);
+
+                $status = 'pending';
+                if ($isCooldownActive) {
+                    $status = 'pushed';
+                } elseif ($hasEverPushed) {
+                    $status = 'eligible';
+                } elseif ($latestLog && $latestLog->status === 'failed') {
+                    $status = 'failed';
+                }
+
+                $cooldownHoursLeft = $isCooldownActive ? max(1, 24 - $lastSuccessLog->created_at->diffInHours(Carbon::now())) : 0;
+
+                $items[] = [
+                    'id' => 'story_' . $story->id,
+                    'raw_id' => $story->id,
+                    'title' => $story->title ?: 'Web Story',
+                    'type' => 'story',
+                    'type_label' => 'Web Story',
+                    'category' => 'stories',
+                    'url' => $storyUrl,
+                    'status' => $status,
+                    'is_pushed' => $hasEverPushed,
+                    'cooldown_active' => $isCooldownActive,
+                    'cooldown_remaining_hours' => $cooldownHoursLeft,
+                    'last_pushed_at' => $lastSuccessLog ? $lastSuccessLog->created_at->toIso8601String() : null,
+                    'last_pushed_human' => $lastSuccessLog ? $lastSuccessLog->created_at->diffForHumans() : 'Never pushed',
+                    'http_code' => $latestLog ? $latestLog->http_code : null,
+                    'response_message' => $latestLog ? $latestLog->response_message : null,
+                    'updated_at' => $story->updated_at ? $story->updated_at->toIso8601String() : null,
+                    'created_at' => $story->created_at ? $story->created_at->toIso8601String() : null,
+                ];
+            }
+        } catch (\Throwable $e) {}
+
+        // 4. Static Pages
+        try {
+            $pages = \App\Models\Page::orderBy('id', 'asc')->get(['id', 'title', 'slug', 'updated_at', 'created_at']);
+            foreach ($pages as $page) {
+                $pageUrl = $this->indexingService->normalizeUrl($siteBase . '/' . ltrim($page->slug, '/'));
+                $logsForUrl = $indexedLogs->get($pageUrl, collect());
+                $latestLog = $logsForUrl->first();
+                $lastSuccessLog = $logsForUrl->firstWhere('status', 'success');
+
+                $isCooldownActive = $lastSuccessLog && $lastSuccessLog->created_at->isAfter(Carbon::now()->subHours(24));
+                $hasEverPushed = !empty($lastSuccessLog);
+
+                $status = 'pending';
+                if ($isCooldownActive) {
+                    $status = 'pushed';
+                } elseif ($hasEverPushed) {
+                    $status = 'eligible';
+                } elseif ($latestLog && $latestLog->status === 'failed') {
+                    $status = 'failed';
+                }
+
+                $cooldownHoursLeft = $isCooldownActive ? max(1, 24 - $lastSuccessLog->created_at->diffInHours(Carbon::now())) : 0;
+
+                $items[] = [
+                    'id' => 'page_' . $page->id,
+                    'raw_id' => $page->id,
+                    'title' => $page->title ?: 'Static Page',
+                    'type' => 'page',
+                    'type_label' => 'Static Page',
+                    'category' => 'pages',
+                    'url' => $pageUrl,
+                    'status' => $status,
+                    'is_pushed' => $hasEverPushed,
+                    'cooldown_active' => $isCooldownActive,
+                    'cooldown_remaining_hours' => $cooldownHoursLeft,
+                    'last_pushed_at' => $lastSuccessLog ? $lastSuccessLog->created_at->toIso8601String() : null,
+                    'last_pushed_human' => $lastSuccessLog ? $lastSuccessLog->created_at->diffForHumans() : 'Never pushed',
+                    'http_code' => $latestLog ? $latestLog->http_code : null,
+                    'response_message' => $latestLog ? $latestLog->response_message : null,
+                    'updated_at' => $page->updated_at ? $page->updated_at->toIso8601String() : null,
+                    'created_at' => $page->created_at ? $page->created_at->toIso8601String() : null,
+                ];
+            }
+        } catch (\Throwable $e) {}
+
+        $totalCount = count($items);
+        $pushedCount = count(array_filter($items, fn($i) => !empty($i['cooldown_active'])));
+        $eligibleCount = count(array_filter($items, fn($i) => $i['status'] === 'eligible'));
+        $pendingCount = count(array_filter($items, fn($i) => $i['status'] === 'pending'));
+        $failedCount = count(array_filter($items, fn($i) => $i['status'] === 'failed'));
+        $pushableCount = $pendingCount + $failedCount + $eligibleCount;
+
+        $quota = $this->indexingService->getDailyQuotaStats();
+
+        return [
+            'summary' => [
+                'total_pages' => $totalCount,
+                'pushed_count' => $pushedCount,
+                'eligible_count' => $eligibleCount,
+                'pending_count' => $pendingCount,
+                'failed_count' => $failedCount,
+                'pushable_count' => $pushableCount,
+                'quota_used_today' => $quota['used'],
+                'quota_limit' => $quota['limit'],
+                'quota_remaining' => $quota['remaining'],
+            ],
+            'pages' => $items,
+        ];
+    }
+
+    /**
+     * Get inventory of all website pages/posts/businesses and their Google Indexing status.
+     */
+    public function getPagesIndexStatus(Request $request)
+    {
+        try {
+            $inventory = $this->fetchSitePagesInventory();
+            return response()->json([
+                'success' => true,
+                'summary' => $inventory['summary'],
+                'pages' => $inventory['pages'],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Smart Batch Push unindexed or pending URLs ("niche pade hue") to Google Indexing API.
+     * Starts from bottom/oldest unindexed content first, respecting daily quota & cooldown.
+     */
+    public function pushPendingUrls(Request $request)
+    {
+        $limit = min(max(intval($request->input('limit', 50)), 1), 100);
+        $type = $request->input('type', 'all'); // 'all', 'posts', 'businesses', 'stories', 'pages'
+        $order = $request->input('order', 'bottom_first'); // 'bottom_first' or 'newest_first'
+        $force = $request->boolean('force');
+
+        try {
+            $inventory = $this->fetchSitePagesInventory();
+            $allPages = $inventory['pages'];
+
+            if (empty($allPages)) {
+                return response()->json(['success' => false, 'error' => 'No site pages found to push.'], 404);
+            }
+
+            // Filter by type if requested
+            if ($type !== 'all') {
+                $allPages = array_values(array_filter($allPages, fn($p) => $p['type'] === $type));
+            }
+
+            // Filter for pages that need pushing:
+            // Either status === 'pending' (never pushed), 'failed', or 'eligible' (> 24h cooldown expired)
+            $pendingPages = array_values(array_filter($allPages, function($p) use ($force) {
+                if ($force) {
+                    return true;
+                }
+                return in_array($p['status'], ['pending', 'failed', 'eligible'], true);
+            }));
+
+            if (empty($pendingPages)) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'All eligible pages have already been pushed to Googlebot! No pending pages left.',
+                    'processed' => 0,
+                    'pushed' => 0,
+                    'skipped' => 0,
+                    'failed' => 0,
+                    'results' => [],
+                    'quota' => $inventory['summary'],
+                ]);
+            }
+
+            // Order: bottom_first (oldest content sitting at the bottom first!)
+            if ($order === 'bottom_first') {
+                // already sorted by id ASC (oldest at the bottom first)
+            } else {
+                $pendingPages = array_reverse($pendingPages);
+            }
+
+            // Take up to $limit
+            $targetSlice = array_slice($pendingPages, 0, $limit);
+            $urlsToPush = array_column($targetSlice, 'url');
+
+            // Publish via batchPublish
+            $results = $this->indexingService->batchPublish($urlsToPush, 'URL_UPDATED', 'smart_batch_pending', $force);
+
+            $pushedCount = 0;
+            $skippedCount = 0;
+            $failedCount = 0;
+
+            foreach ($results as $res) {
+                if (!empty($res['skipped'])) {
+                    $skippedCount++;
+                } elseif (!empty($res['success'])) {
+                    $pushedCount++;
+                } else {
+                    $failedCount++;
+                }
+            }
+
+            $quota = $this->indexingService->getDailyQuotaStats();
+
+            return response()->json([
+                'success' => true,
+                'processed' => count($results),
+                'pushed' => $pushedCount,
+                'skipped' => $skippedCount,
+                'failed' => $failedCount,
+                'remaining_quota' => $quota['remaining'],
+                'message' => "Batch completed: {$pushedCount} URL(s) pushed to Googlebot, {$skippedCount} skipped (already recent), {$failedCount} failed.",
+                'results' => $results,
+                'quota' => $quota,
+            ]);
         } catch (\Throwable $e) {
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
         }

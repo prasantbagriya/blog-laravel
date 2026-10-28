@@ -1083,9 +1083,10 @@ Output ONLY a single valid JSON object matching EXACTLY this structure:
 PROMPT;
 
         $candidateModels = array_unique([
-            config('services.gemini.model', env('GEMINI_MODEL', 'gemini-3.5-flash-lite')),
-            'gemini-3.5-flash-lite',
-            'gemini-flash-lite-latest',
+            config('services.gemini.model', env('GEMINI_MODEL', 'gemini-2.0-flash')),
+            'gemini-2.0-flash',
+            'gemini-1.5-flash',
+            'gemini-2.0-flash-lite',
         ]);
 
         $payload = [

@@ -37,9 +37,12 @@ class ReviewPageController extends Controller
             ],
         ];
 
+        $categories = \App\Models\Category::all(['id', 'name', 'slug', 'description'])->toArray();
+
         return Inertia::render('Reviews/Index', [
             'initialView' => 'home',
             'initialBusinesses' => $businesses,
+            'initialCategories' => $categories,
             'meta' => $meta,
         ]);
     }
@@ -80,10 +83,13 @@ class ReviewPageController extends Controller
             'type' => 'website',
         ];
 
+        $categories = \App\Models\Category::all(['id', 'name', 'slug', 'description'])->toArray();
+
         return Inertia::render('Reviews/Index', [
             'initialView' => 'directory',
             'initialCategorySlug' => $categorySlug,
             'initialBusinesses' => $categoryBusinesses,
+            'initialCategories' => $categories,
             'meta' => $meta,
         ]);
     }
@@ -181,7 +187,7 @@ class ReviewPageController extends Controller
             'businessData' => $business->publicPayload(request()->user()),
             'initialReviews' => $reviews,
             'meta' => [
-                'title' => "{$business->name} Reviews & Trust Score | TrustPulse",
+                'title' => "{$business->name} Reviews & Trust Score | CoachingsinSikar",
                 'description' => $seoDescription,
                 'og_image' => !empty($business->logo) ? (str_starts_with($business->logo, 'http') ? $business->logo : url($business->logo)) : '',
                 'url' => $canonicalUrl,

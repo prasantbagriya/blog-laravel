@@ -5,6 +5,7 @@ namespace App\Services\Google;
 use App\Models\GscSetting;
 use App\Models\GscIndexingLog;
 use Illuminate\Support\Facades\Http;
+use Carbon\Carbon;
 use Exception;
 
 class GoogleIndexingService
@@ -62,12 +63,102 @@ class GoogleIndexingService
     }
 
     /**
-     * Submit a single URL to Google Instant Indexing API (URL_UPDATED or URL_DELETED).
+     * Check if a URL has already been successfully pushed within the cooldown period (default: 24h).
      */
-    public function publishUrl(string $url, string $action = 'URL_UPDATED', string $triggeredBy = 'manual'): array
+    public function isRecentlySubmitted(string $url, string $action = 'URL_UPDATED', int $hours = 24): bool
+    {
+        $normalized = $this->normalizeUrl($url);
+        $altUrl = str_ends_with($normalized, '/') ? rtrim($normalized, '/') : $normalized . '/';
+
+        return GscIndexingLog::whereIn('url', [$normalized, $altUrl])
+            ->where('action', $action)
+            ->where('status', 'success')
+            ->where('created_at', '>=', Carbon::now()->subHours($hours))
+            ->exists();
+    }
+
+    /**
+     * Get Google Indexing API daily quota statistics (limit: 200/day).
+     */
+    public function getDailyQuotaStats(): array
+    {
+        $todaySuccessCount = GscIndexingLog::where('status', 'success')
+            ->whereDate('created_at', Carbon::today())
+            ->count();
+
+        $limit = 200;
+        return [
+            'used' => $todaySuccessCount,
+            'limit' => $limit,
+            'remaining' => max(0, $limit - $todaySuccessCount),
+            'resets_at' => Carbon::tomorrow()->toIso8601String(),
+        ];
+    }
+
+    /**
+     * Submit a single URL to Google Instant Indexing API (URL_UPDATED or URL_DELETED).
+     * Prevents duplicate pushes and respects 24h cooldown unless $force = true.
+     */
+    public function publishUrl(string $url, string $action = 'URL_UPDATED', string $triggeredBy = 'manual', bool $force = false): array
     {
         $url = $this->normalizeUrl($url);
+        if (empty($url)) {
+            return [
+                'success' => false,
+                'status' => 'failed',
+                'http_code' => 400,
+                'message' => 'Empty or invalid URL provided.',
+            ];
+        }
+
+        // 1. Duplicate & Cooldown Protection (Skip if pushed successfully in last 24h)
+        if (!$force && $action === 'URL_UPDATED') {
+            $altUrl = str_ends_with($url, '/') ? rtrim($url, '/') : $url . '/';
+            $recentLog = GscIndexingLog::whereIn('url', [$url, $altUrl])
+                ->where('action', 'URL_UPDATED')
+                ->where('status', 'success')
+                ->where('created_at', '>=', Carbon::now()->subHours(24))
+                ->latest('id')
+                ->first();
+
+            if ($recentLog) {
+                $pushedAgo = $recentLog->created_at->diffForHumans();
+                $hoursLeft = max(1, 24 - $recentLog->created_at->diffInHours(Carbon::now()));
+                return [
+                    'success' => true,
+                    'status' => 'skipped',
+                    'http_code' => 200,
+                    'skipped' => true,
+                    'message' => "Skipped: URL was already pushed successfully to Googlebot {$pushedAgo} (24h cooldown active, ~{$hoursLeft}h remaining to protect quota).",
+                    'url' => $url,
+                    'last_pushed_at' => $recentLog->created_at->toIso8601String(),
+                    'cooldown_remaining_hours' => $hoursLeft,
+                ];
+            }
+        }
+
+        // 2. Google 200/day Quota Protection
+        $quota = $this->getDailyQuotaStats();
+        if ($quota['remaining'] <= 0 && !$force) {
+            return [
+                'success' => false,
+                'status' => 'quota_exceeded',
+                'http_code' => 429,
+                'message' => 'Daily Google Indexing API quota (200 URLs/day) reached for today. Cooldown will reset at midnight.',
+                'url' => $url,
+            ];
+        }
+
         $token = $this->authService->getAccessToken();
+        if (empty($token)) {
+            return [
+                'success' => false,
+                'status' => 'failed',
+                'http_code' => 401,
+                'message' => 'Unable to generate Google Access Token. Check your Search Console connection or Service Account JSON in Settings.',
+                'url' => $url,
+            ];
+        }
 
         $payload = [
             'url' => $url,
@@ -139,15 +230,23 @@ class GoogleIndexingService
     }
 
     /**
-     * Submit batch of URLs for instant indexing.
+     * Submit batch of URLs for instant indexing. Deduplicates input and respects cooldown & daily quota.
      */
-    public function batchPublish(array $urls, string $action = 'URL_UPDATED', string $triggeredBy = 'manual'): array
+    public function batchPublish(array $urls, string $action = 'URL_UPDATED', string $triggeredBy = 'manual', bool $force = false): array
     {
+        // Deduplicate and trim input URLs
+        $urls = array_values(array_unique(array_filter(array_map('trim', $urls))));
         $results = [];
+
         foreach ($urls as $url) {
-            $trimmed = trim($url);
-            if (!empty($trimmed)) {
-                $results[] = $this->publishUrl($trimmed, $action, $triggeredBy);
+            if (!empty($url)) {
+                $res = $this->publishUrl($url, $action, $triggeredBy, $force);
+                $results[] = $res;
+
+                // Stop further processing if daily quota is exhausted
+                if (($res['status'] ?? '') === 'quota_exceeded') {
+                    break;
+                }
             }
         }
         return $results;

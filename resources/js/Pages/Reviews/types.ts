@@ -1,17 +1,23 @@
 export type UserRole = 'visitor' | 'reviewer' | 'business_owner' | 'moderator' | 'admin' | 'super_admin';
 
 export type CategorySlug = 
+  | 'coaching' 
+  | 'education' 
+  | 'iit-jee' 
+  | 'neet-medical' 
+  | 'nda-defense' 
+  | 'schools' 
+  | 'hostels' 
   | 'saas' 
   | 'ai-tools' 
   | 'ecommerce' 
   | 'hospitals' 
   | 'hosting' 
-  | 'coaching' 
   | 'hotels' 
   | 'finance' 
   | 'crypto' 
-  | 'education' 
-  | 'real-estate';
+  | 'real-estate'
+  | string;
 
 export interface Category {
   id: string;

@@ -606,7 +606,7 @@ export default function PostForm({ post }: PostFormProps) {
          if (handleSaveRef.current && title.trim() !== '') {
              handleSaveRef.current(isPublishedRef.current, true);
          }
-      }, 5000);
+      }, 30000);
       return () => clearInterval(timer);
    }, [title]);
 
@@ -2003,7 +2003,7 @@ export default function PostForm({ post }: PostFormProps) {
          const res = await fetch((typeof window !== 'undefined' && window.BASE_PATH ? window.BASE_PATH : '') + '/api/admin/posts', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updatedPost)
+            body: JSON.stringify({ ...updatedPost, is_autosave: isAutoSave })
          });
          
          if (!res.ok) {

@@ -384,8 +384,28 @@ class BingWebmasterService
     /**
      * Submit a single URL to Bingbot for instant crawling.
      */
-    public function submitUrl(string $url, ?string $siteUrl = null, ?int $userId = null): array
+    public function submitUrl(string $url, ?string $siteUrl = null, ?int $userId = null, bool $force = false): array
     {
+        $setting = $this->getSetting();
+
+        // Prevent duplicate spam to Bingbot if pushed successfully in last 24h
+        if (!$force) {
+            $recentSuccess = BingSubmissionLog::where('url', $url)
+                ->where('status', 'success')
+                ->where('created_at', '>=', \Carbon\Carbon::now()->subHours(24))
+                ->exists();
+
+            if ($recentSuccess) {
+                return [
+                    'success' => true,
+                    'status_code' => 200,
+                    'skipped' => true,
+                    'message' => 'Skipped: URL was already submitted to Bingbot within the last 24 hours.',
+                    'remaining_quota' => $setting->daily_quota_remaining,
+                ];
+            }
+        }
+
         $targetSite = $siteUrl ?: $this->getRegisteredSiteUrl();
         $candidates = array_unique([$targetSite, rtrim($targetSite, '/'), rtrim($targetSite, '/') . '/']);
         $setting = $this->getSetting();
@@ -493,6 +513,10 @@ class BingWebmasterService
      */
     public function submitIndexNow(array $urls): array
     {
+        $urls = array_values(array_unique(array_filter($urls)));
+        if (empty($urls)) {
+            return ['success' => false, 'message' => 'No URLs provided for IndexNow.'];
+        }
         $host = parse_url($this->getSiteUrl(), PHP_URL_HOST) ?: 'coachingsinsikar.com';
         $key = config('services.bing.api_key') ?: md5($host . 'indexnow_secret');
 

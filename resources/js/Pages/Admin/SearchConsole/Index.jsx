@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
-import { Search, Globe, Send, Key, Lock, Link as LinkIcon, Terminal, ArrowRight, ShieldCheck, CheckCircle2, AlertTriangle, RefreshCw, FileText, BarChart3, Zap, Settings, Sparkles, Smartphone, TrendingUp, Database, Target, Trash2, ExternalLink, Check, Clock, Copy, Info, Gauge, Calendar } from 'lucide-react';
+import { Search, Globe, Send, Key, Lock, Link as LinkIcon, Terminal, ArrowRight, ShieldCheck, CheckCircle2, AlertTriangle, RefreshCw, FileText, BarChart3, Zap, Settings, Sparkles, Smartphone, TrendingUp, Database, Target, Trash2, ExternalLink, Check, Clock, Copy, Info, Gauge, Calendar, Layers, Filter, CheckSquare, ListFilter, ArrowDownUp, AlertCircle, Play } from 'lucide-react';
 import PageSpeedTab from './PageSpeedTab';
 
 export default function SearchConsoleIndex({
@@ -10,6 +10,7 @@ export default function SearchConsoleIndex({
   initialSitemaps = [],
   cachedQueries = [],
   recentLogs = [],
+  quotaStats: initialQuota = null,
   callbackSuccess = false,
   callbackError = null,
   pageSpeedData = {},
@@ -37,6 +38,7 @@ export default function SearchConsoleIndex({
   // Instant Indexing State
   const [indexUrlInput, setIndexUrlInput] = useState('');
   const [indexAction, setIndexAction] = useState('URL_UPDATED');
+  const [forceIndex, setForceIndex] = useState(false);
   const [indexing, setIndexing] = useState(false);
   const [indexLogs, setIndexLogs] = useState(recentLogs || []);
   const [indexMessage, setIndexMessage] = useState(null);
@@ -44,6 +46,19 @@ export default function SearchConsoleIndex({
   const [testIndexingResult, setTestIndexingResult] = useState(null);
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [loadingIndexLogs, setLoadingIndexLogs] = useState(false);
+  const [quotaStats, setQuotaStats] = useState(initialQuota || { used: 0, limit: 200, remaining: 200 });
+
+  // Site Content Inventory & Smart Batch Indexing State
+  const [siteInventory, setSiteInventory] = useState(null);
+  const [loadingInventory, setLoadingInventory] = useState(false);
+  const [inventoryTab, setInventoryTab] = useState('pending'); // 'pending' (niche pade hue), 'all', 'pushed', 'failed'
+  const [inventorySearch, setInventorySearch] = useState('');
+  const [inventoryTypeFilter, setInventoryTypeFilter] = useState('all');
+  const [pushingPending, setPushingPending] = useState(false);
+  const [pushPendingBatchSize, setPushPendingBatchSize] = useState(50);
+  const [pushPendingOrder, setPushPendingOrder] = useState('bottom_first'); // 'bottom_first' or 'newest_first'
+  const [pushPendingMessage, setPushPendingMessage] = useState(null);
+  const [pushingSingleId, setPushingSingleId] = useState(null);
 
   // Sitemaps State
   const [sitemaps, setSitemaps] = useState(initialSitemaps || []);
@@ -265,25 +280,60 @@ export default function SearchConsoleIndex({
     }
   };
 
-  // Handle Instant Indexing
+  // Fetch Site Pages Inventory & Indexing Status
+  const fetchSiteInventory = async () => {
+    setLoadingInventory(true);
+    try {
+      const res = await fetch('/api/admin/gsc/pages-index-status');
+      const data = await res.json();
+      if (data.success) {
+        setSiteInventory(data);
+        if (data.summary) {
+          setQuotaStats({
+            used: data.summary.quota_used_today,
+            limit: data.summary.quota_limit,
+            remaining: data.summary.quota_remaining,
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch site inventory:', err);
+    } finally {
+      setLoadingInventory(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'indexing' && !siteInventory) {
+      fetchSiteInventory();
+    }
+  }, [activeTab]);
+
+  // Handle Instant Indexing (Manual Form)
   const handlePublishIndex = async (e) => {
     e?.preventDefault();
     if (!indexUrlInput) return;
     setIndexing(true);
     setIndexMessage(null);
 
-    const urls = indexUrlInput.split('\n').map(u => u.trim()).filter(Boolean);
+    const urls = Array.from(new Set(indexUrlInput.split('\n').map(u => u.trim()).filter(Boolean)));
 
     try {
       const res = await fetch('/api/admin/gsc/index-url', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
-        body: JSON.stringify({ urls, action: indexAction }),
+        body: JSON.stringify({ urls, action: indexAction, force: forceIndex }),
       });
       const data = await res.json();
       if (data.success) {
         const results = data.results || [];
+        const skippedItems = results.filter(r => r.skipped);
         const failedItems = results.filter(r => !r.success || r.status === 'failed' || r.http_code === 403);
+        const successItems = results.filter(r => r.success && !r.skipped);
+
+        if (data.quota) {
+          setQuotaStats(data.quota);
+        }
 
         if (failedItems.length > 0) {
           const firstMsg = failedItems[0].message || 'Some URLs failed ownership verification.';
@@ -291,14 +341,20 @@ export default function SearchConsoleIndex({
             type: 'error',
             text: `${failedItems.length} of ${urls.length} URL(s) failed. Google response: ${firstMsg}`,
           });
+        } else if (skippedItems.length > 0 && successItems.length === 0) {
+          setIndexMessage({
+            type: 'info',
+            text: `Skipped ${skippedItems.length} URL(s): Already successfully pushed in last 24h (Cooldown active).`,
+          });
         } else {
           setIndexMessage({
             type: 'success',
-            text: `Successfully submitted ${urls.length} URL(s) to Googlebot!`,
+            text: `Successfully submitted ${successItems.length} URL(s) to Googlebot! ${skippedItems.length > 0 ? `(${skippedItems.length} skipped - already pushed recently)` : ''}`,
           });
           setIndexUrlInput('');
         }
         fetchIndexingLogs();
+        fetchSiteInventory();
       } else {
         setIndexMessage({ type: 'error', text: data.error || 'Failed to publish URLs.' });
       }
@@ -306,6 +362,76 @@ export default function SearchConsoleIndex({
       setIndexMessage({ type: 'error', text: err.message });
     } finally {
       setIndexing(false);
+    }
+  };
+
+  // Push pending / unindexed URLs batch ("niche pade hue")
+  const handlePushPendingBatch = async () => {
+    setPushingPending(true);
+    setPushPendingMessage(null);
+    try {
+      const res = await fetch('/api/admin/gsc/push-pending', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
+        body: JSON.stringify({
+          limit: pushPendingBatchSize,
+          order: pushPendingOrder,
+          type: inventoryTypeFilter,
+          force: false,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPushPendingMessage({
+          type: data.failed > 0 ? 'warning' : 'success',
+          text: data.message || `Processed ${data.processed} URLs: ${data.pushed} pushed to Googlebot!`,
+        });
+        if (data.quota) {
+          setQuotaStats(data.quota);
+        }
+        fetchSiteInventory();
+        fetchIndexingLogs();
+      } else {
+        setPushPendingMessage({ type: 'error', text: data.error || 'Failed to push pending batch.' });
+      }
+    } catch (err) {
+      setPushPendingMessage({ type: 'error', text: err.message });
+    } finally {
+      setPushingPending(false);
+    }
+  };
+
+  // Push single URL from the inventory table
+  const handlePushSingleUrl = async (url, pageId, force = false) => {
+    setPushingSingleId(pageId);
+    try {
+      const res = await fetch('/api/admin/gsc/index-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
+        body: JSON.stringify({ url, action: 'URL_UPDATED', force }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        const itemResult = data.results?.[0];
+        if (itemResult?.skipped) {
+          setIndexMessage({ type: 'info', text: itemResult.message });
+        } else if (itemResult?.success) {
+          setIndexMessage({ type: 'success', text: `URL pushed successfully to Googlebot!` });
+        } else {
+          setIndexMessage({ type: 'error', text: itemResult?.message || 'Push failed.' });
+        }
+        if (data.quota) {
+          setQuotaStats(data.quota);
+        }
+        fetchSiteInventory();
+        fetchIndexingLogs();
+      } else {
+        setIndexMessage({ type: 'error', text: data.error || 'Failed to push URL.' });
+      }
+    } catch (err) {
+      setIndexMessage({ type: 'error', text: err.message });
+    } finally {
+      setPushingSingleId(null);
     }
   };
 
@@ -458,6 +584,30 @@ export default function SearchConsoleIndex({
     if (!pageFilter) return list;
     return list.filter(p => (p.keys?.[0] || p.page || '').toLowerCase().includes(pageFilter.toLowerCase()));
   }, [analyticsData, pageFilter]);
+
+  // Filtered Site Content Inventory (Instant Indexing Tab)
+  const filteredInventoryPages = useMemo(() => {
+    const list = siteInventory?.pages || [];
+    return list.filter((item) => {
+      // 1. Tab filter: pending (niche pade hue), eligible (>24h passed), pushed (active 24h cooldown), failed, all
+      if (inventoryTab === 'pending' && item.status !== 'pending') return false;
+      if (inventoryTab === 'eligible' && item.status !== 'eligible') return false;
+      if (inventoryTab === 'pushed' && !item.cooldown_active) return false;
+      if (inventoryTab === 'failed' && item.status !== 'failed') return false;
+
+      // 2. Content Type filter
+      if (inventoryTypeFilter !== 'all' && item.type !== inventoryTypeFilter) return false;
+
+      // 3. Search query
+      if (inventorySearch.trim()) {
+        const q = inventorySearch.toLowerCase();
+        const titleMatch = (item.title || '').toLowerCase().includes(q);
+        const urlMatch = (item.url || '').toLowerCase().includes(q);
+        return titleMatch || urlMatch;
+      }
+      return true;
+    });
+  }, [siteInventory, inventoryTab, inventoryTypeFilter, inventorySearch]);
 
   return (
     <AdminLayout>
@@ -1114,15 +1264,391 @@ export default function SearchConsoleIndex({
                 </div>
               </div>
             )}
+          </div>
 
-            {/* Submission Form */}
-            <form onSubmit={handlePublishIndex} className="space-y-4 pt-2">
+          {/* Indexing Metrics & Daily Quota Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm">
+              <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-1">
+                <span>Google Daily Quota</span>
+                <span className="font-mono text-blue-600 font-bold">{quotaStats.remaining} Left</span>
+              </div>
+              <div className="text-xl font-extrabold text-slate-900 dark:text-white">
+                {quotaStats.used} <span className="text-xs font-normal text-slate-400">/ {quotaStats.limit}</span>
+              </div>
+              <div className="w-full bg-slate-100 dark:bg-zinc-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                <div
+                  className="bg-blue-600 h-full rounded-full transition-all duration-500"
+                  style={{ width: `${Math.min(100, Math.round((quotaStats.used / (quotaStats.limit || 200)) * 100))}%` }}
+                />
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm">
+              <div className="text-xs text-slate-500 font-semibold mb-1">Total Site Pages</div>
+              <div className="text-xl font-extrabold text-slate-900 dark:text-white">
+                {siteInventory?.summary?.total_pages ?? '...'}
+              </div>
+              <span className="text-[11px] text-slate-400">Across Posts, Businesses, Stories</span>
+            </div>
+
+            <div className="bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm">
+              <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold mb-1">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                <span>Pushed to Googlebot</span>
+              </div>
+              <div className="text-xl font-extrabold text-emerald-600 dark:text-emerald-400">
+                {siteInventory?.summary?.pushed_count ?? 0}
+              </div>
+              <span className="text-[11px] text-emerald-600/80 font-medium">Verified Crawl Requested</span>
+            </div>
+
+            <div className="bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm">
+              <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold mb-1">
+                <Clock className="w-3.5 h-3.5 text-amber-500" />
+                <span>Pending / Unpushed</span>
+              </div>
+              <div className="text-xl font-extrabold text-amber-600 dark:text-amber-400">
+                {siteInventory?.summary?.pending_count ?? 0}
+              </div>
+              <span className="text-[11px] text-amber-600/80 font-medium">Lying Unindexed / Waiting</span>
+            </div>
+          </div>
+
+          {/* Smart Batch Push Pending URLs Engine ("Niche Pade Pages Ko Push Karo") */}
+          <div className="bg-gradient-to-br from-blue-50/70 to-indigo-50/50 dark:from-zinc-900 dark:to-zinc-900 p-6 rounded-2xl border border-blue-100 dark:border-zinc-800 shadow-sm space-y-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-md shadow-blue-600/20">
+                    <Zap className="w-4 h-4" />
+                  </div>
+                  <h4 className="text-base font-extrabold text-slate-900 dark:text-white">
+                    Smart Batch Push (Queue Pending &amp; Bottom Content First)
+                  </h4>
+                </div>
+                <p className="text-xs text-slate-600 dark:text-zinc-400 leading-relaxed max-w-2xl">
+                  Pushes your unindexed or older pages lying at the bottom of the database directly to Googlebot.
+                  Automatic 24h cooldown and duplicate prevention safeguard your 200 URLs/day quota from being wasted on repeat submissions.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                <select
+                  value={pushPendingOrder}
+                  onChange={(e) => setPushPendingOrder(e.target.value)}
+                  className="text-xs px-3 py-2 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-800 dark:text-zinc-200 font-bold outline-none cursor-pointer"
+                  title="Push Order"
+                >
+                  <option value="bottom_first">Bottom-First (Oldest unindexed first)</option>
+                  <option value="newest_first">Newest-First</option>
+                </select>
+
+                <select
+                  value={pushPendingBatchSize}
+                  onChange={(e) => setPushPendingBatchSize(Number(e.target.value))}
+                  className="text-xs px-3 py-2 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-800 dark:text-zinc-200 font-bold outline-none cursor-pointer"
+                >
+                  <option value={25}>Batch: 25 URLs</option>
+                  <option value={50}>Batch: 50 URLs</option>
+                  <option value={100}>Batch: 100 URLs</option>
+                </select>
+
+                <button
+                  type="button"
+                  onClick={handlePushPendingBatch}
+                  disabled={pushingPending || (siteInventory?.summary?.pending_count === 0 && siteInventory?.summary?.failed_count === 0 && (siteInventory?.summary?.eligible_count ?? 0) === 0)}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white text-xs font-extrabold shadow-md shadow-blue-600/20 transition disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  {pushingPending ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Pushing Batch to Googlebot...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-3.5 h-3.5 fill-current" />
+                      <span>Push Next {pushPendingBatchSize} Pending / Eligible URLs</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {pushPendingMessage && (
+              <div className={`p-3.5 rounded-xl text-xs font-semibold flex items-center justify-between gap-2 ${
+                pushPendingMessage.type === 'success'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                  : pushPendingMessage.type === 'warning'
+                  ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
+                  : 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
+              }`}>
+                <div className="flex items-center gap-2">
+                  {pushPendingMessage.type === 'success' ? <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" /> : <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600" />}
+                  <span>{pushPendingMessage.text}</span>
+                </div>
+                <button onClick={() => setPushPendingMessage(null)} className="text-[11px] underline cursor-pointer shrink-0">Dismiss</button>
+              </div>
+            )}
+          </div>
+
+          {/* Site Content Indexing Inventory Table */}
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 overflow-hidden shadow-sm">
+            <div className="p-4 border-b border-slate-200 dark:border-zinc-800 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-extrabold text-slate-900 dark:text-white text-base">
+                    Site Content Indexing Inventory
+                  </h3>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 font-mono">
+                    {filteredInventoryPages.length}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={fetchSiteInventory}
+                    disabled={loadingInventory}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 text-xs font-bold transition cursor-pointer"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${loadingInventory ? 'animate-spin text-blue-500' : ''}`} />
+                    <span>{loadingInventory ? 'Scanning...' : 'Refresh Inventory'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Filter Tabs & Search Bar */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pt-1">
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+                  {[
+                    { id: 'pending', label: 'Pending / Unpushed', count: siteInventory?.summary?.pending_count ?? 0 },
+                    { id: 'eligible', label: 'Eligible for Re-push (>24h)', count: siteInventory?.summary?.eligible_count ?? 0 },
+                    { id: 'all', label: 'All Pages', count: siteInventory?.summary?.total_pages ?? 0 },
+                    { id: 'pushed', label: '24h Cooldown Active', count: siteInventory?.summary?.pushed_count ?? 0 },
+                    { id: 'failed', label: 'Failed', count: siteInventory?.summary?.failed_count ?? 0 },
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setInventoryTab(tab.id)}
+                      className={`px-3 py-1.5 rounded-xl font-bold transition whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+                        inventoryTab === tab.id
+                          ? 'bg-blue-600 text-white shadow-sm'
+                          : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700'
+                      }`}
+                    >
+                      <span>{tab.label}</span>
+                      <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${inventoryTab === tab.id ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-zinc-700 text-slate-700 dark:text-zinc-300'}`}>
+                        {tab.count}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <select
+                    value={inventoryTypeFilter}
+                    onChange={(e) => setInventoryTypeFilter(e.target.value)}
+                    className="text-xs px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-100 dark:bg-zinc-800 text-slate-800 dark:text-zinc-200 font-bold outline-none cursor-pointer"
+                  >
+                    <option value="all">All Types</option>
+                    <option value="post">Blog Posts</option>
+                    <option value="business">Businesses</option>
+                    <option value="story">Web Stories</option>
+                    <option value="page">Static Pages</option>
+                  </select>
+
+                  <div className="relative group w-48 sm:w-56">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Search className="h-3.5 w-3.5 text-slate-400 group-focus-within:text-blue-500" />
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Search title or URL..."
+                      value={inventorySearch}
+                      onChange={(e) => setInventorySearch(e.target.value)}
+                      className="block w-full pl-8 pr-3 py-1.5 bg-slate-100 dark:bg-zinc-800/80 border border-transparent outline-none rounded-xl text-xs font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto max-h-[460px]">
+              <table className="w-full min-w-[650px] text-left text-xs border-collapse">
+                <thead className="sticky top-0 bg-slate-50 dark:bg-zinc-800/90 backdrop-blur-sm text-slate-600 dark:text-zinc-400 uppercase font-bold border-b border-slate-200 dark:border-zinc-700 z-10">
+                  <tr>
+                    <th className="p-3">Page Title &amp; Type</th>
+                    <th className="p-3">Canonical Live URL</th>
+                    <th className="p-3">Indexing Status</th>
+                    <th className="p-3 text-right">Instant Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-zinc-800">
+                  {loadingInventory && !siteInventory ? (
+                    <tr>
+                      <td colSpan={4} className="p-8 text-center text-slate-500">
+                        <RefreshCw className="w-5 h-5 animate-spin mx-auto text-blue-500 mb-2" />
+                        <span>Scanning website content &amp; matching Google Indexing records...</span>
+                      </td>
+                    </tr>
+                  ) : filteredInventoryPages.length > 0 ? (
+                    filteredInventoryPages.slice(0, 100).map((item) => {
+                      const isPushing = pushingSingleId === item.id;
+                      const isPushed = item.status === 'pushed';
+                      const isFailed = item.status === 'failed';
+
+                      return (
+                        <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-zinc-800/40 transition">
+                          <td className="p-3 align-top max-w-[280px]">
+                            <div className="font-bold text-slate-900 dark:text-white truncate" title={item.title}>
+                              {item.title}
+                            </div>
+                            <div className="flex items-center gap-1.5 mt-1">
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">
+                                {item.type_label}
+                              </span>
+                              {item.category && (
+                                <span className="text-[11px] text-slate-400 truncate max-w-[130px]">
+                                  {item.category}
+                                </span>
+                              )}
+                            </div>
+                          </td>
+
+                          <td className="p-3 align-top max-w-[320px]">
+                            <a
+                              href={item.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-mono text-[11px] text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1 truncate max-w-full"
+                              title={item.url}
+                            >
+                              <span className="truncate">{item.url.replace(/^https?:\/\/[^\/]+/, '') || '/'}</span>
+                              <ExternalLink className="w-3 h-3 shrink-0 opacity-70" />
+                            </a>
+                            {item.response_message && (
+                              <div className="text-[10px] text-slate-400 truncate mt-0.5" title={item.response_message}>
+                                {item.response_message}
+                              </div>
+                            )}
+                          </td>
+
+                          <td className="p-3 align-top whitespace-nowrap">
+                            {item.cooldown_active ? (
+                              <div>
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+                                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                  <span>24h Cooldown Active</span>
+                                </span>
+                                <div className="text-[10px] text-emerald-700 dark:text-emerald-400 mt-0.5 font-medium">
+                                  ~{item.cooldown_remaining_hours}h left ({item.last_pushed_human})
+                                </div>
+                              </div>
+                            ) : item.status === 'eligible' ? (
+                              <div>
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-100 text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300">
+                                  <Zap className="w-3 h-3 text-indigo-600" />
+                                  <span>Ready to Re-push (&gt;24h)</span>
+                                </span>
+                                <div className="text-[10px] text-slate-400 mt-0.5 font-medium">
+                                  Last: {item.last_pushed_human}
+                                </div>
+                              </div>
+                            ) : isFailed ? (
+                              <div>
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300">
+                                  <AlertTriangle className="w-3 h-3 text-rose-600" />
+                                  <span>Failed ({item.http_code})</span>
+                                </span>
+                              </div>
+                            ) : (
+                              <div>
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+                                  <Clock className="w-3 h-3 text-amber-600" />
+                                  <span>Pending / Waiting</span>
+                                </span>
+                                <div className="text-[10px] text-amber-600/80 mt-0.5 font-medium">
+                                  Never pushed
+                                </div>
+                              </div>
+                            )}
+                          </td>
+
+                          <td className="p-3 align-top text-right whitespace-nowrap">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setInspectUrlInput(item.url);
+                                  setActiveTab('inspector');
+                                }}
+                                className="px-2 py-1 rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-slate-700 dark:text-zinc-300 hover:text-blue-600 text-[11px] font-bold cursor-pointer"
+                                title="Inspect Live Index in GSC"
+                              >
+                                Inspect
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => handlePushSingleUrl(item.url, item.id, item.cooldown_active)}
+                                disabled={isPushing}
+                                className={`px-2.5 py-1 rounded-lg text-[11px] font-extrabold inline-flex items-center gap-1 transition cursor-pointer ${
+                                  item.cooldown_active
+                                    ? 'bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 text-slate-500'
+                                    : item.status === 'eligible'
+                                    ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm'
+                                    : 'bg-blue-600 hover:bg-blue-500 text-white shadow-sm'
+                                }`}
+                                title={item.cooldown_active ? `Submitted recently (~${item.cooldown_remaining_hours}h cooldown left). Click to force bypass.` : 'Push URL to Googlebot'}
+                              >
+                                {isPushing ? (
+                                  <RefreshCw className="w-3 h-3 animate-spin" />
+                                ) : (
+                                  <Zap className="w-3 h-3" />
+                                )}
+                                <span>{isPushing ? 'Pinging...' : item.cooldown_active ? 'Force Push' : item.status === 'eligible' ? 'Re-push' : 'Push Now'}</span>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan={4} className="p-8 text-center text-slate-500">
+                        No pages match the current filter.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {filteredInventoryPages.length > 100 && (
+              <div className="p-3 border-t border-slate-100 dark:border-zinc-800 text-center text-[11px] text-slate-500 font-medium">
+                Showing top 100 of {filteredInventoryPages.length} matching pages. Use search to locate any specific URL.
+              </div>
+            )}
+          </div>
+
+          {/* Manual Bulk Submission Form */}
+          <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm space-y-4">
+            <h4 className="text-base font-extrabold text-slate-900 dark:text-white">
+              Manual Custom URL Submission
+            </h4>
+            <p className="text-xs text-slate-500 dark:text-zinc-400">
+              Paste specific URLs below to push directly. Duplicates will automatically be merged, and URLs submitted in the last 24h will be skipped unless force push is enabled.
+            </p>
+
+            <form onSubmit={handlePublishIndex} className="space-y-4 pt-1">
               <div>
                 <label className="block text-xs font-bold uppercase text-slate-600 dark:text-zinc-400 mb-1">
-                  Target URLs (one per line for bulk push):
+                  Target URLs (one per line):
                 </label>
                 <textarea
-                  rows={4}
+                  rows={3}
                   required
                   placeholder="https://coachingsinsikar.com/blog/best-neet-coachings-in-sikar&#10;https://coachingsinsikar.com/business/matrix-academy"
                   value={indexUrlInput}
@@ -1135,32 +1661,44 @@ export default function SearchConsoleIndex({
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <label className="text-xs font-bold text-slate-600 dark:text-zinc-400">Action Type:</label>
-                  <select
-                    value={indexAction}
-                    onChange={(e) => setIndexAction(e.target.value)}
-                    className="text-xs px-4 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white font-bold outline-none cursor-pointer"
-                  >
-                    <option value="URL_UPDATED">URL_UPDATED (Publish / Update)</option>
-                    <option value="URL_DELETED">URL_DELETED (Remove from Google)</option>
-                  </select>
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-bold text-slate-600 dark:text-zinc-400">Action Type:</label>
+                    <select
+                      value={indexAction}
+                      onChange={(e) => setIndexAction(e.target.value)}
+                      className="text-xs px-3 py-2 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white font-bold outline-none cursor-pointer"
+                    >
+                      <option value="URL_UPDATED">URL_UPDATED (Publish / Update)</option>
+                      <option value="URL_DELETED">URL_DELETED (Remove from Google)</option>
+                    </select>
+                  </div>
+
+                  <label className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-zinc-400 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={forceIndex}
+                      onChange={(e) => setForceIndex(e.target.checked)}
+                      className="w-4 h-4 rounded text-blue-600 border-slate-300 dark:border-zinc-700 focus:ring-blue-500"
+                    />
+                    <span>Force push (Bypass 24h cooldown)</span>
+                  </label>
                 </div>
 
                 <button
                   type="submit"
                   disabled={indexing}
-                  className="group relative flex justify-center items-center gap-2 py-3 px-6 rounded-xl text-sm font-extrabold text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/30 disabled:opacity-70 disabled:cursor-not-allowed transition-all active:scale-[0.98] shadow-md shadow-blue-500/20 cursor-pointer"
+                  className="group relative flex justify-center items-center gap-2 py-2.5 px-6 rounded-xl text-xs sm:text-sm font-extrabold text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/30 disabled:opacity-70 disabled:cursor-not-allowed transition-all active:scale-[0.98] shadow-md shadow-blue-500/20 cursor-pointer"
                 >
                   {indexing ? (
                     <>
-                      <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                      <span>Pinging Google...</span>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <span>Pinging Googlebot...</span>
                     </>
                   ) : (
                     <>
                       <Zap className="w-4 h-4" />
-                      <span>Push to Google Index Now</span>
+                      <span>Push URLs to Google Index</span>
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </>
                   )}
@@ -1169,7 +1707,13 @@ export default function SearchConsoleIndex({
             </form>
 
             {indexMessage && (
-              <div className={`mt-4 p-4 rounded-xl text-xs font-semibold ${indexMessage.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800' : 'bg-rose-50 text-rose-800 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800'}`}>
+              <div className={`mt-4 p-4 rounded-xl text-xs font-semibold ${
+                indexMessage.type === 'success'
+                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
+                  : indexMessage.type === 'info'
+                  ? 'bg-blue-50 text-blue-800 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800'
+                  : 'bg-rose-50 text-rose-800 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800'
+              }`}>
                 {indexMessage.text}
               </div>
             )}

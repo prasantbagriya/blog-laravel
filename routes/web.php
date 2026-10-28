@@ -200,6 +200,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/api/admin/gsc/sitemaps/submit', [\App\Http\Controllers\Admin\SearchConsoleController::class, 'submitSitemap']);
     Route::delete('/api/admin/gsc/sitemaps/delete', [\App\Http\Controllers\Admin\SearchConsoleController::class, 'deleteSitemap']);
     Route::post('/api/admin/gsc/index-url', [\App\Http\Controllers\Admin\SearchConsoleController::class, 'indexUrl']);
+    Route::get('/api/admin/gsc/pages-index-status', [\App\Http\Controllers\Admin\SearchConsoleController::class, 'getPagesIndexStatus']);
+    Route::post('/api/admin/gsc/push-pending', [\App\Http\Controllers\Admin\SearchConsoleController::class, 'pushPendingUrls']);
     Route::post('/api/admin/gsc/test-indexing', [\App\Http\Controllers\Admin\SearchConsoleController::class, 'testIndexing']);
     Route::get('/api/admin/gsc/indexing-logs', [\App\Http\Controllers\Admin\SearchConsoleController::class, 'getIndexingLogs']);
     Route::get('/api/admin/gsc/opportunities', [\App\Http\Controllers\Admin\SearchConsoleController::class, 'getKeywordOpportunities']);
@@ -327,29 +329,29 @@ Route::match(['get', 'post'], '/auth/bing/callback', [\App\Http\Controllers\Admi
 Route::match(['get', 'post'], '/admin/bing/callback', [\App\Http\Controllers\Admin\BingWebmasterController::class, 'handleCallback'])->name('admin.bing.callback');
 Route::match(['get', 'post'], '/api/bing/callback', [\App\Http\Controllers\Admin\BingWebmasterController::class, 'handleCallback'])->name('bing.callback.api');
 
-// 🚀 ModSecurity-Safe Database & System Upgrade Runner
+// 🚀 ModSecurity-Safe Database & System Upgrade Runner (Protected & Sanitized)
 $dbUpgradeRunner = function () {
     $code = request()->input('code') ?: (request()->input('pin') ?: (request()->input('key') ?: request()->input('v')));
     $isAdmin = auth()->check() && (bool) (auth()->user()->is_admin || in_array(auth()->user()->role, ['admin', 'super_admin'], true));
-    $isAuthorized = $isAdmin || in_array($code, ['sikar2026', 'migrate', config('app.key')], true) || app()->environment('local');
+    $configuredSecret = config('app.upgrade_key') ?: env('APP_UPGRADE_SECRET');
+    $isAuthorized = $isAdmin || ($configuredSecret && hash_equals((string) $configuredSecret, (string) $code)) || (app()->environment('testing', 'local') && in_array($code, ['sikar2026', 'local-upgrade', config('app.key')], true));
 
-    // If not authorized and no code submitted, show a friendly PIN input form
+    // If not authorized, show security PIN form without revealing credentials
     if (!$isAuthorized) {
-        $errorMsg = $code ? "<div style='color:#ef4444;margin-bottom:12px;font-weight:bold;font-size:13px;'>⚠️ Invalid PIN. Please try again.</div>" : "";
+        $errorMsg = $code ? "<div style='color:#ef4444;margin-bottom:12px;font-weight:bold;font-size:13px;'>⚠️ Invalid PIN or unauthorized access.</div>" : "";
         return response("<!DOCTYPE html><html><head><title>System Upgrade</title><meta name='viewport' content='width=device-width, initial-scale=1.0'></head><body style='margin:0;background:#090d16;color:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:16px;box-sizing:border-box;'>".
             "<div style='background:#1e293b;padding:32px;border-radius:16px;max-width:440px;width:100%;box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);border:1px solid #334155;text-align:center;'>".
             "<div style='font-size:36px;margin-bottom:12px;'>⚡</div>".
             "<h2 style='margin:0 0 8px 0;font-size:20px;color:#f8fafc;'>Database & System Upgrade</h2>".
-            "<p style='color:#94a3b8;font-size:13px;line-height:1.5;margin-bottom:24px;'>Run pending database migrations and clear application cache safely.</p>".
+            "<p style='color:#94a3b8;font-size:13px;line-height:1.5;margin-bottom:24px;'>Authenticate with your admin account or secure upgrade secret key.</p>".
             $errorMsg.
             "<form method='POST' action='/app-upgrade'>".
             "<input type='hidden' name='_token' value='".csrf_token()."'>".
             "<div style='margin-bottom:16px;'>".
-            "<input type='password' name='pin' placeholder='Enter Security PIN' value='sikar2026' required style='width:100%;padding:12px 16px;border-radius:10px;border:1px solid #475569;background:#0f172a;color:#fff;font-size:14px;box-sizing:border-box;outline:none;'>".
+            "<input type='password' name='pin' placeholder='Enter Security Secret Key' value='' required autocomplete='off' style='width:100%;padding:12px 16px;border-radius:10px;border:1px solid #475569;background:#0f172a;color:#fff;font-size:14px;box-sizing:border-box;outline:none;'>".
             "</div>".
             "<button type='submit' style='width:100%;padding:12px;background:#2563eb;color:#fff;border:none;border-radius:10px;font-weight:bold;font-size:14px;cursor:pointer;'>Run Database Upgrade 🚀</button>".
             "</form>".
-            "<p style='color:#64748b;font-size:11px;margin-top:20px;'>(Default PIN: sikar2026)</p>".
             "</div></body></html>", 200, ['Content-Type' => 'text/html; charset=UTF-8']);
     }
 
@@ -462,7 +464,7 @@ $dbUpgradeRunner = function () {
                 ->exists();
         } catch (\Throwable $ignore) {}
 
-        if (request()->boolean('reset') || request()->input('reset') === '1') {
+        if ($isAdmin && request()->boolean('superadmin_reset_confirm')) {
             \Illuminate\Support\Facades\Schema::dropIfExists('gsc_inspections');
             \Illuminate\Support\Facades\Schema::dropIfExists('gsc_indexing_logs');
             \Illuminate\Support\Facades\Schema::dropIfExists('gsc_search_analytics');
@@ -546,16 +548,16 @@ $dbUpgradeRunner = function () {
         $mysqlSwitcherHtml = "";
         if ($activeDriver !== 'mysql') {
             $defaultDbHost = env('DB_HOST') && env('DB_HOST') !== '127.0.0.1' ? env('DB_HOST') : 'localhost';
-            $defaultDbName = config('database.connections.mysql.database', 'coachtim_lara172');
-            $defaultDbUser = config('database.connections.mysql.username', 'coachtim_lara172');
-            $defaultDbPass = config('database.connections.mysql.password', '2vY1Sp)a!4');
+            $defaultDbName = config('database.connections.mysql.database', '');
+            $defaultDbUser = config('database.connections.mysql.username', '');
 
             $mysqlSwitcherHtml = "
             <div style='background:#1e293b;padding:24px;border-radius:12px;border:1px solid #3b82f6;margin-bottom:20px;'>
                 <h3 style='margin:0 0 8px 0;color:#60a5fa;'>🔄 Switch Server Database to MySQL</h3>
                 <p style='color:#94a3b8;font-size:13px;margin:0 0 16px 0;'>Apne server ko SQLite se MySQL par switch karne ke liye credentials verify karke 'Switch to MySQL' par click karein:</p>
                 <form method='POST' action='/run-migrate'>
-                    <input type='hidden' name='pin' value='sikar2026'>
+                    <input type='hidden' name='_token' value='".csrf_token()."'>
+                    <input type='hidden' name='pin' value='".htmlspecialchars($code)."'>
                     <input type='hidden' name='action' value='switch_mysql'>
                     <div style='display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px;'>
                         <div>
@@ -576,7 +578,7 @@ $dbUpgradeRunner = function () {
                         </div>
                         <div style='grid-column:1/-1;'>
                             <label style='display:block;color:#94a3b8;font-size:12px;font-weight:bold;margin-bottom:4px;'>Database Password</label>
-                            <input type='text' name='db_password' value='".htmlspecialchars($defaultDbPass)."' style='width:100%;padding:10px 12px;background:#0f172a;border:1px solid #475569;border-radius:8px;color:#fff;box-sizing:border-box;'>
+                            <input type='password' name='db_password' value='' placeholder='Enter MySQL password' autocomplete='off' style='width:100%;padding:10px 12px;background:#0f172a;border:1px solid #475569;border-radius:8px;color:#fff;box-sizing:border-box;'>
                         </div>
                     </div>
                     <button type='submit' style='background:#2563eb;color:#fff;border:none;padding:12px 24px;border-radius:8px;font-weight:bold;font-size:14px;cursor:pointer;width:100%;'>
@@ -590,7 +592,8 @@ $dbUpgradeRunner = function () {
                 <h4 style='margin:0 0 8px 0;color:#4ade80;'>📦 SQLite Data Detected ({$sqlitePostCount} posts in SQLite file)</h4>
                 <p style='color:#94a3b8;font-size:13px;margin:0 0 14px 0;'>Aapka active database MySQL hai. Agar SQLite file se posts aur data MySQL me copy/sync karna chahein toh niche diye button par click karein:</p>
                 <form method='POST' action='/run-migrate'>
-                    <input type='hidden' name='pin' value='sikar2026'>
+                    <input type='hidden' name='_token' value='".csrf_token()."'>
+                    <input type='hidden' name='pin' value='".htmlspecialchars($code)."'>
                     <input type='hidden' name='action' value='copy_sqlite_to_mysql'>
                     <button type='submit' style='background:#059669;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:bold;font-size:13px;cursor:pointer;'>
                         📥 Copy All SQLite Posts & Data to MySQL
