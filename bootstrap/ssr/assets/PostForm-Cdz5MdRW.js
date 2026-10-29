@@ -673,42 +673,6 @@ var faqTextArea = {
 	lineHeight: "1.5",
 	fontFamily: "inherit"
 };
-var deepWorkOverlayStyle = {
-	position: "fixed",
-	inset: 0,
-	background: "#fafcff",
-	zIndex: 2e6,
-	overflowY: "auto",
-	fontFamily: "inherit"
-};
-var exitDeepWorkStyle = {
-	background: "#f1f5f9",
-	border: "1px solid #e2e8f0",
-	padding: "12px 24px",
-	borderRadius: "14px",
-	fontSize: "14px",
-	fontWeight: 700,
-	color: "#334155",
-	cursor: "pointer",
-	display: "flex",
-	alignItems: "center",
-	gap: "8px",
-	boxShadow: "0 4px 12px rgba(0,0,0,0.02)",
-	fontFamily: "inherit"
-};
-var deepWorkTitleStyle = {
-	width: "100%",
-	fontSize: "64px",
-	fontWeight: 900,
-	border: "none",
-	outline: "none",
-	background: "transparent",
-	textAlign: "center",
-	color: "#0f172a",
-	marginBottom: "60px",
-	letterSpacing: "-0.04em",
-	fontFamily: "inherit"
-};
 var tocItemStyle = {
 	fontSize: "12.5px",
 	fontWeight: 600,
@@ -1741,7 +1705,7 @@ function PostForm({ post }) {
 	const sliderInputRef = useRef(null);
 	useRef(null);
 	const toolbarRef = useRef(null);
-	const deepWorkToolbarRef = useRef(null);
+	useRef(null);
 	const [lsiKeywords, setLsiKeywords] = useState(post?.lsiKeywords || []);
 	const [scheduleDate, setScheduleDate] = useState("");
 	const [visualHealth, setVisualHealth] = useState({
@@ -1758,8 +1722,13 @@ function PostForm({ post }) {
 	const [entities, setEntities] = useState([]);
 	const [linkModalOpen, setLinkModalOpen] = useState(false);
 	const [linkInputUrl, setLinkInputUrl] = useState("");
+	const [linkText, setLinkText] = useState("");
+	const [linkTitle, setLinkTitle] = useState("");
 	const [linkOpenInNewTab, setLinkOpenInNewTab] = useState(false);
 	const [linkIsNoFollow, setLinkIsNoFollow] = useState(false);
+	const [linkIsSponsored, setLinkIsSponsored] = useState(false);
+	const [linkIsUgc, setLinkIsUgc] = useState(false);
+	const [savedSelection, setSavedSelection] = useState(null);
 	const [videoModalOpen, setVideoModalOpen] = useState(false);
 	const [videoUrlInput, setVideoUrlInput] = useState("");
 	const [imageModalOpen, setImageModalOpen] = useState(false);
@@ -1982,25 +1951,79 @@ function PostForm({ post }) {
 	};
 	const handleOpenLinkModal = () => {
 		if (!editor) return;
+		const { from, to } = editor.state.selection;
+		setSavedSelection({
+			from,
+			to
+		});
 		const attrs = editor.getAttributes("link");
+		const selectedText = editor.state.doc.textBetween(from, to, " ");
 		setLinkInputUrl(attrs.href || "");
+		setLinkText(selectedText || "");
+		setLinkTitle(attrs.title || "");
 		setLinkOpenInNewTab(attrs.target === "_blank");
-		setLinkIsNoFollow(attrs.rel?.includes("nofollow") || false);
+		const rel = attrs.rel || "";
+		setLinkIsNoFollow(rel.includes("nofollow"));
+		setLinkIsSponsored(rel.includes("sponsored"));
+		setLinkIsUgc(rel.includes("ugc"));
 		setLinkModalOpen(true);
+	};
+	const handleRemoveLink = () => {
+		if (!editor) return;
+		if (savedSelection) try {
+			editor.commands.setTextSelection(savedSelection);
+		} catch (e) {}
+		editor.chain().focus().extendMarkRange("link").unsetLink().run();
+		setLinkModalOpen(false);
+	};
+	const handleSelectInternalPage = (path, pageTitle) => {
+		setLinkInputUrl(path);
+		setLinkOpenInNewTab(false);
+		if (!linkText.trim() && pageTitle) setLinkText(pageTitle);
 	};
 	const handleApplyLink = () => {
 		if (!editor) return;
-		if (linkInputUrl.trim() === "") editor.chain().focus().extendMarkRange("link").unsetLink().run();
-		else {
-			let url = linkInputUrl.trim();
-			if (!url.startsWith("http") && !url.startsWith("mailto:") && !url.startsWith("#")) url = "https://" + url;
-			const attributes = { href: url };
-			if (linkOpenInNewTab) attributes.target = "_blank";
-			else attributes.target = null;
-			if (linkIsNoFollow) attributes.rel = "nofollow";
-			else attributes.rel = null;
-			editor.chain().focus().extendMarkRange("link").setLink(attributes).run();
+		let url = linkInputUrl.trim();
+		if (!url) {
+			handleRemoveLink();
+			return;
 		}
+		if (!url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("/") && !url.startsWith("#") && !url.startsWith("mailto:") && !url.startsWith("tel:")) url = "https://" + url;
+		const relParts = [];
+		if (linkOpenInNewTab) relParts.push("noopener", "noreferrer");
+		if (linkIsNoFollow) relParts.push("nofollow");
+		if (linkIsSponsored) relParts.push("sponsored");
+		if (linkIsUgc) relParts.push("ugc");
+		const attributes = {
+			href: url,
+			target: linkOpenInNewTab ? "_blank" : null,
+			rel: relParts.length > 0 ? Array.from(new Set(relParts)).join(" ") : null
+		};
+		if (linkTitle.trim()) attributes.title = linkTitle.trim();
+		else attributes.title = null;
+		if (savedSelection) try {
+			editor.commands.setTextSelection(savedSelection);
+		} catch (e) {}
+		const textToDisplay = linkText.trim() || url;
+		const isSelectionEmpty = editor.state.selection.from === editor.state.selection.to;
+		const currentSelectedText = editor.state.doc.textBetween(editor.state.selection.from, editor.state.selection.to, " ");
+		if (isSelectionEmpty) editor.chain().focus().insertContent({
+			type: "text",
+			text: textToDisplay,
+			marks: [{
+				type: "link",
+				attrs: attributes
+			}]
+		}).run();
+		else if (linkText.trim() && linkText.trim() !== currentSelectedText) editor.chain().focus().insertContent({
+			type: "text",
+			text: linkText.trim(),
+			marks: [{
+				type: "link",
+				attrs: attributes
+			}]
+		}).run();
+		else editor.chain().focus().extendMarkRange("link").setLink(attributes).run();
 		setLinkModalOpen(false);
 	};
 	const handleOpenImageModal = () => {
@@ -2262,6 +2285,84 @@ function PostForm({ post }) {
 			});
 		}
 	}, [editor, post]);
+	useEffect(() => {
+		const handleKeyDown = (e) => {
+			if (e.key === "Escape" && distractionFree) {
+				if (!linkModalOpen && !videoModalOpen && !deployModalOpen && !imageModalOpen && !faqModalOpen && !quizModalOpen && !pollModalOpen && !sliderModalOpen) setDistractionFree(false);
+			}
+		};
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [
+		distractionFree,
+		linkModalOpen,
+		videoModalOpen,
+		deployModalOpen,
+		imageModalOpen,
+		faqModalOpen,
+		quizModalOpen,
+		pollModalOpen,
+		sliderModalOpen
+	]);
+	useEffect(() => {
+		if (!editor || !mounted) return;
+		const draftKey = `sovereign_post_draft_${postId}`;
+		const timeout = setTimeout(() => {
+			try {
+				const html = editor.getHTML();
+				if (title.trim() || editor.getText().trim()) {
+					const draftData = {
+						postId,
+						title,
+						slug,
+						content: html,
+						metaDescription,
+						focusKeyword,
+						category,
+						schemaType,
+						savedAt: (/* @__PURE__ */ new Date()).toISOString()
+					};
+					localStorage.setItem(draftKey, JSON.stringify(draftData));
+				}
+			} catch (e) {
+				console.warn("LocalStorage save failed:", e);
+			}
+		}, 1e3);
+		return () => clearTimeout(timeout);
+	}, [
+		title,
+		slug,
+		metaDescription,
+		focusKeyword,
+		category,
+		schemaType,
+		editor?.state.doc,
+		mounted,
+		postId
+	]);
+	useEffect(() => {
+		if (!mounted || !editor) return;
+		if (!post?.id && !post?.title) try {
+			const draftKey = `sovereign_post_draft_${postId}`;
+			const rawDraft = localStorage.getItem(draftKey);
+			if (rawDraft) {
+				const draft = JSON.parse(rawDraft);
+				if (draft.title && !title) setTitle(draft.title);
+				if (draft.slug && !slug) setSlug(draft.slug);
+				if (draft.content && editor.isEmpty) editor.commands.setContent(draft.content);
+				if (draft.metaDescription && !metaDescription) setMetaDescription(draft.metaDescription);
+				if (draft.focusKeyword && !focusKeyword) setFocusKeyword(draft.focusKeyword);
+			}
+		} catch (e) {
+			console.warn("LocalStorage restore error:", e);
+		}
+	}, [
+		mounted,
+		editor,
+		post?.id,
+		post?.title,
+		postId
+	]);
 	const syncFaqsFromEditor = (html) => {
 		const doc = new DOMParser().parseFromString(html, "text/html");
 		const faqBlocks = Array.from(doc.querySelectorAll("div[data-faq-block]"));
@@ -2451,1238 +2552,6 @@ function PostForm({ post }) {
 		className: `sovereign-editor-v5-fixed`,
 		style: rootContainerStyle,
 		children: [
-			distractionFree && /* @__PURE__ */ jsx("div", {
-				style: deepWorkOverlayStyle,
-				children: /* @__PURE__ */ jsx("div", {
-					style: {
-						width: "100%",
-						padding: "0 0 100px 0",
-						height: "100%",
-						overflowY: "auto",
-						display: "flex",
-						flexDirection: "column",
-						alignItems: "center",
-						background: "#fff"
-					},
-					children: /* @__PURE__ */ jsxs("div", {
-						style: {
-							width: "100%",
-							maxWidth: "1000px",
-							marginTop: "40px"
-						},
-						children: [
-							/* @__PURE__ */ jsxs("div", {
-								style: {
-									display: "flex",
-									justifyContent: "flex-end",
-									gap: "10px",
-									alignItems: "center",
-									marginBottom: "20px"
-								},
-								children: [
-									/* @__PURE__ */ jsxs("button", {
-										type: "button",
-										onClick: () => {
-											if (!aiTopic) setAiTopic(title);
-											if (!aiKeywords) setAiKeywords(focusKeyword);
-											setAiStudioOpen(true);
-										},
-										style: {
-											display: "flex",
-											alignItems: "center",
-											gap: "5px",
-											padding: "4px 10px",
-											borderRadius: "6px",
-											background: "#f8fafc",
-											color: "#475569",
-											border: "1px solid #cbd5e1",
-											fontWeight: 600,
-											fontSize: "11.5px",
-											cursor: "pointer",
-											transition: "all 0.15s ease"
-										},
-										onMouseEnter: (e) => {
-											e.currentTarget.style.background = "#f1f5f9";
-											e.currentTarget.style.borderColor = "#94a3b8";
-											e.currentTarget.style.color = "#0f172a";
-										},
-										onMouseLeave: (e) => {
-											e.currentTarget.style.background = "#f8fafc";
-											e.currentTarget.style.borderColor = "#cbd5e1";
-											e.currentTarget.style.color = "#475569";
-										},
-										title: "AI Deep Multi-Fact Research & Human Writer",
-										children: [/* @__PURE__ */ jsx("span", {
-											style: { fontSize: "12px" },
-											children: "✨"
-										}), /* @__PURE__ */ jsx("span", { children: "AI Research" })]
-									}),
-									/* @__PURE__ */ jsxs("button", {
-										onClick: () => setDistractionFree(false),
-										style: exitDeepWorkStyle,
-										children: [/* @__PURE__ */ jsxs("svg", {
-											xmlns: "http://www.w3.org/2000/svg",
-											width: "24",
-											height: "24",
-											viewBox: "0 0 24 24",
-											fill: "none",
-											stroke: "currentColor",
-											strokeWidth: 2,
-											strokeLinecap: "round",
-											strokeLinejoin: "round",
-											className: "lucide",
-											style: {
-												width: "18px",
-												height: "18px"
-											},
-											children: [
-												/* @__PURE__ */ jsx("polyline", { points: "4 14 10 14 10 20" }),
-												/* @__PURE__ */ jsx("polyline", { points: "20 10 14 10 14 4" }),
-												/* @__PURE__ */ jsx("line", {
-													x1: "14",
-													y1: "10",
-													x2: "21",
-													y2: "3"
-												}),
-												/* @__PURE__ */ jsx("line", {
-													x1: "3",
-													y1: "21",
-													x2: "10",
-													y2: "14"
-												})
-											]
-										}), "Exit Deep Work"]
-									}),
-									/* @__PURE__ */ jsxs("button", {
-										type: "button",
-										onClick: () => setDeployModalOpen(true),
-										disabled: isPending,
-										style: {
-											display: "flex",
-											alignItems: "center",
-											gap: "6px",
-											padding: "6px 16px",
-											borderRadius: "8px",
-											background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
-											color: "#fff",
-											border: "none",
-											fontWeight: 800,
-											fontSize: "12.5px",
-											cursor: "pointer",
-											boxShadow: "0 2px 8px rgba(37, 99, 235, 0.25)"
-										},
-										children: [/* @__PURE__ */ jsx("span", { children: "Deploy" }), /* @__PURE__ */ jsx("span", {
-											style: { fontSize: "11px" },
-											children: "🚀"
-										})]
-									})
-								]
-							}),
-							/* @__PURE__ */ jsxs("div", {
-								ref: deepWorkToolbarRef,
-								onWheel: (e) => {
-									if (e.deltaY !== 0) e.currentTarget.scrollLeft += e.deltaY;
-								},
-								className: "toolbar-scroll",
-								style: {
-									...floatingToolbarStyle,
-									top: "0",
-									marginBottom: "40px",
-									borderRadius: "16px",
-									border: "1px solid #e2e8f0",
-									padding: "12px 20px",
-									justifyContent: "flex-start",
-									overflowX: "auto",
-									minWidth: 0,
-									maxWidth: "1000px",
-									width: "100%",
-									scrollBehavior: "smooth"
-								},
-								children: [
-									/* @__PURE__ */ jsxs("div", {
-										style: {
-											display: "flex",
-											gap: "4px",
-											flexShrink: 0
-										},
-										children: [/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: () => editor?.chain().focus().undo().run(),
-											title: "Undo",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [/* @__PURE__ */ jsx("path", { d: "M3 7v6h6" }), /* @__PURE__ */ jsx("path", { d: "M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" })]
-											})
-										}), /* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: () => editor?.chain().focus().redo().run(),
-											title: "Redo",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [/* @__PURE__ */ jsx("path", { d: "M21 7v6h-6" }), /* @__PURE__ */ jsx("path", { d: "M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13" })]
-											})
-										})]
-									}),
-									/* @__PURE__ */ jsx("div", { style: {
-										...toolDivider,
-										flexShrink: 0
-									} }),
-									/* @__PURE__ */ jsxs("div", {
-										style: {
-											display: "flex",
-											gap: "4px",
-											flexShrink: 0
-										},
-										children: [
-											/* @__PURE__ */ jsx(SovereignToolBtn, {
-												onClick: () => editor?.chain().focus().toggleBold().run(),
-												active: editor?.isActive("bold"),
-												title: "Bold",
-												children: /* @__PURE__ */ jsxs("svg", {
-													xmlns: "http://www.w3.org/2000/svg",
-													width: "24",
-													height: "24",
-													viewBox: "0 0 24 24",
-													fill: "none",
-													stroke: "currentColor",
-													strokeWidth: 2.5,
-													strokeLinecap: "round",
-													strokeLinejoin: "round",
-													className: "lucide",
-													style: {
-														width: "18px",
-														height: "18px",
-														flexShrink: 0
-													},
-													children: [/* @__PURE__ */ jsx("path", { d: "M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" }), /* @__PURE__ */ jsx("path", { d: "M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" })]
-												})
-											}),
-											/* @__PURE__ */ jsx(SovereignToolBtn, {
-												onClick: () => editor?.chain().focus().toggleItalic().run(),
-												active: editor?.isActive("italic"),
-												title: "Italic",
-												children: /* @__PURE__ */ jsxs("svg", {
-													xmlns: "http://www.w3.org/2000/svg",
-													width: "24",
-													height: "24",
-													viewBox: "0 0 24 24",
-													fill: "none",
-													stroke: "currentColor",
-													strokeWidth: 2,
-													strokeLinecap: "round",
-													strokeLinejoin: "round",
-													className: "lucide",
-													style: {
-														width: "18px",
-														height: "18px",
-														flexShrink: 0
-													},
-													children: [
-														/* @__PURE__ */ jsx("line", {
-															x1: "19",
-															y1: "4",
-															x2: "10",
-															y2: "4"
-														}),
-														/* @__PURE__ */ jsx("line", {
-															x1: "14",
-															y1: "20",
-															x2: "5",
-															y2: "20"
-														}),
-														/* @__PURE__ */ jsx("line", {
-															x1: "15",
-															y1: "4",
-															x2: "9",
-															y2: "20"
-														})
-													]
-												})
-											}),
-											/* @__PURE__ */ jsx(SovereignToolBtn, {
-												onClick: () => editor?.chain().focus().toggleUnderline().run(),
-												active: editor?.isActive("underline"),
-												title: "Underline",
-												children: /* @__PURE__ */ jsxs("svg", {
-													xmlns: "http://www.w3.org/2000/svg",
-													width: "24",
-													height: "24",
-													viewBox: "0 0 24 24",
-													fill: "none",
-													stroke: "currentColor",
-													strokeWidth: 2,
-													strokeLinecap: "round",
-													strokeLinejoin: "round",
-													className: "lucide",
-													style: {
-														width: "18px",
-														height: "18px",
-														flexShrink: 0
-													},
-													children: [/* @__PURE__ */ jsx("path", { d: "M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3" }), /* @__PURE__ */ jsx("line", {
-														x1: "4",
-														y1: "21",
-														x2: "20",
-														y2: "21"
-													})]
-												})
-											}),
-											/* @__PURE__ */ jsx(SovereignToolBtn, {
-												onClick: () => editor?.chain().focus().toggleStrike().run(),
-												active: editor?.isActive("strike"),
-												title: "Strikethrough",
-												children: /* @__PURE__ */ jsxs("svg", {
-													xmlns: "http://www.w3.org/2000/svg",
-													width: "24",
-													height: "24",
-													viewBox: "0 0 24 24",
-													fill: "none",
-													stroke: "currentColor",
-													strokeWidth: 2,
-													strokeLinecap: "round",
-													strokeLinejoin: "round",
-													className: "lucide",
-													style: {
-														width: "18px",
-														height: "18px",
-														flexShrink: 0
-													},
-													children: [/* @__PURE__ */ jsx("line", {
-														x1: "5",
-														y1: "12",
-														x2: "19",
-														y2: "12"
-													}), /* @__PURE__ */ jsx("path", { d: "M16 4h-7a4 4 0 0 0-4 4 4 4 0 0 0 4 4h7a4 4 0 0 1 4 4 4 4 0 0 1-4 4h-7" })]
-												})
-											})
-										]
-									}),
-									/* @__PURE__ */ jsx("div", { style: {
-										...toolDivider,
-										flexShrink: 0
-									} }),
-									/* @__PURE__ */ jsxs("div", {
-										style: {
-											...headerSelectWrapper,
-											flexShrink: 0
-										},
-										children: [
-											/* @__PURE__ */ jsxs("select", {
-												onChange: (e) => {
-													const val = e.target.value;
-													if (val === "p") editor?.chain().focus().setParagraph().run();
-													else editor?.chain().focus().toggleHeading({ level: parseInt(val) }).run();
-												},
-												value: editor?.isActive("heading", { level: 1 }) ? "1" : editor?.isActive("heading", { level: 2 }) ? "2" : editor?.isActive("heading", { level: 3 }) ? "3" : editor?.isActive("heading", { level: 4 }) ? "4" : "p",
-												style: headerSelectStyle,
-												children: [
-													/* @__PURE__ */ jsx("option", {
-														value: "p",
-														children: "Normal"
-													}),
-													/* @__PURE__ */ jsx("option", {
-														value: "1",
-														children: "Major Heading"
-													}),
-													/* @__PURE__ */ jsx("option", {
-														value: "2",
-														children: "Heading"
-													}),
-													/* @__PURE__ */ jsx("option", {
-														value: "3",
-														children: "Sub-heading"
-													}),
-													/* @__PURE__ */ jsx("option", {
-														value: "4",
-														children: "Minor Heading"
-													})
-												]
-											}),
-											/* @__PURE__ */ jsx("div", { style: {
-												width: "1px",
-												height: "16px",
-												background: "#e2e8f0",
-												margin: "0 8px"
-											} }),
-											/* @__PURE__ */ jsxs("select", {
-												onChange: (e) => {
-													const size = e.target.value;
-													editor?.chain().focus().setMark("textStyle", { fontSize: size }).run();
-												},
-												style: {
-													...headerSelectStyle,
-													width: "60px"
-												},
-												children: [/* @__PURE__ */ jsx("option", {
-													value: "16px",
-													children: "Size"
-												}), [
-													"12px",
-													"14px",
-													"16px",
-													"18px",
-													"20px",
-													"24px",
-													"30px",
-													"36px",
-													"48px",
-													"60px",
-													"72px"
-												].map((size) => /* @__PURE__ */ jsx("option", {
-													value: size,
-													children: size
-												}, size))]
-											})
-										]
-									}),
-									/* @__PURE__ */ jsx("div", { style: {
-										...toolDivider,
-										flexShrink: 0
-									} }),
-									/* @__PURE__ */ jsxs("div", {
-										style: {
-											display: "flex",
-											gap: "4px",
-											flexShrink: 0
-										},
-										children: [
-											/* @__PURE__ */ jsx(SovereignToolBtn, {
-												onClick: () => editor?.chain().focus().setTextAlign("left").run(),
-												active: editor?.isActive({ textAlign: "left" }),
-												title: "Left Align",
-												children: /* @__PURE__ */ jsxs("svg", {
-													xmlns: "http://www.w3.org/2000/svg",
-													width: "24",
-													height: "24",
-													viewBox: "0 0 24 24",
-													fill: "none",
-													stroke: "currentColor",
-													strokeWidth: 2,
-													strokeLinecap: "round",
-													strokeLinejoin: "round",
-													className: "lucide",
-													style: {
-														width: "18px",
-														height: "18px",
-														flexShrink: 0
-													},
-													children: [
-														/* @__PURE__ */ jsx("line", {
-															x1: "17",
-															y1: "10",
-															x2: "3",
-															y2: "10"
-														}),
-														/* @__PURE__ */ jsx("line", {
-															x1: "21",
-															y1: "6",
-															x2: "3",
-															y2: "6"
-														}),
-														/* @__PURE__ */ jsx("line", {
-															x1: "21",
-															y1: "14",
-															x2: "3",
-															y2: "14"
-														}),
-														/* @__PURE__ */ jsx("line", {
-															x1: "17",
-															y1: "18",
-															x2: "3",
-															y2: "18"
-														})
-													]
-												})
-											}),
-											/* @__PURE__ */ jsx(SovereignToolBtn, {
-												onClick: () => editor?.chain().focus().setTextAlign("center").run(),
-												active: editor?.isActive({ textAlign: "center" }),
-												title: "Center Align",
-												children: /* @__PURE__ */ jsxs("svg", {
-													xmlns: "http://www.w3.org/2000/svg",
-													width: "24",
-													height: "24",
-													viewBox: "0 0 24 24",
-													fill: "none",
-													stroke: "currentColor",
-													strokeWidth: 2,
-													strokeLinecap: "round",
-													strokeLinejoin: "round",
-													className: "lucide",
-													style: {
-														width: "18px",
-														height: "18px",
-														flexShrink: 0
-													},
-													children: [
-														/* @__PURE__ */ jsx("line", {
-															x1: "18",
-															y1: "10",
-															x2: "6",
-															y2: "10"
-														}),
-														/* @__PURE__ */ jsx("line", {
-															x1: "21",
-															y1: "6",
-															x2: "3",
-															y2: "6"
-														}),
-														/* @__PURE__ */ jsx("line", {
-															x1: "21",
-															y1: "14",
-															x2: "3",
-															y2: "14"
-														}),
-														/* @__PURE__ */ jsx("line", {
-															x1: "18",
-															y1: "18",
-															x2: "6",
-															y2: "18"
-														})
-													]
-												})
-											}),
-											/* @__PURE__ */ jsx(SovereignToolBtn, {
-												onClick: () => editor?.chain().focus().setTextAlign("right").run(),
-												active: editor?.isActive({ textAlign: "right" }),
-												title: "Right Align",
-												children: /* @__PURE__ */ jsxs("svg", {
-													xmlns: "http://www.w3.org/2000/svg",
-													width: "24",
-													height: "24",
-													viewBox: "0 0 24 24",
-													fill: "none",
-													stroke: "currentColor",
-													strokeWidth: 2,
-													strokeLinecap: "round",
-													strokeLinejoin: "round",
-													className: "lucide",
-													style: {
-														width: "18px",
-														height: "18px",
-														flexShrink: 0
-													},
-													children: [
-														/* @__PURE__ */ jsx("line", {
-															x1: "21",
-															y1: "10",
-															x2: "7",
-															y2: "10"
-														}),
-														/* @__PURE__ */ jsx("line", {
-															x1: "21",
-															y1: "6",
-															x2: "3",
-															y2: "6"
-														}),
-														/* @__PURE__ */ jsx("line", {
-															x1: "21",
-															y1: "14",
-															x2: "3",
-															y2: "14"
-														}),
-														/* @__PURE__ */ jsx("line", {
-															x1: "21",
-															y1: "18",
-															x2: "7",
-															y2: "18"
-														})
-													]
-												})
-											})
-										]
-									}),
-									/* @__PURE__ */ jsx("div", { style: {
-										...toolDivider,
-										flexShrink: 0
-									} }),
-									/* @__PURE__ */ jsxs("div", {
-										style: {
-											display: "flex",
-											gap: "4px",
-											flexShrink: 0
-										},
-										children: [/* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: () => editor?.chain().focus().toggleBulletList().run(),
-											active: editor?.isActive("bulletList"),
-											title: "Bullet List",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [
-													/* @__PURE__ */ jsx("line", {
-														x1: "8",
-														y1: "6",
-														x2: "21",
-														y2: "6"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "8",
-														y1: "12",
-														x2: "21",
-														y2: "12"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "8",
-														y1: "18",
-														x2: "21",
-														y2: "18"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "3",
-														y1: "6",
-														x2: "3.01",
-														y2: "6"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "3",
-														y1: "12",
-														x2: "3.01",
-														y2: "12"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "3",
-														y1: "18",
-														x2: "3.01",
-														y2: "18"
-													})
-												]
-											})
-										}), /* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: () => editor?.chain().focus().toggleOrderedList().run(),
-											active: editor?.isActive("orderedList"),
-											title: "Numbered List",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [
-													/* @__PURE__ */ jsx("line", {
-														x1: "10",
-														y1: "6",
-														x2: "21",
-														y2: "6"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "10",
-														y1: "12",
-														x2: "21",
-														y2: "12"
-													}),
-													/* @__PURE__ */ jsx("line", {
-														x1: "10",
-														y1: "18",
-														x2: "21",
-														y2: "18"
-													}),
-													/* @__PURE__ */ jsx("path", { d: "M4 6h1v4" }),
-													/* @__PURE__ */ jsx("path", { d: "M4 10h2" }),
-													/* @__PURE__ */ jsx("path", { d: "M6 18H4c0-1 2-2 2-3s-1-1.5-2-1" })
-												]
-											})
-										})]
-									}),
-									/* @__PURE__ */ jsx("div", { style: {
-										...toolDivider,
-										flexShrink: 0
-									} }),
-									/* @__PURE__ */ jsxs("div", {
-										style: {
-											display: "flex",
-											gap: "5px",
-											flexShrink: 0,
-											alignItems: "center"
-										},
-										children: [
-											/* @__PURE__ */ jsxs("button", {
-												type: "button",
-												onClick: handleOpenFaqModal,
-												title: "Insert / Edit FAQ Schema Block",
-												style: {
-													display: "inline-flex",
-													alignItems: "center",
-													gap: "5px",
-													padding: "5px 12px",
-													background: editor?.isActive("faqBlock") ? "linear-gradient(135deg, #eff6ff, #dbeafe)" : "#ffffff",
-													border: editor?.isActive("faqBlock") ? "1.5px solid #2563eb" : "1px solid #cbd5e1",
-													borderRadius: "8px",
-													cursor: "pointer",
-													color: editor?.isActive("faqBlock") ? "#1d4ed8" : "#0f172a",
-													fontWeight: 800,
-													fontSize: "12px",
-													boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-													whiteSpace: "nowrap",
-													flexShrink: 0,
-													transition: "all 0.15s ease"
-												},
-												children: [/* @__PURE__ */ jsxs("svg", {
-													xmlns: "http://www.w3.org/2000/svg",
-													width: "15",
-													height: "15",
-													viewBox: "0 0 24 24",
-													fill: "none",
-													stroke: "#2563eb",
-													strokeWidth: 2.5,
-													strokeLinecap: "round",
-													strokeLinejoin: "round",
-													style: { flexShrink: 0 },
-													children: [
-														/* @__PURE__ */ jsx("circle", {
-															cx: "12",
-															cy: "12",
-															r: "10"
-														}),
-														/* @__PURE__ */ jsx("path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" }),
-														/* @__PURE__ */ jsx("path", { d: "M12 17h.01" })
-													]
-												}), /* @__PURE__ */ jsx("span", { children: editor?.isActive("faqBlock") ? "Edit FAQ" : "+ FAQ Block" })]
-											}),
-											/* @__PURE__ */ jsx(SovereignToolBtn, {
-												onClick: handleOpenLinkModal,
-												active: editor?.isActive("link"),
-												title: "Insert Link",
-												children: /* @__PURE__ */ jsxs("svg", {
-													xmlns: "http://www.w3.org/2000/svg",
-													width: "24",
-													height: "24",
-													viewBox: "0 0 24 24",
-													fill: "none",
-													stroke: "currentColor",
-													strokeWidth: 2,
-													strokeLinecap: "round",
-													strokeLinejoin: "round",
-													className: "lucide",
-													style: {
-														width: "18px",
-														height: "18px",
-														flexShrink: 0
-													},
-													children: [/* @__PURE__ */ jsx("path", { d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" }), /* @__PURE__ */ jsx("path", { d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" })]
-												})
-											}),
-											/* @__PURE__ */ jsx(SovereignToolBtn, {
-												onClick: () => fileInputRef.current?.click(),
-												title: "Upload Image to Content",
-												children: /* @__PURE__ */ jsxs("svg", {
-													xmlns: "http://www.w3.org/2000/svg",
-													width: "24",
-													height: "24",
-													viewBox: "0 0 24 24",
-													fill: "none",
-													stroke: "currentColor",
-													strokeWidth: 2,
-													strokeLinecap: "round",
-													strokeLinejoin: "round",
-													className: "lucide",
-													style: {
-														width: "18px",
-														height: "18px",
-														flexShrink: 0
-													},
-													children: [
-														/* @__PURE__ */ jsx("rect", {
-															x: "3",
-															y: "3",
-															width: "18",
-															height: "18",
-															rx: "2",
-															ry: "2"
-														}),
-														/* @__PURE__ */ jsx("circle", {
-															cx: "8.5",
-															cy: "8.5",
-															r: "1.5"
-														}),
-														/* @__PURE__ */ jsx("polyline", { points: "21 15 16 10 5 21" })
-													]
-												})
-											}),
-											/* @__PURE__ */ jsx(SovereignToolBtn, {
-												onClick: () => setMediaPickerTarget("content"),
-												title: "Choose Image from Media Library",
-												children: /* @__PURE__ */ jsxs("svg", {
-													xmlns: "http://www.w3.org/2000/svg",
-													width: "24",
-													height: "24",
-													viewBox: "0 0 24 24",
-													fill: "none",
-													stroke: "currentColor",
-													strokeWidth: 2,
-													strokeLinecap: "round",
-													strokeLinejoin: "round",
-													className: "lucide",
-													style: {
-														width: "18px",
-														height: "18px",
-														flexShrink: 0
-													},
-													children: [
-														/* @__PURE__ */ jsx("rect", {
-															width: "18",
-															height: "18",
-															x: "3",
-															y: "3",
-															rx: "2"
-														}),
-														/* @__PURE__ */ jsx("path", { d: "M3 9h18" }),
-														/* @__PURE__ */ jsx("path", { d: "M9 21V9" })
-													]
-												})
-											}),
-											/* @__PURE__ */ jsx(SovereignToolBtn, {
-												onClick: handleOpenSliderModal,
-												title: "Insert Image Slider",
-												children: /* @__PURE__ */ jsxs("svg", {
-													xmlns: "http://www.w3.org/2000/svg",
-													width: "24",
-													height: "24",
-													viewBox: "0 0 24 24",
-													fill: "none",
-													stroke: "currentColor",
-													strokeWidth: 2,
-													strokeLinecap: "round",
-													strokeLinejoin: "round",
-													className: "lucide",
-													style: {
-														width: "18px",
-														height: "18px",
-														flexShrink: 0
-													},
-													children: [
-														/* @__PURE__ */ jsx("rect", {
-															width: "18",
-															height: "18",
-															x: "3",
-															y: "3",
-															rx: "2",
-															ry: "2"
-														}),
-														/* @__PURE__ */ jsx("line", {
-															x1: "9",
-															y1: "3",
-															x2: "9",
-															y2: "21"
-														}),
-														/* @__PURE__ */ jsx("line", {
-															x1: "15",
-															y1: "3",
-															x2: "15",
-															y2: "21"
-														})
-													]
-												})
-											}),
-											/* @__PURE__ */ jsx(SovereignToolBtn, {
-												onClick: () => colorInputRef.current?.click(),
-												title: "Text Color",
-												children: /* @__PURE__ */ jsxs("svg", {
-													xmlns: "http://www.w3.org/2000/svg",
-													width: "24",
-													height: "24",
-													viewBox: "0 0 24 24",
-													fill: "none",
-													stroke: "currentColor",
-													strokeWidth: 2,
-													strokeLinecap: "round",
-													strokeLinejoin: "round",
-													className: "lucide",
-													style: {
-														width: "18px",
-														height: "18px",
-														flexShrink: 0
-													},
-													children: [
-														/* @__PURE__ */ jsx("path", { d: "M4 20h16" }),
-														/* @__PURE__ */ jsx("path", { d: "m6 16 6-12 6 12" }),
-														/* @__PURE__ */ jsx("path", { d: "M8 12h8" })
-													]
-												})
-											}),
-											/* @__PURE__ */ jsx(SovereignToolBtn, {
-												onClick: () => editor?.chain().focus().toggleHighlight().run(),
-												active: editor?.isActive("highlight"),
-												title: "Text Background Color",
-												children: /* @__PURE__ */ jsxs("svg", {
-													xmlns: "http://www.w3.org/2000/svg",
-													width: "24",
-													height: "24",
-													viewBox: "0 0 24 24",
-													fill: "none",
-													stroke: "currentColor",
-													strokeWidth: 2,
-													strokeLinecap: "round",
-													strokeLinejoin: "round",
-													className: "lucide",
-													style: {
-														width: "18px",
-														height: "18px",
-														flexShrink: 0
-													},
-													children: [/* @__PURE__ */ jsx("path", { d: "m9 11-6 6v3h9l3-3" }), /* @__PURE__ */ jsx("path", { d: "m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4" })]
-												})
-											}),
-											/* @__PURE__ */ jsx(SovereignToolBtn, {
-												onClick: () => setVideoModalOpen(true),
-												title: "Video Portal",
-												children: /* @__PURE__ */ jsxs("svg", {
-													xmlns: "http://www.w3.org/2000/svg",
-													width: "24",
-													height: "24",
-													viewBox: "0 0 24 24",
-													fill: "none",
-													stroke: "currentColor",
-													strokeWidth: 2,
-													strokeLinecap: "round",
-													strokeLinejoin: "round",
-													className: "lucide",
-													style: {
-														width: "18px",
-														height: "18px",
-														flexShrink: 0
-													},
-													children: [
-														/* @__PURE__ */ jsx("rect", {
-															width: "18",
-															height: "18",
-															x: "3",
-															y: "3",
-															rx: "2"
-														}),
-														/* @__PURE__ */ jsx("path", { d: "m15 8-5 4 5 4V8Z" }),
-														/* @__PURE__ */ jsx("path", { d: "M7 12h1" })
-													]
-												})
-											})
-										]
-									}),
-									/* @__PURE__ */ jsx("div", { style: {
-										...toolDivider,
-										flexShrink: 0
-									} }),
-									/* @__PURE__ */ jsxs("div", {
-										style: {
-											display: "flex",
-											gap: "4px",
-											flexShrink: 0
-										},
-										children: [
-											/* @__PURE__ */ jsx(SovereignToolBtn, {
-												onClick: () => editor?.chain().focus().insertTable({
-													rows: 3,
-													cols: 3,
-													withHeaderRow: true
-												}).run(),
-												title: "Insert Table",
-												children: /* @__PURE__ */ jsxs("svg", {
-													xmlns: "http://www.w3.org/2000/svg",
-													width: "24",
-													height: "24",
-													viewBox: "0 0 24 24",
-													fill: "none",
-													stroke: "currentColor",
-													strokeWidth: 2,
-													strokeLinecap: "round",
-													strokeLinejoin: "round",
-													className: "lucide",
-													style: {
-														width: "18px",
-														height: "18px",
-														flexShrink: 0
-													},
-													children: [
-														/* @__PURE__ */ jsx("rect", {
-															x: "3",
-															y: "3",
-															width: "18",
-															height: "18",
-															rx: "2",
-															ry: "2"
-														}),
-														/* @__PURE__ */ jsx("line", {
-															x1: "3",
-															y1: "9",
-															x2: "21",
-															y2: "9"
-														}),
-														/* @__PURE__ */ jsx("line", {
-															x1: "3",
-															y1: "15",
-															x2: "21",
-															y2: "15"
-														}),
-														/* @__PURE__ */ jsx("line", {
-															x1: "9",
-															y1: "3",
-															x2: "9",
-															y2: "21"
-														}),
-														/* @__PURE__ */ jsx("line", {
-															x1: "15",
-															y1: "3",
-															x2: "15",
-															y2: "21"
-														})
-													]
-												})
-											}),
-											/* @__PURE__ */ jsx(SovereignToolBtn, {
-												onClick: () => editor?.chain().focus().deleteTable().run(),
-												title: "Delete Table",
-												color: "#ef4444",
-												children: /* @__PURE__ */ jsxs("svg", {
-													xmlns: "http://www.w3.org/2000/svg",
-													width: "24",
-													height: "24",
-													viewBox: "0 0 24 24",
-													fill: "none",
-													stroke: "currentColor",
-													strokeWidth: 2,
-													strokeLinecap: "round",
-													strokeLinejoin: "round",
-													className: "lucide",
-													style: {
-														width: "18px",
-														height: "18px",
-														flexShrink: 0
-													},
-													children: [
-														/* @__PURE__ */ jsx("path", { d: "M3 6h18" }),
-														/* @__PURE__ */ jsx("path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" }),
-														/* @__PURE__ */ jsx("path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" }),
-														/* @__PURE__ */ jsx("line", {
-															x1: "10",
-															y1: "11",
-															x2: "10",
-															y2: "17"
-														}),
-														/* @__PURE__ */ jsx("line", {
-															x1: "14",
-															y1: "11",
-															x2: "14",
-															y2: "17"
-														})
-													]
-												})
-											}),
-											/* @__PURE__ */ jsx(SovereignToolBtn, {
-												onClick: () => editor?.chain().focus().addRowAfter().run(),
-												title: "Add Row",
-												children: /* @__PURE__ */ jsxs("svg", {
-													xmlns: "http://www.w3.org/2000/svg",
-													width: "24",
-													height: "24",
-													viewBox: "0 0 24 24",
-													fill: "none",
-													stroke: "currentColor",
-													strokeWidth: 2,
-													strokeLinecap: "round",
-													strokeLinejoin: "round",
-													className: "lucide",
-													style: {
-														width: "18px",
-														height: "18px",
-														flexShrink: 0
-													},
-													children: [
-														/* @__PURE__ */ jsx("rect", {
-															width: "18",
-															height: "18",
-															x: "3",
-															y: "3",
-															rx: "2"
-														}),
-														/* @__PURE__ */ jsx("line", {
-															x1: "3",
-															y1: "9",
-															x2: "21",
-															y2: "9"
-														}),
-														/* @__PURE__ */ jsx("line", {
-															x1: "9",
-															y1: "21",
-															x2: "9",
-															y2: "9"
-														})
-													]
-												})
-											}),
-											/* @__PURE__ */ jsx(SovereignToolBtn, {
-												onClick: () => editor?.chain().focus().addColumnAfter().run(),
-												title: "Add Column",
-												children: /* @__PURE__ */ jsxs("svg", {
-													xmlns: "http://www.w3.org/2000/svg",
-													width: "24",
-													height: "24",
-													viewBox: "0 0 24 24",
-													fill: "none",
-													stroke: "currentColor",
-													strokeWidth: 2,
-													strokeLinecap: "round",
-													strokeLinejoin: "round",
-													className: "lucide",
-													style: {
-														width: "18px",
-														height: "18px",
-														flexShrink: 0
-													},
-													children: [
-														/* @__PURE__ */ jsx("rect", {
-															width: "18",
-															height: "18",
-															x: "3",
-															y: "3",
-															rx: "2"
-														}),
-														/* @__PURE__ */ jsx("line", {
-															x1: "3",
-															y1: "9",
-															x2: "21",
-															y2: "9"
-														}),
-														/* @__PURE__ */ jsx("line", {
-															x1: "12",
-															y1: "3",
-															x2: "12",
-															y2: "21"
-														})
-													]
-												})
-											})
-										]
-									}),
-									/* @__PURE__ */ jsx("div", { style: {
-										...toolDivider,
-										flexShrink: 0
-									} }),
-									/* @__PURE__ */ jsx("div", {
-										style: { flexShrink: 0 },
-										children: /* @__PURE__ */ jsx(SovereignToolBtn, {
-											onClick: () => editor?.chain().focus().unsetAllMarks().clearNodes().run(),
-											title: "Clear Formatting",
-											children: /* @__PURE__ */ jsxs("svg", {
-												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
-												viewBox: "0 0 24 24",
-												fill: "none",
-												stroke: "currentColor",
-												strokeWidth: 2,
-												strokeLinecap: "round",
-												strokeLinejoin: "round",
-												className: "lucide",
-												style: {
-													width: "18px",
-													height: "18px",
-													flexShrink: 0
-												},
-												children: [
-													/* @__PURE__ */ jsx("path", { d: "M21 7L7 21" }),
-													/* @__PURE__ */ jsx("path", { d: "M7 7l14 14" }),
-													/* @__PURE__ */ jsx("path", { d: "M3 11l5 5" }),
-													/* @__PURE__ */ jsx("path", { d: "m13 16 5 5" }),
-													/* @__PURE__ */ jsx("path", { d: "m8 3 5 5" })
-												]
-											})
-										})
-									})
-								]
-							}),
-							/* @__PURE__ */ jsx("input", {
-								placeholder: "Enter Post Title...",
-								value: title,
-								onChange: (e) => setTitle(e.target.value),
-								style: {
-									...deepWorkTitleStyle,
-									fontSize: "48px",
-									marginBottom: "16px"
-								}
-							}),
-							/* @__PURE__ */ jsxs("div", {
-								style: {
-									display: "flex",
-									justifyContent: "space-between",
-									marginTop: "-8px",
-									marginBottom: "32px",
-									padding: "0 4px",
-									fontSize: "12px",
-									fontWeight: 600
-								},
-								children: [/* @__PURE__ */ jsxs("span", {
-									style: { color: title.length > 110 ? "#ef4444" : "#64748b" },
-									children: [
-										"Post Title length: ",
-										title.length,
-										" characters (Recommended: ≤110)"
-									]
-								}), title.length > 110 && /* @__PURE__ */ jsx("span", {
-									style: {
-										color: "#ef4444",
-										display: "flex",
-										alignItems: "center",
-										gap: "4px"
-									},
-									children: "⚠️ Exceeds Google's recommended 110-character limit"
-								})]
-							}),
-							/* @__PURE__ */ jsx(EditorContent, {
-								editor,
-								className: "tiptap-content prose-container"
-							})
-						]
-					})
-				})
-			}),
 			isMobile && /* @__PURE__ */ jsxs("header", {
 				style: {
 					height: "56px",
@@ -3814,7 +2683,9 @@ function PostForm({ post }) {
 						...mainCanvasStyle,
 						display: isMobile ? mobileTab === "editor" ? "flex" : "none" : "flex",
 						overflowY: "auto",
-						width: isMobile ? "100%" : void 0
+						width: isMobile ? "100%" : distractionFree ? "100%" : void 0,
+						background: distractionFree ? "#fafcff" : "#ffffff",
+						transition: "all 0.2s ease"
 					},
 					children: [/* @__PURE__ */ jsx("div", {
 						style: {
@@ -3851,7 +2722,53 @@ function PostForm({ post }) {
                             background: #94a3b8;
                          }
                       ` }),
-								!isMobile && /* @__PURE__ */ jsx("button", {
+								!isMobile && (distractionFree ? /* @__PURE__ */ jsxs("button", {
+									type: "button",
+									onClick: () => setDistractionFree(false),
+									style: {
+										display: "flex",
+										alignItems: "center",
+										gap: "6px",
+										padding: "6px 12px",
+										borderRadius: "8px",
+										background: "#eff6ff",
+										border: "1px solid #bfdbfe",
+										color: "#1d4ed8",
+										fontWeight: 700,
+										fontSize: "12px",
+										cursor: "pointer",
+										flexShrink: 0,
+										transition: "all 0.15s ease"
+									},
+									title: "Exit Full Screen Focus Mode (Esc)",
+									children: [/* @__PURE__ */ jsxs("svg", {
+										xmlns: "http://www.w3.org/2000/svg",
+										width: "16",
+										height: "16",
+										viewBox: "0 0 24 24",
+										fill: "none",
+										stroke: "currentColor",
+										strokeWidth: 2.5,
+										strokeLinecap: "round",
+										strokeLinejoin: "round",
+										children: [
+											/* @__PURE__ */ jsx("polyline", { points: "4 14 10 14 10 20" }),
+											/* @__PURE__ */ jsx("polyline", { points: "20 10 14 10 14 4" }),
+											/* @__PURE__ */ jsx("line", {
+												x1: "14",
+												y1: "10",
+												x2: "21",
+												y2: "3"
+											}),
+											/* @__PURE__ */ jsx("line", {
+												x1: "3",
+												y1: "21",
+												x2: "10",
+												y2: "14"
+											})
+										]
+									}), /* @__PURE__ */ jsx("span", { children: "Exit Full Screen" })]
+								}) : /* @__PURE__ */ jsx("button", {
 									onClick: () => window.history.back(),
 									style: {
 										...navIconStyle,
@@ -3877,7 +2794,7 @@ function PostForm({ post }) {
 										},
 										children: /* @__PURE__ */ jsx("path", { d: "m15 18-6-6 6-6" })
 									})
-								}),
+								})),
 								!isMobile && /* @__PURE__ */ jsx("button", {
 									type: "button",
 									onClick: () => toolbarRef.current?.scrollBy({
@@ -5177,14 +4094,23 @@ function PostForm({ post }) {
 											title: "Share to Facebook Page",
 											children: /* @__PURE__ */ jsx("span", { children: "📘 FB Share" })
 										}),
-										/* @__PURE__ */ jsx("button", {
-											onClick: () => setDistractionFree(true),
-											style: iconBtnStyle,
-											title: "Distraction Free Mode",
-											children: /* @__PURE__ */ jsxs("svg", {
+										/* @__PURE__ */ jsxs("button", {
+											type: "button",
+											onClick: () => setDistractionFree(!distractionFree),
+											style: {
+												...iconBtnStyle,
+												background: distractionFree ? "#eff6ff" : "#fff",
+												borderColor: distractionFree ? "#93c5fd" : "#e2e8f0",
+												color: distractionFree ? "#1d4ed8" : "#475569",
+												display: "inline-flex",
+												alignItems: "center",
+												gap: "5px"
+											},
+											title: distractionFree ? "Exit Full Screen Mode (Esc)" : "Full Screen Focus Mode",
+											children: [/* @__PURE__ */ jsx("svg", {
 												xmlns: "http://www.w3.org/2000/svg",
-												width: "24",
-												height: "24",
+												width: "18",
+												height: "18",
 												viewBox: "0 0 24 24",
 												fill: "none",
 												stroke: "currentColor",
@@ -5197,7 +4123,22 @@ function PostForm({ post }) {
 													height: "18px",
 													flexShrink: 0
 												},
-												children: [
+												children: distractionFree ? /* @__PURE__ */ jsxs(Fragment, { children: [
+													/* @__PURE__ */ jsx("polyline", { points: "4 14 10 14 10 20" }),
+													/* @__PURE__ */ jsx("polyline", { points: "20 10 14 10 14 4" }),
+													/* @__PURE__ */ jsx("line", {
+														x1: "14",
+														y1: "10",
+														x2: "21",
+														y2: "3"
+													}),
+													/* @__PURE__ */ jsx("line", {
+														x1: "3",
+														y1: "21",
+														x2: "10",
+														y2: "14"
+													})
+												] }) : /* @__PURE__ */ jsxs(Fragment, { children: [
 													/* @__PURE__ */ jsx("polyline", { points: "15 3 21 3 21 9" }),
 													/* @__PURE__ */ jsx("polyline", { points: "9 21 3 21 3 15" }),
 													/* @__PURE__ */ jsx("line", {
@@ -5212,8 +4153,57 @@ function PostForm({ post }) {
 														x2: "10",
 														y2: "14"
 													})
-												]
-											})
+												] })
+											}), distractionFree && /* @__PURE__ */ jsx("span", {
+												style: {
+													fontSize: "11px",
+													fontWeight: 700
+												},
+												children: "Focus"
+											})]
+										}),
+										distractionFree && /* @__PURE__ */ jsxs("div", {
+											style: {
+												display: "flex",
+												alignItems: "center",
+												gap: "8px",
+												marginLeft: "4px"
+											},
+											children: [lastSaved && /* @__PURE__ */ jsxs("span", {
+												style: {
+													fontSize: "11px",
+													color: "#64748b",
+													fontWeight: 600,
+													background: "#f1f5f9",
+													padding: "4px 8px",
+													borderRadius: "6px",
+													whiteSpace: "nowrap"
+												},
+												children: ["Saved ", lastSaved]
+											}), /* @__PURE__ */ jsxs("button", {
+												type: "button",
+												onClick: () => setDeployModalOpen(true),
+												disabled: isPending,
+												style: {
+													background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+													color: "#fff",
+													border: "none",
+													padding: "7px 16px",
+													borderRadius: "8px",
+													fontWeight: 800,
+													cursor: "pointer",
+													fontSize: "12.5px",
+													boxShadow: "0 2px 8px rgba(37, 99, 235, 0.25)",
+													display: "flex",
+													alignItems: "center",
+													gap: "6px",
+													whiteSpace: "nowrap"
+												},
+												children: [/* @__PURE__ */ jsx("span", { children: "Deploy" }), /* @__PURE__ */ jsx("span", {
+													style: { fontSize: "11px" },
+													children: "🚀"
+												})]
+											})]
 										}),
 										/* @__PURE__ */ jsx("button", {
 											onClick: () => setPreviewMode("google"),
@@ -5249,7 +4239,9 @@ function PostForm({ post }) {
 					}), /* @__PURE__ */ jsxs("div", {
 						style: {
 							...editorWrapperStyle,
-							padding: isMobile ? "16px" : "40px 24px"
+							padding: isMobile ? "16px" : distractionFree ? "48px 32px 100px 32px" : "40px 24px",
+							maxWidth: distractionFree ? "980px" : "1200px",
+							transition: "max-width 0.2s ease"
 						},
 						children: [
 							/* @__PURE__ */ jsxs("div", {
@@ -5320,13 +4312,98 @@ function PostForm({ post }) {
 										const nodeType = selection.node.type.name;
 										return nodeType === "faqBlock" || nodeType === "imageSlider" || nodeType === "image" || nodeType === "quizBlock" || nodeType === "pollBlock";
 									}
-									return editor.isActive("image") || editor.isActive("imageSlider") || editor.isActive("faqBlock") || editor.isActive("quizBlock") || editor.isActive("pollBlock");
+									return editor.isActive("image") || editor.isActive("imageSlider") || editor.isActive("faqBlock") || editor.isActive("quizBlock") || editor.isActive("pollBlock") || editor.isActive("link");
 								},
 								children: /* @__PURE__ */ jsx("div", {
 									style: bubbleMenuStyle,
 									children: (() => {
 										const { selection } = editor.state;
 										const selectedNodeType = selection.node?.type?.name;
+										if (editor.isActive("link")) {
+											const displayHref = editor.getAttributes("link").href || "";
+											return /* @__PURE__ */ jsxs("div", {
+												style: {
+													display: "flex",
+													gap: "6px",
+													alignItems: "center",
+													padding: "2px 4px"
+												},
+												children: [
+													/* @__PURE__ */ jsxs("a", {
+														href: displayHref,
+														target: "_blank",
+														rel: "noopener noreferrer",
+														style: {
+															fontSize: "11.5px",
+															color: "#2563eb",
+															textDecoration: "underline",
+															maxWidth: "220px",
+															overflow: "hidden",
+															textOverflow: "ellipsis",
+															whiteSpace: "nowrap",
+															display: "inline-flex",
+															alignItems: "center",
+															gap: "4px"
+														},
+														title: displayHref,
+														children: [
+															/* @__PURE__ */ jsx("span", { children: "🔗" }),
+															/* @__PURE__ */ jsx("span", { children: displayHref.replace(/^https?:\/\//, "") }),
+															/* @__PURE__ */ jsx("span", {
+																style: {
+																	textDecoration: "none",
+																	fontSize: "10px"
+																},
+																children: "↗"
+															})
+														]
+													}),
+													/* @__PURE__ */ jsx("div", { style: {
+														width: "1px",
+														height: "16px",
+														background: "#e2e8f0"
+													} }),
+													/* @__PURE__ */ jsx("button", {
+														type: "button",
+														onClick: handleOpenLinkModal,
+														style: {
+															background: "#eff6ff",
+															border: "1px solid #bfdbfe",
+															color: "#1d4ed8",
+															borderRadius: "6px",
+															padding: "4px 8px",
+															fontSize: "11px",
+															fontWeight: 700,
+															cursor: "pointer",
+															display: "inline-flex",
+															alignItems: "center",
+															gap: "3px"
+														},
+														title: "Edit Link Settings",
+														children: "✏️ Edit"
+													}),
+													/* @__PURE__ */ jsx("button", {
+														type: "button",
+														onClick: handleRemoveLink,
+														style: {
+															background: "#fef2f2",
+															border: "1px solid #fecaca",
+															color: "#dc2626",
+															borderRadius: "6px",
+															padding: "4px 8px",
+															fontSize: "11px",
+															fontWeight: 700,
+															cursor: "pointer",
+															display: "inline-flex",
+															alignItems: "center",
+															gap: "3px"
+														},
+														title: "Remove Link (Unlink)",
+														children: "✕ Unlink"
+													})
+												]
+											});
+										}
 										if (selectedNodeType === "imageSlider" || editor.isActive("imageSlider")) return /* @__PURE__ */ jsxs(SovereignToolBtn, {
 											onClick: handleOpenSliderModal,
 											title: "Slider Settings",
@@ -5589,7 +4666,7 @@ function PostForm({ post }) {
 				}), /* @__PURE__ */ jsxs("aside", {
 					style: {
 						...intelSidebarStyle,
-						display: isMobile ? mobileTab === "features" ? "flex" : "none" : "flex",
+						display: isMobile ? mobileTab === "features" ? "flex" : "none" : distractionFree ? "none" : "flex",
 						width: isMobile ? "100%" : `${sidebarWidth}px`,
 						borderLeft: isMobile ? "none" : "1px solid #e2e8f0",
 						borderTop: isMobile ? "none" : "none",
@@ -11838,167 +10915,441 @@ function PostForm({ post }) {
 				children: /* @__PURE__ */ jsxs("div", {
 					style: {
 						...modalContentStyle,
-						maxWidth: "450px"
+						maxWidth: "540px",
+						borderRadius: "24px"
 					},
-					children: [/* @__PURE__ */ jsxs("div", {
-						style: modalHeaderStyle,
-						children: [/* @__PURE__ */ jsxs("div", {
-							style: {
-								display: "flex",
-								alignItems: "center",
-								gap: "10px"
-							},
-							children: [/* @__PURE__ */ jsxs("svg", {
-								xmlns: "http://www.w3.org/2000/svg",
-								width: "24",
-								height: "24",
-								viewBox: "0 0 24 24",
-								fill: "none",
-								stroke: "currentColor",
-								strokeWidth: 2,
-								strokeLinecap: "round",
-								strokeLinejoin: "round",
-								className: "lucide",
+					children: [
+						/* @__PURE__ */ jsxs("div", {
+							style: modalHeaderStyle,
+							children: [/* @__PURE__ */ jsxs("div", {
 								style: {
-									width: "18px",
-									height: "18px",
-									color: "#2563eb"
+									display: "flex",
+									alignItems: "center",
+									gap: "10px"
 								},
-								children: [/* @__PURE__ */ jsx("path", { d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" }), /* @__PURE__ */ jsx("path", { d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" })]
-							}), /* @__PURE__ */ jsx("h2", {
-								style: {
-									fontSize: "16px",
-									fontWeight: 700,
-									margin: 0
-								},
-								children: "Sovereign Link Editor"
+								children: [/* @__PURE__ */ jsx("div", {
+									style: {
+										width: "36px",
+										height: "36px",
+										borderRadius: "12px",
+										background: "#eff6ff",
+										display: "flex",
+										alignItems: "center",
+										justifyContent: "center",
+										color: "#2563eb"
+									},
+									children: /* @__PURE__ */ jsxs("svg", {
+										xmlns: "http://www.w3.org/2000/svg",
+										width: "20",
+										height: "20",
+										viewBox: "0 0 24 24",
+										fill: "none",
+										stroke: "currentColor",
+										strokeWidth: 2,
+										strokeLinecap: "round",
+										strokeLinejoin: "round",
+										children: [/* @__PURE__ */ jsx("path", { d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" }), /* @__PURE__ */ jsx("path", { d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" })]
+									})
+								}), /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("h2", {
+									style: {
+										fontSize: "16px",
+										fontWeight: 800,
+										margin: 0,
+										color: "#0f172a"
+									},
+									children: editor.isActive("link") ? "Edit Link" : "Insert Link"
+								}), /* @__PURE__ */ jsx("span", {
+									style: {
+										fontSize: "11px",
+										color: "#64748b"
+									},
+									children: "Configure destination URL, anchor text & SEO attributes"
+								})] })]
+							}), /* @__PURE__ */ jsx("button", {
+								onClick: () => setLinkModalOpen(false),
+								style: closeModalBtn,
+								title: "Close (Esc)",
+								children: /* @__PURE__ */ jsxs("svg", {
+									xmlns: "http://www.w3.org/2000/svg",
+									width: "20",
+									height: "20",
+									viewBox: "0 0 24 24",
+									fill: "none",
+									stroke: "currentColor",
+									strokeWidth: 2,
+									strokeLinecap: "round",
+									strokeLinejoin: "round",
+									children: [/* @__PURE__ */ jsx("line", {
+										x1: "18",
+										y1: "6",
+										x2: "6",
+										y2: "18"
+									}), /* @__PURE__ */ jsx("line", {
+										x1: "6",
+										y1: "6",
+										x2: "18",
+										y2: "18"
+									})]
+								})
 							})]
-						}), /* @__PURE__ */ jsx("button", {
-							onClick: () => setLinkModalOpen(false),
-							style: closeModalBtn,
-							children: /* @__PURE__ */ jsxs("svg", {
-								xmlns: "http://www.w3.org/2000/svg",
-								width: "24",
-								height: "24",
-								viewBox: "0 0 24 24",
-								fill: "none",
-								stroke: "currentColor",
-								strokeWidth: 2,
-								strokeLinecap: "round",
-								strokeLinejoin: "round",
-								className: "lucide",
-								style: {
-									width: "20px",
-									height: "20px"
-								},
-								children: [/* @__PURE__ */ jsx("line", {
-									x1: "18",
-									y1: "6",
-									x2: "6",
-									y2: "18"
-								}), /* @__PURE__ */ jsx("line", {
-									x1: "6",
-									y1: "6",
-									x2: "18",
-									y2: "18"
-								})]
-							})
-						})]
-					}), /* @__PURE__ */ jsxs("div", {
-						style: { padding: "30px" },
-						children: [
-							/* @__PURE__ */ jsx("label", {
-								style: metaLabelStyle,
-								children: "DESTINATION URL"
-							}),
-							/* @__PURE__ */ jsx("input", {
-								autoFocus: true,
-								value: linkInputUrl,
-								onChange: (e) => setLinkInputUrl(e.target.value),
-								onKeyDown: (e) => e.key === "Enter" && handleApplyLink(),
-								placeholder: "https://example.com",
-								style: {
-									...metaInputStyle,
-									background: "#f1f5f9",
-									marginBottom: "20px"
-								}
-							}),
-							/* @__PURE__ */ jsxs("div", {
-								style: {
-									display: "flex",
-									flexDirection: "column",
-									gap: "14px",
-									marginBottom: "24px"
-								},
-								children: [/* @__PURE__ */ jsxs("label", {
+						}),
+						/* @__PURE__ */ jsxs("div", {
+							style: {
+								padding: "24px",
+								overflowY: "auto",
+								maxHeight: "calc(85vh - 120px)"
+							},
+							children: [
+								/* @__PURE__ */ jsxs("div", {
+									style: { marginBottom: "16px" },
+									children: [
+										/* @__PURE__ */ jsx("label", {
+											style: metaLabelStyle,
+											children: "DISPLAY TEXT (ANCHOR TEXT)"
+										}),
+										/* @__PURE__ */ jsx("input", {
+											value: linkText,
+											onChange: (e) => setLinkText(e.target.value),
+											placeholder: "Text to display in post (e.g. Best Coaching Institute)",
+											style: {
+												...metaInputStyle,
+												background: "#f8fafc",
+												marginBottom: "4px"
+											}
+										}),
+										/* @__PURE__ */ jsx("span", {
+											style: {
+												fontSize: "11px",
+												color: "#64748b"
+											},
+											children: "If left blank, the destination URL will be shown."
+										})
+									]
+								}),
+								/* @__PURE__ */ jsxs("div", {
+									style: { marginBottom: "16px" },
+									children: [/* @__PURE__ */ jsxs("div", {
+										style: {
+											display: "flex",
+											justifyContent: "space-between",
+											alignItems: "center",
+											marginBottom: "6px"
+										},
+										children: [/* @__PURE__ */ jsx("label", {
+											style: {
+												...metaLabelStyle,
+												marginBottom: 0
+											},
+											children: "DESTINATION URL"
+										}), /* @__PURE__ */ jsx("div", {
+											style: {
+												display: "flex",
+												gap: "4px"
+											},
+											children: [
+												"https://",
+												"/",
+												"mailto:",
+												"tel:"
+											].map((prefix) => /* @__PURE__ */ jsx("button", {
+												type: "button",
+												onClick: () => {
+													if (!linkInputUrl.startsWith(prefix)) setLinkInputUrl(prefix + linkInputUrl.replace(/^(https?:\/\/|\/|mailto:|tel:)/, ""));
+												},
+												style: {
+													fontSize: "10px",
+													fontWeight: 700,
+													padding: "2px 7px",
+													borderRadius: "6px",
+													border: "1px solid #cbd5e1",
+													background: "#f8fafc",
+													color: "#475569",
+													cursor: "pointer"
+												},
+												children: prefix
+											}, prefix))
+										})]
+									}), /* @__PURE__ */ jsx("input", {
+										autoFocus: true,
+										value: linkInputUrl,
+										onChange: (e) => setLinkInputUrl(e.target.value),
+										onKeyDown: (e) => {
+											if (e.key === "Enter") {
+												e.preventDefault();
+												handleApplyLink();
+											}
+										},
+										placeholder: "https://example.com or /blog/my-post",
+										style: {
+											...metaInputStyle,
+											background: "#fff",
+											borderColor: "#2563eb"
+										}
+									})]
+								}),
+								/* @__PURE__ */ jsxs("div", {
+									style: {
+										marginBottom: "18px",
+										background: "#f8fafc",
+										padding: "12px 14px",
+										borderRadius: "12px",
+										border: "1px solid #e2e8f0"
+									},
+									children: [/* @__PURE__ */ jsx("div", {
+										style: {
+											fontSize: "11px",
+											fontWeight: 800,
+											color: "#475569",
+											marginBottom: "8px",
+											display: "flex",
+											alignItems: "center",
+											gap: "6px"
+										},
+										children: /* @__PURE__ */ jsx("span", { children: "⚡ Quick Internal Page Link:" })
+									}), /* @__PURE__ */ jsx("div", {
+										style: {
+											display: "flex",
+											flexWrap: "wrap",
+											gap: "6px",
+											maxHeight: "110px",
+											overflowY: "auto"
+										},
+										children: [
+											{
+												title: "Home",
+												path: "/"
+											},
+											{
+												title: "Blog",
+												path: "/blog"
+											},
+											{
+												title: "News",
+												path: "/news"
+											},
+											{
+												title: "Contact",
+												path: "/contact"
+											},
+											...availablePages.map((p) => ({
+												title: p.title || p.slug,
+												path: "/" + p.slug
+											}))
+										].map((page) => /* @__PURE__ */ jsxs("button", {
+											type: "button",
+											onClick: () => handleSelectInternalPage(page.path, page.title),
+											style: {
+												fontSize: "11px",
+												padding: "4px 9px",
+												borderRadius: "6px",
+												border: linkInputUrl === page.path ? "1px solid #2563eb" : "1px solid #e2e8f0",
+												background: linkInputUrl === page.path ? "#eff6ff" : "#ffffff",
+												color: linkInputUrl === page.path ? "#1d4ed8" : "#334155",
+												cursor: "pointer",
+												fontWeight: 600,
+												display: "flex",
+												alignItems: "center",
+												gap: "4px",
+												transition: "all 0.15s ease"
+											},
+											children: [/* @__PURE__ */ jsx("span", { children: "📄" }), /* @__PURE__ */ jsx("span", { children: page.title })]
+										}, page.path))
+									})]
+								}),
+								/* @__PURE__ */ jsxs("div", {
 									style: {
 										display: "flex",
-										alignItems: "center",
+										flexDirection: "column",
 										gap: "10px",
-										cursor: "pointer",
-										fontSize: "13px",
-										fontWeight: 600,
-										color: "#475569"
+										marginBottom: "18px",
+										padding: "14px",
+										background: "#ffffff",
+										borderRadius: "12px",
+										border: "1px solid #e2e8f0"
 									},
-									children: [/* @__PURE__ */ jsx("input", {
-										type: "checkbox",
-										checked: linkOpenInNewTab,
-										onChange: (e) => setLinkOpenInNewTab(e.target.checked),
+									children: [
+										/* @__PURE__ */ jsxs("label", {
+											style: {
+												display: "flex",
+												alignItems: "center",
+												gap: "10px",
+												cursor: "pointer",
+												fontSize: "12.5px",
+												fontWeight: 600,
+												color: "#334155"
+											},
+											children: [/* @__PURE__ */ jsx("input", {
+												type: "checkbox",
+												checked: linkOpenInNewTab,
+												onChange: (e) => setLinkOpenInNewTab(e.target.checked),
+												style: {
+													width: "16px",
+													height: "16px",
+													cursor: "pointer",
+													accentColor: "#2563eb"
+												}
+											}), /* @__PURE__ */ jsxs("span", { children: [
+												"Open link in a new window / tab (",
+												/* @__PURE__ */ jsx("code", { children: "target=\"_blank\"" }),
+												")"
+											] })]
+										}),
+										/* @__PURE__ */ jsxs("label", {
+											style: {
+												display: "flex",
+												alignItems: "center",
+												gap: "10px",
+												cursor: "pointer",
+												fontSize: "12.5px",
+												fontWeight: 600,
+												color: "#334155"
+											},
+											children: [/* @__PURE__ */ jsx("input", {
+												type: "checkbox",
+												checked: linkIsNoFollow,
+												onChange: (e) => setLinkIsNoFollow(e.target.checked),
+												style: {
+													width: "16px",
+													height: "16px",
+													cursor: "pointer",
+													accentColor: "#2563eb"
+												}
+											}), /* @__PURE__ */ jsxs("span", { children: [
+												"Add ",
+												/* @__PURE__ */ jsx("code", { children: "rel=\"nofollow\"" }),
+												" (Search engine optimization for external links)"
+											] })]
+										}),
+										/* @__PURE__ */ jsxs("label", {
+											style: {
+												display: "flex",
+												alignItems: "center",
+												gap: "10px",
+												cursor: "pointer",
+												fontSize: "12.5px",
+												fontWeight: 600,
+												color: "#334155"
+											},
+											children: [/* @__PURE__ */ jsx("input", {
+												type: "checkbox",
+												checked: linkIsSponsored,
+												onChange: (e) => setLinkIsSponsored(e.target.checked),
+												style: {
+													width: "16px",
+													height: "16px",
+													cursor: "pointer",
+													accentColor: "#2563eb"
+												}
+											}), /* @__PURE__ */ jsxs("span", { children: [
+												"Add ",
+												/* @__PURE__ */ jsx("code", { children: "rel=\"sponsored\"" }),
+												" (Paid, affiliate, or sponsored link)"
+											] })]
+										}),
+										/* @__PURE__ */ jsxs("label", {
+											style: {
+												display: "flex",
+												alignItems: "center",
+												gap: "10px",
+												cursor: "pointer",
+												fontSize: "12.5px",
+												fontWeight: 600,
+												color: "#334155"
+											},
+											children: [/* @__PURE__ */ jsx("input", {
+												type: "checkbox",
+												checked: linkIsUgc,
+												onChange: (e) => setLinkIsUgc(e.target.checked),
+												style: {
+													width: "16px",
+													height: "16px",
+													cursor: "pointer",
+													accentColor: "#2563eb"
+												}
+											}), /* @__PURE__ */ jsxs("span", { children: [
+												"Add ",
+												/* @__PURE__ */ jsx("code", { children: "rel=\"ugc\"" }),
+												" (User-generated content)"
+											] })]
+										})
+									]
+								}),
+								/* @__PURE__ */ jsxs("div", {
+									style: { marginBottom: "8px" },
+									children: [/* @__PURE__ */ jsx("label", {
+										style: metaLabelStyle,
+										children: "LINK TITLE (HOVER TOOLTIP / A11Y)"
+									}), /* @__PURE__ */ jsx("input", {
+										value: linkTitle,
+										onChange: (e) => setLinkTitle(e.target.value),
+										placeholder: "Optional accessibility title when hovering over link",
 										style: {
-											width: "16px",
-											height: "16px",
-											cursor: "pointer"
+											...metaInputStyle,
+											background: "#f8fafc"
 										}
-									}), "Open in a new window"]
-								}), /* @__PURE__ */ jsxs("label", {
+									})]
+								})
+							]
+						}),
+						/* @__PURE__ */ jsxs("div", {
+							style: {
+								padding: "16px 24px",
+								background: "#f8fafc",
+								borderTop: "1px solid #e2e8f0",
+								display: "flex",
+								justifyContent: "flex-end",
+								gap: "10px",
+								alignItems: "center"
+							},
+							children: [
+								editor.isActive("link") && /* @__PURE__ */ jsxs("button", {
+									type: "button",
+									onClick: handleRemoveLink,
 									style: {
+										padding: "9px 16px",
+										borderRadius: "10px",
+										border: "1px solid #fecaca",
+										background: "#fef2f2",
+										color: "#dc2626",
+										fontWeight: 700,
+										fontSize: "12.5px",
+										cursor: "pointer",
+										marginRight: "auto",
 										display: "flex",
 										alignItems: "center",
-										gap: "10px",
-										cursor: "pointer",
-										fontSize: "13px",
-										fontWeight: 600,
-										color: "#475569"
+										gap: "4px"
 									},
-									children: [/* @__PURE__ */ jsx("input", {
-										type: "checkbox",
-										checked: linkIsNoFollow,
-										onChange: (e) => setLinkIsNoFollow(e.target.checked),
-										style: {
-											width: "16px",
-											height: "16px",
-											cursor: "pointer"
-										}
-									}), "Add 'rel=nofollow' (Search Engine optimization)"]
-								})]
-							}),
-							/* @__PURE__ */ jsxs("div", {
-								style: {
-									display: "flex",
-									gap: "12px"
-								},
-								children: [/* @__PURE__ */ jsx("button", {
+									children: [/* @__PURE__ */ jsx("span", { children: "🗑️" }), /* @__PURE__ */ jsx("span", { children: "Remove Link" })]
+								}),
+								/* @__PURE__ */ jsx("button", {
+									type: "button",
+									onClick: () => setLinkModalOpen(false),
+									style: {
+										padding: "9px 18px",
+										borderRadius: "10px",
+										border: "1px solid #cbd5e1",
+										background: "#fff",
+										color: "#475569",
+										fontWeight: 700,
+										fontSize: "12.5px",
+										cursor: "pointer"
+									},
+									children: "Cancel"
+								}),
+								/* @__PURE__ */ jsx("button", {
+									type: "button",
 									onClick: handleApplyLink,
 									style: {
 										...publishBtnStyle,
-										flex: 1,
-										padding: "10px"
+										padding: "9px 22px",
+										fontSize: "12.5px",
+										borderRadius: "10px"
 									},
-									children: "Apply Link"
-								}), /* @__PURE__ */ jsx("button", {
-									onClick: () => {
-										setLinkInputUrl("");
-										handleApplyLink();
-									},
-									style: {
-										...iconBtnStyle,
-										padding: "10px 20px"
-									},
-									children: "Remove"
-								})]
-							})
-						]
-					})]
+									children: editor.isActive("link") ? "Update Link" : "Insert Link"
+								})
+							]
+						})
+					]
 				})
 			}),
 			videoModalOpen && /* @__PURE__ */ jsx("div", {
