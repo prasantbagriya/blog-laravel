@@ -64,6 +64,47 @@ const FontSize = Extension.create({
   },
 })
 
+// Custom Link Extension with exact SEO & Target attribute preservation
+const CustomLink = Link.extend({
+  addOptions() {
+    return {
+      ...this.parent?.(),
+      openOnClick: false,
+      HTMLAttributes: {},
+    };
+  },
+  addAttributes() {
+    return {
+      href: {
+        default: null,
+        parseHTML: element => element.getAttribute('href'),
+      },
+      target: {
+        default: null,
+        parseHTML: element => element.getAttribute('target'),
+      },
+      rel: {
+        default: null,
+        parseHTML: element => element.getAttribute('rel'),
+      },
+      class: {
+        default: null,
+        parseHTML: element => element.getAttribute('class'),
+      },
+    };
+  },
+  renderHTML({ HTMLAttributes }) {
+    const { href, target, rel, class: className } = HTMLAttributes;
+    const attrs: Record<string, string> = {};
+    if (href) attrs.href = href;
+    if (target) attrs.target = target;
+    if (rel) attrs.rel = rel;
+    if (className) attrs.class = className;
+
+    return ['a', attrs, 0];
+  },
+});
+
 // Custom Video Extension for local uploads
 const Video = Node.create({
   name: 'video',
@@ -1415,7 +1456,6 @@ export default function PostForm({ post }: PostFormProps) {
    const [linkModalOpen, setLinkModalOpen] = useState(false);
    const [linkInputUrl, setLinkInputUrl] = useState('');
    const [linkText, setLinkText] = useState('');
-   const [linkTitle, setLinkTitle] = useState('');
    const [linkOpenInNewTab, setLinkOpenInNewTab] = useState(false);
    const [linkIsNoFollow, setLinkIsNoFollow] = useState(false);
    const [linkIsSponsored, setLinkIsSponsored] = useState(false);
@@ -1590,6 +1630,12 @@ export default function PostForm({ post }: PostFormProps) {
 
    const handleOpenLinkModal = () => {
       if (!editor) return;
+
+      // If cursor is on a link, extend selection to cover the entire link
+      if (editor.isActive('link')) {
+         editor.chain().extendMarkRange('link').run();
+      }
+
       const { from, to } = editor.state.selection;
       setSavedSelection({ from, to });
 
@@ -1598,10 +1644,9 @@ export default function PostForm({ post }: PostFormProps) {
 
       setLinkInputUrl(attrs.href || '');
       setLinkText(selectedText || '');
-      setLinkTitle(attrs.title || '');
       setLinkOpenInNewTab(attrs.target === '_blank');
 
-      const rel = attrs.rel || '';
+      const rel = (attrs.rel || '').toLowerCase();
       setLinkIsNoFollow(rel.includes('nofollow'));
       setLinkIsSponsored(rel.includes('sponsored'));
       setLinkIsUgc(rel.includes('ugc'));
@@ -1623,6 +1668,9 @@ export default function PostForm({ post }: PostFormProps) {
    const handleSelectInternalPage = (path: string, pageTitle?: string) => {
       setLinkInputUrl(path);
       setLinkOpenInNewTab(false);
+      setLinkIsNoFollow(false);
+      setLinkIsSponsored(false);
+      setLinkIsUgc(false);
       if (!linkText.trim() && pageTitle) {
          setLinkText(pageTitle);
       }
@@ -1668,11 +1716,6 @@ export default function PostForm({ post }: PostFormProps) {
          target: linkOpenInNewTab ? '_blank' : null,
          rel: relParts.length > 0 ? Array.from(new Set(relParts)).join(' ') : null,
       };
-      if (linkTitle.trim()) {
-         attributes.title = linkTitle.trim();
-      } else {
-         attributes.title = null;
-      }
 
       if (savedSelection) {
          try {
@@ -1681,25 +1724,13 @@ export default function PostForm({ post }: PostFormProps) {
       }
 
       const textToDisplay = linkText.trim() || url;
-      const isSelectionEmpty = editor.state.selection.from === editor.state.selection.to;
-      const currentSelectedText = editor.state.doc.textBetween(
-         editor.state.selection.from,
-         editor.state.selection.to,
-         ' '
-      );
 
-      if (isSelectionEmpty) {
-         editor
-            .chain()
-            .focus()
-            .insertContent({
-               type: 'text',
-               text: textToDisplay,
-               marks: [{ type: 'link', attrs: attributes }]
-            })
-            .run();
-      } else {
-         if (linkText.trim() && linkText.trim() !== currentSelectedText) {
+      if (editor.isActive('link')) {
+         editor.chain().focus().extendMarkRange('link').run();
+         const currentSelected = editor.state.selection;
+         const currentText = editor.state.doc.textBetween(currentSelected.from, currentSelected.to, ' ');
+
+         if (linkText.trim() && linkText.trim() !== currentText) {
             editor
                .chain()
                .focus()
@@ -1713,9 +1744,41 @@ export default function PostForm({ post }: PostFormProps) {
             editor
                .chain()
                .focus()
-               .extendMarkRange('link')
                .setLink(attributes as any)
                .run();
+         }
+      } else {
+         const isSelectionEmpty = editor.state.selection.from === editor.state.selection.to;
+         if (isSelectionEmpty) {
+            editor
+               .chain()
+               .focus()
+               .insertContent({
+                  type: 'text',
+                  text: textToDisplay,
+                  marks: [{ type: 'link', attrs: attributes }]
+               })
+               .run();
+         } else {
+            const currentSelected = editor.state.selection;
+            const currentText = editor.state.doc.textBetween(currentSelected.from, currentSelected.to, ' ');
+            if (linkText.trim() && linkText.trim() !== currentText) {
+               editor
+                  .chain()
+                  .focus()
+                  .insertContent({
+                     type: 'text',
+                     text: linkText.trim(),
+                     marks: [{ type: 'link', attrs: attributes }]
+                  })
+                  .run();
+            } else {
+               editor
+                  .chain()
+                  .focus()
+                  .setLink(attributes as any)
+                  .run();
+            }
          }
       }
 
@@ -1861,8 +1924,8 @@ export default function PostForm({ post }: PostFormProps) {
 
    const editor = useEditor({
       extensions: [
-         StarterKit.configure({ heading: { levels: [1, 2, 3, 4] } }),
-         Image, Link.configure({ openOnClick: false }), Underline,
+         StarterKit.configure({ link: false, heading: { levels: [1, 2, 3, 4] } }),
+         Image, CustomLink.configure({ openOnClick: false }), Underline,
          Table.configure({ resizable: true }), TableRow, TableHeader, TableCell,
          CharacterCount, Typography, Highlight, TextAlign.configure({ types: ['heading', 'paragraph'] }),
          TaskList, TaskItem.configure({ nested: true }), Subscript, Superscript, 
@@ -2834,7 +2897,7 @@ export default function PostForm({ post }: PostFormProps) {
                                   const linkAttrs = editor.getAttributes('link');
                                   const displayHref = linkAttrs.href || '';
                                   return (
-                                     <div style={{ display: 'flex', gap: '6px', alignItems: 'center', padding: '2px 4px' }}>
+                                     <div style={{ display: 'flex', gap: '6px', alignItems: 'center', padding: '2px 4px', flexWrap: 'wrap' }}>
                                         <a
                                            href={displayHref}
                                            target="_blank"
@@ -2857,6 +2920,26 @@ export default function PostForm({ post }: PostFormProps) {
                                            <span>{displayHref.replace(/^https?:\/\//, '')}</span>
                                            <span style={{ textDecoration: 'none', fontSize: '10px' }}>↗</span>
                                         </a>
+                                        {linkAttrs.target === '_blank' && (
+                                           <span style={{ fontSize: '9.5px', padding: '1px 5px', borderRadius: '4px', background: '#eff6ff', color: '#1d4ed8', fontWeight: 700, border: '1px solid #bfdbfe' }}>
+                                              _blank
+                                           </span>
+                                        )}
+                                        {(linkAttrs.rel || '').includes('nofollow') && (
+                                           <span style={{ fontSize: '9.5px', padding: '1px 5px', borderRadius: '4px', background: '#fef3c7', color: '#b45309', fontWeight: 700, border: '1px solid #fde68a' }}>
+                                              nofollow
+                                           </span>
+                                        )}
+                                        {(linkAttrs.rel || '').includes('sponsored') && (
+                                           <span style={{ fontSize: '9.5px', padding: '1px 5px', borderRadius: '4px', background: '#f3e8ff', color: '#7e22ce', fontWeight: 700, border: '1px solid #e9d5ff' }}>
+                                              sponsored
+                                           </span>
+                                        )}
+                                        {(linkAttrs.rel || '').includes('ugc') && (
+                                           <span style={{ fontSize: '9.5px', padding: '1px 5px', borderRadius: '4px', background: '#ecfdf5', color: '#047857', fontWeight: 700, border: '1px solid #a7f3d0' }}>
+                                              ugc
+                                           </span>
+                                        )}
                                         <div style={{ width: '1px', height: '16px', background: '#e2e8f0' }} />
                                         <button
                                            type="button"
@@ -5252,34 +5335,45 @@ export default function PostForm({ post }: PostFormProps) {
                      </div>
 
                      {/* Link Attributes / SEO Targets */}
-                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '18px', padding: '14px', background: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '12.5px', fontWeight: 600, color: '#334155' }}>
+                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '18px', padding: '14px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                        <div style={{ fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '2px' }}>
+                           Link Attributes & SEO Rel Tags:
+                        </div>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '12.5px', fontWeight: 600, color: '#1e293b' }}>
                            <input type="checkbox" checked={linkOpenInNewTab} onChange={e => setLinkOpenInNewTab(e.target.checked)} style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#2563eb' }} />
-                           <span>Open link in a new window / tab (<code>target="_blank"</code>)</span>
+                           <span>Open link in a new window / tab (<code style={{ background: '#dbeafe', color: '#1e40af', padding: '1px 5px', borderRadius: '4px', fontWeight: 700 }}>target=&quot;_blank&quot;</code>)</span>
                         </label>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '12.5px', fontWeight: 600, color: '#334155' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '12.5px', fontWeight: 600, color: '#1e293b' }}>
                            <input type="checkbox" checked={linkIsNoFollow} onChange={e => setLinkIsNoFollow(e.target.checked)} style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#2563eb' }} />
-                           <span>Add <code>rel="nofollow"</code> (Search engine optimization for external links)</span>
+                           <span>Add <code style={{ background: '#fef3c7', color: '#92400e', padding: '1px 5px', borderRadius: '4px', fontWeight: 700 }}>rel=&quot;nofollow&quot;</code> (Search engine optimization for external links)</span>
                         </label>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '12.5px', fontWeight: 600, color: '#334155' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '12.5px', fontWeight: 600, color: '#1e293b' }}>
                            <input type="checkbox" checked={linkIsSponsored} onChange={e => setLinkIsSponsored(e.target.checked)} style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#2563eb' }} />
-                           <span>Add <code>rel="sponsored"</code> (Paid, affiliate, or sponsored link)</span>
+                           <span>Add <code style={{ background: '#f3e8ff', color: '#6b21a8', padding: '1px 5px', borderRadius: '4px', fontWeight: 700 }}>rel=&quot;sponsored&quot;</code> (Paid, affiliate, or sponsored link)</span>
                         </label>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '12.5px', fontWeight: 600, color: '#334155' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '12.5px', fontWeight: 600, color: '#1e293b' }}>
                            <input type="checkbox" checked={linkIsUgc} onChange={e => setLinkIsUgc(e.target.checked)} style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#2563eb' }} />
-                           <span>Add <code>rel="ugc"</code> (User-generated content)</span>
+                           <span>Add <code style={{ background: '#dcfce7', color: '#166534', padding: '1px 5px', borderRadius: '4px', fontWeight: 700 }}>rel=&quot;ugc&quot;</code> (User-generated content)</span>
                         </label>
                      </div>
 
-                     {/* Link Title / Tooltip */}
-                     <div style={{ marginBottom: '8px' }}>
-                        <label style={metaLabelStyle}>LINK TITLE (HOVER TOOLTIP / A11Y)</label>
-                        <input 
-                           value={linkTitle} 
-                           onChange={e => setLinkTitle(e.target.value)} 
-                           placeholder="Optional accessibility title when hovering over link" 
-                           style={{ ...metaInputStyle, background: '#f8fafc' }} 
-                        />
+                     {/* Real-Time HTML Tag Preview */}
+                     <div style={{ marginBottom: '8px', padding: '10px 14px', background: '#0f172a', borderRadius: '10px', color: '#f8fafc', fontSize: '11.5px', fontFamily: 'monospace', overflowX: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ color: '#38bdf8', fontWeight: 700, fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px', flexShrink: 0 }}>TAG:</span>
+                        <span style={{ color: '#94a3b8' }}>
+                           &lt;<span style={{ color: '#f43f5e' }}>a</span> <span style={{ color: '#e2e8f0' }}>href</span>=&quot;<span style={{ color: '#38bdf8' }}>{linkInputUrl || 'https://...'}</span>&quot;
+                           {linkOpenInNewTab ? <> <span style={{ color: '#e2e8f0' }}>target</span>=&quot;<span style={{ color: '#a78bfa' }}>_blank</span>&quot;</> : ''}
+                           {(() => {
+                              const rels: string[] = [];
+                              if (linkOpenInNewTab) rels.push('noopener', 'noreferrer');
+                              if (linkIsNoFollow) rels.push('nofollow');
+                              if (linkIsSponsored) rels.push('sponsored');
+                              if (linkIsUgc) rels.push('ugc');
+                              if (rels.length === 0) return null;
+                              return <> <span style={{ color: '#e2e8f0' }}>rel</span>=&quot;<span style={{ color: '#4ade80' }}>{Array.from(new Set(rels)).join(' ')}</span>&quot;</>;
+                           })()}
+                           &gt;<span style={{ color: '#f8fafc' }}>{linkText || 'Text'}</span>&lt;/<span style={{ color: '#f43f5e' }}>a</span>&gt;
+                        </span>
                      </div>
                   </div>
 

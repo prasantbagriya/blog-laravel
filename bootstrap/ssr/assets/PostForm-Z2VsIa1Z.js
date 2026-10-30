@@ -55,6 +55,48 @@ var FontSize = Extension.create({
 		};
 	}
 });
+var CustomLink = Link$1.extend({
+	addOptions() {
+		return {
+			...this.parent?.(),
+			openOnClick: false,
+			HTMLAttributes: {}
+		};
+	},
+	addAttributes() {
+		return {
+			href: {
+				default: null,
+				parseHTML: (element) => element.getAttribute("href")
+			},
+			target: {
+				default: null,
+				parseHTML: (element) => element.getAttribute("target")
+			},
+			rel: {
+				default: null,
+				parseHTML: (element) => element.getAttribute("rel")
+			},
+			class: {
+				default: null,
+				parseHTML: (element) => element.getAttribute("class")
+			}
+		};
+	},
+	renderHTML({ HTMLAttributes }) {
+		const { href, target, rel, class: className } = HTMLAttributes;
+		const attrs = {};
+		if (href) attrs.href = href;
+		if (target) attrs.target = target;
+		if (rel) attrs.rel = rel;
+		if (className) attrs.class = className;
+		return [
+			"a",
+			attrs,
+			0
+		];
+	}
+});
 var Video = Node.create({
 	name: "video",
 	group: "block",
@@ -1723,7 +1765,6 @@ function PostForm({ post }) {
 	const [linkModalOpen, setLinkModalOpen] = useState(false);
 	const [linkInputUrl, setLinkInputUrl] = useState("");
 	const [linkText, setLinkText] = useState("");
-	const [linkTitle, setLinkTitle] = useState("");
 	const [linkOpenInNewTab, setLinkOpenInNewTab] = useState(false);
 	const [linkIsNoFollow, setLinkIsNoFollow] = useState(false);
 	const [linkIsSponsored, setLinkIsSponsored] = useState(false);
@@ -1951,6 +1992,7 @@ function PostForm({ post }) {
 	};
 	const handleOpenLinkModal = () => {
 		if (!editor) return;
+		if (editor.isActive("link")) editor.chain().extendMarkRange("link").run();
 		const { from, to } = editor.state.selection;
 		setSavedSelection({
 			from,
@@ -1960,9 +2002,8 @@ function PostForm({ post }) {
 		const selectedText = editor.state.doc.textBetween(from, to, " ");
 		setLinkInputUrl(attrs.href || "");
 		setLinkText(selectedText || "");
-		setLinkTitle(attrs.title || "");
 		setLinkOpenInNewTab(attrs.target === "_blank");
-		const rel = attrs.rel || "";
+		const rel = (attrs.rel || "").toLowerCase();
 		setLinkIsNoFollow(rel.includes("nofollow"));
 		setLinkIsSponsored(rel.includes("sponsored"));
 		setLinkIsUgc(rel.includes("ugc"));
@@ -1979,6 +2020,9 @@ function PostForm({ post }) {
 	const handleSelectInternalPage = (path, pageTitle) => {
 		setLinkInputUrl(path);
 		setLinkOpenInNewTab(false);
+		setLinkIsNoFollow(false);
+		setLinkIsSponsored(false);
+		setLinkIsUgc(false);
 		if (!linkText.trim() && pageTitle) setLinkText(pageTitle);
 	};
 	const handleApplyLink = () => {
@@ -1999,15 +2043,24 @@ function PostForm({ post }) {
 			target: linkOpenInNewTab ? "_blank" : null,
 			rel: relParts.length > 0 ? Array.from(new Set(relParts)).join(" ") : null
 		};
-		if (linkTitle.trim()) attributes.title = linkTitle.trim();
-		else attributes.title = null;
 		if (savedSelection) try {
 			editor.commands.setTextSelection(savedSelection);
 		} catch (e) {}
 		const textToDisplay = linkText.trim() || url;
-		const isSelectionEmpty = editor.state.selection.from === editor.state.selection.to;
-		const currentSelectedText = editor.state.doc.textBetween(editor.state.selection.from, editor.state.selection.to, " ");
-		if (isSelectionEmpty) editor.chain().focus().insertContent({
+		if (editor.isActive("link")) {
+			editor.chain().focus().extendMarkRange("link").run();
+			const currentSelected = editor.state.selection;
+			const currentText = editor.state.doc.textBetween(currentSelected.from, currentSelected.to, " ");
+			if (linkText.trim() && linkText.trim() !== currentText) editor.chain().focus().insertContent({
+				type: "text",
+				text: linkText.trim(),
+				marks: [{
+					type: "link",
+					attrs: attributes
+				}]
+			}).run();
+			else editor.chain().focus().setLink(attributes).run();
+		} else if (editor.state.selection.from === editor.state.selection.to) editor.chain().focus().insertContent({
 			type: "text",
 			text: textToDisplay,
 			marks: [{
@@ -2015,15 +2068,19 @@ function PostForm({ post }) {
 				attrs: attributes
 			}]
 		}).run();
-		else if (linkText.trim() && linkText.trim() !== currentSelectedText) editor.chain().focus().insertContent({
-			type: "text",
-			text: linkText.trim(),
-			marks: [{
-				type: "link",
-				attrs: attributes
-			}]
-		}).run();
-		else editor.chain().focus().extendMarkRange("link").setLink(attributes).run();
+		else {
+			const currentSelected = editor.state.selection;
+			const currentText = editor.state.doc.textBetween(currentSelected.from, currentSelected.to, " ");
+			if (linkText.trim() && linkText.trim() !== currentText) editor.chain().focus().insertContent({
+				type: "text",
+				text: linkText.trim(),
+				marks: [{
+					type: "link",
+					attrs: attributes
+				}]
+			}).run();
+			else editor.chain().focus().setLink(attributes).run();
+		}
 		setLinkModalOpen(false);
 	};
 	const handleOpenImageModal = () => {
@@ -2159,14 +2216,17 @@ function PostForm({ post }) {
 	}, []);
 	const editor = useEditor({
 		extensions: [
-			StarterKit.configure({ heading: { levels: [
-				1,
-				2,
-				3,
-				4
-			] } }),
+			StarterKit.configure({
+				link: false,
+				heading: { levels: [
+					1,
+					2,
+					3,
+					4
+				] }
+			}),
 			Image,
-			Link$1.configure({ openOnClick: false }),
+			CustomLink.configure({ openOnClick: false }),
 			Underline,
 			Table.configure({ resizable: true }),
 			TableRow,
@@ -4320,13 +4380,15 @@ function PostForm({ post }) {
 										const { selection } = editor.state;
 										const selectedNodeType = selection.node?.type?.name;
 										if (editor.isActive("link")) {
-											const displayHref = editor.getAttributes("link").href || "";
+											const linkAttrs = editor.getAttributes("link");
+											const displayHref = linkAttrs.href || "";
 											return /* @__PURE__ */ jsxs("div", {
 												style: {
 													display: "flex",
 													gap: "6px",
 													alignItems: "center",
-													padding: "2px 4px"
+													padding: "2px 4px",
+													flexWrap: "wrap"
 												},
 												children: [
 													/* @__PURE__ */ jsxs("a", {
@@ -4357,6 +4419,54 @@ function PostForm({ post }) {
 																children: "↗"
 															})
 														]
+													}),
+													linkAttrs.target === "_blank" && /* @__PURE__ */ jsx("span", {
+														style: {
+															fontSize: "9.5px",
+															padding: "1px 5px",
+															borderRadius: "4px",
+															background: "#eff6ff",
+															color: "#1d4ed8",
+															fontWeight: 700,
+															border: "1px solid #bfdbfe"
+														},
+														children: "_blank"
+													}),
+													(linkAttrs.rel || "").includes("nofollow") && /* @__PURE__ */ jsx("span", {
+														style: {
+															fontSize: "9.5px",
+															padding: "1px 5px",
+															borderRadius: "4px",
+															background: "#fef3c7",
+															color: "#b45309",
+															fontWeight: 700,
+															border: "1px solid #fde68a"
+														},
+														children: "nofollow"
+													}),
+													(linkAttrs.rel || "").includes("sponsored") && /* @__PURE__ */ jsx("span", {
+														style: {
+															fontSize: "9.5px",
+															padding: "1px 5px",
+															borderRadius: "4px",
+															background: "#f3e8ff",
+															color: "#7e22ce",
+															fontWeight: 700,
+															border: "1px solid #e9d5ff"
+														},
+														children: "sponsored"
+													}),
+													(linkAttrs.rel || "").includes("ugc") && /* @__PURE__ */ jsx("span", {
+														style: {
+															fontSize: "9.5px",
+															padding: "1px 5px",
+															borderRadius: "4px",
+															background: "#ecfdf5",
+															color: "#047857",
+															fontWeight: 700,
+															border: "1px solid #a7f3d0"
+														},
+														children: "ugc"
 													}),
 													/* @__PURE__ */ jsx("div", { style: {
 														width: "1px",
@@ -11163,11 +11273,22 @@ function PostForm({ post }) {
 										gap: "10px",
 										marginBottom: "18px",
 										padding: "14px",
-										background: "#ffffff",
+										background: "#f8fafc",
 										borderRadius: "12px",
 										border: "1px solid #e2e8f0"
 									},
 									children: [
+										/* @__PURE__ */ jsx("div", {
+											style: {
+												fontSize: "11px",
+												fontWeight: 800,
+												color: "#475569",
+												textTransform: "uppercase",
+												letterSpacing: "0.5px",
+												marginBottom: "2px"
+											},
+											children: "Link Attributes & SEO Rel Tags:"
+										}),
 										/* @__PURE__ */ jsxs("label", {
 											style: {
 												display: "flex",
@@ -11176,7 +11297,7 @@ function PostForm({ post }) {
 												cursor: "pointer",
 												fontSize: "12.5px",
 												fontWeight: 600,
-												color: "#334155"
+												color: "#1e293b"
 											},
 											children: [/* @__PURE__ */ jsx("input", {
 												type: "checkbox",
@@ -11190,7 +11311,16 @@ function PostForm({ post }) {
 												}
 											}), /* @__PURE__ */ jsxs("span", { children: [
 												"Open link in a new window / tab (",
-												/* @__PURE__ */ jsx("code", { children: "target=\"_blank\"" }),
+												/* @__PURE__ */ jsx("code", {
+													style: {
+														background: "#dbeafe",
+														color: "#1e40af",
+														padding: "1px 5px",
+														borderRadius: "4px",
+														fontWeight: 700
+													},
+													children: "target=\"_blank\""
+												}),
 												")"
 											] })]
 										}),
@@ -11202,7 +11332,7 @@ function PostForm({ post }) {
 												cursor: "pointer",
 												fontSize: "12.5px",
 												fontWeight: 600,
-												color: "#334155"
+												color: "#1e293b"
 											},
 											children: [/* @__PURE__ */ jsx("input", {
 												type: "checkbox",
@@ -11216,7 +11346,16 @@ function PostForm({ post }) {
 												}
 											}), /* @__PURE__ */ jsxs("span", { children: [
 												"Add ",
-												/* @__PURE__ */ jsx("code", { children: "rel=\"nofollow\"" }),
+												/* @__PURE__ */ jsx("code", {
+													style: {
+														background: "#fef3c7",
+														color: "#92400e",
+														padding: "1px 5px",
+														borderRadius: "4px",
+														fontWeight: 700
+													},
+													children: "rel=\"nofollow\""
+												}),
 												" (Search engine optimization for external links)"
 											] })]
 										}),
@@ -11228,7 +11367,7 @@ function PostForm({ post }) {
 												cursor: "pointer",
 												fontSize: "12.5px",
 												fontWeight: 600,
-												color: "#334155"
+												color: "#1e293b"
 											},
 											children: [/* @__PURE__ */ jsx("input", {
 												type: "checkbox",
@@ -11242,7 +11381,16 @@ function PostForm({ post }) {
 												}
 											}), /* @__PURE__ */ jsxs("span", { children: [
 												"Add ",
-												/* @__PURE__ */ jsx("code", { children: "rel=\"sponsored\"" }),
+												/* @__PURE__ */ jsx("code", {
+													style: {
+														background: "#f3e8ff",
+														color: "#6b21a8",
+														padding: "1px 5px",
+														borderRadius: "4px",
+														fontWeight: 700
+													},
+													children: "rel=\"sponsored\""
+												}),
 												" (Paid, affiliate, or sponsored link)"
 											] })]
 										}),
@@ -11254,7 +11402,7 @@ function PostForm({ post }) {
 												cursor: "pointer",
 												fontSize: "12.5px",
 												fontWeight: 600,
-												color: "#334155"
+												color: "#1e293b"
 											},
 											children: [/* @__PURE__ */ jsx("input", {
 												type: "checkbox",
@@ -11268,25 +11416,110 @@ function PostForm({ post }) {
 												}
 											}), /* @__PURE__ */ jsxs("span", { children: [
 												"Add ",
-												/* @__PURE__ */ jsx("code", { children: "rel=\"ugc\"" }),
+												/* @__PURE__ */ jsx("code", {
+													style: {
+														background: "#dcfce7",
+														color: "#166534",
+														padding: "1px 5px",
+														borderRadius: "4px",
+														fontWeight: 700
+													},
+													children: "rel=\"ugc\""
+												}),
 												" (User-generated content)"
 											] })]
 										})
 									]
 								}),
 								/* @__PURE__ */ jsxs("div", {
-									style: { marginBottom: "8px" },
-									children: [/* @__PURE__ */ jsx("label", {
-										style: metaLabelStyle,
-										children: "LINK TITLE (HOVER TOOLTIP / A11Y)"
-									}), /* @__PURE__ */ jsx("input", {
-										value: linkTitle,
-										onChange: (e) => setLinkTitle(e.target.value),
-										placeholder: "Optional accessibility title when hovering over link",
+									style: {
+										marginBottom: "8px",
+										padding: "10px 14px",
+										background: "#0f172a",
+										borderRadius: "10px",
+										color: "#f8fafc",
+										fontSize: "11.5px",
+										fontFamily: "monospace",
+										overflowX: "auto",
+										display: "flex",
+										alignItems: "center",
+										gap: "8px"
+									},
+									children: [/* @__PURE__ */ jsx("span", {
 										style: {
-											...metaInputStyle,
-											background: "#f8fafc"
-										}
+											color: "#38bdf8",
+											fontWeight: 700,
+											fontSize: "10px",
+											textTransform: "uppercase",
+											letterSpacing: "0.5px",
+											flexShrink: 0
+										},
+										children: "TAG:"
+									}), /* @__PURE__ */ jsxs("span", {
+										style: { color: "#94a3b8" },
+										children: [
+											"<",
+											/* @__PURE__ */ jsx("span", {
+												style: { color: "#f43f5e" },
+												children: "a"
+											}),
+											" ",
+											/* @__PURE__ */ jsx("span", {
+												style: { color: "#e2e8f0" },
+												children: "href"
+											}),
+											"=\"",
+											/* @__PURE__ */ jsx("span", {
+												style: { color: "#38bdf8" },
+												children: linkInputUrl || "https://..."
+											}),
+											"\"",
+											linkOpenInNewTab ? /* @__PURE__ */ jsxs(Fragment, { children: [
+												" ",
+												/* @__PURE__ */ jsx("span", {
+													style: { color: "#e2e8f0" },
+													children: "target"
+												}),
+												"=\"",
+												/* @__PURE__ */ jsx("span", {
+													style: { color: "#a78bfa" },
+													children: "_blank"
+												}),
+												"\""
+											] }) : "",
+											(() => {
+												const rels = [];
+												if (linkOpenInNewTab) rels.push("noopener", "noreferrer");
+												if (linkIsNoFollow) rels.push("nofollow");
+												if (linkIsSponsored) rels.push("sponsored");
+												if (linkIsUgc) rels.push("ugc");
+												if (rels.length === 0) return null;
+												return /* @__PURE__ */ jsxs(Fragment, { children: [
+													" ",
+													/* @__PURE__ */ jsx("span", {
+														style: { color: "#e2e8f0" },
+														children: "rel"
+													}),
+													"=\"",
+													/* @__PURE__ */ jsx("span", {
+														style: { color: "#4ade80" },
+														children: Array.from(new Set(rels)).join(" ")
+													}),
+													"\""
+												] });
+											})(),
+											">",
+											/* @__PURE__ */ jsx("span", {
+												style: { color: "#f8fafc" },
+												children: linkText || "Text"
+											}),
+											"</",
+											/* @__PURE__ */ jsx("span", {
+												style: { color: "#f43f5e" },
+												children: "a"
+											}),
+											">"
+										]
 									})]
 								})
 							]
