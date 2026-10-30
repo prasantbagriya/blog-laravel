@@ -4380,15 +4380,13 @@ function PostForm({ post }) {
 										const { selection } = editor.state;
 										const selectedNodeType = selection.node?.type?.name;
 										if (editor.isActive("link")) {
-											const linkAttrs = editor.getAttributes("link");
-											const displayHref = linkAttrs.href || "";
+											const displayHref = editor.getAttributes("link").href || "";
 											return /* @__PURE__ */ jsxs("div", {
 												style: {
 													display: "flex",
 													gap: "6px",
 													alignItems: "center",
-													padding: "2px 4px",
-													flexWrap: "wrap"
+													padding: "2px 4px"
 												},
 												children: [
 													/* @__PURE__ */ jsxs("a", {
@@ -4419,54 +4417,6 @@ function PostForm({ post }) {
 																children: "↗"
 															})
 														]
-													}),
-													linkAttrs.target === "_blank" && /* @__PURE__ */ jsx("span", {
-														style: {
-															fontSize: "9.5px",
-															padding: "1px 5px",
-															borderRadius: "4px",
-															background: "#eff6ff",
-															color: "#1d4ed8",
-															fontWeight: 700,
-															border: "1px solid #bfdbfe"
-														},
-														children: "_blank"
-													}),
-													(linkAttrs.rel || "").includes("nofollow") && /* @__PURE__ */ jsx("span", {
-														style: {
-															fontSize: "9.5px",
-															padding: "1px 5px",
-															borderRadius: "4px",
-															background: "#fef3c7",
-															color: "#b45309",
-															fontWeight: 700,
-															border: "1px solid #fde68a"
-														},
-														children: "nofollow"
-													}),
-													(linkAttrs.rel || "").includes("sponsored") && /* @__PURE__ */ jsx("span", {
-														style: {
-															fontSize: "9.5px",
-															padding: "1px 5px",
-															borderRadius: "4px",
-															background: "#f3e8ff",
-															color: "#7e22ce",
-															fontWeight: 700,
-															border: "1px solid #e9d5ff"
-														},
-														children: "sponsored"
-													}),
-													(linkAttrs.rel || "").includes("ugc") && /* @__PURE__ */ jsx("span", {
-														style: {
-															fontSize: "9.5px",
-															padding: "1px 5px",
-															borderRadius: "4px",
-															background: "#ecfdf5",
-															color: "#047857",
-															fontWeight: 700,
-															border: "1px solid #a7f3d0"
-														},
-														children: "ugc"
 													}),
 													/* @__PURE__ */ jsx("div", { style: {
 														width: "1px",
@@ -11025,8 +10975,8 @@ function PostForm({ post }) {
 				children: /* @__PURE__ */ jsxs("div", {
 					style: {
 						...modalContentStyle,
-						maxWidth: "540px",
-						borderRadius: "24px"
+						maxWidth: "460px",
+						borderRadius: "16px"
 					},
 					children: [
 						/* @__PURE__ */ jsxs("div", {
@@ -11105,9 +11055,9 @@ function PostForm({ post }) {
 						}),
 						/* @__PURE__ */ jsxs("div", {
 							style: {
-								padding: "24px",
+								padding: "16px 20px",
 								overflowY: "auto",
-								maxHeight: "calc(85vh - 120px)"
+								maxHeight: "calc(80vh - 100px)"
 							},
 							children: [
 								/* @__PURE__ */ jsxs("div", {
@@ -11270,25 +11220,14 @@ function PostForm({ post }) {
 									style: {
 										display: "flex",
 										flexDirection: "column",
-										gap: "10px",
-										marginBottom: "18px",
-										padding: "14px",
+										gap: "8px",
+										marginBottom: "16px",
+										padding: "12px 14px",
 										background: "#f8fafc",
-										borderRadius: "12px",
+										borderRadius: "10px",
 										border: "1px solid #e2e8f0"
 									},
 									children: [
-										/* @__PURE__ */ jsx("div", {
-											style: {
-												fontSize: "11px",
-												fontWeight: 800,
-												color: "#475569",
-												textTransform: "uppercase",
-												letterSpacing: "0.5px",
-												marginBottom: "2px"
-											},
-											children: "Link Attributes & SEO Rel Tags:"
-										}),
 										/* @__PURE__ */ jsxs("label", {
 											style: {
 												display: "flex",
@@ -11297,7 +11236,7 @@ function PostForm({ post }) {
 												cursor: "pointer",
 												fontSize: "12.5px",
 												fontWeight: 600,
-												color: "#1e293b"
+												color: "#334155"
 											},
 											children: [/* @__PURE__ */ jsx("input", {
 												type: "checkbox",
@@ -11310,17 +11249,8 @@ function PostForm({ post }) {
 													accentColor: "#2563eb"
 												}
 											}), /* @__PURE__ */ jsxs("span", { children: [
-												"Open link in a new window / tab (",
-												/* @__PURE__ */ jsx("code", {
-													style: {
-														background: "#dbeafe",
-														color: "#1e40af",
-														padding: "1px 5px",
-														borderRadius: "4px",
-														fontWeight: 700
-													},
-													children: "target=\"_blank\""
-												}),
+												"Open in new tab (",
+												/* @__PURE__ */ jsx("code", { children: "target=\"_blank\"" }),
 												")"
 											] })]
 										}),
@@ -11332,7 +11262,7 @@ function PostForm({ post }) {
 												cursor: "pointer",
 												fontSize: "12.5px",
 												fontWeight: 600,
-												color: "#1e293b"
+												color: "#334155"
 											},
 											children: [/* @__PURE__ */ jsx("input", {
 												type: "checkbox",
@@ -11344,20 +11274,7 @@ function PostForm({ post }) {
 													cursor: "pointer",
 													accentColor: "#2563eb"
 												}
-											}), /* @__PURE__ */ jsxs("span", { children: [
-												"Add ",
-												/* @__PURE__ */ jsx("code", {
-													style: {
-														background: "#fef3c7",
-														color: "#92400e",
-														padding: "1px 5px",
-														borderRadius: "4px",
-														fontWeight: 700
-													},
-													children: "rel=\"nofollow\""
-												}),
-												" (Search engine optimization for external links)"
-											] })]
+											}), /* @__PURE__ */ jsxs("span", { children: ["Add ", /* @__PURE__ */ jsx("code", { children: "rel=\"nofollow\"" })] })]
 										}),
 										/* @__PURE__ */ jsxs("label", {
 											style: {
@@ -11367,7 +11284,7 @@ function PostForm({ post }) {
 												cursor: "pointer",
 												fontSize: "12.5px",
 												fontWeight: 600,
-												color: "#1e293b"
+												color: "#334155"
 											},
 											children: [/* @__PURE__ */ jsx("input", {
 												type: "checkbox",
@@ -11379,20 +11296,7 @@ function PostForm({ post }) {
 													cursor: "pointer",
 													accentColor: "#2563eb"
 												}
-											}), /* @__PURE__ */ jsxs("span", { children: [
-												"Add ",
-												/* @__PURE__ */ jsx("code", {
-													style: {
-														background: "#f3e8ff",
-														color: "#6b21a8",
-														padding: "1px 5px",
-														borderRadius: "4px",
-														fontWeight: 700
-													},
-													children: "rel=\"sponsored\""
-												}),
-												" (Paid, affiliate, or sponsored link)"
-											] })]
+											}), /* @__PURE__ */ jsxs("span", { children: ["Add ", /* @__PURE__ */ jsx("code", { children: "rel=\"sponsored\"" })] })]
 										}),
 										/* @__PURE__ */ jsxs("label", {
 											style: {
@@ -11402,7 +11306,7 @@ function PostForm({ post }) {
 												cursor: "pointer",
 												fontSize: "12.5px",
 												fontWeight: 600,
-												color: "#1e293b"
+												color: "#334155"
 											},
 											children: [/* @__PURE__ */ jsx("input", {
 												type: "checkbox",
@@ -11414,113 +11318,9 @@ function PostForm({ post }) {
 													cursor: "pointer",
 													accentColor: "#2563eb"
 												}
-											}), /* @__PURE__ */ jsxs("span", { children: [
-												"Add ",
-												/* @__PURE__ */ jsx("code", {
-													style: {
-														background: "#dcfce7",
-														color: "#166534",
-														padding: "1px 5px",
-														borderRadius: "4px",
-														fontWeight: 700
-													},
-													children: "rel=\"ugc\""
-												}),
-												" (User-generated content)"
-											] })]
+											}), /* @__PURE__ */ jsxs("span", { children: ["Add ", /* @__PURE__ */ jsx("code", { children: "rel=\"ugc\"" })] })]
 										})
 									]
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									style: {
-										marginBottom: "8px",
-										padding: "10px 14px",
-										background: "#0f172a",
-										borderRadius: "10px",
-										color: "#f8fafc",
-										fontSize: "11.5px",
-										fontFamily: "monospace",
-										overflowX: "auto",
-										display: "flex",
-										alignItems: "center",
-										gap: "8px"
-									},
-									children: [/* @__PURE__ */ jsx("span", {
-										style: {
-											color: "#38bdf8",
-											fontWeight: 700,
-											fontSize: "10px",
-											textTransform: "uppercase",
-											letterSpacing: "0.5px",
-											flexShrink: 0
-										},
-										children: "TAG:"
-									}), /* @__PURE__ */ jsxs("span", {
-										style: { color: "#94a3b8" },
-										children: [
-											"<",
-											/* @__PURE__ */ jsx("span", {
-												style: { color: "#f43f5e" },
-												children: "a"
-											}),
-											" ",
-											/* @__PURE__ */ jsx("span", {
-												style: { color: "#e2e8f0" },
-												children: "href"
-											}),
-											"=\"",
-											/* @__PURE__ */ jsx("span", {
-												style: { color: "#38bdf8" },
-												children: linkInputUrl || "https://..."
-											}),
-											"\"",
-											linkOpenInNewTab ? /* @__PURE__ */ jsxs(Fragment, { children: [
-												" ",
-												/* @__PURE__ */ jsx("span", {
-													style: { color: "#e2e8f0" },
-													children: "target"
-												}),
-												"=\"",
-												/* @__PURE__ */ jsx("span", {
-													style: { color: "#a78bfa" },
-													children: "_blank"
-												}),
-												"\""
-											] }) : "",
-											(() => {
-												const rels = [];
-												if (linkOpenInNewTab) rels.push("noopener", "noreferrer");
-												if (linkIsNoFollow) rels.push("nofollow");
-												if (linkIsSponsored) rels.push("sponsored");
-												if (linkIsUgc) rels.push("ugc");
-												if (rels.length === 0) return null;
-												return /* @__PURE__ */ jsxs(Fragment, { children: [
-													" ",
-													/* @__PURE__ */ jsx("span", {
-														style: { color: "#e2e8f0" },
-														children: "rel"
-													}),
-													"=\"",
-													/* @__PURE__ */ jsx("span", {
-														style: { color: "#4ade80" },
-														children: Array.from(new Set(rels)).join(" ")
-													}),
-													"\""
-												] });
-											})(),
-											">",
-											/* @__PURE__ */ jsx("span", {
-												style: { color: "#f8fafc" },
-												children: linkText || "Text"
-											}),
-											"</",
-											/* @__PURE__ */ jsx("span", {
-												style: { color: "#f43f5e" },
-												children: "a"
-											}),
-											">"
-										]
-									})]
 								})
 							]
 						}),

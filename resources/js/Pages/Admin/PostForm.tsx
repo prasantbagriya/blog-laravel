@@ -2897,7 +2897,7 @@ export default function PostForm({ post }: PostFormProps) {
                                   const linkAttrs = editor.getAttributes('link');
                                   const displayHref = linkAttrs.href || '';
                                   return (
-                                     <div style={{ display: 'flex', gap: '6px', alignItems: 'center', padding: '2px 4px', flexWrap: 'wrap' }}>
+                                     <div style={{ display: 'flex', gap: '6px', alignItems: 'center', padding: '2px 4px' }}>
                                         <a
                                            href={displayHref}
                                            target="_blank"
@@ -2920,26 +2920,6 @@ export default function PostForm({ post }: PostFormProps) {
                                            <span>{displayHref.replace(/^https?:\/\//, '')}</span>
                                            <span style={{ textDecoration: 'none', fontSize: '10px' }}>↗</span>
                                         </a>
-                                        {linkAttrs.target === '_blank' && (
-                                           <span style={{ fontSize: '9.5px', padding: '1px 5px', borderRadius: '4px', background: '#eff6ff', color: '#1d4ed8', fontWeight: 700, border: '1px solid #bfdbfe' }}>
-                                              _blank
-                                           </span>
-                                        )}
-                                        {(linkAttrs.rel || '').includes('nofollow') && (
-                                           <span style={{ fontSize: '9.5px', padding: '1px 5px', borderRadius: '4px', background: '#fef3c7', color: '#b45309', fontWeight: 700, border: '1px solid #fde68a' }}>
-                                              nofollow
-                                           </span>
-                                        )}
-                                        {(linkAttrs.rel || '').includes('sponsored') && (
-                                           <span style={{ fontSize: '9.5px', padding: '1px 5px', borderRadius: '4px', background: '#f3e8ff', color: '#7e22ce', fontWeight: 700, border: '1px solid #e9d5ff' }}>
-                                              sponsored
-                                           </span>
-                                        )}
-                                        {(linkAttrs.rel || '').includes('ugc') && (
-                                           <span style={{ fontSize: '9.5px', padding: '1px 5px', borderRadius: '4px', background: '#ecfdf5', color: '#047857', fontWeight: 700, border: '1px solid #a7f3d0' }}>
-                                              ugc
-                                           </span>
-                                        )}
                                         <div style={{ width: '1px', height: '16px', background: '#e2e8f0' }} />
                                         <button
                                            type="button"
@@ -5220,7 +5200,7 @@ export default function PostForm({ post }: PostFormProps) {
          {/* Comprehensive Link Manager Modal */}
          {linkModalOpen && (
             <div style={modalBackdropStyle}>
-               <div style={{ ...modalContentStyle, maxWidth: '540px', borderRadius: '24px' }}>
+               <div style={{ ...modalContentStyle, maxWidth: '460px', borderRadius: '16px' }}>
                   <div style={modalHeaderStyle}>
                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <div style={{ width: '36px', height: '36px', borderRadius: '12px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563eb' }}>
@@ -5237,7 +5217,7 @@ export default function PostForm({ post }: PostFormProps) {
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                      </button>
                   </div>
-                  <div style={{ padding: '24px', overflowY: 'auto', maxHeight: 'calc(85vh - 120px)' }}>
+                  <div style={{ padding: '16px 20px', overflowY: 'auto', maxHeight: 'calc(80vh - 100px)' }}>
                      {/* Display Text (Anchor Text) */}
                      <div style={{ marginBottom: '16px' }}>
                         <label style={metaLabelStyle}>DISPLAY TEXT (ANCHOR TEXT)</label>
@@ -5333,47 +5313,44 @@ export default function PostForm({ post }: PostFormProps) {
                            ))}
                         </div>
                      </div>
-
-                     {/* Link Attributes / SEO Targets */}
-                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '18px', padding: '14px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                        <div style={{ fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '2px' }}>
-                           Link Attributes & SEO Rel Tags:
-                        </div>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '12.5px', fontWeight: 600, color: '#1e293b' }}>
-                           <input type="checkbox" checked={linkOpenInNewTab} onChange={e => setLinkOpenInNewTab(e.target.checked)} style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#2563eb' }} />
-                           <span>Open link in a new window / tab (<code style={{ background: '#dbeafe', color: '#1e40af', padding: '1px 5px', borderRadius: '4px', fontWeight: 700 }}>target=&quot;_blank&quot;</code>)</span>
+                     {/* Link Attributes / SEO Targets (Tick marks indicate active status) */}
+                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px', padding: '12px 14px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '12.5px', fontWeight: 600, color: '#334155' }}>
+                           <input 
+                              type="checkbox" 
+                              checked={linkOpenInNewTab} 
+                              onChange={e => setLinkOpenInNewTab(e.target.checked)} 
+                              style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#2563eb' }} 
+                           />
+                           <span>Open in new tab (<code>target="_blank"</code>)</span>
                         </label>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '12.5px', fontWeight: 600, color: '#1e293b' }}>
-                           <input type="checkbox" checked={linkIsNoFollow} onChange={e => setLinkIsNoFollow(e.target.checked)} style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#2563eb' }} />
-                           <span>Add <code style={{ background: '#fef3c7', color: '#92400e', padding: '1px 5px', borderRadius: '4px', fontWeight: 700 }}>rel=&quot;nofollow&quot;</code> (Search engine optimization for external links)</span>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '12.5px', fontWeight: 600, color: '#334155' }}>
+                           <input 
+                              type="checkbox" 
+                              checked={linkIsNoFollow} 
+                              onChange={e => setLinkIsNoFollow(e.target.checked)} 
+                              style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#2563eb' }} 
+                           />
+                           <span>Add <code>rel="nofollow"</code></span>
                         </label>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '12.5px', fontWeight: 600, color: '#1e293b' }}>
-                           <input type="checkbox" checked={linkIsSponsored} onChange={e => setLinkIsSponsored(e.target.checked)} style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#2563eb' }} />
-                           <span>Add <code style={{ background: '#f3e8ff', color: '#6b21a8', padding: '1px 5px', borderRadius: '4px', fontWeight: 700 }}>rel=&quot;sponsored&quot;</code> (Paid, affiliate, or sponsored link)</span>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '12.5px', fontWeight: 600, color: '#334155' }}>
+                           <input 
+                              type="checkbox" 
+                              checked={linkIsSponsored} 
+                              onChange={e => setLinkIsSponsored(e.target.checked)} 
+                              style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#2563eb' }} 
+                           />
+                           <span>Add <code>rel="sponsored"</code></span>
                         </label>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '12.5px', fontWeight: 600, color: '#1e293b' }}>
-                           <input type="checkbox" checked={linkIsUgc} onChange={e => setLinkIsUgc(e.target.checked)} style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#2563eb' }} />
-                           <span>Add <code style={{ background: '#dcfce7', color: '#166534', padding: '1px 5px', borderRadius: '4px', fontWeight: 700 }}>rel=&quot;ugc&quot;</code> (User-generated content)</span>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '12.5px', fontWeight: 600, color: '#334155' }}>
+                           <input 
+                              type="checkbox" 
+                              checked={linkIsUgc} 
+                              onChange={e => setLinkIsUgc(e.target.checked)} 
+                              style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#2563eb' }} 
+                           />
+                           <span>Add <code>rel="ugc"</code></span>
                         </label>
-                     </div>
-
-                     {/* Real-Time HTML Tag Preview */}
-                     <div style={{ marginBottom: '8px', padding: '10px 14px', background: '#0f172a', borderRadius: '10px', color: '#f8fafc', fontSize: '11.5px', fontFamily: 'monospace', overflowX: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ color: '#38bdf8', fontWeight: 700, fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px', flexShrink: 0 }}>TAG:</span>
-                        <span style={{ color: '#94a3b8' }}>
-                           &lt;<span style={{ color: '#f43f5e' }}>a</span> <span style={{ color: '#e2e8f0' }}>href</span>=&quot;<span style={{ color: '#38bdf8' }}>{linkInputUrl || 'https://...'}</span>&quot;
-                           {linkOpenInNewTab ? <> <span style={{ color: '#e2e8f0' }}>target</span>=&quot;<span style={{ color: '#a78bfa' }}>_blank</span>&quot;</> : ''}
-                           {(() => {
-                              const rels: string[] = [];
-                              if (linkOpenInNewTab) rels.push('noopener', 'noreferrer');
-                              if (linkIsNoFollow) rels.push('nofollow');
-                              if (linkIsSponsored) rels.push('sponsored');
-                              if (linkIsUgc) rels.push('ugc');
-                              if (rels.length === 0) return null;
-                              return <> <span style={{ color: '#e2e8f0' }}>rel</span>=&quot;<span style={{ color: '#4ade80' }}>{Array.from(new Set(rels)).join(' ')}</span>&quot;</>;
-                           })()}
-                           &gt;<span style={{ color: '#f8fafc' }}>{linkText || 'Text'}</span>&lt;/<span style={{ color: '#f43f5e' }}>a</span>&gt;
-                        </span>
                      </div>
                   </div>
 
